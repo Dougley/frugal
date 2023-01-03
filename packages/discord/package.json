@@ -1,0 +1,61 @@
+{
+  "private": true,
+  "name": "@dougley/frugal-core",
+  "type": "module",
+  "version": "0.0.0",
+  "author": "Remco Jongschaap <hey@dougley.com>",
+  "homepage": "https://github.com/Dougley/frugal#readme",
+  "license": "MIT",
+  "main": "src/index.ts",
+  "directories": {
+    "src": "src",
+    "test": "tests"
+  },
+  "files": [
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dougley/frugal.git"
+  },
+  "scripts": {
+    "test": "jest --config ../../jestconfig.json --verbose",
+    "format": "prettier --write \"**/*.{js,ts,tsx,jsx}\"",
+    "compile": "tsc",
+    "seed:dev": "wrangler d1 migrations apply frugal --local --persist-to=.mf",
+    "seed": "wrangler d1 migrations apply frugal",
+    "bundle": "esbuild src/index.ts --sourcemap --bundle --format=esm --minify --outfile=dist/worker.js",
+    "deploy": "wrangler publish",
+    "deploy:commands": "node --no-warnings --experimental-vm-modules scripts/deploy.js",
+    "dev": "miniflare --watch --debug --wrangler-env=development"
+  },
+  "bugs": {
+    "url": "https://github.com/Dougley/frugal/issues"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^3.18.0",
+    "@databases/split-sql-query": "1.0.3",
+    "@databases/sql": "3.2.0",
+    "@miniflare/d1": "^2.11.0",
+    "@miniflare/shared": "^2.11.0",
+    "@sentry/esbuild-plugin": "^0.2.4",
+    "@sentry/types": "^7.28.1",
+    "@types/service-worker-mock": "^2.0.1",
+    "better-sqlite3": "7.6.2",
+    "discord-api-types": "^0.37.18",
+    "esbuild": "^0.16.4",
+    "miniflare": "^2.11.0",
+    "service-worker-mock": "^2.0.5",
+    "wrangler": "^2.6.2"
+  },
+  "dependencies": {
+    "@sentry/integrations": "7.23.0",
+    "@sentry/tracing": "^7.28.1",
+    "database": "workspace:^0.0.0",
+    "do-proxy": "^1.0.0",
+    "kysely": "^0.22.0",
+    "kysely-d1": "^0.0.6",
+    "slshx": "^0.3.0",
+    "toucan-js": "^3.0.0"
+  }
+}

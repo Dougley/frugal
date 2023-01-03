@@ -1,0 +1,34 @@
+{
+  "configurations": [
+    {
+      "name": "Discord - Miniflare",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ], // same script name as in package.json
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "cwd": "${workspaceFolder}/packages/discord"
+    },
+    {
+      "name": "Discord - CF Edge",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "wrangler",
+        "dev",
+        "-e",
+        "development"
+      ], // same script name as in package.json
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "cwd": "${workspaceFolder}/packages/discord"
+    }
+  ]
+}

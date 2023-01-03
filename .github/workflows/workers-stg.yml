@@ -1,0 +1,78 @@
+name: Deploy to Cloudflare Workers - Staging
+on:
+  workflow_dispatch:
+    inputs:
+      deploycommands:
+        description: 'Deploy commands?'
+        required: false
+        type: boolean
+      skipdeploy:
+        description: 'Skip deploy?'
+        required: false
+        type: boolean
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/discord/**'
+      - '.github/workflows/workers-prd.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: Staging
+    name: Deploy
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+          run_install: false
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18.3
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Deploy commands
+        if: github.event.inputs.deploycommands == 'true'
+        run: pnpm run deploy:commands
+        working-directory: ./packages/discord
+        env:
+          DISCORD_APPLICATION_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
+          DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
+          DISCORD_SECRET: ${{ secrets.DISCORD_SECRET }}
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+
+      - name: Publish
+        uses: cloudflare/wrangler-action@2.0.0
+        if: github.event.inputs.skipdeploy != 'true'
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN_WORKERS }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT_WORKERS }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_APPLICATION_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
+          DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
+          PLANETSCALE_USER: ${{ secrets.PLANETSCALE_USER }}
+          PLANETSCALE_PASSWORD: ${{ secrets.PLANETSCALE_PASSWORD }}
+          PLANETSCALE_HOST: ${{ secrets.PLANETSCALE_HOST }}
+          ENVIROMENT: staging
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          command: publish --env staging
+          workingDirectory: ./packages/discord
+      
+  sentry:
+    name: Create Sentry release
+    uses: dougley/frugal/.github/workflows/sentry.yml@main
+    if: github.event.inputs.skipdeploy != 'true'
+    secrets: inherit
+    with:
+      environment: staging
+      project: workers

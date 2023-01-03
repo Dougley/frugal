@@ -1,0 +1,33 @@
+name: Create Sentry release
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      project:
+        required: true
+        type: string
+
+jobs:
+  create-sentry-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      ## inputs.project can be either "workers" or "web", depending on which project we're deploying
+      - run: |
+          if [ "${{ inputs.project }}" = "workers" ]; then
+            echo "SENTRY_PROJECT=${{ secrets.SENTRY_PROJECT_WORKERS }}" >> $GITHUB_ENV
+          elif [ "${{ inputs.project }}" = "web" ]; then
+            echo "SENTRY_PROJECT=${{ secrets.SENTRY_PROJECT_WEB }}" >> $GITHUB_ENV
+          fi
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1.1.6
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ env.SENTRY_PROJECT }}
+        with:
+          environment: ${{ inputs.environment }}
+          finalize: true

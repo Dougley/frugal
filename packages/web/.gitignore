@@ -1,0 +1,9 @@
+/.cache
+/build
+/public/build
+/functions/\[\[path\]\].js
+/functions/\[\[path\]\].js.map
+/app/styles/app.css
+.env
+/.wrangler
+.dev.vars

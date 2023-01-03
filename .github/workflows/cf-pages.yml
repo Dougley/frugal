@@ -1,0 +1,56 @@
+on:
+  push:
+    paths:
+      - 'packages/web/**'
+      - '.github/workflows/cf-pages.yml'
+
+name: Deploy to Cloudflare Pages
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+          run_install: false
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18.3
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: npx lerna run --scope "@dougley/frugal-web" build:sm
+        
+      - name: Sentry Remix sourcemap upload
+        run: node ./node_modules/@sentry/remix/scripts/sentry-upload-sourcemaps.js && find . -type f -name '*.map' -delete
+        working-directory: ./packages/web
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT_WEB }}
+
+      # - name: Publish to Cloudflare Pages
+      #   id: cf-deploy
+      #   uses: cloudflare/pages-action@v1
+      #   with:
+      #     apiToken: ${{ secrets.CF_API_TOKEN }}
+      #     accountId: ${{ secrets.CF_ACCOUNT_ID }}
+      #     projectName: frugal
+      #     directory: ./packages/web/public
+
+  sentry:
+    name: Create Sentry release
+    uses: dougley/frugal/.github/workflows/sentry.yml@main
+    if: github.event.inputs.skipdeploy != 'true'
+    secrets: inherit
+    with:
+      environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+      project: web

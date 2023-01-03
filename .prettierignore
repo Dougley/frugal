@@ -1,0 +1,4 @@
+dist/
+*.map
+.pnpm-store/
+*.yaml
