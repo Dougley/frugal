@@ -1,5 +1,5 @@
 {
-  "name": "database",
+  "name": "planetscale-discord",
   "private": true,
   "version": "0.0.0",
   "main": "index.ts",

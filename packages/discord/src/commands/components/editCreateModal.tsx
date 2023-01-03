@@ -1,4 +1,4 @@
-import db from "database";
+import db from "planetscale-discord";
 import {
   Button,
   createElement,

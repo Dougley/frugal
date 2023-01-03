@@ -1,6 +1,6 @@
-import db from "database";
 import { APIUser } from "discord-api-types/v9";
 import { DOProxy } from "do-proxy";
+import db from "planetscale-discord";
 import { Button, createElement, Message } from "slshx";
 import { GiveawayEmbed } from "./commands/components/giveawayEmbed";
 import { createMessage, editMessage } from "./utils/discord";
