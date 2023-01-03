@@ -49,6 +49,7 @@
     "concurrently": "^7.6.0",
     "cross-env": "^7.0.3",
     "daisyui": "^2.46.0",
+    "discord-api-types": "^0.37.18",
     "eslint": "^8.31.0",
     "eslint-config-prettier": "^8.5.0",
     "lint-staged": "^13.1.0",

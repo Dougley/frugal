@@ -62,10 +62,9 @@ export class Timer extends DOProxy {
 
   async fullEntrants() {
     const entrants = Array.from(await this.storage.list({ prefix: "entry:" }));
-    return entrants.map(([entrant, user]) => {
+    return entrants.map(([, user]) => {
       return {
-        id: entrant.substring(6),
-        user: user as APIUser,
+        ...(user as APIUser),
       };
     });
   }
@@ -256,7 +255,7 @@ export class Timer extends DOProxy {
               }}
             />
             <Button
-              url={`https://frugal.pages.dev/summaries/${this.state.id.toString()}`}
+              url={`${SUMMARY_SITE}/summaries/${this.state.id.toString()}`}
             >
               Summary
             </Button>

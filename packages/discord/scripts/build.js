@@ -46,6 +46,7 @@ const planetscaleUser =
   env?.planetscale.user ?? process.env.PLANETSCALE_USER ?? "";
 const planetscalePassword =
   env?.planetscale.password ?? process.env.PLANETSCALE_PASSWORD ?? "";
+const summarySite = env?.summarySite ?? process.env.SUMMARY_SITE ?? "";
 
 // Validate environment
 function assert(name, value, warn = "") {
@@ -95,6 +96,7 @@ const define = {
   PLANETSCALE_HOST: JSON.stringify(planetscaleHost),
   PLANETSCALE_USERNAME: JSON.stringify(planetscaleUser),
   PLANETSCALE_PASSWORD: JSON.stringify(planetscalePassword),
+  SUMMARY_SITE: JSON.stringify(summarySite),
 };
 if (removeDeployCode) {
   // Force globalThis.MINIFLARE to be false, so esbuild can remove dead-code

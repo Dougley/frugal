@@ -12,4 +12,5 @@ declare global {
   const PLANETSCALE_HOST: string;
   const PLANETSCALE_USERNAME: string;
   const PLANETSCALE_PASSWORD: string;
+  const SUMMARY_SITE: string;
 }

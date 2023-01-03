@@ -5,7 +5,8 @@ import {
 } from '@remix-run/cloudflare';
 import { useLoaderData } from '@remix-run/react';
 import { formatDistance } from 'date-fns';
-import { useEffect, useState } from 'react';
+import ParticipantsTable from '~/components/ParticipantsTable';
+import WinnersTable from '~/components/WinnersTable';
 
 // Loaders provide data to components and are only ever called on the server, so
 // you can connect to a database or run any server side code you want right next
@@ -89,108 +90,17 @@ export default function Index() {
         </div>
         <h3 className="text-2xl font-semibold text-center m-5">Winners</h3>
         <div className="overflow-x-auto">
-          <table className="table table-zebra w-full">
-            <thead>
-              <tr>
-                <th></th>
-                <th></th>
-                <th>Username</th>
-                <th>ID</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.entrants
-                .filter((x: { id: string }) =>
-                  data.details.originalWinners.includes(x.id)
-                )
-                .map(
-                  (
-                    entrant: {
-                      user: {
-                        username: string;
-                        discriminator: string;
-                        avatar: string;
-                        id: string;
-                      };
-                    },
-                    index: number
-                  ) => {
-                    // eslint-disable-next-line react-hooks/rules-of-hooks
-                    const [avatar, setAvatar] = useState(
-                      `https://cdn.discordapp.com/embed/avatars/${
-                        Number(entrant.user.discriminator) % 5
-                      }.png`
-                    );
-                    // eslint-disable-next-line react-hooks/rules-of-hooks
-                    useEffect(() => {
-                      if (entrant.user.avatar) {
-                        fetch(
-                          `https://cdn.discordapp.com/avatars/${entrant.user.id}/${entrant.user.avatar}.png`,
-                          {
-                            method: 'HEAD',
-                          }
-                        ).then((x) => {
-                          if (x.ok) {
-                            setAvatar(
-                              `https://cdn.discordapp.com/avatars/${entrant.user.id}/${entrant.user.avatar}.png`
-                            );
-                          }
-                        });
-                      }
-                    }, [entrant.user.avatar, entrant.user.id]);
-                    return (
-                      <tr key={entrant.user.id}>
-                        <th>{formatter.format(index + 1)}</th>
-                        <td>
-                          <div className="avatar placeholder">
-                            <div className="w-16 rounded-full">
-                              <img alt="Avatar" src={avatar} />
-                            </div>
-                          </div>
-                        </td>
-                        <td>{`${entrant.user.username}#${entrant.user.discriminator}`}</td>
-                        <td>{entrant.user.id}</td>
-                      </tr>
-                    );
-                  }
-                )}
-            </tbody>
-          </table>
+          <WinnersTable
+            winners={data.details.originalWinners}
+            participants={data.entrants}
+          />
         </div>
         <div className="divider"></div>
         <h3 className="text-2xl font-semibold text-center mb-5">
           Participants
         </h3>
         <div className="overflow-x-auto">
-          <table className="table table-compact w-full">
-            <thead>
-              <tr>
-                <th></th>
-                <th>Userame</th>
-                <th>ID</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.entrants.map(
-                (
-                  entrant: {
-                    user: {
-                      id: string;
-                      username: string;
-                      discriminator: string;
-                    };
-                  },
-                  index: number
-                ) => (
-                  <tr key={entrant.user.id}>
-                    <th>{formatter.format(index + 1)}</th>
-                    <td>{`${entrant.user.username}#${entrant.user.discriminator}`}</td>
-                    <td>{entrant.user.id}</td>
-                  </tr>
-                )
-              )}
-            </tbody>
-          </table>
+          <ParticipantsTable participants={data.entrants} />
         </div>
       </main>
     </div>
