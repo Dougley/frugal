@@ -30,19 +30,6 @@ importers:
       ts-jest: 29.0.3_p6ekqnroyms5nhqbfxosryz7rm
       typescript: 4.9.4
 
-  packages/database:
-    specifiers:
-      '@planetscale/database': ^1.5.0
-      kysely: ^0.22.0
-      kysely-planetscale: ^1.2.1
-      prisma: ^4.8.0
-    dependencies:
-      '@planetscale/database': 1.5.0
-      kysely: 0.22.0
-      kysely-planetscale: 1.2.1_cw6emjn7mzfs4r32kisjvwh6fe
-    devDependencies:
-      prisma: 4.8.0
-
   packages/discord:
     specifiers:
       '@cloudflare/workers-types': ^3.18.0
@@ -91,6 +78,19 @@ importers:
       miniflare: 2.11.0
       service-worker-mock: 2.0.5
       wrangler: 2.6.2
+
+  packages/planetscale-discord:
+    specifiers:
+      '@planetscale/database': ^1.5.0
+      kysely: ^0.22.0
+      kysely-planetscale: ^1.2.1
+      prisma: ^4.8.0
+    dependencies:
+      '@planetscale/database': 1.5.0
+      kysely: 0.22.0
+      kysely-planetscale: 1.2.1_cw6emjn7mzfs4r32kisjvwh6fe
+    devDependencies:
+      prisma: 4.8.0
 
   packages/web:
     specifiers:
