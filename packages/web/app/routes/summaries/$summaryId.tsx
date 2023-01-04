@@ -109,7 +109,7 @@ export default function Index() {
               Download
             </button>
           </div>
-          <button className="btn btn-error btn-disabled">
+          <button className="btn gap-2 btn-error btn-disabled">
             <HiTrash className="h-6 w-6" />
             Delete
           </button>
