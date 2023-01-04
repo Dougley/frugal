@@ -30,7 +30,9 @@ function WinnersTable({
                 <tr key={entrant.id}>
                   <th>{formatter.format(index + 1)}</th>
                   <td>
-                    <Avatar user={entrant} />
+                    <a href={`discord:///users/${entrant.id}`}>
+                      <Avatar user={entrant} />
+                    </a>
                   </td>
                   <td>{`${entrant.username}#${entrant.discriminator}`}</td>
                   <td>{entrant.id}</td>

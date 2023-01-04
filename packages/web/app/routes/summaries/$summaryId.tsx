@@ -4,7 +4,10 @@ import {
   json,
 } from '@remix-run/cloudflare';
 import { useLoaderData } from '@remix-run/react';
+import add from 'date-fns/add';
+import formatDistance from 'date-fns/formatDistance';
 import type { APIUser, Snowflake } from 'discord-api-types/v9';
+import { HiOutlineSave, HiTrash } from 'react-icons/hi';
 import ParticipantsTable from '~/components/ParticipantsTable';
 import Stats from '~/components/SummaryStats';
 import WinnersTable from '~/components/WinnersTable';
@@ -95,7 +98,42 @@ export default function Index() {
         <div className="overflow-x-auto">
           <ParticipantsTable participants={data.entrants} />
         </div>
+        <div className="divider"></div>
+        <div className="flex justify-center space-x-4 btn-row">
+          <div
+            className="tooltip"
+            data-tip="Download the raw JSON file for this giveaway"
+          >
+            <button className="btn gap-2" onClick={() => downloadFile(data)}>
+              <HiOutlineSave className="h-6 w-6" />
+              Download
+            </button>
+          </div>
+          <button className="btn btn-error btn-disabled">
+            <HiTrash className="h-6 w-6" />
+            Delete
+          </button>
+        </div>
+        <div className="flex justify-center p-2.5">
+          <p className="text-sm">
+            Summary expires in{' '}
+            {formatDistance(Date.now(), add(data.details.time, { days: 90 }))}
+          </p>
+        </div>
       </main>
     </div>
   );
+}
+
+function downloadFile(data: ResultsFile) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: 'application/json',
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+
+  a.href = url;
+  a.setAttribute('download', `${data.details.message}.json`);
+  a.setAttribute('target', '_blank');
+  a.click();
 }

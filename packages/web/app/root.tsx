@@ -2,7 +2,6 @@ import * as React from 'react';
 import type { LoaderFunction } from '@remix-run/cloudflare';
 import { type LinksFunction } from '@remix-run/cloudflare';
 import {
-  Link,
   Links,
   LiveReload,
   Meta,
@@ -13,8 +12,6 @@ import {
   useLoaderData,
   useLocation,
 } from '@remix-run/react';
-import { GiCrocJaws } from 'react-icons/gi';
-import { BsTwitter } from 'react-icons/bs';
 import { MdError } from 'react-icons/md';
 
 import appStyleUrl from '~/styles/app.css';
@@ -22,6 +19,7 @@ import HeaderContent from './components/HeaderContent';
 import FooterContent from './components/FooterContent';
 
 import { withSentry } from '@sentry/remix';
+import Navbar from './components/Navbar';
 
 /**
  * The `links` export is a function that returns an array of objects that map to
@@ -81,7 +79,7 @@ function Document({
   title?: string;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dark">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -115,36 +113,9 @@ function Layout({ children }: React.PropsWithChildren<{}>) {
         <HeaderContent />
       </header>
       <div className="remix-app__main">
-        <div className="navbar bg-neutral text-neutral-content">
-          <a className="btn btn-ghost normal-case text-xl" href="/">
-            GiveawayBot
-          </a>
-        </div>
+        <Navbar />
         <div className="container mx-auto remix-app__main-content">
           {children}
-        </div>
-      </div>
-      <div className="footer p-10 bg-neutral text-neutral-content">
-        <div>
-          <GiCrocJaws size={50} />
-          <p>&copy; Dougley - {new Date().getFullYear()}</p>
-          <p className="text-xs text-slate-700">
-            <Link
-              to="//github.com/Dougley/frugal/tree/main/packages/web"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {process.env.NODE_ENV}
-            </Link>
-          </p>
-        </div>
-        <div>
-          <span className="footer-title">Social</span>
-          <div className="grid grid-flow-col gap-4">
-            <Link to="//twitter.com/dougley" target="_blank" rel="noreferrer">
-              <BsTwitter size={24} />
-            </Link>
-          </div>
         </div>
       </div>
       <footer className="remix-app__footer">
