@@ -52,5 +52,5 @@ jobs:
     if: github.event.inputs.skipdeploy != 'true'
     secrets: inherit
     with:
-      environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+      environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}
       project: web
