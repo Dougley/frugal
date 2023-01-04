@@ -4,9 +4,23 @@ import {
   json,
 } from '@remix-run/cloudflare';
 import { useLoaderData } from '@remix-run/react';
-import { formatDistance } from 'date-fns';
+import type { APIUser, Snowflake } from 'discord-api-types/v9';
 import ParticipantsTable from '~/components/ParticipantsTable';
+import Stats from '~/components/SummaryStats';
 import WinnersTable from '~/components/WinnersTable';
+
+type ResultsFile = {
+  details: {
+    channel: Snowflake;
+    message: Snowflake;
+    prize: string;
+    winners: `${number}`;
+    time: number;
+    duration: number;
+    originalWinners: Snowflake[];
+  };
+  entrants: APIUser[];
+};
 
 // Loaders provide data to components and are only ever called on the server, so
 // you can connect to a database or run any server side code you want right next
@@ -28,7 +42,9 @@ export let loader: LoaderFunction = async ({ params, context, request }) => {
     throw json({ ok: false, error: 'not found' }, { status: 404 });
   }
 
-  const data = await (await bucket.get(`timer:${id}.json`))!.json();
+  const data = (await (await bucket.get(
+    `timer:${id}.json`
+  ))!.json()) as ResultsFile;
   console.log('cache miss');
 
   // https://remix.run/api/remix#json
@@ -51,8 +67,6 @@ export let meta: MetaFunction = () => {
   };
 };
 
-const formatter = new Intl.NumberFormat('en-US');
-
 // https://remix.run/guides/routing#index-routes
 export default function Index() {
   let data = useLoaderData();
@@ -65,28 +79,7 @@ export default function Index() {
         </h1>
         <div className="text text-center m-5">Prize: {data.details.prize}</div>
         <div className="flex justify-center">
-          <div className="stats stats-vertical lg:stats-horizontal shadow justify-center">
-            <div className="stat">
-              <div className="stat-title">Participants</div>
-              <div className="stat-value">
-                {formatter.format(data.entrants.length)}
-              </div>
-            </div>
-
-            <div className="stat">
-              <div className="stat-title">Winners</div>
-              <div className="stat-value">
-                {formatter.format(data.details.winners)}
-              </div>
-            </div>
-
-            <div className="stat">
-              <div className="stat-title">Ended</div>
-              <div className="stat-value">
-                {formatDistance(new Date(data.details.time), new Date())} ago
-              </div>
-            </div>
-          </div>
+          <Stats details={data.details} entrants={data.entrants} />
         </div>
         <h3 className="text-2xl font-semibold text-center m-5">Winners</h3>
         <div className="overflow-x-auto">

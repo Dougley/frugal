@@ -11,7 +11,6 @@ function WinnersTable({
   participants,
 }: winnnersTableProps): ReactElement {
   const formatter = new Intl.NumberFormat('en-US');
-  console.log(winners, participants);
   return (
     <>
       {(winners.length > 0 && (
@@ -27,49 +26,53 @@ function WinnersTable({
           <tbody>
             {participants
               .filter((x) => winners.includes(x.id))
-              .map((entrant, index) => {
-                // eslint-disable-next-line react-hooks/rules-of-hooks
-                const [avatar, setAvatar] = useState(
-                  `https://cdn.discordapp.com/embed/avatars/${
-                    Number(entrant.discriminator) % 5
-                  }.png`
-                );
-                // eslint-disable-next-line react-hooks/rules-of-hooks
-                useEffect(() => {
-                  if (entrant.avatar) {
-                    fetch(
-                      `https://cdn.discordapp.com/avatars/${entrant.id}/${entrant.avatar}.png`,
-                      {
-                        method: 'HEAD',
-                      }
-                    ).then((x) => {
-                      if (x.ok) {
-                        setAvatar(
-                          `https://cdn.discordapp.com/avatars/${entrant.id}/${entrant.avatar}.png`
-                        );
-                      }
-                    });
-                  }
-                }, [entrant.avatar, entrant.id]);
-                return (
-                  <tr key={entrant.id}>
-                    <th>{formatter.format(index + 1)}</th>
-                    <td>
-                      <div className="avatar placeholder">
-                        <div className="w-16 rounded-full">
-                          <img alt="Avatar" src={avatar} />
-                        </div>
-                      </div>
-                    </td>
-                    <td>{`${entrant.username}#${entrant.discriminator}`}</td>
-                    <td>{entrant.id}</td>
-                  </tr>
-                );
-              })}
+              .map((entrant, index) => (
+                <tr key={entrant.id}>
+                  <th>{formatter.format(index + 1)}</th>
+                  <td>
+                    <Avatar user={entrant} />
+                  </td>
+                  <td>{`${entrant.username}#${entrant.discriminator}`}</td>
+                  <td>{entrant.id}</td>
+                </tr>
+              ))}
           </tbody>
         </table>
       )) || <div className="text text-center">Nobody!</div>}
     </>
+  );
+}
+
+type AvatarProps = {
+  user: APIUser;
+};
+function Avatar({ user }: AvatarProps) {
+  const [avatar, setAvatar] = useState<string>(
+    `https://cdn.discordapp.com/embed/avatars/${
+      Number(user.discriminator) % 5
+    }.png`
+  );
+  useEffect(() => {
+    if (!user.avatar) return;
+    const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
+    fetch(avatarURL, {
+      method: 'HEAD',
+    }).then((res) => {
+      if (res.ok) {
+        setAvatar(avatarURL);
+      }
+    });
+  }, [user]);
+  return (
+    <div className="avatar placeholder">
+      <div className="w-16 rounded-full">
+        <img
+          className="avatar"
+          src={avatar}
+          alt={`${user.username}#${user.discriminator}`}
+        />
+      </div>
+    </div>
   );
 }
 

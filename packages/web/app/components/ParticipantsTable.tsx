@@ -10,7 +10,7 @@ function ParticipantsTable({
   const formatter = new Intl.NumberFormat('en-US');
   return (
     <>
-      {(participants.length > 0 && (
+      {participants.length > 0 ? (
         <table className="table table-compact w-full">
           <thead>
             <tr>
@@ -29,7 +29,9 @@ function ParticipantsTable({
             ))}
           </tbody>
         </table>
-      )) || <div className="text text-center">Nobody!</div>}
+      ) : (
+        <div className="text text-center">Nobody!</div>
+      )}
     </>
   );
 }
