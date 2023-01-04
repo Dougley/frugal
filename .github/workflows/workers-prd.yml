@@ -56,6 +56,7 @@ jobs:
           PLANETSCALE_USER: ${{ secrets.PLANETSCALE_USER }}
           PLANETSCALE_PASSWORD: ${{ secrets.PLANETSCALE_PASSWORD }}
           PLANETSCALE_HOST: ${{ secrets.PLANETSCALE_HOST }}
+          SUMMARY_SITE: ${{ secrets.SUMMARY_SITE }}
           ENVIROMENT: production
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
