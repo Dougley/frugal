@@ -5,7 +5,7 @@ import {
 } from '@remix-run/cloudflare';
 import { useLoaderData } from '@remix-run/react';
 import add from 'date-fns/add';
-import formatDistance from 'date-fns/formatDistance';
+import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import type { APIUser, Snowflake } from 'discord-api-types/v9';
 import { HiOutlineSave, HiTrash } from 'react-icons/hi';
 import ParticipantsTable from '~/components/ParticipantsTable';
@@ -116,8 +116,10 @@ export default function Index() {
         </div>
         <div className="flex justify-center p-2.5">
           <p className="text-sm">
-            Summary expires in{' '}
-            {formatDistance(Date.now(), add(data.details.time, { days: 90 }))}
+            Summary expires{' '}
+            {formatDistanceToNow(add(data.details.time, { days: 90 }), {
+              addSuffix: true,
+            })}
           </p>
         </div>
       </main>

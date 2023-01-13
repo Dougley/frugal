@@ -217,6 +217,7 @@ export class Timer extends DOProxy {
         }
         const details = await this.details();
         const fileData = JSON.stringify({
+          _version: 1,
           details: {
             ...details,
             time: Date.now(),
@@ -231,6 +232,9 @@ export class Timer extends DOProxy {
           {
             httpMetadata: {
               contentType: "application/json",
+              // objects expire in 3 months
+              cacheExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30 * 3),
+              cacheControl: "public, max-age=7776000",
             },
           }
         );

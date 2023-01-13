@@ -137,6 +137,7 @@ importers:
       tailwindcss: ^3.2.4
       typescript: ^4.9.4
       wrangler: ^2.6.2
+      zod: ^3.20.2
     dependencies:
       '@cloudflare/pages-plugin-sentry': 1.1.0
       '@headlessui/react': 1.7.7_biqbaboplfbrettd7655fr4n2y
@@ -154,6 +155,7 @@ importers:
       react-icons: 4.7.1_react@18.2.0
       remix: 1.9.0
       remix-seo: 0.1.0_yczyhcg3c6nutn4f256enaauku
+      zod: 3.20.2
     devDependencies:
       '@cloudflare/workers-types': 3.18.0
       '@playwright/test': 1.29.1
@@ -15089,6 +15091,10 @@ packages:
       mustache: 4.2.0
       stack-trace: 0.0.10
     dev: true
+
+  /zod/3.20.2:
+    resolution: {integrity: sha512-1MzNQdAvO+54H+EaK5YpyEy0T+Ejo/7YLHS93G3RnYWh5gaotGHwGeN/ZO687qEDU2y4CdStQYXVHIgrUl5UVQ==}
+    dev: false
 
   /zwitch/2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
