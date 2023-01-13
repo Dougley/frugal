@@ -6,6 +6,17 @@ import { GiveawayEmbed } from "./commands/components/giveawayEmbed";
 import { createMessage, editMessage } from "./utils/discord";
 import { getToucan } from "./utils/sentry";
 
+type GiveawayDetails = {
+  channel?: string;
+  time?: number;
+  message?: string;
+  winners?: string;
+  prize?: string;
+  duration?: string;
+  guild?: string;
+  alarm?: number | null;
+};
+
 export class Timer extends DOProxy {
   state: DurableObjectState;
   storage: DurableObjectStorage;
@@ -19,7 +30,6 @@ export class Timer extends DOProxy {
   }
 
   async start() {
-    console.log("start");
     const message = await this.storage.get<string>("message");
     const time = await this.storage.get<number>("time");
     if (message === undefined || time === undefined) {
@@ -35,7 +45,6 @@ export class Timer extends DOProxy {
     if (alarm === null) {
       throw new Error("this object has expired");
     }
-    console.log("entry", user.id);
     if ((await this.storage.get(`entry:${user.id}`)) !== undefined) {
       await this.storage.delete(`entry:${user.id}`);
       return false;
@@ -78,7 +87,6 @@ export class Timer extends DOProxy {
     const entrants = Array.from(
       (await this.storage.list({ prefix: "entry:" })).keys()
     ) as string[];
-    console.log("reroll", entrants);
     if (entrants.length === 0) {
       throw new Error("no entrants");
     }
@@ -87,7 +95,7 @@ export class Timer extends DOProxy {
     return entrant;
   }
 
-  async details() {
+  async details(): Promise<GiveawayDetails> {
     const alarm = await this.storage.getAlarm();
     return {
       channel: await this.storage.get<string>("channel"),
@@ -96,6 +104,7 @@ export class Timer extends DOProxy {
       winners: await this.storage.get<string>("winners"),
       time: await this.storage.get<number>("time"),
       duration: await this.storage.get<string>("duration"),
+      guild: await this.storage.get<string>("guild"),
       alarm,
     };
   }
@@ -113,15 +122,7 @@ export class Timer extends DOProxy {
     prize,
     duration,
     guild,
-  }: {
-    channel?: string;
-    time?: number;
-    message?: string;
-    winners?: string;
-    prize?: string;
-    duration?: string;
-    guild?: string;
-  }) {
+  }: GiveawayDetails) {
     await this.edit({
       channel,
       time,
@@ -143,15 +144,7 @@ export class Timer extends DOProxy {
     prize,
     duration,
     guild,
-  }: {
-    channel?: string;
-    time?: number;
-    message?: string;
-    winners?: string;
-    prize?: string;
-    duration?: string;
-    guild?: string;
-  }) {
+  }: GiveawayDetails) {
     if (channel) await this.storage.put("channel", channel);
     if (time) await this.storage.put("time", time);
     if (message) await this.storage.put("message", message);
@@ -163,6 +156,84 @@ export class Timer extends DOProxy {
 
   async purge() {
     await this.storage.deleteAll();
+  }
+
+  async announceWinners(
+    { channel, guild, message, prize }: Required<GiveawayDetails>,
+    winners: string[]
+  ) {
+    return createMessage(channel, {
+      content:
+        winners.length === 0
+          ? "No one entered the giveaway!"
+          : `Congrats ${Array.from(winners)
+              .map((x) => `<@${x}>`)
+              .join(", ")}! You won **${prize}**!`,
+      allowed_mentions: {
+        users: winners,
+      },
+      message_reference: {
+        guild_id: guild,
+        channel_id: channel,
+        message_id: message,
+      },
+    });
+  }
+
+  async generateFileData(
+    details: Required<GiveawayDetails>,
+    winners: Set<string>,
+    entrants: APIUser[]
+  ) {
+    const fileData = JSON.stringify({
+      _version: 1,
+      details: {
+        ...details,
+        time: Date.now(),
+        originalWinners: Array.from(winners),
+      },
+      entrants,
+    });
+    await this.env.STORAGE.put(
+      `timer:${this.state.id.toString()}.json`,
+      fileData,
+      {
+        httpMetadata: {
+          contentType: "application/json",
+          // objects expire in 3 months
+          cacheExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30 * 3),
+          cacheControl: "public, max-age=7776000",
+        },
+      }
+    );
+  }
+
+  async editGiveawayMessage(
+    details: Required<GiveawayDetails>,
+    winners: Set<string>
+  ) {
+    const message = (
+      <Message>
+        <GiveawayEmbed
+          ended
+          details={{
+            ...details,
+            time: Date.now(),
+            winners:
+              winners.size > 0
+                ? Array.from(winners)
+                    .map((x) => `<@${x}>`)
+                    .join(", ")
+                : "Nobody!",
+          }}
+        />
+        <Button url={`${SUMMARY_SITE}/summaries/${this.state.id.toString()}`}>
+          Summary
+        </Button>
+      </Message>
+    );
+
+    await editMessage(details.channel, details.message, message);
   }
 
   async alarm() {
@@ -177,99 +248,26 @@ export class Timer extends DOProxy {
       scope.setSpan(tx);
     });
     try {
-      console.log("alarm");
+      const giveawayDetails =
+        (await this.details()) as Required<GiveawayDetails>;
       const needsSetup = await this.storage.get("needsSetup");
       if (needsSetup) {
-        console.log("discarding stale object still in setup");
-        await this.storage.deleteAll();
+        await this.purge();
       } else {
+        const winners = new Set<string>();
+        const howMany = Number(giveawayDetails.winners!);
         const entrants = await this.fullEntrants();
-        const channel = await this.storage.get<string>("channel");
-        const howMany = Number(await this.storage.get("winners"));
-        const winners = Array.from(
-          { length: howMany },
-          () => entrants[Math.floor(Math.random() * entrants.length)].id
-        ).filter((x) => x !== undefined) as string[];
-        const winnersSet = new Set(winners);
-        if (entrants.length === 0) {
-          await createMessage(channel!, {
-            content: "nobody won :(",
-            message_reference: {
-              message_id: (await this.storage.get("message")) as string,
-              channel_id: channel,
-              guild_id: await this.storage.get("guild"),
-            },
-          });
-        } else {
-          await createMessage(channel!, {
-            content: `Congrats ${Array.from(winnersSet)
-              .map((x) => `<@${x}>`)
-              .join(", ")}! You won **${await this.storage.get("prize")}**!`,
-            allowed_mentions: {
-              users: Array.from(winnersSet),
-            },
-            message_reference: {
-              message_id: (await this.storage.get("message")) as string,
-              channel_id: channel,
-              guild_id: await this.storage.get("guild"),
-            },
-          });
+        for (let i = 0; i < howMany; i++) {
+          const winner = entrants[Math.floor(Math.random() * entrants.length)];
+          winners.add(winner.id);
         }
-        const details = await this.details();
-        const fileData = JSON.stringify({
-          _version: 1,
-          details: {
-            ...details,
-            time: Date.now(),
-            originalWinners: Array.from(winnersSet),
-          },
-          entrants,
-        });
-        console.log(fileData);
-        await this.env.STORAGE.put(
-          `timer:${this.state.id.toString()}.json`,
-          fileData,
-          {
-            httpMetadata: {
-              contentType: "application/json",
-              // objects expire in 3 months
-              cacheExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30 * 3),
-              cacheControl: "public, max-age=7776000",
-            },
-          }
-        );
+        await this.announceWinners(giveawayDetails, Array.from(winners));
+        await this.generateFileData(giveawayDetails, winners, entrants);
         await db
           .deleteFrom("giveaways")
           .where("durable_object_id", "=", this.state.id.toString())
           .execute();
-        const message = (
-          <Message>
-            <GiveawayEmbed
-              ended
-              // @ts-ignore
-              details={{
-                ...details,
-                time: Date.now(),
-                winners:
-                  winnersSet.size > 0
-                    ? Array.from(winnersSet)
-                        .map((x) => `<@${x}>`)
-                        .join(", ")
-                    : "Nobody!",
-              }}
-            />
-            <Button
-              url={`${SUMMARY_SITE}/summaries/${this.state.id.toString()}`}
-            >
-              Summary
-            </Button>
-          </Message>
-        );
-        await editMessage(
-          channel!,
-          (await this.storage.get("message")) as string,
-          message
-        );
+        await this.editGiveawayMessage(giveawayDetails, winners);
       }
       tx.status = "ok";
       tx.finish();
