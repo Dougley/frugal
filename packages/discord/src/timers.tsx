@@ -166,7 +166,7 @@ export class Timer extends DOProxy {
       content:
         winners.length === 0
           ? "No one entered the giveaway!"
-          : `Congrats ${Array.from(winners)
+          : `Congrats ${winners
               .map((x) => `<@${x}>`)
               .join(", ")}! You won **${prize}**!`,
       allowed_mentions: {

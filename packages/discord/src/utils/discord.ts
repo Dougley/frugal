@@ -1,4 +1,5 @@
 import {
+  RESTGetAPIChannelMessageResult,
   RESTPatchAPIChannelMessageJSONBody,
   RESTPatchAPIChannelMessageResult,
   RESTPostAPIChannelMessageJSONBody,
@@ -54,3 +55,17 @@ export const deleteMessage = async (
     }
   );
 };
+
+export const getMessage = async (
+  channel: Snowflake,
+  message: Snowflake
+): Promise<RESTGetAPIChannelMessageResult> => {
+  return await call(
+    "GET",
+    Routes.channelMessage(channel, message),
+    {},
+    {
+      bot: SLSHX_APPLICATION_TOKEN,
+    }
+  );
+}

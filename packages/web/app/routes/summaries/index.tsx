@@ -35,7 +35,7 @@ const summaryScheme = z.object({
       id: z.string(),
       username: z.string(),
       discriminator: z.string(),
-      avatar: z.string(),
+      avatar: z.nullable(z.string()),
     })
   ),
 });
