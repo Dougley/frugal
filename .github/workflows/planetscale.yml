@@ -50,7 +50,7 @@ jobs:
 
   create-dr:
     name: Create Deployment Request
-    if: github.event_name == 'pull_request' && ${{ env.change_detected == 1 }}
+    if: github.event_name == 'pull_request' && env.change_detected == 1
     needs: check
     runs-on: ubuntu-latest
     env:
@@ -100,7 +100,7 @@ jobs:
   # merge:
   #   name: Merge Deployment Request
   #   needs: check
-  #   if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true && ${{ env.change_detected == 1 }}
+  #   if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true && env.change_detected == 1
   #   runs-on: ubuntu-latest
   #   env:
   #     PLANETSCALE_SERVICE_TOKEN_ID: ${{ secrets.PLANETSCALE_SERVICE_TOKEN_ID }}
