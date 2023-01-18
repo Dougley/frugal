@@ -1,0 +1,124 @@
+name: Planetscale Deployments
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'packages/planetscale-migrations/**.sql'
+    types:
+      - opened
+      - synchronize
+      - closed
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - 'packages/planetscale-migrations/**.sql'
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  deploy:
+    name: Deploy changes to Planetscale
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Deploy to Planetscale
+        run: 
+          mysql -h ${{ secrets.PLANETSCALE_HOST }} \
+            -u ${{ secrets.PLANETSCALE_USER }} \
+            -p${{ secrets.PLANETSCALE_PASSWORD }} \
+            ${{ secrets.PLANETSCALE_DATABASE }}} < packages/planetscale-migrations/$(ls -t packages/planetscale-migrations | head -n 1)
+  
+  check:
+    name: Check for changes
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      PLANETSCALE_SERVICE_TOKEN_ID: ${{ secrets.PLANETSCALE_SERVICE_TOKEN_ID }}
+      PLANETSCALE_SERVICE_TOKEN: ${{ secrets.PLANETSCALE_SERVICE_TOKEN }}
+    container:
+      image: planetscale/pscale:v0.126.0
+    steps:
+      - run: |
+          if [[ $(pscale branch diff ${{ secrets.PLANETSCALE_DATABASE }} ${{ secrets.PLANETSCALE_BRANCH }}) ]]; then
+            echo "change_detected=1" >> $GITHUB_ENV
+          fi
+
+  create-dr:
+    name: Create Deployment Request
+    if: github.event_name == 'pull_request' && ${{ env.change_detected == 1 }}
+    needs: check
+    runs-on: ubuntu-latest
+    env:
+      PLANETSCALE_SERVICE_TOKEN_ID: ${{ secrets.PLANETSCALE_SERVICE_TOKEN_ID }}
+      PLANETSCALE_SERVICE_TOKEN: ${{ secrets.PLANETSCALE_SERVICE_TOKEN }}
+    container:
+      image: planetscale/pscale:v0.126.0
+    steps:
+      - name: Create Deployment Request
+        run: |
+          pscale deploy-request create ${{ secrets.PLANETSCALE_DATABASE }} ${{ secrets.PLANETSCALE_BRANCH }}
+
+      - name: Get Deployment Request ID
+        run: |
+          echo "DR_ID=$(pscale deploy-request list ${{ secrets.PLANETSCALE_DATABASE }} ${{ secrets.PLANETSCALE_BRANCH }} -f json | jq -r '.[] | select(.state=="open") | .number')" >> $GITHUB_ENV
+
+      - name: Get DR diff
+        run: |
+          echo "DR_DIFF=$(pscale deploy-request diff ${{ secrets.PLANETSCALE_DATABASE }} ${{ secrets.PLANETSCALE_BRANCH }})" >> $GITHUB_ENV
+
+      - name: Comment on PR
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            A Planetscale deployment request has been created for this PR. You can view the status of the deployment request [here](https://console.planetscale.com/${{ secrets.PLANETSCALE_ORG }}/${{ secrets.PLANETSCALE_DATABASE }}/deploy-requests/${{ env.DR_ID }}).
+            
+            The diff for this deployment request is:
+            ```diff
+            ${{ env.DR_DIFF }}
+            ```
+
+            Merge this PR to deploy the changes to the database.
+
+      - name: Add label
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['affects:planetscale']
+            })
+
+  # merge:
+  #   name: Merge Deployment Request
+  #   needs: check
+  #   if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true && ${{ env.change_detected == 1 }}
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     PLANETSCALE_SERVICE_TOKEN_ID: ${{ secrets.PLANETSCALE_SERVICE_TOKEN_ID }}
+  #     PLANETSCALE_SERVICE_TOKEN: ${{ secrets.PLANETSCALE_SERVICE_TOKEN }}
+  #   container:
+  #     image: planetscale/pscale:v0.126.0
+  #   steps:
+  #     - name: Get Deployment Request ID
+  #       run: |
+  #         echo "DR_ID=$(pscale deploy-request list ${{ secrets.PLANETSCALE_DATABASE }} ${{ secrets.PLANETSCALE_BRANCH }} -f json | jq -r '.[] | select(.state=="open") | .number')" >> $GITHUB_ENV
+
+  #     - name: Merge Deployment Request
+  #       run: |
+  #         pscale deploy-request merge ${{ secrets.PLANETSCALE_DATABASE }} ${{ env.DR_ID }}
+
+  #     - name: Comment on PR
+  #       uses: peter-evans/create-or-update-comment@v1
+  #       with:
+  #         issue-number: ${{ github.event.pull_request.number }}
+  #         body: |
+  #           A deployment request has been merged for this PR. You can view the status of the deployment request [here](https://console.planetscale.com/${{ secrets.PLANETSCALE_ORG }}/${{ secrets.PLANETSCALE_DATABASE }}/deploy-requests/${{ env.DR_ID }}).

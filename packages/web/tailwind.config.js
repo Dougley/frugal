@@ -13,9 +13,9 @@ module.exports = {
         sans: ['Work Sans', ...defaultTheme.fontFamily.sans],
       },
     },
-    daisyui: {
-      themes: ['light', 'dark'],
-    },
+  },
+  daisyui: {
+    themes: ['light', 'dark'],
   },
   plugins: [
     require('@tailwindcss/typography'),
