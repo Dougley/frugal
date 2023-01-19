@@ -18,12 +18,15 @@ export const onRequest: PagesFunction<{
   url.searchParams.append('state', state);
   url.searchParams.append('prompt', 'none');
   // url.searchParams.append('nonce', crypto.randomUUID());
-  const redirect = Response.redirect(url.toString(), 302);
-  redirect.headers.append(
-    'Set-Cookie',
-    `state=${state}; Path=/; HttpOnly Expires=${new Date(
-      Date.now() + 1000 * 60 * 5
-    ).toUTCString()}`
-  );
+  // const redirect = Response.redirect(url.toString(), 302);
+  const redirect = new Response(null, {
+    status: 302,
+    headers: {
+      Location: url.toString(),
+      'Set-Cookie': `state=${state}; Path=/; HttpOnly Expires=${new Date(
+        Date.now() + 1000 * 60 * 5
+      ).toUTCString()}`,
+    },
+  });
   return redirect;
 };

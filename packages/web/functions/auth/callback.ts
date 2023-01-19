@@ -88,7 +88,13 @@ export const onRequest: PagesFunction<{
   const newSession = await sessionStorage.commitSession(session, {
     expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
   });
-  const redirect = Response.redirect(`${url.origin}/`, 302);
-  redirect.headers.append('Set-Cookie', newSession);
+  // const redirect = Response.redirect(`${url.origin}/`, 302);
+  const redirect = new Response(null, {
+    status: 302,
+    headers: {
+      Location: `${url.origin}/`,
+      'Set-Cookie': newSession,
+    },
+  });
   return redirect;
 };
