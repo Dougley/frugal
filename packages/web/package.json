@@ -15,7 +15,7 @@
     "build:sm": "npm run build:css && npm run build:remix:sm",
     "lint": "eslint --ext \".js,.jsx,.ts,.tsx\" --ignore-path .gitignore .",
     "test": "cross-env TEST=true playwright test",
-    "wrangler": "wrangler pages dev ./public --r2 R2 --persist"
+    "wrangler": "wrangler pages dev ./public --r2 R2 --kv KV_SESSIONS --persist"
   },
   "dependencies": {
     "@cloudflare/pages-plugin-sentry": "^1.1.0",

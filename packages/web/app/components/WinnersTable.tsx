@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
+import { GiPartyPopper } from 'react-icons/gi';
 import type { APIUser } from 'discord-api-types/v9';
 
 type winnnersTableProps = {
@@ -11,6 +12,13 @@ function WinnersTable({
   participants,
 }: winnnersTableProps): ReactElement {
   const formatter = new Intl.NumberFormat('en-US');
+  const [me, setMe] = useState<APIUser | null>(null);
+  useEffect(() => {
+    const user = sessionStorage.getItem('user');
+    if (user) {
+      setMe(participants.find((x) => x.id === user) ?? null);
+    }
+  }, [participants]);
   return (
     <>
       {(winners.length > 0 && (
@@ -34,7 +42,17 @@ function WinnersTable({
                       <Avatar user={entrant} />
                     </a>
                   </td>
-                  <td>{`${entrant.username}#${entrant.discriminator}`}</td>
+                  <td>
+                    {`${entrant.username}#${entrant.discriminator}`}
+                    {me && me.id === entrant.id && (
+                      <>
+                        <br></br>
+                        <span className="text-gray-500">
+                          That's you! <GiPartyPopper className="inline" />
+                        </span>
+                      </>
+                    )}
+                  </td>
                   <td>{entrant.id}</td>
                 </tr>
               ))}

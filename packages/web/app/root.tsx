@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { LoaderFunction } from '@remix-run/cloudflare';
+import type { LoaderFunction, SessionStorage } from '@remix-run/cloudflare';
 import { type LinksFunction } from '@remix-run/cloudflare';
 import {
   Links,
@@ -45,13 +45,20 @@ export let links: LinksFunction = () => {
 };
 
 type LoaderData = {
+  hasSession: boolean;
+  session: ReturnType<SessionStorage['getSession']>;
   GLOBALS: string;
 };
-export const loader: LoaderFunction = ({ context }) => {
+export const loader: LoaderFunction = async ({ context, request }) => {
+  const session = await (context.sessionStorage as SessionStorage).getSession(
+    request.headers.get('Cookie')
+  );
   return {
     GLOBALS: JSON.stringify({
       SENTRY_DSN: context.SENTRY_DSN,
     }),
+    hasSession: session.has('user'),
+    session,
   };
 };
 
@@ -99,14 +106,14 @@ function Document({
 }
 
 function Layout({ children }: React.PropsWithChildren<{}>) {
-  const { GLOBALS } = useLoaderData() as LoaderData;
+  const data = useLoaderData() as LoaderData;
 
   return (
     <div className="remix-app">
       <header className="remix-app__header">
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.GLOBALS = ${GLOBALS};`,
+            __html: `window.GLOBALS = ${data ? data.GLOBALS : '{}'};`,
           }}
         />
 

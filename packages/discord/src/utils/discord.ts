@@ -68,4 +68,4 @@ export const getMessage = async (
       bot: SLSHX_APPLICATION_TOKEN,
     }
   );
-}
+};

@@ -34,6 +34,7 @@ jobs:
             ${{ secrets.PLANETSCALE_DATABASE }}} < packages/planetscale-migrations/$(ls -t packages/planetscale-migrations | head -n 1)
   
   check:
+    continue-on-error: true
     name: Check for changes
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -45,12 +46,13 @@ jobs:
     steps:
       - run: |
           if [[ $(pscale branch diff ${{ secrets.PLANETSCALE_DATABASE }} ${{ secrets.PLANETSCALE_BRANCH }}) ]]; then
-            echo "change_detected=1" >> $GITHUB_ENV
+            exit 0
           fi
+          exit 1
 
   create-dr:
     name: Create Deployment Request
-    if: github.event_name == 'pull_request' && env.change_detected == 1
+    if: github.event_name == 'pull_request'
     needs: check
     runs-on: ubuntu-latest
     env:

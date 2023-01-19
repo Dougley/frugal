@@ -12,27 +12,22 @@ function FooterContent(): ReactElement {
         <Link to="//dougley.com" className="link link-hover">
           <p>&copy; Dougley - {new Date().getFullYear()}</p>
         </Link>
-        <p className="text-xs text-slate-700">
-          <Link
-            to="//github.com/Dougley/frugal/tree/main/packages/web"
-            target="_blank"
-            rel="noreferrer"
-          >
-            {process.env.NODE_ENV}
-          </Link>
-        </p>
       </div>
       <div>
         <span className="footer-title">Social</span>
         <div className="grid grid-flow-col gap-4">
+          <Link
+            to="//github.com/Dougley/frugal"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <BsGithub size={24} />
+          </Link>
           <Link to="//twitter.com/dougley" target="_blank" rel="noreferrer">
             <BsTwitter size={24} />
           </Link>
           <Link to="//mas.to/@doug" target="_blank" rel="noreferrer">
             <BsMastodon size={24} />
-          </Link>
-          <Link to="//github.com/Dougley" target="_blank" rel="noreferrer">
-            <BsGithub size={24} />
           </Link>
           <Link
             to="//github.com/sponsors/Dougley"

@@ -30,7 +30,6 @@ type ResultsFile = {
 // to the component that renders it.
 // https://remix.run/api/conventions#loader
 export let loader: LoaderFunction = async ({ params, context, request }) => {
-  // todo: typing lol
   const bucket = context.R2 as R2Bucket;
   const id = params.summaryId;
   const cache = await caches.open('custom:cache');
