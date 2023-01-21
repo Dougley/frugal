@@ -1,14 +1,10 @@
 import type { SessionStorage } from '@remix-run/cloudflare';
-import { json } from '@remix-run/cloudflare';
 
-export const onRequest: PagesFunction<{
+export const onRequestGet: PagesFunction<{
   DISCORD_CLIENT_ID: string;
   DISCORD_REDIRECT_URI: string;
   sessions: SessionStorage;
 }> = (context) => {
-  if (context.request.method !== 'GET') {
-    return json({ error: 'Method not allowed' }, { status: 405 });
-  }
   const url = new URL('https://discord.com/oauth2/authorize');
   const state = crypto.randomUUID();
   url.searchParams.append('client_id', context.env.DISCORD_CLIENT_ID);

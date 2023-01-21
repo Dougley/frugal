@@ -5,12 +5,9 @@ import type {
   RESTAPIPartialCurrentUserGuild,
 } from 'discord-api-types/rest/v9/user';
 
-export const onRequest: PagesFunction<{
+export const onRequestGet: PagesFunction<{
   KV_SESSIONS: KVNamespace;
 }> = async (context) => {
-  if (context.request.method !== 'GET') {
-    return json({ error: 'Method not allowed' }, { status: 405 });
-  }
   const sessionStorage = context.data.sessions as SessionStorage;
   const session = await sessionStorage.getSession(
     context.request.headers.get('Cookie')

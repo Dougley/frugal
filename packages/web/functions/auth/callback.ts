@@ -1,19 +1,15 @@
 import type { SessionStorage } from '@remix-run/cloudflare';
-import { json } from '@remix-run/cloudflare';
 import type {
   RESTGetAPICurrentUserResult,
   RESTGetAPICurrentUserGuildsResult,
 } from 'discord-api-types/v9';
 
-export const onRequest: PagesFunction<{
+export const onRequestGet: PagesFunction<{
   DISCORD_CLIENT_ID: string;
   DISCORD_REDIRECT_URI: string;
   DISCORD_CLIENT_SECRET: string;
   KV_SESSIONS: KVNamespace;
 }> = async (context) => {
-  if (context.request.method !== 'GET') {
-    return json({ error: 'Method not allowed' }, { status: 405 });
-  }
   const sessionStorage = context.data.sessions as SessionStorage;
   const url = new URL(context.request.url);
   if (!context.request.headers.has('Cookie')) {

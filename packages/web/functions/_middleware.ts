@@ -1,4 +1,4 @@
-import sentryPlugin from '@cloudflare/pages-plugin-sentry';
+// import sentryPlugin from '@cloudflare/pages-plugin-sentry';
 import { createCloudflareKVSessionStorage } from '@remix-run/cloudflare';
 
 export const onRequest: PagesFunction<{
@@ -15,5 +15,6 @@ export const onRequest: PagesFunction<{
       ),
     },
   });
-  return sentryPlugin({ dsn: context.env.SENTRY_DSN })(context);
+  // return sentryPlugin({ dsn: context.env.SENTRY_DSN })(context);
+  return context.next();
 };
