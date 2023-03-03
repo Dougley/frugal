@@ -6,11 +6,6 @@ import { useLoaderData } from '@remix-run/react';
 
 function Navbar(): ReactElement {
   const [theme, setTheme] = useState('dark');
-  useEffect(() => {
-    const theme = localStorage.getItem('theme') || 'dark';
-    setTheme(theme);
-    document.querySelector('html')!.setAttribute('data-theme', theme);
-  }, [theme]);
   return (
     <div className="navbar bg-base-300">
       <div className="flex-1 px-2 lg:flex-none">
@@ -38,6 +33,12 @@ function ThemeSwitcher(props: { theme: string; setTheme: any }) {
           'theme',
           props.theme === 'light' ? 'dark' : 'light'
         );
+        document
+          .querySelector('html')!
+          .setAttribute(
+            'data-theme',
+            props.theme === 'light' ? 'dark' : 'light'
+          );
       }}
     >
       <label className="swap swap-rotate">
