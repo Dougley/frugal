@@ -1,0 +1,7 @@
+dist
+node_modules
+wrangler.toml
+/.vscode/settings.json
+*.log
+*.env
+.dev.vars

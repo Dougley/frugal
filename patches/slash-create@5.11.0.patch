@@ -1,0 +1,38 @@
+diff --git a/lib/index.js b/lib/index.js
+index 5bd43a6c1c881a99cfb9182c215120b7b09a57b0..0e5485d99f269524a12aa5cfdcef1b4b23f1ac58 100644
+--- a/lib/index.js
++++ b/lib/index.js
+@@ -36,13 +36,13 @@ __exportStar(require("./util/sequentialBucket"), exports);
+ __exportStar(require("./util/multipartData"), exports);
+ __exportStar(require("./errors/DiscordHTTPError"), exports);
+ __exportStar(require("./errors/DiscordRESTError"), exports);
+-__exportStar(require("./servers/lambda"), exports);
+-__exportStar(require("./servers/azure"), exports);
+-__exportStar(require("./servers/express"), exports);
+-__exportStar(require("./servers/fastify"), exports);
+-__exportStar(require("./servers/gateway"), exports);
+-__exportStar(require("./servers/gcf"), exports);
+-__exportStar(require("./servers/vercel"), exports);
++// __exportStar(require("./servers/lambda"), exports);
++// __exportStar(require("./servers/azure"), exports);
++// __exportStar(require("./servers/express"), exports);
++// __exportStar(require("./servers/fastify"), exports);
++// __exportStar(require("./servers/gateway"), exports);
++// __exportStar(require("./servers/gcf"), exports);
++// __exportStar(require("./servers/vercel"), exports);
+ __exportStar(require("./structures/member"), exports);
+ __exportStar(require("./structures/message"), exports);
+ __exportStar(require("./structures/permissions"), exports);
+diff --git a/lib/structures/interfaces/messageInteraction.d.ts b/lib/structures/interfaces/messageInteraction.d.ts
+index df895c39920f5d594c21534c2400295a71d65532..f2a5878517b33f07a133dc46a02acc4ce70f16b0 100644
+--- a/lib/structures/interfaces/messageInteraction.d.ts
++++ b/lib/structures/interfaces/messageInteraction.d.ts
+@@ -132,7 +132,7 @@ export interface EditMessageOptions {
+ /** A file within {@link EditMessageOptions}. */
+ export interface MessageFile {
+     /** The attachment to send. */
+-    file: Buffer;
++    file: Blob | Uint8Array | File;
+     /** The name of the file. */
+     name: string;
+ }
