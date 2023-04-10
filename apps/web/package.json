@@ -3,7 +3,7 @@
   "private": true,
   "sideEffects": false,
   "scripts": {
-    "build": "remix build",
+    "build": "npx @remix-run/dev build",
     "dev:remix": "remix watch",
     "dev:wrangler": "cross-env NODE_ENV=development npm run wrangler",
     "dev": "npm-run-all build --parallel \"dev:*\"",
