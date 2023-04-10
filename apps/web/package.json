@@ -1,4 +1,5 @@
 {
+  "name": "@dougley/frugal-web",
   "private": true,
   "sideEffects": false,
   "scripts": {
