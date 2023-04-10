@@ -7,7 +7,9 @@ export const creator = new SlashCreator({
   token: DISCORD_BOT_TOKEN
 });
 
-creator.withServer(new CFWorkerServer()).registerCommands(commands);
+export const server = new CFWorkerServer();
+
+creator.withServer(server).registerCommands(commands);
 
 creator.on('warn', (message) => console.warn(message));
 creator.on('error', (error) => console.error(error.stack || error.toString()));
@@ -17,3 +19,5 @@ creator.on('commandRun', (command, _, ctx) =>
 creator.on('commandError', (command, error) =>
   console.error(`Command ${command.commandName} errored:`, error.stack || error.toString())
 );
+
+export default server.moduleWorkerBindings;

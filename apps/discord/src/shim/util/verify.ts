@@ -15,10 +15,10 @@ const encoder = new TextEncoder();
 let publicKey: CryptoKey;
 async function getPublicKey() {
   if (publicKey) return publicKey;
-  // @ts-expect-error Node.js needs to know this is a public key
   publicKey = await crypto.subtle.importKey(
     'raw',
     hex2bin(DISCORD_PUBLIC_KEY),
+    // @ts-expect-error Node.js needs to know this is a public key
     { name: 'NODE-ED25519', namedCurve: 'NODE-ED25519', public: true },
     true,
     ['verify']
