@@ -1,7 +1,7 @@
 on:
   push:
     paths:
-      - 'packages/web/**'
+      - 'apps/web/**'
       - '.github/workflows/cf-pages.yml'
 
 name: Deploy to Cloudflare Pages
@@ -27,11 +27,11 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: npx lerna run --scope "@dougley/frugal-web" build:sm
+        run: pnpm run build:mapped
         
       - name: Sentry Remix sourcemap upload
         run: node ./node_modules/@sentry/remix/scripts/sentry-upload-sourcemaps.js && find . -type f -name '*.map' -delete
-        working-directory: ./packages/web
+        working-directory: ./apps/web
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
@@ -44,7 +44,7 @@ jobs:
       #     apiToken: ${{ secrets.CF_API_TOKEN }}
       #     accountId: ${{ secrets.CF_ACCOUNT_ID }}
       #     projectName: frugal
-      #     directory: ./packages/web/public
+      #     directory: ./apps/web/public
 
   sentry:
     name: Create Sentry release

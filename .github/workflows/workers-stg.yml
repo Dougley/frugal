@@ -14,8 +14,8 @@ on:
     branches:
       - main
     paths:
-      - 'packages/discord/**'
-      - '.github/workflows/workers-prd.yml'
+      - 'apps/discord/**'
+      - '.github/workflows/workers-stg.yml'
 
 jobs:
   deploy:
@@ -40,13 +40,13 @@ jobs:
 
       - name: Deploy commands
         if: github.event.inputs.deploycommands == 'true'
-        run: pnpm run deploy:commands
-        working-directory: ./packages/discord
+        run: pnpm run sync
+        working-directory: ./apps/discord
         env:
-          DISCORD_APPLICATION_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
+          DISCORD_APP_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
           DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
           DISCORD_SECRET: ${{ secrets.DISCORD_SECRET }}
-          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
 
       - name: Publish
         uses: cloudflare/wrangler-action@2.0.0
@@ -56,8 +56,8 @@ jobs:
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT_WORKERS }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-          DISCORD_APPLICATION_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_APP_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
           DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
           PLANETSCALE_USER: ${{ secrets.PLANETSCALE_USER }}
           PLANETSCALE_PASSWORD: ${{ secrets.PLANETSCALE_PASSWORD }}
@@ -67,7 +67,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           command: publish --env staging
-          workingDirectory: ./packages/discord
+          workingDirectory: ./apps/discord
       
   sentry:
     name: Create Sentry release
