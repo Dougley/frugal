@@ -1,13 +1,6 @@
-/// <reference types="discord-api-types/v9" />
+/// <reference types="@dougley/types/summaries" />
 
 import { DOProxy } from "do-proxy";
-
-type SavedUserInformation = {
-  id: string;
-  username: string;
-  discriminator: string;
-  avatar?: string;
-};
 
 export class GiveawayState extends DOProxy {
   state: DurableObjectState;
@@ -36,6 +29,14 @@ export class GiveawayState extends DOProxy {
     // the values that were stored.
   }
 
+  /**
+   * Setup the object to get ready for a giveaway
+   * @param channel Channel ID
+   * @param guild Guild ID
+   * @param message Message ID
+   * @param winners Amount of winners
+   * @param prize Prize of the giveaway
+   */
   setup({
     channel,
     guild,
@@ -87,14 +88,24 @@ export class GiveawayState extends DOProxy {
     await this.storage.put(`entry:${user.id}`, JSON.stringify(user));
   }
 
+  /**
+   * Deletes an entry in the database
+   * @param user {object} The user to delete
+   * @param user.id {string} The user's ID
+   */
   async removeEntry(user: Pick<SavedUserInformation, "id">) {
     await this.storage.delete(`entry:${user.id}`);
   }
 
+  /**
+   * Get someone's entry
+   * @param user - The user to retrieve the entry for.
+   */
   async getEntry(user: Pick<SavedUserInformation, "id">) {
     const entry = await this.storage.get(`entry:${user.id}`);
     return entry;
   }
+
   /**
    * Remove all entries from the giveaway
    */
@@ -113,6 +124,41 @@ export class GiveawayState extends DOProxy {
       users.push(JSON.parse(user as string));
     }
     return users;
+  }
+
+  /**
+   * Flush a summary of the giveaway to the R2 bucket
+   * @param winners - The winners of the giveaway
+   */
+  async flushR2(winners: SavedUserInformation[]) {
+    const entries = await this.getEntries();
+    // construct a summary of the giveaway
+    const summary: SummaryOutput = {
+      _version: 2,
+      details: {
+        channel: this.boundChannel!,
+        message: this.boundMessage!,
+        prize: this.prize!,
+        winners: this.winnerAmount!,
+        originalWinners: winners,
+        time: {
+          start: this.startDate!.toISOString(),
+          end: this.endDate!.toISOString(),
+        },
+      },
+      entries,
+    };
+    // now flush the data to the R2 bucket
+    const bucket = this.env.STORAGE;
+    const key = `giveaway-${this.boundMessage}.json`;
+    const response = await bucket.put(key, JSON.stringify(summary), {
+      httpMetadata: {
+        contentType: "application/json",
+        // objects expire in 3 months
+        cacheExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30 * 3),
+        cacheControl: "public, max-age=7776000",
+      },
+    });
   }
 
   /**
@@ -173,45 +219,57 @@ export class GiveawayState extends DOProxy {
     // We can use it to send a message to the channel
     // and then delete the object
 
-    // before we do anything, check if the message is still there
-    // we treat deleting the original message as a cancel
-    const giveawayMessage = await fetch(
-      `https://discord.com/api/v9/channels/${this.boundChannel}/messages/${this.boundMessage}`,
-      {
-        // yes, we can use HEAD to check if the message is there, still takes ratelimit tokens though :(
-        method: "HEAD",
-        headers: {
-          Authorization: `Bot ${this.env.DISCORD_BOT_TOKEN}`,
-        },
-      }
-    );
-    if (giveawayMessage.ok) {
-      const winners = await this.drawWinners();
-      const message = this.getFormattedEntries(winners);
-      await fetch(
-        `https://discord.com/api/v9/channels/${this.boundChannel}/messages`,
+    if (!this.running) {
+      // if the giveaway is not running, we can just delete the object
+      // since it's probably a cleanup alarm
+      console.log(
+        `Cleaning up object ${this.state.id} for message ${this.boundMessage}`
+      );
+      await this.purgeEntries();
+    } else {
+      this.running = false;
+      // before we do anything, check if the message is still there
+      // we treat deleting the original message as a cancel
+      const giveawayMessage = await fetch(
+        `https://discord.com/api/v9/channels/${this.boundChannel}/messages/${this.boundMessage}`,
         {
-          method: "POST",
+          // yes, we can use HEAD to check if the message is there, still takes ratelimit tokens though :(
+          method: "HEAD",
           headers: {
             Authorization: `Bot ${this.env.DISCORD_BOT_TOKEN}`,
-            "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            content: message,
-            message_reference: {
-              message_id: this.boundMessage,
-              channel_id: this.boundChannel,
-              guild_id: this.boundGuild,
-            },
-            allowed_mentions: {
-              users: winners.map((x) => x.id),
-            },
-          }),
         }
       );
+      if (giveawayMessage.ok) {
+        const winners = await this.drawWinners();
+        const message = this.getFormattedEntries(winners);
+        await fetch(
+          `https://discord.com/api/v9/channels/${this.boundChannel}/messages`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bot ${this.env.DISCORD_BOT_TOKEN}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              content: message,
+              message_reference: {
+                message_id: this.boundMessage,
+                channel_id: this.boundChannel,
+                guild_id: this.boundGuild,
+              },
+              allowed_mentions: {
+                users: winners.map((x) => x.id),
+              },
+            }),
+          }
+        );
+        // flush the results to R2 for summaries
+        await this.flushR2(winners);
+      }
+      // we still need to clean up
+      // wake up the object again after 3 months
+      await this.storage.setAlarm(Date.now() + 1_000 * 60 * 60 * 24 * 90);
     }
-
-    // we still need to clean up
-    await this.storage.deleteAll();
   }
 }
