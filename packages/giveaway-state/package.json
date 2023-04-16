@@ -16,7 +16,7 @@
     "@cloudflare/workers-types": "^4.20230404.0",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "discord-api-types": "^0.37.37"
+    "discord-api-types": "^0.37.38"
   },
   "dependencies": {
     "do-proxy": "^1.3.3"
