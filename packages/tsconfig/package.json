@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "name": "@dougley/tsconfig",
+  "version": "0.0.0",
+  "author": "Remco Jongschaap <hey@dougley.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dougley/frugal.git",
+    "directory": "packages/tsconfig"
+  },
+  "dependencies": {
+    "@dougley/types": "workspace:^"
+  }
+}
