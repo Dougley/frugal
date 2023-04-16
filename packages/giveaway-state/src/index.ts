@@ -84,17 +84,17 @@ export class GiveawayState extends DOProxy {
     if (!this.running) {
       throw new Error("Giveaway is not running");
     }
-    const entries = await this.storage.list({
-      limit: 1,
-      start: `entry:${user.id}`,
-    });
-    if (entries.keys.length === 0) {
-      await this.storage.put(`entry:${user.id}`, JSON.stringify(user));
-    } else {
-      throw new Error("User already entered");
-    }
+    await this.storage.put(`entry:${user.id}`, JSON.stringify(user));
   }
 
+  async removeEntry(user: Pick<SavedUserInformation, "id">) {
+    await this.storage.delete(`entry:${user.id}`);
+  }
+
+  async getEntry(user: Pick<SavedUserInformation, "id">) {
+    const entry = await this.storage.get(`entry:${user.id}`);
+    return entry;
+  }
   /**
    * Remove all entries from the giveaway
    */
@@ -168,6 +168,7 @@ export class GiveawayState extends DOProxy {
    * @private
    */
   async alarm() {
+    console.log("Alarm triggered");
     // This method is called when the alarm is triggered
     // We can use it to send a message to the channel
     // and then delete the object
@@ -203,7 +204,6 @@ export class GiveawayState extends DOProxy {
               guild_id: this.boundGuild,
             },
             allowed_mentions: {
-              parse: ["users"],
               users: winners.map((x) => x.id),
             },
           }),

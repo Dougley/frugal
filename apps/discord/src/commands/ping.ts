@@ -9,6 +9,6 @@ export default class BotCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
-    return `Pong! Took ${performance.now()}ms.`;
+    return `Pong!`;
   }
 }

@@ -7,6 +7,7 @@ import {
   SlashCommand,
   SlashCreator
 } from 'slash-create';
+import { joinButtonRegistryCallback, leaveButtonRegistryCallback } from '../components/buttons';
 import { server } from '../shim/servers/cfworker';
 
 export default class BotCommand extends SlashCommand {
@@ -35,28 +36,8 @@ export default class BotCommand extends SlashCommand {
         }
       ]
     });
-    creator.registerGlobalComponent('gv', async (ctx) => {
-      const durableID = await server.env!.KV.get(ctx.message.id);
-      if (!durableID) {
-        return ctx.send({
-          content: `This giveaway has expired.`,
-          ephemeral: true
-        });
-      }
-      const stub = GiveawayState.wrap(server.env!.GIVEAWAY_STATE);
-      const id = server.env!.GIVEAWAY_STATE.idFromString(durableID);
-      const state = stub.get(id);
-      await state.class.addEntry({
-        id: ctx.user.id,
-        username: ctx.user.username,
-        discriminator: ctx.user.discriminator,
-        avatar: ctx.user.avatar
-      });
-      return ctx.send({
-        content: `You entered the giveaway!`,
-        ephemeral: true
-      });
-    });
+    creator.registerGlobalComponent('joinButton', joinButtonRegistryCallback);
+    creator.registerGlobalComponent('leaveButton', leaveButtonRegistryCallback);
   }
 
   async run(ctx: CommandContext) {
@@ -74,7 +55,7 @@ export default class BotCommand extends SlashCommand {
               type: ComponentType.BUTTON,
               style: ButtonStyle.PRIMARY,
               label: 'Enter',
-              custom_id: `gv`,
+              custom_id: `joinButton`,
               emoji: {
                 name: '🎉'
               }
