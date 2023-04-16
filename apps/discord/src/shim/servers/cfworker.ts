@@ -9,23 +9,23 @@ export type ServerRequestHandler = (treq: TransformedRequest, respond: RespondFu
  */
 export class CFWorkerServer extends Server {
   handler?: ServerRequestHandler;
-  env?: any;
+  env?: Env;
   constructor() {
     super({ alreadyListening: true });
     this.isWebserver = true;
   }
 
   private fetchHandler(
-    server: ServerRequestHandler,
     request: Request,
-    env: any,
-    ctx: ExecutionContext
+    env: Env,
+    ctx: ExecutionContext,
+    handler: ServerRequestHandler
   ): Promise<Response> | Response {
     if (!this.env) this.env = env; // for later use
     if (request.method !== 'POST') return new Response('Only POST requests are allowed', { status: 405 });
     return new Promise(async (resolve) => {
       const body = await request.text();
-      server(
+      handler(
         {
           headers: Object.fromEntries(request.headers.entries()),
           body: request.body ? JSON.parse(body) : request.body,
@@ -62,11 +62,12 @@ export class CFWorkerServer extends Server {
     });
   }
 
-  get moduleWorkerBindings(): ExportedHandler {
-    const handler = this.handler;
-    const fetchHandler = this.fetchHandler;
+  get moduleWorkerBindings(): ExportedHandler<Env> {
     return {
-      fetch: fetchHandler.bind(this, ...arguments, handler)
+      fetch: (request: Request, env: Env, ctx: ExecutionContext) => {
+        if (this.handler) return this.fetchHandler(request, env, ctx, this.handler);
+        return new Response('No handler set', { status: 500 });
+      }
     };
   }
 
@@ -76,3 +77,5 @@ export class CFWorkerServer extends Server {
     return this;
   }
 }
+
+export const server = new CFWorkerServer();

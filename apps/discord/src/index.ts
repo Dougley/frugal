@@ -1,13 +1,12 @@
-import { commands } from './commands/index.mjs';
-import { SlashCreator, CFWorkerServer } from './shim';
+import { commands } from './commands/index.js';
+import { SlashCreator, server } from './shim';
+import { GiveawayState } from '@dougley/frugal-giveaways-do';
 
 export const creator = new SlashCreator({
   applicationID: DISCORD_APP_ID,
   publicKey: DISCORD_PUBLIC_KEY,
   token: DISCORD_BOT_TOKEN
 });
-
-export const server = new CFWorkerServer();
 
 creator.withServer(server).registerCommands(commands);
 
@@ -19,5 +18,8 @@ creator.on('commandRun', (command, _, ctx) =>
 creator.on('commandError', (command, error) =>
   console.error(`Command ${command.commandName} errored:`, error.stack || error.toString())
 );
+
+// DO bindings
+export { GiveawayState };
 
 export default server.moduleWorkerBindings;
