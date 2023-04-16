@@ -7,8 +7,8 @@ import {
   SlashCommand,
   SlashCreator
 } from 'slash-create';
-import { joinButtonRegistryCallback, leaveButtonRegistryCallback } from '../components/buttons';
-import { server } from '../shim/servers/cfworker';
+import { joinButtonRegistryCallback, leaveButtonRegistryCallback } from '../../components/buttons';
+import { server } from '../../shim/servers/cfworker';
 
 export default class BotCommand extends SlashCommand {
   constructor(creator: SlashCreator) {
@@ -73,6 +73,9 @@ export default class BotCommand extends SlashCommand {
     });
     // for testing purposes, just end in 10 seconds
     await state.class.setAlarm(new Date(Date.now() + 10000).toISOString());
-    await server.env!.KV.put(msg.id, id.toString());
+    await server.env!.KV.put(msg.id, id.toString(), {
+      // expire keys in 3 months, consistent with summary expiration and DO expiration
+      expiration: Date.now() + 1_000 * 60 * 60 * 24 * 30 * 3
+    });
   }
 }
