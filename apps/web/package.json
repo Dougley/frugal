@@ -11,6 +11,11 @@
     "typecheck": "tsc",
     "wrangler": "wrangler pages dev ./public --r2 R2 --kv KV_SESSIONS --persist"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dougley/frugal.git",
+    "directory": "apps/web"
+  },
   "dependencies": {
     "@remix-run/cloudflare": "^1.15.0",
     "@remix-run/cloudflare-pages": "^1.15.0",
