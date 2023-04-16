@@ -1,12 +1,12 @@
-import {
-  SlashCommand,
-  CommandOptionType,
-  SlashCreator,
-  CommandContext,
-  ComponentType,
-  ButtonStyle
-} from 'slash-create';
 import { GiveawayState } from '@dougley/frugal-giveaways-do';
+import {
+  ButtonStyle,
+  CommandContext,
+  CommandOptionType,
+  ComponentType,
+  SlashCommand,
+  SlashCreator
+} from 'slash-create';
 import { server } from '../shim/servers/cfworker';
 
 export default class BotCommand extends SlashCommand {

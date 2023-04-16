@@ -9,6 +9,7 @@
     "dev": "npm-run-all build --parallel \"dev:*\"",
     "start": "cross-env NODE_ENV=production npm run wrangler",
     "typecheck": "tsc",
+    "format": "prettier --write ./app",
     "wrangler": "wrangler pages dev ./public --r2 R2 --kv KV_SESSIONS --persist"
   },
   "repository": {

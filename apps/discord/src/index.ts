@@ -1,6 +1,6 @@
-import { commands } from './commands/index.js';
-import { SlashCreator, server } from './shim';
 import { GiveawayState } from '@dougley/frugal-giveaways-do';
+import { commands } from './commands/index.js';
+import { server, SlashCreator } from './shim';
 
 export const creator = new SlashCreator({
   applicationID: DISCORD_APP_ID,

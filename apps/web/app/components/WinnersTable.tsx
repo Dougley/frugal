@@ -1,7 +1,7 @@
-import type { ReactElement } from 'react';
-import { useEffect, useState } from 'react';
-import { GiPartyPopper } from 'react-icons/gi';
-import type { APIUser } from 'discord-api-types/v9';
+import type { APIUser } from "discord-api-types/v9";
+import type { ReactElement } from "react";
+import { useEffect, useState } from "react";
+import { GiPartyPopper } from "react-icons/gi";
 
 type winnnersTableProps = {
   winners: string[];
@@ -11,10 +11,10 @@ function WinnersTable({
   winners,
   participants,
 }: winnnersTableProps): ReactElement {
-  const formatter = new Intl.NumberFormat('en-US');
+  const formatter = new Intl.NumberFormat("en-US");
   const [me, setMe] = useState<APIUser | null>(null);
   useEffect(() => {
-    const user = sessionStorage.getItem('user');
+    const user = sessionStorage.getItem("user");
     if (user) {
       setMe(participants.find((x) => x.id === user) ?? null);
     }
@@ -22,7 +22,7 @@ function WinnersTable({
   return (
     <>
       {(winners.length > 0 && (
-        <table className="table table-zebra w-full">
+        <table className="table-zebra table w-full">
           <thead>
             <tr>
               <th></th>
@@ -76,7 +76,7 @@ function Avatar({ user }: AvatarProps) {
     if (!user.avatar) return;
     const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
     fetch(avatarURL, {
-      method: 'HEAD',
+      method: "HEAD",
     }).then((res) => {
       if (res.ok) {
         setAvatar(avatarURL);
@@ -84,7 +84,7 @@ function Avatar({ user }: AvatarProps) {
     });
   }, [user]);
   return (
-    <div className="avatar placeholder">
+    <div className="placeholder avatar">
       <div className="w-16 rounded-full">
         <img
           className="avatar"

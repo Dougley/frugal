@@ -1,7 +1,7 @@
 import {
-  SlashCreator as Creator,
   RespondFunction,
   Server,
+  SlashCreator as Creator,
   SlashCreatorOptions,
   TransformedRequest
 } from 'slash-create';

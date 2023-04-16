@@ -1,4 +1,4 @@
-import { SlashCommand, CommandOptionType, SlashCreator, CommandContext, MessageOptions } from 'slash-create';
+import { CommandContext, SlashCommand, SlashCreator } from 'slash-create';
 
 export default class BotCommand extends SlashCommand {
   constructor(creator: SlashCreator) {
@@ -9,6 +9,6 @@ export default class BotCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
-    return `Pong! Took ${Date.now() - ctx.invokedAt}ms.`;
+    return `Pong! Took ${performance.now()}ms.`;
   }
 }

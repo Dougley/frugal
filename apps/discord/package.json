@@ -10,7 +10,8 @@
     "sync": "slash-up sync",
     "sync:dev": "slash-up sync -e development",
     "lint": "eslint --ext .ts .",
-    "lint:fix": "eslint --ext .ts . --fix"
+    "lint:fix": "eslint --ext .ts . --fix",
+    "format": "prettier -w ./src"
   },
   "repository": {
     "type": "git",

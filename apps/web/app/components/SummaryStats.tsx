@@ -1,6 +1,6 @@
-import formatDistance from 'date-fns/formatDistance';
-import type { Snowflake } from 'discord-api-types/globals';
-import type { APIUser } from 'discord-api-types/v9';
+import formatDistance from "date-fns/formatDistance";
+import type { Snowflake } from "discord-api-types/globals";
+import type { APIUser } from "discord-api-types/v9";
 
 type StatsProps = {
   details: {
@@ -16,7 +16,7 @@ type StatsProps = {
 };
 function Stats({ details, entrants }: StatsProps) {
   return (
-    <div className="stats stats-vertical lg:stats-horizontal shadow justify-center">
+    <div className="stats stats-vertical justify-center shadow lg:stats-horizontal">
       {getStats({ details, entrants }).map((stat) => (
         <Stat title={stat.title} value={stat.value} key={stat.title} />
       ))}
@@ -25,19 +25,19 @@ function Stats({ details, entrants }: StatsProps) {
 }
 
 function getStats({ details, entrants }: StatsProps) {
-  const formatter = new Intl.NumberFormat('en-US');
+  const formatter = new Intl.NumberFormat("en-US");
   return [
     {
-      title: 'Participants',
+      title: "Participants",
       value: formatter.format(entrants.length),
     },
     {
-      title: 'Winners',
+      title: "Winners",
       value: formatter.format(Number(details.winners)),
     },
     {
-      title: 'Ended',
-      value: formatDistance(new Date(details.time), new Date()) + ' ago',
+      title: "Ended",
+      value: formatDistance(new Date(details.time), new Date()) + " ago",
     },
   ];
 }

@@ -21,11 +21,11 @@ export function ThemeSwitcher() {
           .setAttribute("data-theme", theme === "light" ? "dark" : "light");
       }}
     >
-      <label className="swap-rotate swap">
+      <label className="swap swap-rotate">
         <input
           disabled
           type="checkbox"
-          className="swap-rotate swap"
+          className="swap swap-rotate"
           checked={theme === "light"}
         />
 
