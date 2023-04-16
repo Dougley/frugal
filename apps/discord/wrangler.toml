@@ -1,0 +1,113 @@
+# --- Defaults --- #
+
+name = "frugal-core-dev"
+main = "dist/index.mjs"
+compatibility_date = "2023-04-09"
+workers_dev = true
+no_bundle = true
+
+[build]
+command = "turbo build"
+watch_dir = "src"
+
+[[rules]]
+type = "ESModule"
+globs = ["**/*.ts", "**/*.tsx"]
+
+[miniflare]
+env_path = ".env"
+r2_persist = true
+d1_persist = true
+cache_persist = true
+kv_persist = true
+durable_objects_persist = true
+
+# --- Staging --- #
+
+[env.staging]
+name = "frugal-core-stg"
+
+[env.staging.vars]
+ENVIRONMENT = "staging"
+
+[[env.staging.durable_objects.bindings]]
+name = "GIVEAWAY_STATE"
+class_name = "GiveawayState"
+
+[[env.staging.migrations]]
+tag = "v1"
+new_classes = ["GiveawayState"]
+
+[[env.staging.kv_namespaces]]
+binding = "KV"
+id = "4a0966b541644a8fb749fb96a4867670"
+
+[[env.staging.r2_buckets]]
+binding = "STORAGE"
+bucket_name = "frugal-staging"
+
+[[env.staging.analytics_engine_datasets]]
+binding = "ANALYTICS"
+
+# --- Production --- #
+
+[env.production]
+name = "frugal-core-prd"
+
+[env.production.vars]
+ENVIRONMENT = "production"
+
+[[env.production.durable_objects.bindings]]
+name = "GIVEAWAY_STATE"
+class_name = "GiveawayState"
+
+[[env.production.migrations]]
+tag = "v1"
+new_classes = ["GiveawayState"]
+
+[[env.production.kv_namespaces]]
+binding = "KV"
+id = "9d21020092f1485badd0d5efdff2352e"
+
+[[env.production.r2_buckets]]
+binding = "STORAGE"
+bucket_name = "frugal-prod"
+
+[[env.production.analytics_engine_datasets]]
+binding = "ANALYTICS"
+
+[env.production.build]
+command = "NODE_ENV=production turbo build"
+watch_dir = "src"
+
+# --- Development, or unspecified --- #
+
+[vars]
+ENVIRONMENT = "development"
+
+[[durable_objects.bindings]]
+name = "GIVEAWAY_STATE"
+class_name = "GiveawayState"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["GiveawayState"]
+
+[[kv_namespaces]]
+binding = "KV"
+id = "ff4da80f1e42471db838c38e8e73a3ed"
+
+[[r2_buckets]]
+binding = "STORAGE"
+bucket_name = "frugal-devel"
+
+[[analytics_engine_datasets]]
+binding = "ANALYTICS"
+
+[env.development.build]
+command = "NODE_ENV=development turbo build"
+watch_dir = "src"
+
+[env.development.build.upload] # Required by Miniflare
+format = "modules"
+main = "./index.mjs"
