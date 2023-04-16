@@ -4,10 +4,10 @@ FROM mcr.microsoft.com/devcontainers/typescript-node:18 as base
 # We do this to prevent some weirdness with webcrypto and miniflare
 RUN su node -c "source /usr/local/share/nvm/nvm.sh && nvm install 18.3 --default"
 
-# Install ngrok
-RUN wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz \
-    && tar xvzf ./ngrok-v3-stable-linux-amd64.tgz -C /usr/local/bin \
-    && rm ./ngrok-v3-stable-linux-amd64.tgz
+# Install cloudflared
+RUN wget https://github.com/cloudflare/cloudflared/releases/download/2023.4.0/cloudflared-linux-amd64.deb \
+    && dpkg -i cloudflared-linux-amd64.deb \
+    && rm cloudflared-linux-amd64.deb
 
 # install sqlite3
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
