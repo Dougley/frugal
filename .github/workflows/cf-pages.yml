@@ -28,6 +28,7 @@ jobs:
 
       - name: Build
         run: pnpm run build:mapped
+        working-directory: ./apps/web
         
       - name: Sentry Remix sourcemap upload
         run: node ./node_modules/@sentry/remix/scripts/sentry-upload-sourcemaps.js && find . -type f -name '*.map' -delete
