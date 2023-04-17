@@ -9,6 +9,9 @@ name: Deploy to Cloudflare Pages
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
     name: Deploy
     steps:
       - uses: actions/checkout@v3
@@ -38,19 +41,19 @@ jobs:
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT_WEB }}
 
-      # - name: Publish to Cloudflare Pages
-      #   id: cf-deploy
-      #   uses: cloudflare/pages-action@v1
-      #   with:
-      #     apiToken: ${{ secrets.CF_API_TOKEN }}
-      #     accountId: ${{ secrets.CF_ACCOUNT_ID }}
-      #     projectName: frugal
-      #     directory: ./apps/web/public
+      - name: Publish to Cloudflare Pages
+        id: cf-deploy
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          projectName: frugal
+          directory: ./apps/web/public
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
   sentry:
     name: Create Sentry release
     uses: dougley/frugal/.github/workflows/sentry.yml@main
-    if: github.event.inputs.skipdeploy != 'true'
     secrets: inherit
     with:
       environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}
