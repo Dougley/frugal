@@ -10,6 +10,12 @@ on:
         description: 'Skip deploy?'
         required: false
         type: boolean
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/discord/**'
+      - '.github/workflows/workers-prd.yml'
 
 jobs:
   deploy:

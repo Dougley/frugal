@@ -10,12 +10,6 @@ on:
         description: 'Skip deploy?'
         required: false
         type: boolean
-  push:
-    branches:
-      - main
-    paths:
-      - 'apps/discord/**'
-      - '.github/workflows/workers-stg.yml'
 
 jobs:
   deploy:
