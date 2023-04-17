@@ -23,6 +23,7 @@
     "@remix-run/cloudflare-pages": "^1.15.0",
     "@remix-run/node": "^1.15.0",
     "@remix-run/react": "^1.15.0",
+    "@sentry/remix": "^7.48.0",
     "cross-env": "^7.0.3",
     "daisyui": "^2.51.5",
     "date-fns": "^2.29.3",
