@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^3.19.0",
+    "@dougley/types": "workspace:^",
     "@remix-run/dev": "^1.15.0",
     "@remix-run/eslint-config": "^1.15.0",
     "@types/react": "^18.0.35",

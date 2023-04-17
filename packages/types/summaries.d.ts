@@ -2,7 +2,7 @@ declare type SavedUserInformation = {
   id: string;
   username: string;
   discriminator: string;
-  avatar?: string;
+  avatar: string | null;
 };
 
 declare type SummaryOutput = {
@@ -12,7 +12,7 @@ declare type SummaryOutput = {
     message: string;
     prize: string;
     winners: number;
-    originalWinners: SavedUserInformation[];
+    originalWinners: string[];
     time: {
       start: string;
       end: string;

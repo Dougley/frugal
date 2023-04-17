@@ -75,7 +75,8 @@ export default class BotCommand extends SlashCommand {
     await state.class.setAlarm(new Date(Date.now() + 10000).toISOString());
     await server.env!.KV.put(msg.id, id.toString(), {
       // expire keys in 3 months, consistent with summary expiration and DO expiration
-      expiration: Date.now() + 1_000 * 60 * 60 * 24 * 30 * 3
+      // 'expiration' expects a value in seconds since epoch
+      expiration: Math.floor((Date.now() + 1000 * 60 * 60 * 24 * 30 * 3) / 1000)
     });
   }
 }

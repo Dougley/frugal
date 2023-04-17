@@ -1,3 +1,5 @@
+/// <reference types="@dougley/types/summaries" />
+
 import type { ActionArgs } from "@remix-run/cloudflare";
 import { type V2_MetaFunction } from "@remix-run/cloudflare";
 import { Form, useActionData } from "@remix-run/react";
@@ -12,18 +14,20 @@ export const meta: V2_MetaFunction = () => {
   return defaultMeta("Summaries");
 };
 
-const summaryScheme = z.object({
-  _version: z.literal(1),
+const summaryScheme: z.ZodType<SummaryOutput> = z.object({
+  _version: z.literal(2),
   details: z.object({
     channel: z.string(),
     message: z.string(),
     prize: z.string(),
-    winners: z.number({ coerce: true }),
-    time: z.number({ coerce: true }),
-    duration: z.string(),
+    winners: z.number(),
     originalWinners: z.array(z.string()),
+    time: z.object({
+      start: z.string().datetime(),
+      end: z.string().datetime(),
+    }),
   }),
-  entrants: z.array(
+  entries: z.array(
     z.object({
       id: z.string(),
       username: z.string(),
@@ -77,7 +81,10 @@ function Upload() {
 }
 
 export default function Index() {
-  const data = useActionData();
+  const data = useActionData() as
+    | { ok: false; error: string }
+    | { ok: true; data: SummaryOutput }
+    | undefined;
   if (!data) {
     return (
       <div className="hero flex min-h-screen w-full flex-col justify-center overflow-x-auto">
@@ -106,7 +113,7 @@ export default function Index() {
           <h1 className="m-5 text-center text-4xl font-semibold">
             Render Error
           </h1>
-          <div className="alert alert-error shadow-lg">
+          <div className="alert alert-error w-auto shadow-lg">
             <pre className="language-js">
               <MdError size={24} />
               <code className="language-js">{data.error}</code>
@@ -129,13 +136,13 @@ export default function Index() {
           Prize: {data.data.details.prize}
         </div>
         <div className="flex justify-center">
-          <Stats details={data.data.details} entrants={data.data.entrants} />
+          <Stats details={data.data.details} entries={data.data.entries} />
         </div>
         <h3 className="m-5 text-center text-2xl font-semibold">Winners</h3>
         <div className="overflow-x-auto">
           <WinnersTable
             winners={data.data.details.originalWinners}
-            participants={data.data.entrants}
+            participants={data.data.entries}
           />
         </div>
         <div className="divider"></div>
@@ -143,7 +150,7 @@ export default function Index() {
           Participants
         </h3>
         <div className="overflow-x-auto">
-          <ParticipantsTable participants={data.data.entrants} />
+          <ParticipantsTable participants={data.data.entries} />
         </div>
         <div className="divider"></div>
         <Upload />

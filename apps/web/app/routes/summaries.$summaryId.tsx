@@ -1,27 +1,15 @@
+/// <reference types="@dougley/types/summaries" />
+
 import type { LoaderFunction, V2_MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
 import add from "date-fns/add";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
-import type { APIUser, Snowflake } from "discord-api-types/v9";
 import { HiOutlineSave, HiTrash } from "react-icons/hi";
 import ParticipantsTable from "~/components/ParticipantsTable";
 import Stats from "~/components/SummaryStats";
 import WinnersTable from "~/components/WinnersTable";
 import { defaultMeta } from "~/utils/meta";
-
-type ResultsFile = {
-  details: {
-    channel: Snowflake;
-    message: Snowflake;
-    prize: string;
-    winners: `${number}`;
-    time: number;
-    duration: number;
-    originalWinners: Snowflake[];
-  };
-  entrants: APIUser[];
-};
 
 // Loaders provide data to components and are only ever called on the server, so
 // you can connect to a database or run any server side code you want right next
@@ -29,33 +17,47 @@ type ResultsFile = {
 // https://remix.run/api/conventions#loader
 export let loader: LoaderFunction = async ({ params, context, request }) => {
   const bucket = context.R2 as R2Bucket;
+  const url = new URL(request.url);
+  const cacheKey = new Request(url.toString(), request);
   const id = params.summaryId;
-  const cache = await caches.open("custom:cache");
-  const cached = await cache.match(request);
+  // @ts-expect-error - not typed?
+  const cache = caches.default as Cache;
+
+  // check if the request is already in the cache
+  const cached = await cache.match(cacheKey);
   if (cached) {
-    console.log("cache hit");
+    console.log(
+      `Cache hit for ${id} with etag ${cached.headers.get(
+        "etag"
+      )}, and url ${url.toString()}`
+    );
     return cached;
   }
 
-  const obj = await bucket.head(`timer:${id}.json`);
+  const obj = await bucket.head(`giveaway:${id}.json`);
   if (obj === null) {
+    console.log(
+      `Cache miss for ${id} with url ${url.toString()}, but not found in bucket.`
+    );
     throw json({ ok: false, error: "not found" }, { status: 404 });
   }
 
-  const data = (await (await bucket.get(
-    `timer:${id}.json`
-  ))!.json()) as ResultsFile;
-  console.log("cache miss");
+  const data = await bucket.get(`giveaway:${id}.json`);
+  console.log(
+    `Cache miss for ${id} with url ${url.toString()}, but found in bucket.`
+  );
+
+  const headers = new Headers();
+  data!.writeHttpMetadata(headers);
+  headers.set("etag", data!.etag);
+  // cache for 3 months, which is the default expiry for everything
+  headers.set("cache-control", "public, max-age=7776000");
 
   // https://remix.run/api/remix#json
-  const resp = json(data, {
-    headers: {
-      // cache for a year
-      "cache-control": "public, max-age=31536000",
-    },
+  const resp = json(await data!.json(), {
+    headers,
   });
-
-  await cache.put(request, resp);
+  await cache.put(cacheKey, resp.clone());
   return resp;
 };
 
@@ -65,7 +67,7 @@ export const meta: V2_MetaFunction = () => {
 
 // https://remix.run/guides/routing#index-routes
 export default function Index() {
-  let data = useLoaderData();
+  let data = useLoaderData() as SummaryOutput;
 
   return (
     <div className="flex min-h-screen w-full flex-col justify-center overflow-x-auto">
@@ -74,7 +76,7 @@ export default function Index() {
       </h1>
       <div className="text m-5 text-center">Prize: {data.details.prize}</div>
       <div className="flex justify-center">
-        <Stats details={data.details} entrants={data.entrants} />
+        <Stats details={data.details} entries={data.entries} />
       </div>
       <h3 className="m-5 text-center text-2xl font-semibold">
         Original Winners
@@ -82,13 +84,13 @@ export default function Index() {
       <div className="overflow-x-auto">
         <WinnersTable
           winners={data.details.originalWinners}
-          participants={data.entrants}
+          participants={data.entries}
         />
       </div>
       <div className="divider"></div>
       <h3 className="mb-5 text-center text-2xl font-semibold">Participants</h3>
       <div className="overflow-x-auto">
-        <ParticipantsTable participants={data.entrants} />
+        <ParticipantsTable participants={data.entries} />
       </div>
       <div className="divider"></div>
       <div className="btn-row flex justify-center space-x-4">
@@ -109,16 +111,19 @@ export default function Index() {
       <div className="flex justify-center p-2.5">
         <p className="text-sm">
           Summary expires{" "}
-          {formatDistanceToNow(add(data.details.time, { days: 90 }), {
-            addSuffix: true,
-          })}
+          {formatDistanceToNow(
+            add(new Date(data.details.time.end), { days: 90 }),
+            {
+              addSuffix: true,
+            }
+          )}
         </p>
       </div>
     </div>
   );
 }
 
-function downloadFile(data: ResultsFile) {
+function downloadFile(data: SummaryOutput) {
   const blob = new Blob([JSON.stringify(data, null, 2)], {
     type: "application/json",
   });

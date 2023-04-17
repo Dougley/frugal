@@ -140,7 +140,7 @@ export class GiveawayState extends DOProxy {
         message: this.boundMessage!,
         prize: this.prize!,
         winners: this.winnerAmount!,
-        originalWinners: winners,
+        originalWinners: winners.map((w) => w.id),
         time: {
           start: this.startDate!.toISOString(),
           end: this.endDate!.toISOString(),
