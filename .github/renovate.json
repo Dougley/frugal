@@ -3,6 +3,7 @@
   "extends": ["config:base", "group:allNonMajor"],
   "labels": ["dependencies"],
   "schedule": ["before 12pm on Sunday"],
+  "baseBranches": ["dev"],
   "cloneSubmodules": true,
   "github-actions": {
     "enabled": false
