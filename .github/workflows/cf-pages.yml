@@ -8,6 +8,10 @@ name: Deploy to Cloudflare Pages
 
 jobs:
   deploy:
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./apps/web
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -31,11 +35,9 @@ jobs:
 
       - name: Build
         run: pnpm run build:mapped
-        working-directory: ./apps/web
         
       - name: Sentry Remix sourcemap upload
         run: node ./node_modules/@sentry/remix/scripts/sentry-upload-sourcemaps.js && find . -type f -name '*.map' -delete
-        working-directory: ./apps/web
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
@@ -48,8 +50,9 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           projectName: frugal
-          directory: ./apps/web/public
+          directory: ./public
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          workingDirectory: ./apps/web
 
   sentry:
     name: Create Sentry release
