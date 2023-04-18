@@ -1,5 +1,12 @@
 /// <reference types="@dougley/types/summaries" />
 
+import {
+  APIMessage,
+  ButtonStyle,
+  ComponentType,
+  RESTPatchAPIChannelMessageJSONBody,
+  RESTPostAPIChannelMessageJSONBody,
+} from "discord-api-types/v9";
 import { DOProxy } from "do-proxy";
 
 export class GiveawayState extends DOProxy {
@@ -16,17 +23,21 @@ export class GiveawayState extends DOProxy {
   winnerAmount: number | undefined; // Amount of winners
   prize: string | undefined; // Prize of the giveaway
 
-  running: boolean = false; // Whether the giveaway is running
-
   constructor(state: DurableObjectState, env: Env) {
     super(state);
     // the constructor is called once the object receives its first request
     this.state = state;
     this.storage = state.storage;
     this.env = env;
+
     // we cannot initialize properties here, because the object may be
     // deserialized from storage at any time, and we don't want to overwrite
     // the values that were stored.
+  }
+
+  get running() {
+    // there's a little leaway here so the alarm doesnt clear before the giveaway
+    return this.endDate && this.endDate.getTime() + 1000 > Date.now();
   }
 
   /**
@@ -72,7 +83,6 @@ export class GiveawayState extends DOProxy {
     await this.storage.setAlarm(date.getTime());
     if (!this.startDate) this.startDate = new Date();
     this.endDate = date;
-    this.running = true;
   }
 
   /**
@@ -174,7 +184,7 @@ export class GiveawayState extends DOProxy {
     const message =
       winners.length > 0
         ? `Congratulations ${winnersString}! You won **${this.prize}**!`
-        : "No winners";
+        : "Nobody entered the giveaway, so nobody won.";
     return message;
   }
 
@@ -183,7 +193,6 @@ export class GiveawayState extends DOProxy {
    * @param amount Amount of winners to draw
    * @param skip Array of users to skip
    * @returns Array of winners
-   * @throws Error if there are no entries
    */
   async drawWinners(
     amount: number = 1,
@@ -191,7 +200,7 @@ export class GiveawayState extends DOProxy {
   ): Promise<SavedUserInformation[]> {
     const entries = await this.getEntries();
     if (entries.length === 0) {
-      throw new Error("There are no entries");
+      return [];
     }
 
     if (entries.length < amount) {
@@ -227,22 +236,22 @@ export class GiveawayState extends DOProxy {
       );
       await this.purgeEntries();
     } else {
-      this.running = false;
       // before we do anything, check if the message is still there
       // we treat deleting the original message as a cancel
       const giveawayMessage = await fetch(
         `https://discord.com/api/v9/channels/${this.boundChannel}/messages/${this.boundMessage}`,
         {
-          // yes, we can use HEAD to check if the message is there, still takes ratelimit tokens though :(
-          method: "HEAD",
+          method: "GET",
           headers: {
             Authorization: `Bot ${this.env.DISCORD_BOT_TOKEN}`,
           },
         }
       );
       if (giveawayMessage.ok) {
-        const winners = await this.drawWinners();
+        const msg = (await giveawayMessage.json()) as APIMessage;
+        const winners = await this.drawWinners(this.winnerAmount);
         const message = this.getFormattedEntries(winners);
+        // announce the winners with a new message
         await fetch(
           `https://discord.com/api/v9/channels/${this.boundChannel}/messages`,
           {
@@ -261,9 +270,59 @@ export class GiveawayState extends DOProxy {
               allowed_mentions: {
                 users: winners.map((x) => x.id),
               },
-            }),
+            } as RESTPostAPIChannelMessageJSONBody),
           }
         );
+        // edit the original message to say that the giveaway is over
+        const resp = await fetch(
+          `https://discord.com/api/v9/channels/${this.boundChannel}/messages/${this.boundMessage}`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bot ${this.env.DISCORD_BOT_TOKEN}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              content: "Giveaway ended!",
+              embeds: [
+                {
+                  ...msg.embeds[0],
+                  description: msg.embeds[0]
+                    .description! //
+                    .replace("Ends: ", "Ended: ")
+                    .replace(
+                      /Winners: \d+/,
+                      `Winners: ${
+                        winners.length > 0
+                          ? winners.map((w) => `<@${w.id}>`).join(", ")
+                          : "Nobody!"
+                      }`
+                    ),
+                  color: 0x808080,
+                },
+              ],
+              components: [
+                {
+                  type: ComponentType.ActionRow,
+                  components: [
+                    {
+                      type: ComponentType.Button,
+                      style: ButtonStyle.Link,
+                      url: `https://dev.frugal.pages.dev/summaries/${this.state.id.toString()}`,
+                      label: "View Summary",
+                    },
+                  ],
+                },
+              ],
+            } as RESTPatchAPIChannelMessageJSONBody),
+          }
+        );
+        if (!resp.ok) {
+          console.error(
+            `Failed to edit message ${this.boundMessage} in channel ${this.boundChannel}`,
+            await resp.text()
+          );
+        }
         // flush the results to R2 for summaries
         await this.flushR2(winners);
       }

@@ -40,7 +40,7 @@ export async function joinButtonRegistryCallback(ctx: ComponentContext) {
       id: ctx.user.id,
       username: ctx.user.username,
       discriminator: ctx.user.discriminator,
-      avatar: ctx.user.avatar
+      avatar: ctx.user.avatar ?? null
     });
     return ctx.send({
       content: `You entered the giveaway!`,
