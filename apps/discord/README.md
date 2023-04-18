@@ -1,51 +1,30 @@
-# /create with Cloudflare Workers
+# Frugal Discord Interactions (`@dougley/frugal-discord`)
 
-A [slash-create](https://npm.im/slash-create) template, using [Cloudflare Workers](https://workers.cloudflare.com).
+This package holds code for integrating with Discord.
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/Snazzah/slash-create-worker)
+`@dougley/frugal-discord` is based on [slash-create](https://slash-create.js.org), more specifically the [Cloudflare Workers template](https://github.com/Snazzah/slash-create-worker).
 
-## Getting Started
-### Cloning the repo
-You can either use degit to locally clone this repo without git, or [create a new repo from this template](https://github.com/Snazzah/slash-create-worker/generate) and clone that.
-```sh
-npx degit Snazzah/slash-create-worker
-```
+This project is heavily intertwined with features on Cloudflare Workers that are part of the paid plan. If you want to run this project yourself, you'll need to set up a Cloudflare account and pay for the Workers Bundled plan. Support for running using the free plan is not planned and unsupported.
 
-After that, make sure to install dependencies using npm or yarn:
-```sh
-npm install
-# yarn
-```
-### Installing and setting up Wrangler
-> Make sure to [sign up for a Cloudflare Workers account](https://dash.cloudflare.com/sign-up/workers) in a browser before continuing.
-Install wrangler with npm or yarn:
-```sh
-npm install -D wrangler@latest
-# yarn global add wrangler@latest
-```
-Read more about [installing wrangler](https://developers.cloudflare.com/workers/cli-wrangler/install-update).
+## Development Setup
 
-Afterwards, run `wrangler login` to login to your Cloudflare account with OAuth:
-```sh
-wrangler login
-```
+1. Run `pnpm install`
+   - Install [pnpm](https://pnpm.io/) if you don't have it already
+2. Create a Discord application and bot, if you haven't already
+3. Create a `.env` file in the `discord` directory
+   - Copy the contents of `.env.example` into it
+   - Replace the placeholder values with your own
+4. Run `pnpm dev`
+   - This will start a local server on port 8787, you probably want to use a tunnel service like [ngrok](https://ngrok.com/) to expose it to the internet. Our devcontainer setup includes `cloudflared` for this purpose.
+5. Set the "Interactions Endpoint URL" in your Discord application to the URL of your tunnel service
+6. Run `pnpm sync:dev` to register your slash commands with Discord
+   - Repeat this step whenever you add a new slash command or if you change an existing one
 
-Copy `wrangler.example.toml` into `wrangler.toml`. Make sure to fill in your account ID in the config and update the name of the worker. You can find your account ID [here](https://dash.cloudflare.com/?to=/:account/workers) towards the right side.
+## Deployment
 
-### Filling in secrets
-You can enter in environment secrets with `wrangler secret put`, here are the keys that are required to run this:
-```sh
-npx wrangler secret put DISCORD_APP_ID
-npx wrangler secret put DISCORD_PUBLIC_KEY
-npx wrangler secret put DISCORD_BOT_TOKEN
-```
-
-### Development
-To run this locally, copy `.env.example` to `.dev.vars` and fill in the variables, then you can run `npm run dev` (or `yarn dev`) to start a local dev environment and use something like ngrok to tunnel it to a URL.
-
-To sync commands in the development environment, copy `.env.example` to `development.env` and fill in the variables, then run `npm run sync:dev` (or `yarn sync:dev`).
-
-> Note: When you create a command, make sure to include it in the array of commands in `./src/commands/index.ts`.
-
-### Production
-To sync to production, copy `.env.example` to `.env` and fill in the variables, then run `npm run sync`. To publish code to a worker, run `npm run deploy`.
+0. Follow the steps above to set up your development environment
+1. Run `pnpm sync` to register your slash commands with Discord
+   - This creates global slash commands, so you only need to do this once realistically. If you want to test changes to a slash command, you can use `pnpm sync:dev` instead.
+2. Run `npx wrangler login` to log in to Cloudflare
+3. Run `pnpm deploy` to deploy the worker to Cloudflare Workers
+4. Set the "Interactions Endpoint URL" in your Discord application to the URL of your Cloudflare Worker
