@@ -18,5 +18,14 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "editor.formatOnSave": true,
-  "eslint.format.enable": false
+  "eslint.format.enable": false,
+  "sqltools.useNodeRuntime": true,
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "database": "${workspaceFolder:frugal}/.mf/d1/D1.sqlite3",
+      "name": "frugal-d1-sqlite"
+    }
+  ]
 }

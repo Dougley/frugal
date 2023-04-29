@@ -32,6 +32,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Migrate db
+        uses: cloudflare/wrangler-action@2.0.0
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          command: d1 migrations apply frugal
+          workingDirectory: ./apps/discord
+
       - name: Deploy commands
         if: github.event.inputs.deploycommands == 'true'
         run: pnpm run sync
@@ -53,11 +60,10 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           DISCORD_APP_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
           DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
-          PLANETSCALE_USER: ${{ secrets.PLANETSCALE_USER }}
-          PLANETSCALE_PASSWORD: ${{ secrets.PLANETSCALE_PASSWORD }}
-          PLANETSCALE_HOST: ${{ secrets.PLANETSCALE_HOST }}
           SUMMARY_SITE: ${{ secrets.SUMMARY_SITE }}
           ENVIROMENT: staging
+          RELEASE: ${{ github.sha }}
+          BRANCH: ${{ GITHUB_REF_NAME }}
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           command: publish --env staging

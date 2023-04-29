@@ -1,3 +1,6 @@
+import { Database } from '@dougley/d1-database';
+import { Kysely } from 'kysely';
+import { D1Dialect } from 'kysely-d1';
 import { RespondFunction, Server, TransformedRequest } from 'slash-create';
 import { MultipartData } from '../util/multipartData';
 
@@ -10,6 +13,7 @@ export type ServerRequestHandler = (treq: TransformedRequest, respond: RespondFu
 export class CFWorkerServer extends Server {
   handler?: ServerRequestHandler;
   env?: Env;
+  db?: Kysely<Database>;
   constructor() {
     super({ alreadyListening: true });
     this.isWebserver = true;
@@ -22,6 +26,10 @@ export class CFWorkerServer extends Server {
     handler: ServerRequestHandler
   ): Promise<Response> | Response {
     if (!this.env) this.env = env; // for later use
+    if (!this.db)
+      this.db = new Kysely<Database>({
+        dialect: new D1Dialect({ database: env.D1 })
+      });
     if (request.method !== 'POST') return new Response('Only POST requests are allowed', { status: 405 });
     return new Promise(async (resolve) => {
       const body = await request.text();

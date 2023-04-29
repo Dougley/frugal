@@ -16,11 +16,12 @@ globs = ["**/*.ts", "**/*.tsx"]
 
 [miniflare]
 env_path = ".env"
-r2_persist = true
-d1_persist = true
-cache_persist = true
-kv_persist = true
-durable_objects_persist = true
+# Caches are shared
+r2_persist = '../../.mf/r2'
+d1_persist = '../../.mf/d1'
+cache_persist = '../../.mf/cache'
+kv_persist = '../../.mf/kv'
+durable_objects_persist = '../../.mf/do'
 
 # --- Staging --- #
 
@@ -48,6 +49,12 @@ bucket_name = "frugal-staging"
 
 [[env.staging.analytics_engine_datasets]]
 binding = "ANALYTICS"
+
+[[env.staging.d1_databases]]
+binding = "D1"
+database_name = "frugal"
+database_id = "25175d02-8239-4f77-b53a-f8edd2fe6ebd"
+migrations_dir = "../../packages/d1-database/migrations"
 
 # --- Production --- #
 
@@ -80,6 +87,12 @@ binding = "ANALYTICS"
 command = "NODE_ENV=production turbo build"
 watch_dir = "src"
 
+[[env.staging.d1_databases]]
+binding = "D1"
+database_name = "frugal"
+database_id = "a09d43b8-850e-4f4d-ba91-fe47d3be0ec9"
+migrations_dir = "../../packages/d1-database/migrations"
+
 # --- Development, or unspecified --- #
 
 [vars]
@@ -103,6 +116,12 @@ bucket_name = "frugal-devel"
 
 [[analytics_engine_datasets]]
 binding = "ANALYTICS"
+
+[[d1_databases]]
+binding = "D1"
+database_name = "frugal"
+database_id = "ddc7d747-ada2-4e1c-9946-62856277f9a1"
+migrations_dir = "../../packages/d1-database/migrations"
 
 [env.development.build]
 command = "NODE_ENV=development turbo build"

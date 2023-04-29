@@ -42,6 +42,13 @@ export async function joinButtonRegistryCallback(ctx: ComponentContext) {
       discriminator: ctx.user.discriminator,
       avatar: ctx.user.avatar ?? null
     });
+    await server
+      .db!.updateTable('giveaways')
+      .set(({ bxp }) => ({
+        entry_count: bxp('entry_count', '+', 1)
+      }))
+      .where('message_id', '=', ctx.message.id)
+      .execute();
     return ctx.send({
       content: `You entered the giveaway!`,
       ephemeral: true
@@ -61,6 +68,13 @@ export async function leaveButtonRegistryCallback(ctx: ComponentContext) {
   const id = server.env!.GIVEAWAY_STATE.idFromString(durableID);
   const state = stub.get(id);
   await state.class.removeEntry({ id: ctx.user.id });
+  await server
+    .db!.updateTable('giveaways')
+    .set(({ bxp }) => ({
+      entry_count: bxp('entry_count', '-', 1)
+    }))
+    .where('message_id', '=', ctx.message.messageReference!.messageID!)
+    .execute();
   return ctx.editParent({
     content: `You left the giveaway!`,
     components: []

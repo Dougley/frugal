@@ -308,7 +308,7 @@ export class GiveawayState extends DOProxy {
                     {
                       type: ComponentType.Button,
                       style: ButtonStyle.Link,
-                      url: `https://dev.frugal.pages.dev/summaries/${this.state.id.toString()}`,
+                      url: `${this.env.SUMMARY_URL}/summaries/${this.state.id.toString()}`,
                       label: "View Summary",
                     },
                   ],
