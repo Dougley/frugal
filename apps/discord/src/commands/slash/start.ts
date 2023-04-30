@@ -39,6 +39,21 @@ export default class BotCommand extends SlashCommand {
           // @ts-expect-error - min_length and max_length are not in the typings
           min_length: 1,
           max_length: 100
+        },
+        {
+          type: CommandOptionType.STRING,
+          name: 'description',
+          description: 'Description of the giveaway',
+          required: false,
+          // @ts-expect-error - min_length and max_length are not in the typings
+          min_length: 1,
+          max_length: 1000
+        },
+        {
+          type: CommandOptionType.ATTACHMENT,
+          name: 'image',
+          description: 'Image to display in the giveaway',
+          required: false
         }
       ]
     });
@@ -80,8 +95,11 @@ export default class BotCommand extends SlashCommand {
         {
           color: 0x00ff00,
           title: ctx.options.prize,
-          description: `Winners: ${ctx.options.winners}\nEnds: <t:${timestamp}:R> (<t:${timestamp}:F>)`,
-          timestamp: endDate.toISOString()
+          description:
+            (ctx.options.description ? `${ctx.options.description}\n\n` : '') +
+            `Winners: ${ctx.options.winners}\nEnds: <t:${timestamp}:R> (<t:${timestamp}:F>)`,
+          timestamp: endDate.toISOString(),
+          image: ctx.options.image ? { url: ctx.attachments.get(ctx.options.image)!.url } : undefined
         }
       ],
       components: [
@@ -114,5 +132,18 @@ export default class BotCommand extends SlashCommand {
       // 'expiration' expects a value in seconds since epoch
       expiration: Math.floor((Date.now() + 1000 * 60 * 60 * 24 * 30 * 3) / 1000)
     });
+    await server
+      .db!.insertInto('giveaways')
+      .values({
+        message_id: msg.id,
+        guild_id: ctx.guildID!,
+        channel_id: ctx.channelID!,
+        end_time: endDate.toISOString(),
+        prize: ctx.options.prize,
+        winners: ctx.options.winners,
+        entry_count: 0,
+        durable_object_id: id.toString()
+      })
+      .execute();
   }
 }
