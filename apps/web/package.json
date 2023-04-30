@@ -11,7 +11,7 @@
     "start": "cross-env NODE_ENV=production npm run wrangler",
     "typecheck": "tsc",
     "format": "prettier --write ./app",
-    "wrangler": "wrangler pages dev ./public --r2 R2 --kv KV_SESSIONS --persist"
+    "wrangler": "wrangler pages dev ./public --r2 STORAGE --kv KV_SESSIONS --persist --persist-to='../../.mf'"
   },
   "repository": {
     "type": "git",

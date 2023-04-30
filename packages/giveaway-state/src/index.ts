@@ -160,7 +160,7 @@ export class GiveawayState extends DOProxy {
     };
     // now flush the data to the R2 bucket
     const bucket = this.env.STORAGE;
-    const key = `giveaway-${this.boundMessage}.json`;
+    const key = `giveaway-${this.state.id.toString()}.json`;
     const response = await bucket.put(key, JSON.stringify(summary), {
       httpMetadata: {
         contentType: "application/json",
@@ -308,7 +308,9 @@ export class GiveawayState extends DOProxy {
                     {
                       type: ComponentType.Button,
                       style: ButtonStyle.Link,
-                      url: `${this.env.SUMMARY_URL}/summaries/${this.state.id.toString()}`,
+                      url: `${
+                        this.env.SUMMARY_URL
+                      }/summaries/${this.state.id.toString()}`,
                       label: "View Summary",
                     },
                   ],

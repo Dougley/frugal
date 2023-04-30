@@ -16,7 +16,7 @@ import { defaultMeta } from "~/utils/meta";
 // to the component that renders it.
 // https://remix.run/api/conventions#loader
 export let loader: LoaderFunction = async ({ params, context, request }) => {
-  const bucket = context.R2 as R2Bucket;
+  const bucket = context.STORAGE as R2Bucket;
   const url = new URL(request.url);
   const cacheKey = new Request(url.toString(), request);
   const id = params.summaryId;
@@ -34,7 +34,7 @@ export let loader: LoaderFunction = async ({ params, context, request }) => {
     return cached;
   }
 
-  const obj = await bucket.head(`giveaway:${id}.json`);
+  const obj = await bucket.head(`giveaway-${id}.json`);
   if (obj === null) {
     console.log(
       `Cache miss for ${id} with url ${url.toString()}, but not found in bucket.`
@@ -42,7 +42,7 @@ export let loader: LoaderFunction = async ({ params, context, request }) => {
     throw json({ ok: false, error: "not found" }, { status: 404 });
   }
 
-  const data = await bucket.get(`giveaway:${id}.json`);
+  const data = await bucket.get(`giveaway-${id}.json`);
   console.log(
     `Cache miss for ${id} with url ${url.toString()}, but found in bucket.`
   );

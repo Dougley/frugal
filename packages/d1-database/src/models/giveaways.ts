@@ -2,7 +2,7 @@ export interface Giveaway {
   message_id: string;
   guild_id: string;
   channel_id: string;
-  end_time: Date;
+  end_time: string;
   prize: string;
   winners: number;
   entry_count: number;
