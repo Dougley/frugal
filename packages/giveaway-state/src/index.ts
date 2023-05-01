@@ -285,21 +285,16 @@ export class GiveawayState extends DOProxy {
             body: JSON.stringify({
               content: "Giveaway ended!",
               embeds: [
-                {
-                  ...msg.embeds[0],
-                  description: msg.embeds[0]
-                    .description! //
-                    .replace("Ends: ", "Ended: ")
-                    .replace(
-                      /Winners: \d+/,
-                      `Winners: ${
-                        winners.length > 0
-                          ? winners.map((w) => `<@${w.id}>`).join(", ")
-                          : "Nobody!"
-                      }`
-                    ),
-                  color: 0x808080,
-                },
+                ...msg.embeds.map((e) => {
+                  e.fields!.find((f) => f.name === "Ends")!.name = "Ended";
+                  e.description = `${e.description}\n\nWinners: ${
+                    winners.length > 0
+                      ? winners.map((w) => `<@${w.id}>`).join(", ")
+                      : "Nobody!"
+                  }`;
+                  e.color = 0x808080;
+                  return e;
+                }),
               ],
               components: [
                 {

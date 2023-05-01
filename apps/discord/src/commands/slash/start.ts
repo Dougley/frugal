@@ -1,4 +1,3 @@
-import { GiveawayState } from '@dougley/frugal-giveaways-do';
 import {
   ButtonStyle,
   CommandContext,
@@ -63,9 +62,8 @@ export default class BotCommand extends SlashCommand {
 
   async run(ctx: CommandContext) {
     await ctx.defer();
-    const stub = GiveawayState.wrap(server.env!.GIVEAWAY_STATE);
     const id = server.env!.GIVEAWAY_STATE.newUniqueId();
-    const state = stub.get(id);
+    const state = server.states!.get(id);
     const duration = parseTime(ctx.options.duration);
     if (duration === 0) {
       return ctx.sendFollowUp({
@@ -95,9 +93,19 @@ export default class BotCommand extends SlashCommand {
         {
           color: 0x00ff00,
           title: ctx.options.prize,
-          description:
-            (ctx.options.description ? `${ctx.options.description}\n\n` : '') +
-            `Winners: ${ctx.options.winners}\nEnds: <t:${timestamp}:R> (<t:${timestamp}:F>)`,
+          description: ctx.options.description ?? undefined,
+          fields: [
+            {
+              name: 'Winners',
+              value: ctx.options.winners.toString(),
+              inline: true
+            },
+            {
+              name: 'Ends',
+              value: `<t:${timestamp}:R> (<t:${timestamp}:F>)`,
+              inline: true
+            }
+          ],
           timestamp: endDate.toISOString(),
           image: ctx.options.image ? { url: ctx.attachments.get(ctx.options.image)!.url } : undefined
         }

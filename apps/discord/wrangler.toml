@@ -4,7 +4,7 @@ name = "frugal-core-dev"
 main = "dist/index.mjs"
 compatibility_date = "2023-04-09"
 workers_dev = true
-no_bundle = true
+# no_bundle = true
 
 [build]
 command = "turbo build"
@@ -49,6 +49,9 @@ bucket_name = "frugal-staging"
 
 [[env.staging.analytics_engine_datasets]]
 binding = "ANALYTICS"
+
+[env.staging.build]
+command = "NODE_ENV=production turbo build"
 
 [[env.staging.d1_databases]]
 binding = "D1"
