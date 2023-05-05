@@ -90,7 +90,7 @@ binding = "ANALYTICS"
 command = "NODE_ENV=production npx turbo build"
 watch_dir = "src"
 
-[[env.staging.d1_databases]]
+[[env.production.d1_databases]]
 binding = "D1"
 database_name = "frugal"
 database_id = "a09d43b8-850e-4f4d-ba91-fe47d3be0ec9"

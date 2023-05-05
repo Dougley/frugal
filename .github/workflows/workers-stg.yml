@@ -10,6 +10,11 @@ on:
         description: 'Skip deploy?'
         required: false
         type: boolean
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/discord/**'
 
 jobs:
   deploy:
@@ -33,11 +38,12 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Migrate db
-        uses: cloudflare/wrangler-action@2.0.0
-        with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          command: d1 migrations apply frugal
-          workingDirectory: ./apps/discord
+        if: github.event.inputs.skipdeploy != 'true'
+        #uses: cloudflare/wrangler-action@2.0.0
+        run: npx wrangler d1 migrations apply frugal --env staging
+        working-directory: ./apps/discord
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
 
       - name: Turbo build
         if: github.event.inputs.deploycommands == 'true'
@@ -55,8 +61,10 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
 
       - name: Publish
-        uses: cloudflare/wrangler-action@2.0.0
+        # uses: cloudflare/wrangler-action@2.0.0
         if: github.event.inputs.skipdeploy != 'true'
+        run: npx wrangler publish --env staging
+        working-directory: ./apps/discord
         env:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN_WORKERS }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT_WORKERS }}
@@ -66,13 +74,10 @@ jobs:
           DISCORD_APP_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
           DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
           SUMMARY_SITE: ${{ secrets.SUMMARY_SITE }}
-          ENVIROMENT: staging
+          ENVIROMENT: production
           RELEASE: ${{ github.sha }}
           BRANCH: ${{ env.GITHUB_REF_NAME }}
-        with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          command: publish --env staging
-          workingDirectory: ./apps/discord
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
       
   sentry:
     name: Create Sentry release
