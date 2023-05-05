@@ -25,8 +25,8 @@ jobs:
           node-version: 18.3
           cache: 'pnpm'
 
-      - name: Install prettier
-        run: pnpm install prettier
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Prettify code
         uses: creyD/prettier_action@v4.2
