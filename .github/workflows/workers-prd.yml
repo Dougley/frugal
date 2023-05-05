@@ -42,7 +42,7 @@ jobs:
 
       - name: Turbo build
         if: github.event.inputs.deploycommands == 'true'
-        run: npx turbo build
+        run: npx turbo build --no-cache
         working-directory: ./apps/discord
         env:
           DISCORD_APP_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
