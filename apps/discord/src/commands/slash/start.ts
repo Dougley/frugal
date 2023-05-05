@@ -78,10 +78,10 @@ export default class BotCommand extends SlashCommand {
         ephemeral: true
       });
     }
-    // at minimum, a giveaway must be 1 minute long
-    if (duration < 60 * 1000) {
+    // at minimum, a giveaway must be 10 seconds long
+    if (duration < 10 * 1000) {
       return ctx.sendFollowUp({
-        content: "Giveaways can't be shorter than 1 minute",
+        content: "Giveaways can't be shorter than 10 seconds",
         ephemeral: true
       });
     }

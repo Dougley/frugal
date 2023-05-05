@@ -1,12 +1,11 @@
 /// <reference types="@dougley/types/summaries" />
 
-import {
+import type {
   APIMessage,
-  ButtonStyle,
-  ComponentType,
   RESTPatchAPIChannelMessageJSONBody,
   RESTPostAPIChannelMessageJSONBody,
 } from "discord-api-types/v9";
+import { ButtonStyle, ComponentType } from "discord-api-types/v9";
 import { DOProxy } from "do-proxy";
 
 export class GiveawayState extends DOProxy {
@@ -23,6 +22,8 @@ export class GiveawayState extends DOProxy {
   winnerAmount: number | undefined; // Amount of winners
   prize: string | undefined; // Prize of the giveaway
 
+  winners: SavedUserInformation[] | undefined; // The winners of the giveaway, if drawn
+
   constructor(state: DurableObjectState, env: Env) {
     super(state);
     // the constructor is called once the object receives its first request
@@ -36,8 +37,13 @@ export class GiveawayState extends DOProxy {
   }
 
   get running() {
-    // there's a little leaway here so the alarm doesnt clear before the giveaway
-    return this.endDate && this.endDate.getTime() + 1000 > Date.now();
+    // could be expanded to check if the alarm is set, but this is good enough
+    return this.winners === undefined;
+  }
+
+  getRunning() {
+    // sure, this is extremely redundant, but do-proxy doesn't let us access getters
+    return this.running;
   }
 
   /**
@@ -198,12 +204,24 @@ export class GiveawayState extends DOProxy {
     amount: number = 1,
     skip: string[] = []
   ): Promise<SavedUserInformation[]> {
+    // if we're calling this again, skip the previous winners
+    if (this.winners) {
+      skip = this.winners.map((w) => w.id);
+    }
     const entries = await this.getEntries();
+
+    // if there are no entries, return an empty array
     if (entries.length === 0) {
       return [];
     }
 
-    if (entries.length < amount) {
+    const drawables = entries.length - skip.length;
+    // if we end up with no drawables, return an empty array
+    if (drawables === 0 || drawables < 0) {
+      return [];
+    }
+
+    if (drawables < amount) {
       // If there are less entries than winners, just return all entries
       return entries;
     }
@@ -216,7 +234,7 @@ export class GiveawayState extends DOProxy {
     }
 
     // Return an array of winners, because it's easier to work with
-    return Array.from(winners);
+    return (this.winners = Array.from(winners));
   }
 
   /**
@@ -287,7 +305,9 @@ export class GiveawayState extends DOProxy {
               embeds: [
                 ...msg.embeds.map((e) => {
                   e.fields!.find((f) => f.name === "Ends")!.name = "Ended";
-                  e.description = `${e.description}\n\nWinners: ${
+                  e.description = `${
+                    e.description ? e.description + "\n\n" : ""
+                  } Winners: ${
                     winners.length > 0
                       ? winners.map((w) => `<@${w.id}>`).join(", ")
                       : "Nobody!"
