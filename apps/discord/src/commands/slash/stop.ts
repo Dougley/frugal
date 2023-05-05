@@ -4,7 +4,7 @@ import { server } from '../../shim';
 export default class BotCommand extends SlashCommand {
   constructor(creator: SlashCreator) {
     super(creator, {
-      name: 'edit',
+      name: 'stop',
       description: 'Stop a giveaway',
       options: [
         {
