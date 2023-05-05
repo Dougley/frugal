@@ -63,7 +63,7 @@ jobs:
           SUMMARY_SITE: ${{ secrets.SUMMARY_SITE }}
           ENVIROMENT: staging
           RELEASE: ${{ github.sha }}
-          BRANCH: ${{ GITHUB_REF_NAME }}
+          BRANCH: ${{ env.GITHUB_REF_NAME }}
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           command: publish --env staging
