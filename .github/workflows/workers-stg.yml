@@ -22,7 +22,7 @@ jobs:
     uses: dougley/frugal/.github/workflows/discord-build.yml@main
     secrets: inherit
     with:
-      environment: Staging
+      environment: staging
       # deploy_commands: ${{ github.event.inputs.deploycommands || false }}
       # skip_deploy: ${{ github.event.inputs.skipdeploy || false }}
 
