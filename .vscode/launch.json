@@ -12,7 +12,7 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "cwd": "${workspaceFolder}/packages/discord"
+      "cwd": "${workspaceFolder}/apps/discord"
     },
     {
       "name": "Discord - CF Edge",
@@ -28,7 +28,7 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "cwd": "${workspaceFolder}/packages/discord"
+      "cwd": "${workspaceFolder}/apps/discord"
     }
   ]
 }

@@ -1,0 +1,6 @@
+dist
+node_modules
+/.vscode/settings.json
+*.log
+*.env
+.dev.vars

@@ -7,12 +7,16 @@
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/NicoVIII/devcontainer-features/pnpm:1": {}
   },
-  "extensions": [
-    "dbaeumer.vscode-eslint",
-    "IronGeek.vscode-env",
-    "bungcip.better-toml",
-    "esbenp.prettier-vscode"
-  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "IronGeek.vscode-env",
+        "bungcip.better-toml",
+        "esbenp.prettier-vscode"    
+      ]
+    }
+  },
   "postCreateCommand": "pnpm install --frozen-lockfile"
 
   // Features to add to the dev container. More info: https://containers.dev/features.

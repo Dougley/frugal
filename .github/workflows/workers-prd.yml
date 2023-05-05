@@ -10,6 +10,12 @@ on:
         description: 'Skip deploy?'
         required: false
         type: boolean
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/discord/**'
+      - '.github/workflows/workers-prd.yml'
 
 jobs:
   deploy:
@@ -32,15 +38,22 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Migrate db
+        uses: cloudflare/wrangler-action@2.0.0
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          command: d1 migrations apply frugal
+          workingDirectory: ./apps/discord
+
       - name: Deploy commands
         if: github.event.inputs.deploycommands == 'true'
-        run: pnpm run deploy:commands
-        working-directory: ./packages/discord
+        run: pnpm run sync
+        working-directory: ./apps/discord
         env:
-          DISCORD_APPLICATION_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
+          DISCORD_APP_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
           DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
           DISCORD_SECRET: ${{ secrets.DISCORD_SECRET }}
-          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
 
       - name: Publish
         uses: cloudflare/wrangler-action@2.0.0
@@ -50,17 +63,17 @@ jobs:
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT_WORKERS }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-          DISCORD_APPLICATION_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_APP_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
           DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
-          PLANETSCALE_USER: ${{ secrets.PLANETSCALE_USER }}
-          PLANETSCALE_PASSWORD: ${{ secrets.PLANETSCALE_PASSWORD }}
-          PLANETSCALE_HOST: ${{ secrets.PLANETSCALE_HOST }}
+          SUMMARY_SITE: ${{ secrets.SUMMARY_SITE }}
           ENVIROMENT: production
+          RELEASE: ${{ github.sha }}
+          BRANCH: ${{ env.GITHUB_REF_NAME }}
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           command: publish --env production
-          workingDirectory: ./packages/discord
+          workingDirectory: ./apps/discord
  
   sentry:
     name: Create Sentry release

@@ -1,0 +1,56 @@
+{
+  "name": "@dougley/frugal-web",
+  "private": true,
+  "sideEffects": false,
+  "scripts": {
+    "build": "remix build",
+    "build:mapped": "remix build --sourcemap",
+    "dev:remix": "remix watch",
+    "dev:wrangler": "cross-env NODE_ENV=development npm run wrangler",
+    "dev": "npm-run-all build --parallel \"dev:*\"",
+    "start": "cross-env NODE_ENV=production npm run wrangler",
+    "typecheck": "tsc",
+    "format": "prettier --write ./app",
+    "wrangler": "wrangler pages dev ./public --r2 STORAGE --kv KV_SESSIONS --persist --persist-to='../../.mf'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dougley/frugal.git",
+    "directory": "apps/web"
+  },
+  "dependencies": {
+    "@remix-run/cloudflare": "^1.15.0",
+    "@remix-run/cloudflare-pages": "^1.15.0",
+    "@remix-run/node": "^1.15.0",
+    "@remix-run/react": "^1.15.0",
+    "@sentry/remix": "^7.49.0",
+    "cross-env": "^7.0.3",
+    "daisyui": "^2.51.6",
+    "date-fns": "^2.29.3",
+    "isbot": "^3.6.10",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.8.0",
+    "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^3.19.0",
+    "@dougley/types": "workspace:^",
+    "@remix-run/dev": "^1.15.0",
+    "@remix-run/eslint-config": "^1.15.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "autoprefixer": "^10.4.14",
+    "discord-api-types": "^0.37.40",
+    "eslint": "^8.39.0",
+    "npm-run-all": "^4.1.5",
+    "postcss": "^8.4.23",
+    "prettier-plugin-tailwindcss": "^0.2.7",
+    "tailwindcss": "^3.3.1",
+    "typescript": "^4.9.5",
+    "wrangler": "^2.17.0"
+  },
+  "engines": {
+    "node": ">=16.13"
+  }
+}
