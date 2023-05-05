@@ -15,13 +15,18 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+          run_install: false
+
+      - uses: actions/setup-node@v3
         with:
           node-version: 18.3
+          cache: 'pnpm'
 
       - name: Install prettier
-        run: npm install prettier
+        run: pnpm install prettier
 
       - name: Prettify code
         uses: creyD/prettier_action@v4.2
