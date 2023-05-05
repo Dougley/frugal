@@ -2,6 +2,7 @@
   "name": "@dougley/frugal-web",
   "private": true,
   "sideEffects": false,
+  "version": "0.0.0",
   "scripts": {
     "build": "remix build",
     "build:mapped": "remix build --sourcemap",

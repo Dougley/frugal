@@ -2,8 +2,6 @@ name: Changeset Release
 
 on:
   push:
-    branches:
-      - main
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 

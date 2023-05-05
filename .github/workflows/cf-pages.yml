@@ -57,6 +57,7 @@ jobs:
   sentry:
     name: Create Sentry release
     uses: dougley/frugal/.github/workflows/sentry.yml@main
+    needs: deploy
     secrets: inherit
     with:
       environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}

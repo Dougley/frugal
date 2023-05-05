@@ -2,6 +2,7 @@
   "name": "@dougley/frugal-discord",
   "type": "module",
   "main": "dist/index.mjs",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
     "build": "node scripts/build.mjs",
