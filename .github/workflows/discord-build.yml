@@ -6,12 +6,12 @@ on:
       environment:
         required: true
         type: string
-      skip_deploy:
-        required: false
-        type: boolean
-      deploy_commands:
-        required: false
-        type: boolean
+      # skip_deploy:
+      #   required: false
+      #   type: boolean
+      # deploy_commands:
+      #   required: false
+      #   type: boolean
 
 jobs:
   deploy:
@@ -35,7 +35,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Migrate db
-        if: inputs.skip_deploy != 'true'
+        if: github.events.inputs.skipdeploy != 'true'
         #uses: cloudflare/wrangler-action@2.0.0
         run: npx wrangler d1 migrations apply frugal --env staging
         working-directory: ./apps/discord
@@ -43,7 +43,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
 
       - name: Turbo build
-        if: inputs.deploy_commands == 'true'
+        if: github.events.inputs.deploycommands == 'true'
         run: npx turbo build --no-cache
         working-directory: ./apps/discord
         env:
@@ -53,7 +53,7 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
 
       - name: Deploy commands
-        if: inputs.deploy_commands == 'true'
+        if: github.events.inputs.deploycommands == 'true'
         run: pnpm run sync
         working-directory: ./apps/discord
         env:
@@ -64,7 +64,7 @@ jobs:
 
       - name: Publish
         # uses: cloudflare/wrangler-action@2.0.0
-        if: inputs.skip_deploy != 'true'
+        if: github.events.inputs.skipdeploy != 'true'
         run: npx wrangler publish --env ${{ inputs.environment }}
         working-directory: ./apps/discord
         env:
