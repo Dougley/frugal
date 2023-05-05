@@ -23,8 +23,8 @@ jobs:
     secrets: inherit
     with:
       environment: Staging
-      deploy_commands: ${{ github.event.inputs.deploycommands }}
-      skip_deploy: ${{ github.event.inputs.skipdeploy }}
+      deploy_commands: ${{ github.event.inputs.deploycommands || 'false' }}
+      skip_deploy: ${{ github.event.inputs.skipdeploy || 'false' }}
 
   sentry:
     name: Create Sentry release
