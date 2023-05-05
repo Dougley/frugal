@@ -7,7 +7,7 @@ workers_dev = true
 # no_bundle = true
 
 [build]
-command = "turbo build"
+command = "npx turbo build"
 watch_dir = "src"
 
 [[rules]]
@@ -51,7 +51,7 @@ bucket_name = "frugal-staging"
 binding = "ANALYTICS"
 
 [env.staging.build]
-command = "NODE_ENV=production turbo build"
+command = "NODE_ENV=production npx turbo build"
 
 [[env.staging.d1_databases]]
 binding = "D1"
@@ -87,7 +87,7 @@ bucket_name = "frugal-prod"
 binding = "ANALYTICS"
 
 [env.production.build]
-command = "NODE_ENV=production turbo build"
+command = "NODE_ENV=production npx turbo build"
 watch_dir = "src"
 
 [[env.staging.d1_databases]]
@@ -127,7 +127,7 @@ database_id = "ddc7d747-ada2-4e1c-9946-62856277f9a1"
 migrations_dir = "../../packages/d1-database/migrations"
 
 [env.development.build]
-command = "NODE_ENV=development turbo build"
+command = "NODE_ENV=development npx turbo build"
 watch_dir = "src"
 
 [env.development.build.upload] # Required by Miniflare
