@@ -21,9 +21,9 @@
     "typescript": "^4.9.5"
   },
   "scripts": {
-    "lint:report": "eslint --output-file eslint_report.json --format json packages",
-    "lint": "eslint packages",
-    "format": "prettier --write packages"
+    "lint:report": "eslint --output-file eslint_report.json --format json \"{packages,apps}/**/src/**/*.{ts,tsx,cts,mts}\"",
+    "lint": "eslint \"{packages,apps}/**/src/**/*.{ts,tsx,cts,mts}\"",
+    "format": "prettier --write \"{packages,apps}/**/src/**/*.{ts,tsx,cts,mts}\""
   },
   "private": true,
   "workspaces": [
