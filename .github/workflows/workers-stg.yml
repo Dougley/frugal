@@ -49,6 +49,11 @@ jobs:
         if: github.event.inputs.deploycommands == 'true'
         run: npx turbo build
         working-directory: ./apps/discord
+        env:
+          DISCORD_APP_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
+          DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
+          DISCORD_SECRET: ${{ secrets.DISCORD_SECRET }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
 
       - name: Deploy commands
         if: github.event.inputs.deploycommands == 'true'
