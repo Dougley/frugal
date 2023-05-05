@@ -39,6 +39,11 @@ jobs:
           command: d1 migrations apply frugal
           workingDirectory: ./apps/discord
 
+      - name: Turbo build
+        if: github.event.inputs.deploycommands == 'true'
+        run: npx turbo build
+        working-directory: ./apps/discord
+
       - name: Deploy commands
         if: github.event.inputs.deploycommands == 'true'
         run: pnpm run sync
