@@ -20,8 +20,8 @@ jobs:
     secrets: inherit
     with:
       environment: production
-      deploy_commands: ${{ inputs.deploycommands }}
-      skip_deploy: ${{ inputs.skipdeploy }}
+      deploy_commands: ${{ github.event.inputs.deploycommands }}
+      skip_deploy: ${{ github.event.inputs.skipdeploy }}
 
   sentry:
     name: Create Sentry release
