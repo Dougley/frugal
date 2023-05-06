@@ -3,18 +3,20 @@ on:
   workflow_dispatch:
     inputs:
       deploycommands:
-        description: 'Deploy commands?'
+        description: "Deploy commands?"
         required: false
         type: boolean
+        default: "false"
       skipdeploy:
-        description: 'Skip deploy?'
+        description: "Skip deploy?"
         required: false
         type: boolean
+        default: "false"
   push:
     branches:
       - main
     paths:
-      - 'apps/discord/**'
+      - "apps/discord/**"
 
 jobs:
   deploy:
@@ -23,8 +25,8 @@ jobs:
     secrets: inherit
     with:
       environment: staging
-      # deploy_commands: ${{ github.event.inputs.deploycommands || false }}
-      # skip_deploy: ${{ github.event.inputs.skipdeploy || false }}
+      deploy_commands: ${{ inputs.deploycommands }}
+      skip_deploy: ${{ inputs.skipdeploy }}
 
   sentry:
     name: Create Sentry release

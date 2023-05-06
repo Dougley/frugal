@@ -3,13 +3,15 @@ on:
   workflow_dispatch:
     inputs:
       deploycommands:
-        description: 'Deploy commands?'
+        description: "Deploy commands?"
         required: false
         type: boolean
+        default: "false"
       skipdeploy:
-        description: 'Skip deploy?'
+        description: "Skip deploy?"
         required: false
         type: boolean
+        default: "false"
 
 jobs:
   deploy:
@@ -18,12 +20,12 @@ jobs:
     secrets: inherit
     with:
       environment: production
-      # deploy_commands: ${{ github.event.inputs.deploycommands || false }}
-      # skip_deploy: ${{ github.event.inputs.skipdeploy || false }}
- 
+      deploy_commands: ${{ inputs.deploycommands }}
+      skip_deploy: ${{ inputs.skipdeploy }}
+
   sentry:
     name: Create Sentry release
-    needs: deploy_worker
+    needs: deploy
     uses: dougley/frugal/.github/workflows/sentry.yml@main
     if: github.event.inputs.skipdeploy != 'true'
     secrets: inherit
