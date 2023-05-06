@@ -8,10 +8,10 @@ on:
         type: string
       skip_deploy:
         required: true
-        type: boolean
+        type: string
       deploy_commands:
         required: true
-        type: boolean
+        type: string
 
 jobs:
   deploy:
