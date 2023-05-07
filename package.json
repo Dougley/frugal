@@ -18,7 +18,7 @@
     "rimraf": "^5.0.0",
     "ts-jest": "^29.1.0",
     "turbo": "^1.9.3",
-    "typescript": "^4.9.5"
+    "typescript": "^5.0.4"
   },
   "scripts": {
     "lint:report": "eslint --output-file eslint_report.json --format json \"{packages,apps}/**/src/**/*.{ts,tsx,cts,mts}\"",
