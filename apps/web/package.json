@@ -10,7 +10,6 @@
     "dev:wrangler": "wrangler pages dev ./public --r2 STORAGE --kv KV_SESSIONS --persist --persist-to='../../.mf'",
     "dev": "cross-env NODE_ENV=development concurrently \"npm:dev:*\"",
     "start": "npm run dev",
-    "typecheck": "tsc",
     "format": "prettier --write ./app"
   },
   "repository": {
