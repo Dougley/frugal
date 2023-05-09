@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/typescript-node:18 as base
+FROM mcr.microsoft.com/devcontainers/typescript-node:20 as base
 
 # Install cloudflared
 RUN curl -s https://api.github.com/repos/cloudflare/cloudflared/releases/latest \
