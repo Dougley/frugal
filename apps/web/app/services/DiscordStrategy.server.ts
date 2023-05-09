@@ -1,6 +1,4 @@
-import type {
-  APIUser,
-} from "discord-api-types/v9";
+import type { APIUser } from "discord-api-types/v9";
 import type { StrategyVerifyCallback } from "remix-auth";
 import type {
   OAuth2Profile,
@@ -78,7 +76,7 @@ export class DiscordStrategy<User> extends OAuth2Strategy<
       provider: "discord",
       id: data.id,
       displayName: data.username,
-      emails: data.email ? [{ value: data.email }] : [],
+      emails: data.email ? [{ value: data.email }] : undefined,
       photos: data.avatar
         ? [
             {
