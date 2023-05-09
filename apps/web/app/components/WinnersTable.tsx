@@ -1,7 +1,9 @@
+import { useRouteLoaderData } from "@remix-run/react";
 import type { APIUser } from "discord-api-types/v9";
 import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
 import { GiPartyPopper } from "react-icons/gi";
+import type { DiscordUser } from "~/services/authenticator.server";
 
 type winnnersTableProps = {
   winners: string[];
@@ -11,14 +13,8 @@ function WinnersTable({
   winners,
   participants,
 }: winnnersTableProps): ReactElement {
+  const data = useRouteLoaderData("root") as DiscordUser | null;
   const formatter = new Intl.NumberFormat("en-US");
-  const [me, setMe] = useState<APIUser | null>(null);
-  useEffect(() => {
-    const user = sessionStorage.getItem("user");
-    if (user) {
-      setMe(participants.find((x) => x.id === user) ?? null);
-    }
-  }, [participants]);
   return (
     <>
       {(winners.length > 0 && (
@@ -44,7 +40,7 @@ function WinnersTable({
                   </td>
                   <td>
                     {`${entrant.username}#${entrant.discriminator}`}
-                    {me && me.id === entrant.id && (
+                    {data && data.id === entrant.id && (
                       <>
                         <br></br>
                         <span className="text-gray-500">
@@ -69,7 +65,9 @@ type AvatarProps = {
 function Avatar({ user }: AvatarProps) {
   const [avatar, setAvatar] = useState<string>(
     `https://cdn.discordapp.com/embed/avatars/${
-      Number(user.discriminator) % 5
+      // pomelo 🍊
+      // Number(user.discriminator) % 5
+      Math.floor(Math.random() * 5)
     }.png`
   );
   useEffect(() => {

@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 import { Suspense } from "react";
+import { ProfileButton } from "./ProfileButton";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 
 export function Navbar(): ReactElement {
@@ -15,8 +16,7 @@ export function Navbar(): ReactElement {
           <Suspense fallback={null}>
             <ThemeSwitcher />
           </Suspense>
-          {/* <ThemeSwitcher theme={theme} setTheme={setTheme} />
-          <AuthControl /> */}
+          <ProfileButton />
         </div>
       </div>
     </div>

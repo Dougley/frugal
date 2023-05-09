@@ -1,10 +1,15 @@
-import type { HeadersFunction, LinksFunction } from "@remix-run/cloudflare";
+import type {
+  HeadersFunction,
+  LinksFunction,
+  LoaderArgs,
+} from "@remix-run/cloudflare";
 import { Outlet } from "@remix-run/react";
 
 import { Document } from "~/components/Document";
 import { Layout } from "~/components/Layout";
 import tailwindStylesheet from "~/styles/tailwind.css";
 
+import type { Authenticator } from "remix-auth";
 import { ErrorBoundary } from "~/components/ErrorBoundary";
 
 export const links: LinksFunction = () => [
@@ -22,6 +27,10 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
     "Accept-CH": "Sec-CH-Prefers-Color-Scheme",
     ...loaderHeaders,
   };
+};
+
+export const loader = async ({ context, request }: LoaderArgs) => {
+  return (context.authenticator as Authenticator).isAuthenticated(request);
 };
 
 export default function App() {

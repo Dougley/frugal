@@ -3,6 +3,7 @@ import { isRouteErrorResponse, useRouteError } from "@remix-run/react";
 import { MdError } from "react-icons/md";
 import { Document } from "~/components/Document";
 import { Layout } from "~/components/Layout";
+import { defaultMeta } from "~/utils/meta";
 
 const Template = ({
   children,
@@ -17,7 +18,7 @@ const Template = ({
 };
 
 export const meta: V2_MetaFunction = () => {
-  return [{ title: "New Remix App" }];
+  return defaultMeta("Error", "Something went wrong.");
 };
 
 export function ErrorBoundary() {
@@ -59,7 +60,8 @@ export function ErrorBoundary() {
   // Any value can be thrown, not just errors!
   let errorMessage = "Unknown error";
   if (error instanceof Error) {
-    errorMessage = error.message;
+    errorMessage =
+      process.env.NODE_ENV === "development" ? error.stack! : error.message;
   }
 
   return (

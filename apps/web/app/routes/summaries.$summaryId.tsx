@@ -88,7 +88,6 @@ export default function Index() {
         />
       </div>
       <div className="divider"></div>
-      <h3 className="mb-5 text-center text-2xl font-semibold">Participants</h3>
       <div className="overflow-x-auto">
         <ParticipantsTable participants={data.entries} />
       </div>
