@@ -67,7 +67,7 @@ function AvatarContainer({ user }: AvatarProps) {
     <Avatar.Root className="avatar">
       <Avatar.Image
         className="!w-16 rounded-full"
-        src={`https://cdn.discordapp.com/avbatars/${user.id}/${user.avatar}.png`}
+        src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`}
         alt="avatar"
       />
       <Avatar.Fallback delayMs={600}>
