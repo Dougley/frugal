@@ -13,8 +13,10 @@ const handleRequest = createPagesFunctionHandler({
     const sessionStorage = createWorkersKVSessionStorage({
       cookie: {
         name: "SESSION_ID",
-        secrets: ["YOUR_COOKIE_SECRET"],
-        secure: true,
+        secrets: context.env.SESSION_SECRET,
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
       },
       kv: context.env.KV_SESSIONS,
