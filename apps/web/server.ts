@@ -14,10 +14,11 @@ const handleRequest = createPagesFunctionHandler({
       cookie: {
         name: "SESSION_ID",
         secrets: context.env.SESSION_SECRET,
-        path: '/',
+        path: "/",
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 30, // 30 days
       },
       kv: context.env.KV_SESSIONS,
     });
@@ -29,7 +30,7 @@ const handleRequest = createPagesFunctionHandler({
           clientSecret: context.env.DISCORD_CLIENT_SECRET,
           callbackURL: context.env.DISCORD_REDIRECT_URI,
           scope: ["identify", "guilds", "guilds.members.read"],
-          prompt: "consent",
+          prompt: "none",
         },
         async ({
           accessToken,

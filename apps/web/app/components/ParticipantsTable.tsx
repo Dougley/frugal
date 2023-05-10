@@ -24,7 +24,7 @@ function ParticipantsTable({
             <thead>
               <tr>
                 <th></th>
-                <th>Userame</th>
+                <th>Username</th>
                 <th>ID</th>
               </tr>
             </thead>

@@ -1,7 +1,7 @@
+import * as Avatar from "@radix-ui/react-avatar";
 import { useRouteLoaderData } from "@remix-run/react";
 import type { APIUser } from "discord-api-types/v9";
 import type { ReactElement } from "react";
-import { useEffect, useState } from "react";
 import { GiPartyPopper } from "react-icons/gi";
 import type { DiscordUser } from "~/services/authenticator.server";
 
@@ -35,7 +35,7 @@ function WinnersTable({
                   <th>{formatter.format(index + 1)}</th>
                   <td>
                     <a href={`discord:///users/${entrant.id}`}>
-                      <Avatar user={entrant} />
+                      <AvatarContainer user={entrant} />
                     </a>
                   </td>
                   <td>
@@ -62,35 +62,25 @@ function WinnersTable({
 type AvatarProps = {
   user: APIUser;
 };
-function Avatar({ user }: AvatarProps) {
-  const [avatar, setAvatar] = useState<string>(
-    `https://cdn.discordapp.com/embed/avatars/${
-      // pomelo 🍊
-      // Number(user.discriminator) % 5
-      Math.floor(Math.random() * 5)
-    }.png`
-  );
-  useEffect(() => {
-    if (!user.avatar) return;
-    const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
-    fetch(avatarURL, {
-      method: "HEAD",
-    }).then((res) => {
-      if (res.ok) {
-        setAvatar(avatarURL);
-      }
-    });
-  }, [user]);
+function AvatarContainer({ user }: AvatarProps) {
   return (
-    <div className="placeholder avatar">
-      <div className="w-16 rounded-full">
+    <Avatar.Root className="avatar">
+      <Avatar.Image
+        className="!w-16 rounded-full"
+        src={`https://cdn.discordapp.com/avbatars/${user.id}/${user.avatar}.png`}
+        alt="avatar"
+      />
+      <Avatar.Fallback delayMs={600}>
         <img
-          className="avatar"
-          src={avatar}
-          alt={`${user.username}#${user.discriminator}`}
+          className="!w-16 rounded-full"
+          src={`https://cdn.discordapp.com/embed/avatars/${
+            // pomelo 🍊
+            user.username.length % 5
+          }.png`}
+          alt="avatar"
         />
-      </div>
-    </div>
+      </Avatar.Fallback>
+    </Avatar.Root>
   );
 }
 

@@ -18,6 +18,8 @@
     "directory": "apps/web"
   },
   "dependencies": {
+    "@radix-ui/react-avatar": "^1.0.2",
+    "@radix-ui/react-dialog": "^1.0.3",
     "@remix-run/cloudflare": "^1.16.0",
     "@remix-run/cloudflare-pages": "^1.16.0",
     "@remix-run/node": "^1.16.0",
@@ -29,6 +31,7 @@
     "isbot": "^3.6.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.4.1",
     "react-icons": "^4.8.0",
     "remix-auth": "^3.4.0",
     "remix-auth-oauth2": "^1.6.0",

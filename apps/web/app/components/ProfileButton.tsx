@@ -1,39 +1,57 @@
+import * as Avatar from "@radix-ui/react-avatar";
 import { Link, useRouteLoaderData } from "@remix-run/react";
 import type { ReactElement } from "react";
-import { MdLogin, MdLogout } from "react-icons/md";
+import { MdLogin, MdLogout, MdOutlineSpaceDashboard } from "react-icons/md";
 import type { DiscordUser } from "~/services/authenticator.server";
 
 export function ProfileButton(): ReactElement {
   const loaderData = useRouteLoaderData("root");
-  if (loaderData !== null) {
+  if (loaderData) {
     const data = loaderData as DiscordUser;
     return (
       <div className="dropdown-end dropdown">
-        <button tabIndex={0} className="avatar">
-          <div className="m-1 h-10 w-10 rounded-full">
-            <img alt="avatar" src={data.avatar} />
-          </div>
+        <button tabIndex={0} className="btn-ghost btn-square btn">
+          <Avatar.Root className="avatar m-1 h-10 w-10">
+            <Avatar.Image
+              className="rounded-full"
+              src={data.avatar}
+              alt="avatar"
+            />
+            <Avatar.Fallback delayMs={600}>
+              <img
+                className="rounded-full"
+                src={`https://cdn.discordapp.com/embed/avatars/${
+                  // pomelo 🍊
+                  data.username.length % 5
+                }.png`}
+                alt="avatar"
+              />
+            </Avatar.Fallback>
+          </Avatar.Root>
         </button>
         <ul
           tabIndex={0}
           className="dropdown-content menu rounded-box mt-4 w-52 bg-base-100 p-2 shadow"
         >
-          <li className="menu-title">
-            <p className="text-sm">
+          <li className="menu-title !opacity-100">
+            <span className="text-sm">
               Logged in as:{" "}
               {`${data.username}
               (${data.id})`}
-            </p>
+            </span>
           </li>
           <li className="divider" />
-          {/* <li>
+          <li>
             <Link to="/dashboard">
               <MdOutlineSpaceDashboard className="mr-2 inline-block h-5 w-5" />
               Dashboard
             </Link>
-          </li> */}
-          <li className="text-error">
-            <Link to="/logout">
+          </li>
+          <li>
+            <Link
+              to="/logout"
+              className="text-error hover:bg-error hover:text-secondary-content"
+            >
               <MdLogout className="mr-2 inline-block h-5 w-5" />
               Logout
             </Link>

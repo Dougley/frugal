@@ -3,12 +3,14 @@ import type {
   LinksFunction,
   LoaderArgs,
 } from "@remix-run/cloudflare";
-import { Outlet } from "@remix-run/react";
+import { Outlet, useLoaderData } from "@remix-run/react";
 
 import { Document } from "~/components/Document";
 import { Layout } from "~/components/Layout";
 import tailwindStylesheet from "~/styles/tailwind.css";
 
+import { useEffect } from "react";
+import toast from "react-hot-toast";
 import type { Authenticator } from "remix-auth";
 import { ErrorBoundary } from "~/components/ErrorBoundary";
 
@@ -34,6 +36,17 @@ export const loader = async ({ context, request }: LoaderArgs) => {
 };
 
 export default function App() {
+  const isLoggedin = useLoaderData();
+  useEffect(() => {
+    if (!localStorage.getItem("seenLoggedinToast") && isLoggedin) {
+      toast.success("Welcome back!");
+      localStorage.setItem("seenLoggedinToast", "true");
+    }
+    if (localStorage.getItem("seenLoggedinToast") && !isLoggedin) {
+      toast.success("You have been logged out");
+      localStorage.removeItem("seenLoggedinToast");
+    }
+  }, [isLoggedin]);
   return (
     <Document>
       <Layout>
