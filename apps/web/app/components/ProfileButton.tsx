@@ -22,7 +22,7 @@ export function ProfileButton(): ReactElement {
                 className="rounded-full"
                 src={`https://cdn.discordapp.com/embed/avatars/${
                   // pomelo 🍊
-                  data.username.length % 5
+                  Math.abs(((data.id as any) >> 22) % 5)
                 }.png`}
                 alt="avatar"
               />
@@ -35,8 +35,10 @@ export function ProfileButton(): ReactElement {
         >
           <li className="menu-title !opacity-100">
             <span className="text-sm">
-              Logged in as:{" "}
-              {`${data.username}
+              {/* 🍊 */}
+              {data.discriminator === "0"
+                ? `@${data.username}`
+                : `${data.username}#${data.discriminator}
               (${data.id})`}
             </span>
           </li>

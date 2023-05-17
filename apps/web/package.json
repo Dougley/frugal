@@ -7,7 +7,7 @@
     "build": "remix build",
     "build:mapped": "remix build --sourcemap",
     "dev:remix": "remix watch",
-    "dev:wrangler": "wrangler pages dev ./public --r2 STORAGE --kv KV_SESSIONS --persist --persist-to='../../.mf'",
+    "dev:wrangler": "wrangler pages dev ./public --r2 STORAGE --kv KV_SESSIONS --d1 D1 --persist --persist-to='../../.mf'",
     "dev": "cross-env NODE_ENV=development concurrently \"npm:dev:*\"",
     "start": "npm run dev",
     "format": "prettier --write ./app"
@@ -18,6 +18,7 @@
     "directory": "apps/web"
   },
   "dependencies": {
+    "@dougley/d1-database": "workspace:^",
     "@radix-ui/react-avatar": "^1.0.2",
     "@radix-ui/react-dialog": "^1.0.3",
     "@remix-run/cloudflare": "^1.16.0",
@@ -29,6 +30,8 @@
     "daisyui": "^2.51.6",
     "date-fns": "^2.30.0",
     "isbot": "^3.6.10",
+    "kysely": "^0.24.2",
+    "kysely-d1": "^0.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",

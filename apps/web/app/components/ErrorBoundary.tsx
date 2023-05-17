@@ -29,16 +29,16 @@ export function ErrorBoundary() {
     let message;
     switch (error.status) {
       // 4xx errors only
-      case 403:
+      case 403: // Forbidden
         message = "The Maze Master doesn't want you here. Seek another path.";
         break;
-      case 404:
+      case 404: // Not Found
         message = "What you're looking for isn't here, sorry.";
         break;
-      case 401:
+      case 401: // Unauthorized
         message = "You're not authorized to view this page, are you logged in?";
         break;
-      default:
+      default: // Other 4xx
         message = "Something went wrong.";
         break;
     }
@@ -60,6 +60,7 @@ export function ErrorBoundary() {
   // Any value can be thrown, not just errors!
   let errorMessage = "Unknown error";
   if (error instanceof Error) {
+    if (error.cause) console.error(error.cause);
     errorMessage =
       process.env.NODE_ENV === "development" ? error.stack! : error.message;
   }
@@ -69,7 +70,7 @@ export function ErrorBoundary() {
       <div className="hero flex min-h-screen w-full flex-col justify-center overflow-x-auto">
         <div className="hero-content text-center">
           <div className="max-w-md">
-            <h1 className="text-5xl font-bold">Yikes</h1>
+            <h1 className="text-5xl font-bold">Yikes!</h1>
             <p className="py-6">Something went wrong on our side.</p>
           </div>
         </div>

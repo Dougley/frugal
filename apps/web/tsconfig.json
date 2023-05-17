@@ -11,14 +11,14 @@
     "lib": [
       "DOM",
       "DOM.Iterable",
-      "ES2019"
+      "ES2022"
     ],
     "isolatedModules": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "target": "ES2019",
+    "target": "ES2022",
     "strict": true,
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,

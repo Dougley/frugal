@@ -64,23 +64,25 @@ type AvatarProps = {
 };
 function AvatarContainer({ user }: AvatarProps) {
   return (
-    <Avatar.Root className="avatar">
-      <Avatar.Image
-        className="!w-16 rounded-full"
-        src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`}
-        alt="avatar"
-      />
-      <Avatar.Fallback delayMs={600}>
-        <img
-          className="!w-16 rounded-full"
-          src={`https://cdn.discordapp.com/embed/avatars/${
-            // pomelo 🍊
-            user.username.length % 5
-          }.png`}
+    <div className="h-16 w-16">
+      <Avatar.Root className="avatar">
+        <Avatar.Image
+          className="rounded-full"
+          src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`}
           alt="avatar"
         />
-      </Avatar.Fallback>
-    </Avatar.Root>
+        <Avatar.Fallback delayMs={600}>
+          <img
+            className="rounded-full"
+            src={`https://cdn.discordapp.com/embed/avatars/${
+              // pomelo 🍊
+              user.username.length % 5
+            }.png`}
+            alt="avatar"
+          />
+        </Avatar.Fallback>
+      </Avatar.Root>
+    </div>
   );
 }
 
