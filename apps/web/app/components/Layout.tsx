@@ -8,7 +8,7 @@ export function Layout({ children }: React.PropsWithChildren<{}>) {
       <header className="remix-app-header">
         <HeaderContent />
       </header>
-      <div className="remix-app-main container mx-auto">
+      <div className="remix-app-main container mx-auto px-4">
         <Toaster
           toastOptions={{
             style: {

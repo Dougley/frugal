@@ -45,6 +45,7 @@
     "@dougley/types": "workspace:^",
     "@remix-run/dev": "^1.16.0",
     "@remix-run/eslint-config": "^1.16.0",
+    "@tailwindcss/typography": "^0.5.9",
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
     "autoprefixer": "^10.4.14",

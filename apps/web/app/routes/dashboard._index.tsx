@@ -28,9 +28,15 @@ export default function Index() {
           <MdQuestionMark className="h-6 w-6 flex-shrink-0" />
           <div>
             <p className="text-xl font-semibold">Missing servers?</p>
-            <div className="text-xs">
-              We're only showing servers you own or have "Manage Server"
-              permissions in, for privacy reasons.
+            <div className="prose">
+              <p className="text-xs">
+                We're only showing servers you own or have "Manage Server"
+                permissions in, for privacy reasons.
+              </p>
+              <p className="text-xs">
+                If you're still missing servers, log in again to update your
+                permissions.
+              </p>
             </div>
           </div>
         </div>
