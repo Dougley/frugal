@@ -30,10 +30,8 @@ export const loader = async ({ params, context, request }: LoaderArgs) => {
     throw new Response("Unauthorized", { status: 401 });
   }
   if (
-    (BigInt(user.guilds.find((g) => g.id === guildId)!.permissions) &
-      BigInt(0x20)) !==
-      BigInt(0x20) &&
-    !user.guilds.find((g) => g.id === guildId)!.owner
+    (BigInt(guild.permissions) & BigInt(0x20)) !== BigInt(0x20) &&
+    !guild.owner
   ) {
     console.log("User does not have perms");
     throw new Response("Unauthorized", { status: 401 });
