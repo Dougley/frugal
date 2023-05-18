@@ -42,6 +42,9 @@ export const loader = async ({ params, context, request }: LoaderArgs) => {
     .selectFrom("giveaways")
     .selectAll()
     .where("guild_id", "=", guildId!)
+    // end date may not be 90 days in the past
+    .where("end_time", ">=", new Date(Date.now() - 7776000000).toISOString())
+    .orderBy("end_time", "desc")
     .execute();
   return { giveaways, user, guild };
 };
@@ -75,12 +78,15 @@ export default function Index() {
         )}
         {giveaways.map((g) => {
           const ended = isPast(new Date(g.end_time));
+          const distance = formatDistance(new Date(g.end_time), new Date(), {
+            addSuffix: true,
+          });
           return (
             <a
               href={ended ? `/summaries/${g.durable_object_id}` : "#"}
               key={g.durable_object_id}
               className={
-                "card btn m-4 h-auto w-96 bg-base-300 p-4 normal-case shadow-xl" +
+                "card btn-ghost btn m-4 h-auto w-96 bg-base-300 p-4 normal-case shadow-xl" +
                 (ended ? "" : " btn-disabled")
               }
             >
@@ -90,12 +96,7 @@ export default function Index() {
                   {g.winners} winner{g.winners > 1 ? "s" : ""}
                 </p>
                 <p className="text-xs">
-                  {ended
-                    ? "Ended"
-                    : "Ends " +
-                      formatDistance(new Date(g.end_time), new Date(), {
-                        addSuffix: true,
-                      })}
+                  {ended ? `Ended ${distance}` : `Ends ${distance}`}
                 </p>
                 {!ended && (
                   <p className="text-xs">

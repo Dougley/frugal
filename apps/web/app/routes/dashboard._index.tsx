@@ -51,7 +51,7 @@ export default function Index() {
             <a
               href={`/dashboard/${guild.id}`}
               key={guild.id}
-              className="card btn m-4 h-auto w-96 bg-base-300 p-4 normal-case shadow-xl"
+              className="card btn-ghost btn m-4 h-auto w-96 bg-base-300 p-4 normal-case shadow-xl"
             >
               <figure>
                 <div className="h-32 w-32">
@@ -79,7 +79,7 @@ export default function Index() {
                 <p className="text-xs">{guild.id}</p>
                 <div className="card-actions">
                   {guild.owner && (
-                    <span className="badge-ghost badge-outline badge">
+                    <span className="badge-outline badge">
                       <MdPerson className="mr-1 inline-block h-4 w-4" />
                       Owner
                     </span>
