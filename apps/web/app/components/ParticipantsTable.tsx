@@ -33,7 +33,9 @@ function ParticipantsTable({
                 <tr key={entrant.id}>
                   <th>{formatter.format(index + 1)}</th>
                   <td>
-                    {`${entrant.username}#${entrant.discriminator}`}
+                    {entrant.discriminator === "0"
+                      ? `@${entrant.username}`
+                      : `${entrant.username}#${entrant.discriminator}`}
                     {data && data.id === entrant.id && (
                       <>
                         <br></br>
