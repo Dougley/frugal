@@ -80,8 +80,8 @@ export default function Index() {
             addSuffix: true,
           });
           return (
-            <a
-              href={ended ? `/summaries/${g.durable_object_id}` : "#"}
+            <Link
+              to={ended ? `/summaries/${g.durable_object_id}` : "#"}
               key={g.durable_object_id}
               className={
                 "card btn-ghost btn m-4 h-auto w-96 bg-base-300 p-4 normal-case shadow-xl" +
@@ -102,7 +102,7 @@ export default function Index() {
                   </p>
                 )}
               </div>
-            </a>
+            </Link>
           );
         })}
       </div>

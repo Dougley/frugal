@@ -1,5 +1,5 @@
 import type { LoaderArgs, V2_MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { defaultMeta } from "~/utils/meta";
 
 export const meta: V2_MetaFunction = () => {
@@ -20,11 +20,11 @@ export default function Index() {
           <p className="py-6">
             Hold giveaways on your Discord server quickly and easily
           </p>
-          <a
-            href={`https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=0&scope=bot%20applications.commands`}
+          <Link
+            to={`https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=0&scope=bot%20applications.commands`}
           >
             <button className="btn-primary btn">Get Started</button>
-          </a>
+          </Link>
         </div>
       </div>
     </div>

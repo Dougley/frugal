@@ -1,6 +1,6 @@
 import * as Avatar from "@radix-ui/react-avatar";
 import type { LoaderArgs, V2_MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { MdPerson, MdQuestionMark } from "react-icons/md";
 import type { Authenticator } from "remix-auth";
 import type { DiscordUser } from "~/services/authenticator.server";
@@ -48,8 +48,8 @@ export default function Index() {
               g.owner || (BigInt(g.permissions) & BigInt(0x20)) == BigInt(0x20)
           )
           .map((guild) => (
-            <a
-              href={`/dashboard/${guild.id}`}
+            <Link
+              to={`/dashboard/${guild.id}`}
               key={guild.id}
               className="card btn-ghost btn m-4 h-auto w-96 bg-base-300 p-4 normal-case shadow-xl"
             >
@@ -86,7 +86,7 @@ export default function Index() {
                   )}
                 </div>
               </div>
-            </a>
+            </Link>
           ))}
       </div>
     </div>
