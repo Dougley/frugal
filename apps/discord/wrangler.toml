@@ -14,15 +14,6 @@ watch_dir = "src"
 type = "ESModule"
 globs = ["**/*.ts", "**/*.tsx"]
 
-[miniflare]
-env_path = ".env"
-# Caches are shared
-r2_persist = '../../.mf/r2'
-d1_persist = '../../.mf/d1'
-cache_persist = '../../.mf/cache'
-kv_persist = '../../.mf/kv'
-durable_objects_persist = '../../.mf/do'
-
 # --- Staging --- #
 
 [env.staging]
@@ -112,10 +103,12 @@ new_classes = ["GiveawayState"]
 [[kv_namespaces]]
 binding = "KV"
 id = "ff4da80f1e42471db838c38e8e73a3ed"
+preview_id = "ff4da80f1e42471db838c38e8e73a3ed"
 
 [[r2_buckets]]
 binding = "STORAGE"
 bucket_name = "frugal-devel"
+preview_bucket_name = "frugal-devel"
 
 [[analytics_engine_datasets]]
 binding = "ANALYTICS"
@@ -124,12 +117,5 @@ binding = "ANALYTICS"
 binding = "D1"
 database_name = "frugal"
 database_id = "ddc7d747-ada2-4e1c-9946-62856277f9a1"
+preview_database_id = "ddc7d747-ada2-4e1c-9946-62856277f9a1"
 migrations_dir = "../../packages/d1-database/migrations"
-
-[env.development.build]
-command = "NODE_ENV=development npx turbo build"
-watch_dir = "src"
-
-[env.development.build.upload] # Required by Miniflare
-format = "modules"
-main = "./index.mjs"

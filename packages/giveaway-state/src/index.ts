@@ -342,6 +342,12 @@ export class GiveawayState extends DOProxy {
         }
         // flush the results to R2 for summaries
         await this.flushR2(winners);
+      } else {
+        console.log(
+          `${this.boundMessage} in channel ${this.boundChannel} didn't 200 OK`,
+          await giveawayMessage.text(),
+          JSON.stringify(this.env)
+        );
       }
       // we still need to clean up
       // wake up the object again after 3 months

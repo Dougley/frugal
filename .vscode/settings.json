@@ -24,7 +24,7 @@
     {
       "previewLimit": 50,
       "driver": "SQLite",
-      "database": "${workspaceFolder:frugal}/.mf/d1/D1.sqlite3",
+      "database": "${workspaceFolder:frugal}/.mf/v3/d1/ddc7d747-ada2-4e1c-9946-62856277f9a1/db.sqlite",
       "name": "frugal-d1-sqlite"
     }
   ]

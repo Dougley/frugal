@@ -14,7 +14,9 @@ This project is heavily intertwined with features on Cloudflare Workers that are
 3. Create a `.env` file in the `discord` directory
    - Copy the contents of `.env.example` into it
    - Replace the placeholder values with your own
-4. Run `pnpm dev`
+     > **Note**
+     > Wrangler needs a `.dev.vars` file to be able to run the worker locally. This file is equivalent to `.env`. You can create it by running `cp .env .dev.vars`
+4. Run `pnpm dev` to start the development server
    - This will start a local server on port 8787, you probably want to use a tunnel service like [ngrok](https://ngrok.com/) to expose it to the internet. Our devcontainer setup includes `cloudflared` for this purpose.
 5. Set the "Interactions Endpoint URL" in your Discord application to the URL of your tunnel service
 6. Run `pnpm sync:dev` to register your slash commands with Discord

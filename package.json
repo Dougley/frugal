@@ -32,9 +32,7 @@
   ],
   "pnpm": {
     "patchedDependencies": {
-      "slash-create@5.12.0": "patches/slash-create@5.12.0.patch",
-      "@miniflare/d1@2.13.0": "patches/@miniflare__d1@2.13.0.patch",
-      "@miniflare/d1@2.14.0": "patches/@miniflare__d1@2.14.0.patch"
+      "slash-create@5.12.0": "patches/slash-create@5.12.0.patch"
     }
   }
 }
