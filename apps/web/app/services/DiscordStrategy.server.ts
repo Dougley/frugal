@@ -23,6 +23,8 @@ export interface DiscordExtraParams extends Record<string, string | number> {
 export interface DiscordProfile extends OAuth2Profile {
   id: string;
   displayName: string;
+  username: string;
+  discriminator?: string;
   emails?: { value: string }[];
   photos: { value: string }[];
   _json: APIUser;
@@ -72,10 +74,15 @@ export class DiscordStrategy<User> extends OAuth2Strategy<
       },
     });
     const data = (await response.json()) as APIUser;
+    console.log(JSON.stringify(data));
     const profile = {
       provider: "discord",
       id: data.id,
-      displayName: data.username,
+      // @ts-expect-error - untyped, related to fruit based development 🍊
+      displayName: data.global_name ?? data.username,
+      username: data.username,
+      discriminator:
+        data.discriminator === "0" ? undefined : data.discriminator,
       emails: data.email ? [{ value: data.email }] : undefined,
       photos: data.avatar
         ? [
@@ -87,8 +94,7 @@ export class DiscordStrategy<User> extends OAuth2Strategy<
             {
               value: `https://cdn.discordapp.com/embed/avatars/${
                 // discord's default avatars
-                // due to pomelo, we can't rely on discriminators, so just return a random number between 0 and 5
-                Math.floor(Math.random() * 6)
+                Math.abs((data.id as any) >> 22) % 6
               }.png`,
             },
           ],

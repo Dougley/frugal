@@ -1,7 +1,8 @@
-import * as Avatar from "@radix-ui/react-avatar";
 import type { LoaderArgs, V2_MetaFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { MdPerson, MdQuestionMark } from "react-icons/md";
+import { BsPersonBadge } from "react-icons/bs";
+import { GiPartyPopper } from "react-icons/gi";
+import { HiServer } from "react-icons/hi";
 import type { Authenticator } from "remix-auth";
 import type { DiscordUser } from "~/services/authenticator.server";
 import { defaultMeta } from "~/utils/meta";
@@ -21,73 +22,61 @@ export default function Index() {
   return (
     <div className="flex min-h-screen flex-col justify-center overflow-x-auto">
       <h1 className="m-5 text-center text-4xl font-semibold">
-        GiveawayBot Dashboard
+        Hi {user.username}!
       </h1>
-      <div className="alert m-auto w-96 shadow-lg">
-        <div>
-          <MdQuestionMark className="h-6 w-6 flex-shrink-0" />
-          <div>
-            <p className="text-xl font-semibold">Missing servers?</p>
-            <div className="prose">
-              <p className="text-xs">
-                We're only showing servers you own or have "Manage Server"
-                permissions in, for privacy reasons.
-              </p>
-              <p className="text-xs">
-                If you're still missing servers, log in again to update your
-                permissions.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <p className="m-5 text-center text-xl">
+        Welcome to the GiveawayBot Dashboard! Here you can manage your
+        giveaways, servers, and your account.
+      </p>
       <div className="flex flex-row flex-wrap justify-center">
-        {user.guilds
-          .filter(
-            (g) =>
-              g.owner || (BigInt(g.permissions) & BigInt(0x20)) == BigInt(0x20)
-          )
-          .map((guild) => (
-            <Link
-              to={`/dashboard/${guild.id}`}
-              key={guild.id}
-              className="card btn-ghost btn m-4 h-auto w-96 bg-base-300 p-4 normal-case shadow-xl"
-            >
-              <figure>
-                <div className="h-32 w-32">
-                  <Avatar.Root className="avatar">
-                    <Avatar.Image
-                      className="rounded-full"
-                      src={`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`}
-                      alt={guild.name}
-                    />
-                    <Avatar.Fallback delayMs={600}>
-                      <img
-                        className="rounded-full"
-                        src={`https://cdn.discordapp.com/embed/avatars/${Math.abs(
-                          // this isnt strictly correct but it's close enough
-                          ((guild.id as any) >> 22) % 5
-                        )}.png`}
-                        alt="avatar"
-                      />
-                    </Avatar.Fallback>
-                  </Avatar.Root>
-                </div>
-              </figure>
-              <div className="card-body items-center text-center">
-                <p className="card-title">{guild.name}</p>
-                <p className="text-xs">{guild.id}</p>
-                <div className="card-actions">
-                  {guild.owner && (
-                    <span className="badge-outline badge">
-                      <MdPerson className="mr-1 inline-block h-4 w-4" />
-                      Owner
-                    </span>
-                  )}
-                </div>
-              </div>
-            </Link>
-          ))}
+        <Link
+          to="/dashboard/giveaways"
+          className="btn-disabled card btn-ghost btn m-4 h-auto w-80 bg-base-300 p-4 normal-case shadow-xl"
+        >
+          <figure>
+            <div>
+              <GiPartyPopper className="h-16 w-16" />
+            </div>
+            <figcaption className="p-4">
+              <p className="text-xl font-semibold">Giveaways</p>
+              <p className="text-xs">
+                See all the giveaways you've created or entered.
+              </p>
+            </figcaption>
+          </figure>
+        </Link>
+        <Link
+          to="/dashboard/guilds"
+          className="card btn-ghost btn m-4 h-auto w-80 bg-base-300 p-4 normal-case shadow-xl"
+        >
+          <figure>
+            <div>
+              <HiServer className="h-16 w-16" />
+            </div>
+            <figcaption className="p-4">
+              <p className="text-xl font-semibold">Servers</p>
+              <p className="text-xs">
+                See giveaways in the servers you own or manage.
+              </p>
+            </figcaption>
+          </figure>
+        </Link>
+        <Link
+          to="/dashboard/profile"
+          className="card btn-ghost btn m-4 h-auto w-80 bg-base-300 p-4 normal-case shadow-xl"
+        >
+          <figure>
+            <div>
+              <BsPersonBadge className="h-16 w-16" />
+            </div>
+            <figcaption className="p-4">
+              <p className="text-xl font-semibold">My Account</p>
+              <p className="text-xs">
+                Manage your account, see your profile, and more.
+              </p>
+            </figcaption>
+          </figure>
+        </Link>
       </div>
     </div>
   );

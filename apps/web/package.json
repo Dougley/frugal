@@ -41,7 +41,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20230511.0",
+    "@cloudflare/workers-types": "^4.20230518.0",
     "@dougley/types": "workspace:^",
     "@remix-run/dev": "^1.16.1",
     "@remix-run/eslint-config": "^1.16.1",
@@ -56,7 +56,7 @@
     "prettier-plugin-tailwindcss": "^0.3.0",
     "tailwindcss": "^3.3.2",
     "typescript": "^5.0.4",
-    "wrangler": "^3.0.0"
+    "wrangler": "^3.0.1"
   },
   "engines": {
     "node": ">=16.13"

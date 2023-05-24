@@ -55,10 +55,10 @@ export default function Index() {
   return (
     <div className="flex min-h-screen flex-col justify-center overflow-x-auto">
       <h1 className="m-5 text-center text-4xl font-semibold">
-        GiveawayBot Dashboard for {guild.name}
+        Overview for {guild.name}
       </h1>
       <div>
-        <Link to="/dashboard">
+        <Link to="/dashboard/guilds">
           <button className="btn m-auto flex">
             <IoMdArrowBack className="h-6 w-6 flex-shrink-0" />
             Back to servers

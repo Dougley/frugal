@@ -78,7 +78,7 @@ function AvatarContainer({ user }: AvatarProps) {
             className="rounded-full"
             src={`https://cdn.discordapp.com/embed/avatars/${
               // pomelo 🍊
-              user.username.length % 5
+              Math.abs(((user.id as any) >> 22) % 5)
             }.png`}
             alt="avatar"
           />
