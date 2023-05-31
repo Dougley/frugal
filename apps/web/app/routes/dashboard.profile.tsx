@@ -77,14 +77,14 @@ export default function Index() {
     premiumSubscription: {
       active: 1 | 0;
       subscription_tier: "basic" | "premium";
-    };
+    } | undefined;
   };
   const since = new Intl.DateTimeFormat("en-GB").format(
     sub(new Date(), {
       months: 3,
     })
   );
-  const isPremium = premiumSubscription.active === 1;
+  const isPremium = premiumSubscription?.active === 1
   const fetcher = useFetcher();
   useEffect(() => {
     if (fetcher.data) {
@@ -156,8 +156,8 @@ export default function Index() {
             <div className="divider lg:divider-horizontal" />
             <div className="card-body">
               <h3 className="card-title">Traits</h3>
-              {premiumSubscription.active &&
-                (premiumSubscription.subscription_tier === "premium" ? (
+              {premiumSubscription?.active &&
+                (premiumSubscription?.subscription_tier === "premium" ? (
                   <div className="badge-primary badge badge-md">
                     Premium Subscriber
                   </div>
