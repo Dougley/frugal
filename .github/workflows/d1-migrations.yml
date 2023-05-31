@@ -14,18 +14,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7
-          run_install: false
-
       - uses: actions/setup-node@v3
         with:
           node-version: 18.3
           cache: "pnpm"
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
 
       - name: Migrate db
         #uses: cloudflare/wrangler-action@2.0.0
