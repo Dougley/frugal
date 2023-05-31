@@ -25,7 +25,7 @@ jobs:
 
   d1:
     name: Run D1 Migrations
-    uses: dougley/frugal/.github/workflows/d1-migrations@dev
+    uses: dougley/frugal/.github/workflows/d1-migrations.yml@dev
     secrets: inherit
     with:
       environment: production

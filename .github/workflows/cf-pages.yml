@@ -10,7 +10,7 @@ name: Deploy to Cloudflare Pages
 jobs:
   d1:
     name: Run D1 Migrations
-    uses: dougley/frugal/.github/workflows/d1-migrations@main
+    uses: dougley/frugal/.github/workflows/d1-migrations.yml@dev
     secrets: inherit
     with:
       environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
