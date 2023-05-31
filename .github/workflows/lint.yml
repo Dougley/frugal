@@ -6,6 +6,11 @@ jobs:
   node_test:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      pull-requests: write
+      statuses: write
+
     steps:
       - uses: actions/checkout@v3
 
@@ -17,7 +22,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18.3
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

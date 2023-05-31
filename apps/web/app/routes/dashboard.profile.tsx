@@ -1,10 +1,16 @@
+import type { Database } from "@dougley/d1-database";
 import * as Avatar from "@radix-ui/react-avatar";
-import type { LoaderArgs, V2_MetaFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import type { ActionArgs, LoaderArgs } from "@remix-run/cloudflare";
+import type { V2_MetaFunction } from "@remix-run/node";
+import { Form, Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { sub } from "date-fns";
+import { Kysely } from "kysely";
+import { D1Dialect } from "kysely-d1";
+import { useEffect } from "react";
 import { GiPartyPopper } from "react-icons/gi";
 import { IoMdArrowBack } from "react-icons/io";
 import type { Authenticator } from "remix-auth";
+import Stripe from "stripe";
 import type { DiscordUser } from "~/services/authenticator.server";
 import { defaultMeta } from "~/utils/meta";
 
@@ -13,19 +19,79 @@ export const meta: V2_MetaFunction = () => {
 };
 
 export const loader = async ({ context, request }: LoaderArgs) => {
-  return (context.authenticator as Authenticator).isAuthenticated(request, {
-    failureRedirect: "/login",
+  const db = new Kysely<Database>({
+    dialect: new D1Dialect({ database: context.D1 as D1Database }),
   });
+  const user = (await (context.authenticator as Authenticator).isAuthenticated(
+    request,
+    {
+      failureRedirect: "/login",
+    }
+  )) as DiscordUser;
+  return {
+    user,
+    premiumSubscription: await db
+      .selectFrom("premium_subscriptions")
+      .where("discord_user_id", "=", user.id)
+      .select(["active", "subscription_tier"])
+      .executeTakeFirst(),
+  };
+};
+
+export const action = async ({ context, request }: ActionArgs) => {
+  const db = new Kysely<Database>({
+    dialect: new D1Dialect({ database: context.D1 as D1Database }),
+  });
+  const stripe = new Stripe(context.STRIPE_SECRET_KEY as string, {
+    apiVersion: "2022-11-15",
+    httpClient: Stripe.createFetchHttpClient(),
+  });
+  const user = (await (context.authenticator as Authenticator).isAuthenticated(
+    request,
+    {
+      failureRedirect: "/login",
+    }
+  )) as DiscordUser;
+
+  const customerId = await db
+    .selectFrom("premium_subscriptions")
+    .where("discord_user_id", "=", user.id)
+    .select("stripe_customer_id")
+    .executeTakeFirst();
+
+  if (!customerId) {
+    throw new Error("User does not have a Stripe customer ID");
+  }
+
+  const session = await stripe.billingPortal.sessions.create({
+    customer: customerId.stripe_customer_id,
+  });
+  return {
+    url: session.url,
+  };
 };
 
 export default function Index() {
-  const user = useLoaderData() as DiscordUser;
+  const { user, premiumSubscription } = useLoaderData() as {
+    user: DiscordUser;
+    premiumSubscription: {
+      active: 1 | 0;
+      subscription_tier: "basic" | "premium";
+    };
+  };
   const since = new Intl.DateTimeFormat("en-GB").format(
     sub(new Date(), {
       months: 3,
     })
   );
-  const isPremium = false; // TODO: check if user is premium
+  const isPremium = premiumSubscription.active === 1;
+  const fetcher = useFetcher();
+  useEffect(() => {
+    if (fetcher.data) {
+      open(fetcher.data.url, "_blank");
+    }
+  }, [fetcher.data]);
+
   return (
     <div className="flex min-h-screen flex-col justify-center overflow-x-auto">
       <h1 className="m-5 text-center text-4xl font-semibold">Your profile</h1>
@@ -60,6 +126,7 @@ export default function Index() {
             <div className="ml-5">
               <p className="text-2xl font-semibold">{user.username}</p>
               <p className="text-xs">#{user.discriminator}</p>
+              <p className="text-xs">ID: {user.id}</p>
             </div>
           </div>
           <div className="mt-5 flex flex-col justify-center lg:flex-row">
@@ -89,39 +156,66 @@ export default function Index() {
             <div className="divider lg:divider-horizontal" />
             <div className="card-body">
               <h3 className="card-title">Traits</h3>
-              <div className="badge-accent badge badge-md">Beta Tester</div>
-              <div className="badge-secondary badge badge-md">
-                Premium Subscriber
-              </div>
-              <div className="badge-primary badge badge-md">
+              {premiumSubscription.active &&
+                (premiumSubscription.subscription_tier === "premium" ? (
+                  <div className="badge-primary badge badge-md">
+                    Premium Subscriber
+                  </div>
+                ) : (
+                  <div className="badge-accent badge badge-md">
+                    Plus Subscriber
+                  </div>
+                ))}
+              {/* <div className="badge-primary badge badge-md">
                 GiveawayBot Staff
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
       </div>
       <div className="flex flex-row flex-wrap justify-center">
-        <Link
-          to="/premium"
-          className={
-            "card btn m-4 h-auto w-80 p-4 normal-case shadow-xl lg:w-96" +
-            (!isPremium ? " btn-secondary" : "")
-          }
-        >
-          <figure>
-            <div>
-              <GiPartyPopper className="h-16 w-16" />
-            </div>
-            <figcaption className="p-4">
-              <p className="text-xl font-semibold">GiveawayBot Premium</p>
-              <p className="text-xs">
-                {!isPremium
-                  ? "Get access to premium features and support the development of this project!"
-                  : "Thanks for subscribing to GiveawayBot Premium! Click here to manage your subscription."}
-              </p>
-            </figcaption>
-          </figure>
-        </Link>
+        {isPremium ? (
+          <Form
+            action="/dashboard/profile"
+            method="post"
+            onSubmit={(e) => {
+              e.preventDefault();
+              fetcher.submit(e.currentTarget);
+            }}
+          >
+            <button className="card btn m-4 h-auto w-80 p-4 normal-case shadow-xl lg:w-96">
+              <figure>
+                <div>
+                  <GiPartyPopper className="h-16 w-16" />
+                </div>
+                <figcaption className="p-4">
+                  <p className="text-xl font-semibold">Manage subscription</p>
+                  <p className="text-xs">
+                    Thanks for subscribing! Click here to manage your
+                    subscription.
+                  </p>
+                </figcaption>
+              </figure>
+            </button>
+          </Form>
+        ) : (
+          <Link to="/premium">
+            <button className="card btn-secondary m-4 h-auto w-80 p-4 normal-case shadow-xl lg:w-96">
+              <figure>
+                <div>
+                  <GiPartyPopper className="h-16 w-16" />
+                </div>
+                <figcaption className="p-4">
+                  <p className="text-xl font-semibold">GiveawayBot Premium</p>
+                  <p className="text-xs">
+                    Get access to premium features and support the development
+                    of this project!
+                  </p>
+                </figcaption>
+              </figure>
+            </button>
+          </Link>
+        )}
       </div>
     </div>
   );

@@ -1,0 +1,27 @@
+{
+  "name": "@dougley/frugal-stripe",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev --persist-to='../../.mf' src/index.ts",
+    "deploy": "wrangler deploy --minify src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dougley/frugal.git",
+    "directory": "apps/stripe"
+  },
+  "dependencies": {
+    "@dougley/d1-database": "workspace:^",
+    "@dougley/tsconfig": "workspace:^",
+    "@dougley/types": "workspace:^",
+    "hono": "^3.2.2",
+    "kysely": "^0.24.2",
+    "kysely-d1": "^0.3.0",
+    "stripe": "^12.7.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20230518.0",
+    "wrangler": "^3.0.1"
+  }
+}

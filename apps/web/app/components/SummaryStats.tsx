@@ -2,7 +2,10 @@
 
 import formatDistance from "date-fns/formatDistance";
 
-function Stats({ details, entries }: Pick<SummaryOutput, "details" | "entries">) {
+function Stats({
+  details,
+  entries,
+}: Pick<SummaryOutput, "details" | "entries">) {
   return (
     <div className="stats stats-vertical justify-center shadow lg:stats-horizontal">
       {getStats({ details, entries }).map((stat) => (

@@ -1,3 +1,5 @@
+compatibility_date="2023-05-12"
+
 [[d1_databases]]
 binding = "D1"
 database_name = "frugal"

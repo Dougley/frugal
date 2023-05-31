@@ -15,18 +15,34 @@ on:
 
 jobs:
   deploy:
-    name: Deploy
-    uses: dougley/frugal/.github/workflows/discord-build.yml@main
+    name: Deploy Discord Workers
+    uses: dougley/frugal/.github/workflows/discord-build.yml@dev
     secrets: inherit
     with:
       environment: production
       deploy_commands: ${{ github.event.inputs.deploycommands }}
       skip_deploy: ${{ github.event.inputs.skipdeploy }}
 
+  d1:
+    name: Run D1 Migrations
+    uses: dougley/frugal/.github/workflows/d1-migrations@dev
+    secrets: inherit
+    with:
+      environment: production
+
+  stripe:
+    name: Deploy Stripe Webhooks
+    needs: deploy
+    uses: dougley/frugal/.github/workflows/stripe-build.yml@dev
+    if: github.event.inputs.skipdeploy != 'true'
+    secrets: inherit
+    with:
+      environment: production
+
   sentry:
     name: Create Sentry release
     needs: deploy
-    uses: dougley/frugal/.github/workflows/sentry.yml@main
+    uses: dougley/frugal/.github/workflows/sentry.yml@dev
     if: github.event.inputs.skipdeploy != 'true'
     secrets: inherit
     with:

@@ -1,0 +1,29 @@
+name = "frugal-stripe-dev"
+main = "dist/index.mjs"
+compatibility_date = "2023-04-09"
+workers_dev = true
+
+[[d1_databases]]
+binding = "D1"
+database_name = "frugal"
+database_id = "ddc7d747-ada2-4e1c-9946-62856277f9a1"
+preview_database_id = "ddc7d747-ada2-4e1c-9946-62856277f9a1"
+migrations_dir = "../../packages/d1-database/migrations"
+
+[env.production]
+name = "frugal-stripe-prod"
+
+[[env.production.d1_databases]]
+binding = "D1"
+database_name = "frugal"
+database_id = "a09d43b8-850e-4f4d-ba91-fe47d3be0ec9"
+migrations_dir = "../../packages/d1-database/migrations"
+
+[env.staging]
+name = "frugal-stripe-stg"
+
+[[env.staging.d1_databases]]
+binding = "D1"
+database_name = "frugal"
+database_id = "25175d02-8239-4f77-b53a-f8edd2fe6ebd"
+migrations_dir = "../../packages/d1-database/migrations"

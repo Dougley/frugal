@@ -52,8 +52,9 @@ const handleRequest = createPagesFunctionHandler({
             (await guildsResponse.json()) as RESTAPIPartialCurrentUserGuild[];
           const user = {
             id: profile.id,
-            username: profile.displayName,
-            discriminator: profile._json.discriminator,
+            username: profile.username,
+            displayName: profile.displayName,
+            discriminator: profile.discriminator,
             avatar: profile.photos[0].value,
             email: profile.emails?.[0].value,
             guilds: guildsData,

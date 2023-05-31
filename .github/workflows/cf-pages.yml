@@ -2,12 +2,19 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'apps/web/**'
-      - '.github/workflows/cf-pages.yml'
+      - "apps/web/**"
+      - ".github/workflows/cf-pages.yml"
 
 name: Deploy to Cloudflare Pages
 
 jobs:
+  d1:
+    name: Run D1 Migrations
+    uses: dougley/frugal/.github/workflows/d1-migrations@main
+    secrets: inherit
+    with:
+      environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+
   deploy:
     defaults:
       run:
@@ -29,14 +36,14 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18.3
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build
         run: pnpm run build:mapped
-        
+
       - name: Sentry Remix sourcemap upload
         run: node ./node_modules/@sentry/remix/scripts/sentry-upload-sourcemaps.js && find . -type f -name '*.map' -delete
         env:
@@ -57,9 +64,9 @@ jobs:
 
   sentry:
     name: Create Sentry release
-    uses: dougley/frugal/.github/workflows/sentry.yml@main
+    uses: dougley/frugal/.github/workflows/sentry.yml@dev
     needs: deploy
     secrets: inherit
     with:
-      environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+      environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
       project: web
