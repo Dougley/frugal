@@ -31,7 +31,7 @@
     "@sentry/remix": "^7.53.1",
     "clsx": "^1.2.1",
     "cross-env": "^7.0.3",
-    "daisyui": "^2.52.0",
+    "daisyui": "^3.0.3",
     "date-fns": "^2.30.0",
     "isbot": "^3.6.10",
     "kysely": "^0.24.2",
