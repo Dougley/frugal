@@ -65,9 +65,12 @@ export const action = async ({ context, request }: ActionArgs) => {
   const session = await stripe.billingPortal.sessions.create({
     customer: customerId.stripe_customer_id,
   });
-  return {
-    url: session.url,
-  };
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: session.url,
+    },
+  })
 };
 
 export default function Index() {
