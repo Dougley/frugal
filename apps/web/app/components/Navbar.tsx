@@ -1,24 +1,20 @@
 import { Link } from "@remix-run/react";
 import type { ReactElement } from "react";
-import { Suspense } from "react";
-import { ProfileButton } from "./ProfileButton";
-import { ThemeSwitcher } from "./ThemeSwitcher";
+import { LuMenu } from "react-icons/lu";
 
 export function Navbar(): ReactElement {
   return (
-    <div className="navbar bg-base-300">
+    <div className="navbar">
       <div className="flex-1 px-2 lg:flex-none">
+        <label
+          htmlFor="drawer-sidemenu"
+          className="btn-ghost btn-square btn xl:hidden"
+        >
+          <LuMenu className="text-2xl" />
+        </label>
         <Link className="btn-ghost btn text-lg font-bold normal-case" to="/">
           GiveawayBot
         </Link>
-      </div>
-      <div className="flex flex-1 justify-end px-2">
-        <div className="flex items-stretch space-x-2">
-          <Suspense fallback={null}>
-            <ThemeSwitcher />
-          </Suspense>
-          <ProfileButton />
-        </div>
       </div>
     </div>
   );

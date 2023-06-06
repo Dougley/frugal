@@ -1,10 +1,17 @@
-import { createWorkersKVSessionStorage } from "@remix-run/cloudflare";
+import {
+  createWorkersKVSessionStorage,
+  logDevReady,
+} from "@remix-run/cloudflare";
 import { createPagesFunctionHandler } from "@remix-run/cloudflare-pages";
 import * as build from "@remix-run/dev/server-build";
 import type { RESTAPIPartialCurrentUserGuild } from "discord-api-types/rest/v9/user";
 import { Authenticator } from "remix-auth";
 import type { DiscordUser } from "~/services/authenticator.server";
 import { DiscordStrategy } from "./app/services/DiscordStrategy.server";
+
+if (process.env.NODE_ENV === "development") {
+  logDevReady(build);
+}
 
 const handleRequest = createPagesFunctionHandler({
   build,

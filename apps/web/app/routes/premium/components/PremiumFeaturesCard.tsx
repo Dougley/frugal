@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { BsCheckLg } from "react-icons/bs";
+import { LuCheck } from "react-icons/lu";
 
 function PremiumFeaturesCard(): ReactElement {
   return (
@@ -8,31 +8,31 @@ function PremiumFeaturesCard(): ReactElement {
         <h2 className="card-title">Premium Features</h2>
         <ul className="space-y-2">
           <li className="flex items-center">
-            <BsCheckLg className="mr-2 h-7 w-7 text-success" />
+            <LuCheck className="mr-2 h-7 w-7 text-success" />
             <span>
               Giveaways can last up to <b>6 weeks (42 days)</b>
             </span>
           </li>
           <li className="flex items-center">
-            <BsCheckLg className="mr-2 h-7 w-7 text-success" />
+            <LuCheck className="mr-2 h-7 w-7 text-success" />
             <span>
               Giveaways can have up to <b>50 winners</b>
             </span>
           </li>
           <li className="flex items-center">
-            <BsCheckLg className="mr-2 h-7 w-7 text-success" />
+            <LuCheck className="mr-2 h-7 w-7 text-success" />
             <span>
               Run up to <b>25 giveaways per channel</b> at once
             </span>
           </li>
           <li className="flex items-center">
-            <BsCheckLg className="mr-2 h-7 w-7 text-success" />
+            <LuCheck className="mr-2 h-7 w-7 text-success" />
             <span>
               Use <b>custom emojis</b> for the giveaway button
             </span>
           </li>
           <li className="flex items-center">
-            <BsCheckLg className="mr-2 h-7 w-7 text-success" />
+            <LuCheck className="mr-2 h-7 w-7 text-success" />
             <span>
               <b>Upload images</b> for the giveaway embed
             </span>

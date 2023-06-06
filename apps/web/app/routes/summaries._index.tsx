@@ -3,7 +3,7 @@
 import type { ActionArgs } from "@remix-run/cloudflare";
 import { type V2_MetaFunction } from "@remix-run/cloudflare";
 import { Form, useActionData } from "@remix-run/react";
-import { MdError, MdOutlineFileUpload } from "react-icons/md";
+import { LuAlertOctagon, LuUpload } from "react-icons/lu";
 import { z } from "zod";
 import ParticipantsTable from "~/components/ParticipantsTable";
 import Stats from "~/components/SummaryStats";
@@ -72,7 +72,7 @@ function Upload() {
           accept="application/json"
         />
         <button type="submit" className="btn-primary btn gap-2">
-          <MdOutlineFileUpload className="h-6 w-6" />
+          <LuUpload className="h-6 w-6" />
           Render
         </button>
       </Form>
@@ -115,7 +115,7 @@ export default function Index() {
           </h1>
           <div className="alert alert-error w-auto shadow-lg">
             <pre className="language-js">
-              <MdError size={24} />
+              <LuAlertOctagon size={24} />
               <code className="language-js">{data.error}</code>
             </pre>
           </div>

@@ -16,11 +16,10 @@ import { ErrorBoundary } from "~/components/ErrorBoundary";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: tailwindStylesheet },
-  { rel: "preconnect", href: "https://fonts.gstatic.com" },
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  { rel: "preconnect", href: "https://rsms.me" },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap",
+    href: "https://rsms.me/inter/inter.css",
   },
 ];
 
@@ -32,21 +31,25 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
 };
 
 export const loader = async ({ context, request }: LoaderArgs) => {
-  return (context.authenticator as Authenticator).isAuthenticated(request);
+  return {
+    user: await (context.authenticator as Authenticator).isAuthenticated(
+      request
+    ),
+  };
 };
 
 export default function App() {
-  const isLoggedin = useLoaderData();
+  const { user } = useLoaderData();
   useEffect(() => {
-    if (!localStorage.getItem("seenLoggedinToast") && isLoggedin) {
+    if (!localStorage.getItem("seenLoggedinToast") && user) {
       toast.success("Welcome back!");
       localStorage.setItem("seenLoggedinToast", "true");
     }
-    if (localStorage.getItem("seenLoggedinToast") && !isLoggedin) {
+    if (localStorage.getItem("seenLoggedinToast") && !user) {
       toast.success("You have been logged out");
       localStorage.removeItem("seenLoggedinToast");
     }
-  }, [isLoggedin]);
+  }, [user]);
   return (
     <Document>
       <Layout>

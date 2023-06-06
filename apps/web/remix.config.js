@@ -16,6 +16,11 @@ module.exports = {
   // assetsBuildDirectory: "public/build",
   // publicPath: "/build/",
   future: {
+    unstable_dev: {
+      restart: false,
+      command:
+        'wrangler pages dev ./public --persist-to=../../.mf --compatibility-date="2023-05-12"',
+    },
     v2_errorBoundary: true,
     v2_meta: true,
     v2_normalizeFormMethod: true,

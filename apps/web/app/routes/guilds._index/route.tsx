@@ -1,8 +1,7 @@
 import * as Avatar from "@radix-ui/react-avatar";
 import type { LoaderArgs, V2_MetaFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { IoMdArrowBack } from "react-icons/io";
-import { MdPerson, MdQuestionMark } from "react-icons/md";
+import { LuUser } from "react-icons/lu";
 import type { Authenticator } from "remix-auth";
 import type { DiscordUser } from "~/services/authenticator.server";
 import { defaultMeta } from "~/utils/meta";
@@ -22,30 +21,19 @@ export default function Index() {
   return (
     <div className="flex min-h-screen flex-col justify-center overflow-x-auto">
       <h1 className="m-5 text-center text-4xl font-semibold">Your servers</h1>
-      <div className="pb-5">
-        <Link to="/dashboard">
-          <button className="btn m-auto flex">
-            <IoMdArrowBack className="h-6 w-6 flex-shrink-0" />
-            Back to dashboard
-          </button>
-        </Link>
-      </div>
       <div>
         <div className="alert m-auto w-96 shadow-lg">
           <div>
-            <MdQuestionMark className="h-6 w-6 flex-shrink-0" />
-            <div>
-              <p className="text-xl font-semibold">Missing servers?</p>
-              <div className="prose">
-                <p className="text-xs">
-                  We're only showing servers you own or have "Manage Server"
-                  permissions in, for privacy reasons.
-                </p>
-                <p className="text-xs">
-                  If you're still missing servers, log in again to update your
-                  permissions.
-                </p>
-              </div>
+            <p className="text-xl font-semibold">Missing servers?</p>
+            <div className="prose">
+              <p className="text-xs">
+                We're only showing servers you own or have "Manage Server"
+                permissions in, for privacy reasons.
+              </p>
+              <p className="text-xs">
+                If you're still missing servers, log in again to update your
+                permissions.
+              </p>
             </div>
           </div>
         </div>
@@ -58,9 +46,9 @@ export default function Index() {
             )
             .map((guild) => (
               <Link
-                to={`/dashboard/guilds/${guild.id}`}
+                to={`/guilds/${guild.id}`}
                 key={guild.id}
-                className="card btn-ghost btn m-4 h-auto w-96 bg-base-300 p-4 normal-case shadow-xl"
+                className="card-compact btn-ghost card btn m-4 h-auto w-72 bg-base-300 p-4 normal-case shadow-xl"
               >
                 <figure>
                   <div className="h-32 w-32">
@@ -88,8 +76,8 @@ export default function Index() {
                   <p className="text-xs">{guild.id}</p>
                   <div className="card-actions">
                     {guild.owner && (
-                      <span className="badge-outline badge">
-                        <MdPerson className="mr-1 inline-block h-4 w-4" />
+                      <span className="badge badge-outline">
+                        <LuUser className="mr-1 inline-block h-4 w-4" />
                         Owner
                       </span>
                     )}

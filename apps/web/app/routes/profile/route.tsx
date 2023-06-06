@@ -7,8 +7,7 @@ import { sub } from "date-fns";
 import { Kysely } from "kysely";
 import { D1Dialect } from "kysely-d1";
 import { useEffect } from "react";
-import { GiPartyPopper } from "react-icons/gi";
-import { IoMdArrowBack } from "react-icons/io";
+import { LuPartyPopper } from "react-icons/lu";
 import type { Authenticator } from "remix-auth";
 import Stripe from "stripe";
 import type { DiscordUser } from "~/services/authenticator.server";
@@ -74,17 +73,19 @@ export const action = async ({ context, request }: ActionArgs) => {
 export default function Index() {
   const { user, premiumSubscription } = useLoaderData() as {
     user: DiscordUser;
-    premiumSubscription: {
-      active: 1 | 0;
-      subscription_tier: "basic" | "premium";
-    } | undefined;
+    premiumSubscription:
+      | {
+          active: 1 | 0;
+          subscription_tier: "basic" | "premium";
+        }
+      | undefined;
   };
   const since = new Intl.DateTimeFormat("en-GB").format(
     sub(new Date(), {
       months: 3,
     })
   );
-  const isPremium = premiumSubscription?.active === 1
+  const isPremium = premiumSubscription?.active === 1;
   const fetcher = useFetcher();
   useEffect(() => {
     if (fetcher.data) {
@@ -95,14 +96,6 @@ export default function Index() {
   return (
     <div className="flex min-h-screen flex-col justify-center overflow-x-auto">
       <h1 className="m-5 text-center text-4xl font-semibold">Your profile</h1>
-      <div className="pb-5">
-        <Link to="/dashboard">
-          <button className="btn m-auto flex">
-            <IoMdArrowBack className="mr-2 h-6 w-6 flex-shrink-0" />
-            Back to dashboard
-          </button>
-        </Link>
-      </div>
       <div className="flex flex-row flex-wrap justify-center">
         <div className="card m-4 h-auto w-auto bg-base-300 p-4 normal-case shadow-xl">
           <div className="flex flex-row items-center">
@@ -124,8 +117,12 @@ export default function Index() {
               </Avatar.Fallback>
             </Avatar.Root>
             <div className="ml-5">
-              <p className="text-2xl font-semibold">{user.username}</p>
-              <p className="text-xs">#{user.discriminator}</p>
+              <p className="text-2xl font-semibold">{user.displayName}</p>
+              <p className="text-xs">
+                {user.discriminator
+                  ? `${user.username}#${user.discriminator}`
+                  : `@${user.username}`}
+              </p>
               <p className="text-xs">ID: {user.id}</p>
             </div>
           </div>
@@ -158,11 +155,11 @@ export default function Index() {
               <h3 className="card-title">Traits</h3>
               {premiumSubscription?.active &&
                 (premiumSubscription?.subscription_tier === "premium" ? (
-                  <div className="badge-primary badge badge-md">
+                  <div className="badge badge-primary badge-md">
                     Premium Subscriber
                   </div>
                 ) : (
-                  <div className="badge-accent badge badge-md">
+                  <div className="badge badge-accent badge-md">
                     Plus Subscriber
                   </div>
                 ))}
@@ -176,7 +173,7 @@ export default function Index() {
       <div className="flex flex-row flex-wrap justify-center">
         {isPremium ? (
           <Form
-            action="/dashboard/profile"
+            action="/profile"
             method="post"
             onSubmit={(e) => {
               e.preventDefault();
@@ -186,7 +183,7 @@ export default function Index() {
             <button className="card btn m-4 h-auto w-80 p-4 normal-case shadow-xl lg:w-96">
               <figure>
                 <div>
-                  <GiPartyPopper className="h-16 w-16" />
+                  <LuPartyPopper className="h-16 w-16" />
                 </div>
                 <figcaption className="p-4">
                   <p className="text-xl font-semibold">Manage subscription</p>
@@ -200,10 +197,10 @@ export default function Index() {
           </Form>
         ) : (
           <Link to="/premium">
-            <button className="card btn-secondary m-4 h-auto w-80 p-4 normal-case shadow-xl lg:w-96">
+            <button className="btn-secondary card m-4 h-auto w-80 p-4 normal-case shadow-xl lg:w-96">
               <figure>
                 <div>
-                  <GiPartyPopper className="h-16 w-16" />
+                  <LuPartyPopper className="h-16 w-16" />
                 </div>
                 <figcaption className="p-4">
                   <p className="text-xl font-semibold">GiveawayBot Premium</p>

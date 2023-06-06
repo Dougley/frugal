@@ -5,7 +5,7 @@ import { json } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
 import add from "date-fns/add";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
-import { HiOutlineSave, HiTrash } from "react-icons/hi";
+import { LuBomb, LuSave } from "react-icons/lu";
 import ParticipantsTable from "~/components/ParticipantsTable";
 import Stats from "~/components/SummaryStats";
 import WinnersTable from "~/components/WinnersTable";
@@ -98,12 +98,12 @@ export default function Index() {
           data-tip="Download the raw JSON file for this giveaway"
         >
           <button className="btn gap-2" onClick={() => downloadFile(data)}>
-            <HiOutlineSave className="h-6 w-6" />
+            <LuSave className="h-6 w-6" />
             Download
           </button>
         </div>
         <button className="btn-disabled btn-error btn gap-2">
-          <HiTrash className="h-6 w-6" />
+          <LuBomb className="h-6 w-6" />
           Delete
         </button>
       </div>

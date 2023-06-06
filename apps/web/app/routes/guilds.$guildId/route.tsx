@@ -5,7 +5,6 @@ import formatDistance from "date-fns/formatDistance";
 import isPast from "date-fns/isPast";
 import { Kysely } from "kysely";
 import { D1Dialect } from "kysely-d1";
-import { IoMdArrowBack } from "react-icons/io";
 import type { Authenticator } from "remix-auth";
 import type { DiscordUser } from "~/services/authenticator.server";
 import { defaultMeta } from "~/utils/meta";
@@ -57,14 +56,6 @@ export default function Index() {
       <h1 className="m-5 text-center text-4xl font-semibold">
         Overview for {guild.name}
       </h1>
-      <div>
-        <Link to="/dashboard/guilds">
-          <button className="btn m-auto flex">
-            <IoMdArrowBack className="h-6 w-6 flex-shrink-0" />
-            Back to servers
-          </button>
-        </Link>
-      </div>
       <div className="flex flex-row flex-wrap justify-center">
         {giveaways.length === 0 && (
           <div className="card m-4 h-auto w-96 bg-base-300 p-4 shadow-xl">
@@ -84,7 +75,7 @@ export default function Index() {
               to={ended ? `/summaries/${g.durable_object_id}` : "#"}
               key={g.durable_object_id}
               className={
-                "card btn-ghost btn m-4 h-auto w-96 bg-base-300 p-4 normal-case shadow-xl" +
+                "btn-ghost card btn m-4 h-auto w-96 bg-base-300 p-4 normal-case shadow-xl" +
                 (ended ? "" : " btn-disabled")
               }
             >

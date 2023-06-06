@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
-import { IoMdMoon } from "react-icons/io";
-import { MdOutlineWbSunny } from "react-icons/md";
+import { Suspense, useEffect, useState } from "react";
+import { LuMoon, LuSun } from "react-icons/lu";
 
 export function ThemeSwitcher() {
   const [theme, setTheme] = useState("dark");
@@ -11,27 +10,31 @@ export function ThemeSwitcher() {
     }
   }, []);
   return (
-    <button
-      className="btn-ghost btn-square btn gap-2"
-      onClick={() => {
-        setTheme(theme === "light" ? "dark" : "light");
-        localStorage.setItem("theme", theme === "light" ? "dark" : "light");
-        document
-          .querySelector("html")!
-          .setAttribute("data-theme", theme === "light" ? "dark" : "light");
-      }}
-    >
-      <label className="swap swap-rotate">
-        <input
-          disabled
-          type="checkbox"
-          className="swap swap-rotate"
-          checked={theme === "light"}
-        />
+    <Suspense fallback={null}>
+      <button
+        // className="btn-ghost btn-square btn gap-2"
+        onClick={() => {
+          setTheme(theme === "light" ? "dark" : "light");
+          localStorage.setItem("theme", theme === "light" ? "dark" : "light");
+          document
+            .querySelector("html")!
+            .setAttribute("data-theme", theme === "light" ? "dark" : "light");
+        }}
+      >
+        <label className="swap swap-rotate">
+          <input
+            disabled
+            type="checkbox"
+            className="swap swap-rotate"
+            checked={theme === "light"}
+          />
 
-        <IoMdMoon className="swap-off h-8 w-8 fill-current" />
-        <MdOutlineWbSunny className="swap-on h-8 w-8 fill-current" />
-      </label>
-    </button>
+          <LuMoon className="swap-on h-5 w-5" />
+          <LuSun className="swap-off h-5 w-5" />
+        </label>
+        Switch to {theme === "light" ? "dark " : "light "}
+        mode
+      </button>
+    </Suspense>
   );
 }

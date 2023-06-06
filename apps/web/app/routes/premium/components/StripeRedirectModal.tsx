@@ -53,6 +53,31 @@ export default function StripeRedirectModal({
                     In order to complete your purchase, you'll be redirected to
                     our payment processor, Stripe.
                   </p>
+                  <p>
+                    Depending on your location, you may be asked to provide
+                    additional information to complete your purchase.
+                  </p>
+                  <p>
+                    By continuing, you agree to our{" "}
+                    <a
+                      href="https://dougley.com/discord/terms"
+                      className="link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Terms of Service
+                    </a>{" "}
+                    and{" "}
+                    <a
+                      href="https://dougley.com/discord/privacy"
+                      className="link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Privacy Policy
+                    </a>
+                    .
+                  </p>
                 </AlertDialogPrimitive.Description>
                 <div className="modal-action">
                   <AlertDialogPrimitive.Cancel className="btn">
@@ -64,7 +89,7 @@ export default function StripeRedirectModal({
                       type="submit"
                       className="btn-primary btn"
                     >
-                      Confirm
+                      Continue
                     </AlertDialogPrimitive.Action>
                   </Form>
                 </div>

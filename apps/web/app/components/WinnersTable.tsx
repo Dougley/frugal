@@ -2,7 +2,7 @@ import * as Avatar from "@radix-ui/react-avatar";
 import { useRouteLoaderData } from "@remix-run/react";
 import type { APIUser } from "discord-api-types/v9";
 import type { ReactElement } from "react";
-import { GiPartyPopper } from "react-icons/gi";
+import { LuPartyPopper } from "react-icons/lu";
 import type { DiscordUser } from "~/services/authenticator.server";
 
 type winnnersTableProps = {
@@ -39,14 +39,14 @@ function WinnersTable({
                     </a>
                   </td>
                   <td>
-                    {entrant.discriminator === "0"
+                    {entrant.discriminator === "0" || !entrant.discriminator
                       ? `@${entrant.username}`
                       : `${entrant.username}#${entrant.discriminator}`}
                     {data && data.id === entrant.id && (
                       <>
                         <br></br>
                         <span className="text-gray-500">
-                          That's you! <GiPartyPopper className="inline" />
+                          That's you! <LuPartyPopper className="inline" />
                         </span>
                       </>
                     )}

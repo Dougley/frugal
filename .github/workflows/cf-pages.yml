@@ -61,6 +61,7 @@ jobs:
           directory: ./public
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           workingDirectory: ./apps/web
+          wranglerVersion: '3'
 
   sentry:
     name: Create Sentry release

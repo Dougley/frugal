@@ -49,41 +49,18 @@ app.post("/webhook", async (c) => {
     case "customer.subscription.created": {
       // since we cant get the discord id from the subscription object, just assume we'll get it later from checkout.session.completed
       const subscription = event.data.object as Stripe.Subscription;
-      const exists = await db
-        .selectFrom("premium_subscriptions")
-        .selectAll()
+      await db
+        .updateTable("premium_subscriptions")
+        .set({
+          subscription_tier:
+            subscription.items.data[0].plan.product === c.env.PREMIUM_PRODUCT_ID
+              ? "premium"
+              : "basic",
+          stripe_subscription_id: subscription.id,
+          updated_at: new Date(subscription.created * 1000).toISOString(),
+        })
         .where("stripe_customer_id", "=", subscription.customer as string)
         .execute();
-      if (exists.length > 0) {
-        await db
-          .updateTable("premium_subscriptions")
-          .set({
-            subscription_tier:
-              subscription.items.data[0].plan.product ===
-              c.env.PREMIUM_PRODUCT_ID
-                ? "premium"
-                : "basic",
-            stripe_subscription_id: subscription.id,
-            updated_at: new Date(subscription.created * 1000).toISOString(),
-          })
-          .where("stripe_customer_id", "=", subscription.customer as string)
-          .execute();
-      } else {
-        await db
-          .insertInto("premium_subscriptions")
-          .values({
-            subscription_tier:
-              subscription.items.data[0].plan.product ===
-              c.env.PREMIUM_PRODUCT_ID
-                ? "premium"
-                : "basic",
-            stripe_subscription_id: subscription.id,
-            stripe_customer_id: subscription.customer as string,
-            created_at: new Date(subscription.created * 1000).toISOString(),
-            updated_at: new Date(subscription.created * 1000).toISOString(),
-          })
-          .execute();
-      }
       return c.text("OK");
     }
     case "customer.subscription.updated": {
@@ -124,25 +101,17 @@ app.post("/webhook", async (c) => {
     }
     case "invoice.paid": {
       const invoice = event.data.object as Stripe.Invoice;
-      await db
-        .updateTable("premium_subscriptions")
-        .set({
-          active: invoice.paid ? 1 : 0,
-        })
-        .where("stripe_subscription_id", "=", invoice.subscription as string)
-        .execute();
-      return c.text("OK");
-    }
-    case "checkout.session.completed": {
-      // we can somewhat reasonably assume that they have a subscription that we know about at this point
-      const session = event.data.object as Stripe.Checkout.Session;
-      await db
-        .updateTable("premium_subscriptions")
-        .set({
-          discord_user_id: session.client_reference_id as string,
-        })
-        .where("stripe_customer_id", "=", session.customer as string)
-        .execute();
+      if (!invoice.subscription) {
+        console.log("Invoice paid without a subscription, ignoring");
+      } else {
+        await db
+          .updateTable("premium_subscriptions")
+          .set({
+            active: invoice.paid ? 1 : 0,
+          })
+          .where("stripe_subscription_id", "=", invoice.subscription as string)
+          .execute();
+      }
       return c.text("OK");
     }
     default: {
