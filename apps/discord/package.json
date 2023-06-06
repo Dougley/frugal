@@ -25,7 +25,7 @@
     "@cloudflare/workers-types": "^4.20230518.0",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "@sentry/esbuild-plugin": "^0.7.2",
+    "@sentry/esbuild-plugin": "^2.2.1",
     "better-sqlite3": "8.4.0",
     "dotenv": "^16.1.2",
     "esbuild": "^0.17.19",
