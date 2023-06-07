@@ -69,5 +69,7 @@ jobs:
     needs: deploy
     secrets: inherit
     with:
-      environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+      # if we're on main, use production, dev for staging,
+      # otherwise use testing
+      environment: ${{ github.ref_name == 'main' && 'production' || github.ref_name == 'dev' && 'staging' || 'testing' }}
       project: web
