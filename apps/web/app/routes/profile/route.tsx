@@ -70,7 +70,7 @@ export const action = async ({ context, request }: ActionArgs) => {
     headers: {
       Location: session.url,
     },
-  })
+  });
 };
 
 export default function Index() {
@@ -79,7 +79,7 @@ export default function Index() {
     premiumSubscription:
       | {
           active: 1 | 0;
-          subscription_tier: "basic" | "premium";
+          subscription_tier: "basic" | "premium" | "free";
         }
       | undefined;
   };

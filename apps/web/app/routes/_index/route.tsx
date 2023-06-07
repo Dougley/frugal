@@ -1,5 +1,6 @@
 import type { LoaderArgs, V2_MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { LuArrowBigDown } from "react-icons/lu";
 import { defaultMeta } from "~/utils/meta";
 import { Closing } from "./components/Closing";
 import { FeatureShowcase } from "./components/FeatureShowcase";
@@ -18,10 +19,18 @@ export default function Index() {
   const clientId = useLoaderData() as string;
   return (
     <>
-      <div className="flex flex-col items-center justify-start xl:flex-row xl:items-start xl:justify-between">
-        <Hero clientId={clientId} />
-        <div>
-          <div className="mx-auto w-full max-w-[1240px] p-6">
+      <Hero clientId={clientId} />
+      <div className="flex flex-col items-center justify-start">
+        <a href="#features">
+          <button className="btn-primary btn mb-12 hidden animate-bounce rounded-full xl:block">
+            <LuArrowBigDown className="h-6 w-6" />
+          </button>
+        </a>
+        <div
+          className="flex w-full flex-col items-center justify-center lg:flex-row"
+          id="features"
+        >
+          <div className="mx-auto w-full max-w-[1240px] p-6 xl:w-1/2">
             <FeatureShowcase
               title="Effortless Giveaways in a Snap"
               image="https://placehold.co/600x400"
@@ -31,7 +40,6 @@ export default function Index() {
               clicks, and voila! You're ready to rock those giveaways and dazzle
               your Discord community!
             </FeatureShowcase>
-            <div className="divider" />
             <FeatureShowcase
               title="Manage like a Pro, Relax like a Sloth"
               image="https://placehold.co/600x400"
@@ -43,7 +51,8 @@ export default function Index() {
               who knows how to juggle without dropping the balls. Kick back,
               relax, and let the bot do the heavy lifting.
             </FeatureShowcase>
-            <div className="divider" />
+          </div>
+          <div className="mx-auto w-full max-w-[1240px] p-6 xl:w-1/2">
             <FeatureShowcase
               title="Discord BFF Status Achieved"
               image="https://placehold.co/600x400"
@@ -54,7 +63,6 @@ export default function Index() {
               friend forever, making giveaways feel like a native part of your
               Discord experience. It's a match made in bot heaven!
             </FeatureShowcase>
-            <div className="divider" />
             <FeatureShowcase
               title="More Fun, Less Boredom"
               image="https://placehold.co/600x400"
