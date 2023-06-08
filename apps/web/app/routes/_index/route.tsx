@@ -30,7 +30,7 @@ export default function Index() {
           className="flex w-full flex-col items-center justify-center lg:flex-row"
           id="features"
         >
-          <div className="mx-auto w-full max-w-[1240px] p-6 xl:w-1/2">
+          <div className="mx-auto w-full max-w-[1240px] xl:p-12 xl:w-1/2">
             <FeatureShowcase
               title="Effortless Giveaways in a Snap"
               image="https://placehold.co/600x400"
@@ -43,7 +43,6 @@ export default function Index() {
             <FeatureShowcase
               title="Manage like a Pro, Relax like a Sloth"
               image="https://placehold.co/600x400"
-              flipped
             >
               We get it, managing giveaways can be a hassle. But fear not,
               because GiveawayBot is here to make it a cakewalk. From wrangling
@@ -52,7 +51,7 @@ export default function Index() {
               relax, and let the bot do the heavy lifting.
             </FeatureShowcase>
           </div>
-          <div className="mx-auto w-full max-w-[1240px] p-6 xl:w-1/2">
+          <div className="mx-auto w-full max-w-[1240px] xl:p-12 xl:w-1/2">
             <FeatureShowcase
               title="Discord BFF Status Achieved"
               image="https://placehold.co/600x400"
@@ -66,7 +65,6 @@ export default function Index() {
             <FeatureShowcase
               title="More Fun, Less Boredom"
               image="https://placehold.co/600x400"
-              flipped
             >
               Giveaways aren't just about prizes; they're about injecting life
               and laughter into your Discord server. GiveawayBot brings the fun

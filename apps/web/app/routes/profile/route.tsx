@@ -2,11 +2,10 @@ import type { Database } from "@dougley/d1-database";
 import * as Avatar from "@radix-ui/react-avatar";
 import type { ActionArgs, LoaderArgs } from "@remix-run/cloudflare";
 import type { V2_MetaFunction } from "@remix-run/node";
-import { Form, Link, useFetcher, useLoaderData } from "@remix-run/react";
+import { Form, Link, useLoaderData } from "@remix-run/react";
 import { sub } from "date-fns";
 import { Kysely } from "kysely";
 import { D1Dialect } from "kysely-d1";
-import { useEffect } from "react";
 import { LuPartyPopper } from "react-icons/lu";
 import type { Authenticator } from "remix-auth";
 import Stripe from "stripe";
@@ -64,6 +63,7 @@ export const action = async ({ context, request }: ActionArgs) => {
 
   const session = await stripe.billingPortal.sessions.create({
     customer: customerId.stripe_customer_id,
+    return_url: request.url,
   });
   return new Response(null, {
     status: 302,
@@ -89,12 +89,6 @@ export default function Index() {
     })
   );
   const isPremium = premiumSubscription?.active === 1;
-  const fetcher = useFetcher();
-  useEffect(() => {
-    if (fetcher.data) {
-      open(fetcher.data.url, "_blank");
-    }
-  }, [fetcher.data]);
 
   return (
     <div className="flex min-h-screen flex-col justify-center overflow-x-auto">
@@ -175,14 +169,7 @@ export default function Index() {
       </div>
       <div className="flex flex-row flex-wrap justify-center">
         {isPremium ? (
-          <Form
-            action="/profile"
-            method="post"
-            onSubmit={(e) => {
-              e.preventDefault();
-              fetcher.submit(e.currentTarget);
-            }}
-          >
+          <Form action="/profile" method="post">
             <button className="card btn m-4 h-auto w-80 p-4 normal-case shadow-xl lg:w-96">
               <figure>
                 <div>

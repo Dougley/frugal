@@ -2,7 +2,7 @@ import { Link } from "@remix-run/react";
 
 export function Hero({ clientId }: { clientId: string }) {
   return (
-    <div className="hero min-h-screen xl:min-h-[75vh]">
+    <div className="hero min-h-screen xl:min-h-[60vh]">
       <div className="hero-content items-center justify-center px-2 py-10 text-center">
         <div className="max-w-md">
           <h1 className="text-center text-5xl font-black">
