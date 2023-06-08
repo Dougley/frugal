@@ -3,6 +3,7 @@ import { Link, NavLink, useRouteLoaderData } from "@remix-run/react";
 import React, { Suspense } from "react";
 import { BsDiscord } from "react-icons/bs";
 import {
+  LuExternalLink,
   LuGem,
   LuHome,
   LuLogIn,
@@ -115,15 +116,17 @@ export function DrawerMenu(): React.ReactElement {
                 </Suspense>
               </li>
               <li>
-                <Link to="/terms">
+                <Link to="https://dougley.com/discord/terms" target="_blank">
                   <LuScroll className="h-5 w-5" />
                   Terms of Service
+                  <LuExternalLink className="inline-block h-4 w-4" />
                 </Link>
               </li>
               <li>
-                <Link to="/privacy">
+                <Link to="http://dougley.com/discord/privacy" target="_blank">
                   <LuScroll className="h-5 w-5" />
                   Privacy Policy
+                  <LuExternalLink className="inline-block h-4 w-4" />
                 </Link>
               </li>
             </ul>
