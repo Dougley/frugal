@@ -24,11 +24,8 @@ export const meta: V2_MetaFunction = () => {
 
 export async function loader({ request, context, params }: LoaderArgs) {
   const user = (await (context.authenticator as Authenticator).isAuthenticated(
-    request,
-    {
-      failureRedirect: "/login",
-    }
-  )) as DiscordUser;
+    request
+  )) as DiscordUser | null;
   const db = new Kysely<Database>({
     dialect: new D1Dialect({ database: context.D1 as D1Database }),
   });
@@ -37,11 +34,15 @@ export async function loader({ request, context, params }: LoaderArgs) {
     httpClient: Stripe.createFetchHttpClient(),
   });
 
-  const alreadyPremium = await db
-    .selectFrom("premium_subscriptions")
-    .select(["active"])
-    .where("discord_user_id", "=", user.id)
-    .executeTakeFirst();
+  const alreadyPremium = user
+    ? await db
+        .selectFrom("premium_subscriptions")
+        .select(["active"])
+        .where("discord_user_id", "=", user.id)
+        .executeTakeFirst()
+    : {
+        active: false,
+      };
 
   const plusMonth = await stripe.prices.retrieve(
     context.SUBSCRIPTION_PLUS_MONTHLY_PRICE_ID as string,
@@ -69,6 +70,7 @@ export async function loader({ request, context, params }: LoaderArgs) {
   );
 
   return {
+    loggedIn: !!user,
     alreadyPremium: alreadyPremium?.active ?? false,
     plus: context.SUBSCRIPTION_PLUS_MONTHLY_PRICE_ID,
     premium: context.SUBSCRIPTION_PREMIUM_MONTHLY_PRICE_ID,
@@ -164,6 +166,7 @@ export default function Index() {
     premium,
     alreadyPremium,
     pricing,
+    loggedIn,
   }: {
     plus: string;
     premium: string;
@@ -178,6 +181,7 @@ export default function Index() {
         monthly: Stripe.Price;
       };
     };
+    loggedIn: boolean;
   } = useLoaderData();
   useEffect(() => {
     let q = new URLSearchParams(window.location.search);
@@ -232,15 +236,21 @@ export default function Index() {
         </p>
       </div>
       <div className="flex flex-row flex-wrap justify-center">
-        {!alreadyPremium ? (
-          <StripeRedirectModal priceId={premium} />
+        {loggedIn ? (
+          !alreadyPremium ? (
+            <StripeRedirectModal priceId={premium} />
+          ) : (
+            <div className="rounded-box m-2 flex flex-col flex-wrap justify-center border border-base-300 bg-base-200 p-5">
+              <p className="text-center text-xl">You're already subscribed!</p>
+              <Link to="/profile" className="btn-primary btn m-2 w-auto">
+                Manage subscription
+              </Link>
+            </div>
+          )
         ) : (
-          <div className="rounded-box m-2 flex flex-col flex-wrap justify-center border border-base-300 bg-base-200 p-5">
-            <p className="text-center text-xl">You're already subscribed!</p>
-            <Link to="/profile" className="btn-primary btn m-2 w-auto">
-              Manage subscription
-            </Link>
-          </div>
+          <Link to="/login" className="btn m-2 w-auto">
+            Login to subscribe
+          </Link>
         )}
       </div>
       <div className="mb-5 flex flex-row flex-wrap items-center justify-center">
@@ -276,17 +286,23 @@ export default function Index() {
               </p>
             </div>
             <div className="flex flex-row flex-wrap justify-center">
-              {!alreadyPremium ? (
-                <StripeRedirectModal priceId={plus} />
+              {loggedIn ? (
+                !alreadyPremium ? (
+                  <StripeRedirectModal priceId={plus} />
+                ) : (
+                  <div className="rounded-box m-2 flex flex-col flex-wrap justify-center border border-base-300 bg-base-200 p-5">
+                    <p className="text-center text-xl">
+                      You're already subscribed!
+                    </p>
+                    <Link to="/profile" className="btn-primary btn m-2 w-auto">
+                      Manage subscription
+                    </Link>
+                  </div>
+                )
               ) : (
-                <div className="rounded-box m-2 flex flex-col flex-wrap justify-center border border-base-300 bg-base-200 p-5">
-                  <p className="text-center text-xl">
-                    You're already subscribed!
-                  </p>
-                  <Link to="/profile" className="btn-primary btn m-2 w-auto">
-                    Manage subscription
-                  </Link>
-                </div>
+                <Link to="/login" className="btn m-2 w-auto">
+                  Login to subscribe
+                </Link>
               )}
             </div>
           </div>
