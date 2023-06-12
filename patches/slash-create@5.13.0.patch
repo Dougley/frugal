@@ -1,3 +1,14 @@
+diff --git a/package.json b/package.json
+index 7b11cce74ca86b97618b3fe6cb7acf994552e275..9526e306b4f819cc1713098adc225d8215fda502 100644
+--- a/package.json
++++ b/package.json
+@@ -1,5 +1,6 @@
+ {
+   "name": "slash-create",
++  "sideEffects": false,
+   "version": "5.13.0",
+   "description": "Create and sync Discord slash commands!",
+   "main": "./lib/index.js",
 diff --git a/lib/creator.js b/lib/creator.js
 index 7818ea53d293b97ce99b7d05951ab9a7d2452470..d226b9866c88feda962d22db27fc7cb9fb48cb96 100644
 --- a/lib/creator.js

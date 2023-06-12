@@ -17,6 +17,7 @@
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "prettier.prettierPath": "./node_modules/prettier",
   "editor.formatOnSave": true,
   "eslint.format.enable": false,
   "sqltools.useNodeRuntime": true,

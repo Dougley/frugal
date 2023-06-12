@@ -1,6 +1,6 @@
-import { build } from 'esbuild';
 import { sentryEsbuildPlugin } from '@sentry/esbuild-plugin';
 import dotenv from 'dotenv';
+import { build } from 'esbuild';
 
 dotenv.config();
 

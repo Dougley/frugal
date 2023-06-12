@@ -86,7 +86,9 @@ export function DrawerMenu(): React.ReactElement {
                                 />
                               </Avatar.Fallback>
                             </Avatar.Root>
-                            {guild.name}
+                            {guild.name.length > 20
+                              ? guild.name.substring(0, 20) + "..."
+                              : guild.name}
                           </NavLink>
                         </li>
                       ))
