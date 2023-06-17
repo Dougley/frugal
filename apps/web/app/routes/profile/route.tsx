@@ -94,35 +94,35 @@ export default function Index() {
     <div className="flex min-h-screen flex-col justify-center overflow-x-auto">
       <h1 className="m-5 text-center text-4xl font-semibold">Your profile</h1>
       <div className="flex flex-row flex-wrap justify-center">
-        <div className="card m-4 h-auto w-auto bg-base-300 p-4 normal-case shadow-xl">
-          <div className="flex flex-row items-center">
-            <Avatar.Root className="h-32 w-32">
-              <Avatar.Image
+        <div className="card m-4 flex flex-row items-center bg-base-300 p-4 shadow-xl">
+          <Avatar.Root className="h-32 w-32">
+            <Avatar.Image
+              className="rounded-full"
+              src={user.avatar}
+              alt={user.username}
+            />
+            <Avatar.Fallback delayMs={600}>
+              <img
                 className="rounded-full"
-                src={user.avatar}
-                alt={user.username}
+                src={`https://cdn.discordapp.com/embed/avatars/${
+                  // pomelo 🍊
+                  Math.abs(((user.id as any) >> 22) % 5)
+                }.png`}
+                alt="avatar"
               />
-              <Avatar.Fallback delayMs={600}>
-                <img
-                  className="rounded-full"
-                  src={`https://cdn.discordapp.com/embed/avatars/${
-                    // pomelo 🍊
-                    Math.abs(((user.id as any) >> 22) % 5)
-                  }.png`}
-                  alt="avatar"
-                />
-              </Avatar.Fallback>
-            </Avatar.Root>
-            <div className="ml-5">
-              <p className="text-2xl font-semibold">{user.displayName}</p>
-              <p className="text-xs">
-                {user.discriminator
-                  ? `${user.username}#${user.discriminator}`
-                  : `@${user.username}`}
-              </p>
-              <p className="text-xs">ID: {user.id}</p>
-            </div>
+            </Avatar.Fallback>
+          </Avatar.Root>
+          <div className="ml-5">
+            <p className="text-2xl font-semibold">{user.displayName}</p>
+            <p className="text-xs">
+              {user.discriminator
+                ? `${user.username}#${user.discriminator}`
+                : `@${user.username}`}
+            </p>
+            <p className="text-xs">ID: {user.id}</p>
           </div>
+        </div>
+        <div className="card m-4 h-auto w-full bg-base-300 p-4 normal-case shadow-xl">
           <div className="mt-5 flex flex-col justify-center lg:flex-row">
             <div className="card-body">
               <h3 className="card-title">Stats</h3>

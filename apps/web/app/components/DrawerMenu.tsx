@@ -16,30 +16,34 @@ import type { DiscordUser } from "~/services/authenticator.server";
 import { ProfileMenu } from "./ProfileMenu";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 
-export function DrawerMenu(): React.ReactElement {
+export function DrawerMenu({
+  toggleDrawer,
+}: {
+  toggleDrawer: () => void;
+}): React.ReactElement {
   const { user } = useRouteLoaderData("root") as {
     user: DiscordUser | null;
   };
 
   return (
     <aside className="min-h-screen w-80">
-      <ul className="menu rounded-box h-full min-h-screen overflow-y-auto overflow-x-hidden bg-base-200 p-4 text-base-content">
+      <ul className="menu h-full min-h-screen overflow-y-auto overflow-x-hidden rounded-r-2xl bg-base-200 p-4 text-base-content">
         <li>
           <div className="mr-auto flex h-16 items-center justify-center text-xl font-black">
-            <Link to="/">
+            <Link to="/" onClick={toggleDrawer}>
               <LuPartyPopper className="mr-2 inline-block h-8 w-8" />
               GiveawayBot
             </Link>
           </div>
         </li>
         <li>
-          <NavLink to="/">
+          <NavLink to="/" onClick={toggleDrawer}>
             <LuHome className="h-5 w-5" />
             Home
           </NavLink>
         </li>
         <li>
-          <NavLink to="/premium">
+          <NavLink to="/premium" onClick={toggleDrawer}>
             <LuGem className="h-5 w-5" />
             GiveawayBot Premium
           </NavLink>
@@ -47,7 +51,7 @@ export function DrawerMenu(): React.ReactElement {
         {user && (
           <>
             <li>
-              <NavLink to="/profile">
+              <NavLink to="/profile" onClick={toggleDrawer}>
                 <LuUser className="h-5 w-5" />
                 Your profile
               </NavLink>
@@ -69,7 +73,10 @@ export function DrawerMenu(): React.ReactElement {
                       .sort((a, b) => (a.name > b.name ? 1 : -1))
                       .map((guild) => (
                         <li key={guild.id} className="w-fit truncate">
-                          <NavLink to={`/guilds/${guild.id}`}>
+                          <NavLink
+                            to={`/guilds/${guild.id}`}
+                            onClick={toggleDrawer}
+                          >
                             <Avatar.Root className="avatar h-5 w-5">
                               <Avatar.Image
                                 className="rounded-full"
@@ -94,7 +101,7 @@ export function DrawerMenu(): React.ReactElement {
                       ))
                   ) : (
                     <li>
-                      <Link to="/login">
+                      <Link to="/login" onClick={toggleDrawer}>
                         <LuLogIn className="h-5 w-5" />
                         Login
                       </Link>
@@ -118,14 +125,22 @@ export function DrawerMenu(): React.ReactElement {
                 </Suspense>
               </li>
               <li>
-                <Link to="https://dougley.com/discord/terms" target="_blank">
+                <Link
+                  to="https://dougley.com/discord/terms"
+                  target="_blank"
+                  onClick={toggleDrawer}
+                >
                   <LuScroll className="h-5 w-5" />
                   Terms of Service
                   <LuExternalLink className="inline-block h-4 w-4" />
                 </Link>
               </li>
               <li>
-                <Link to="http://dougley.com/discord/privacy" target="_blank">
+                <Link
+                  to="https://dougley.com/discord/privacy"
+                  target="_blank"
+                  onClick={toggleDrawer}
+                >
                   <LuScroll className="h-5 w-5" />
                   Privacy Policy
                   <LuExternalLink className="inline-block h-4 w-4" />
@@ -138,7 +153,7 @@ export function DrawerMenu(): React.ReactElement {
         <div className="menu mt-auto w-full">
           <div className="divider" />
           <div className="flex items-center justify-between">
-            <ProfileMenu />
+            <ProfileMenu toggleDrawer={toggleDrawer} />
           </div>
         </div>
       </ul>

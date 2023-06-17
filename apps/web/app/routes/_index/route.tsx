@@ -16,7 +16,7 @@ export const loader = async ({ context }: LoaderArgs) => {
 };
 
 export default function Index() {
-  const clientId = useLoaderData() as string;
+  const clientId = useLoaderData<string>();
   return (
     <>
       <Hero clientId={clientId} />

@@ -161,13 +161,7 @@ export const action = async ({ context, request }: ActionArgs) => {
 };
 
 export default function Index() {
-  const {
-    plus,
-    premium,
-    alreadyPremium,
-    pricing,
-    loggedIn,
-  }: {
+  const { plus, premium, alreadyPremium, pricing, loggedIn } = useLoaderData<{
     plus: string;
     premium: string;
     alreadyPremium: boolean;
@@ -182,7 +176,7 @@ export default function Index() {
       };
     };
     loggedIn: boolean;
-  } = useLoaderData();
+  }>();
   useEffect(() => {
     let q = new URLSearchParams(window.location.search);
     let result = q.get("result");
