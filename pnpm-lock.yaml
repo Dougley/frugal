@@ -41,11 +41,11 @@ importers:
         specifier: ^29.5.0
         version: 29.5.0
       prettier:
-        specifier: 2.8.8
-        version: 2.8.8
+        specifier: 3.0.1
+        version: 3.0.1
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@2.8.8)(typescript@5.1.3)
+        version: 3.2.2(prettier@3.0.1)(typescript@5.1.3)
       rimraf:
         specifier: ^5.0.1
         version: 5.0.1
@@ -267,7 +267,7 @@ importers:
         version: 8.4.24
       prettier-plugin-tailwindcss:
         specifier: ^0.3.0
-        version: 0.3.0(prettier-plugin-organize-imports@3.2.2)(prettier@2.8.8)
+        version: 0.3.0(prettier-plugin-organize-imports@3.2.2)(prettier@3.0.1)
       tailwindcss:
         specifier: ^3.3.2
         version: 3.3.2
@@ -9945,7 +9945,7 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
-  /prettier-plugin-organize-imports@3.2.2(prettier@2.8.8)(typescript@5.1.3):
+  /prettier-plugin-organize-imports@3.2.2(prettier@3.0.1)(typescript@5.1.3):
     resolution: {integrity: sha512-e97lE6odGSiHonHJMTYC0q0iLXQyw0u5z/PJpvP/3vRy6/Zi9kLBwFAbEGjDzIowpjQv8b+J04PDamoUSQbzGA==}
     peerDependencies:
       '@volar/vue-language-plugin-pug': ^1.0.4
@@ -9958,11 +9958,11 @@ packages:
       '@volar/vue-typescript':
         optional: true
     dependencies:
-      prettier: 2.8.8
+      prettier: 3.0.1
       typescript: 5.1.3
     dev: true
 
-  /prettier-plugin-tailwindcss@0.3.0(prettier-plugin-organize-imports@3.2.2)(prettier@2.8.8):
+  /prettier-plugin-tailwindcss@0.3.0(prettier-plugin-organize-imports@3.2.2)(prettier@3.0.1):
     resolution: {integrity: sha512-009/Xqdy7UmkcTBpwlq7jsViDqXAYSOMLDrHAdTMlVZOrKfM2o9Ci7EMWTMZ7SkKBFTG04UM9F9iM2+4i6boDA==}
     engines: {node: '>=12.17.0'}
     peerDependencies:
@@ -10014,13 +10014,19 @@ packages:
       prettier-plugin-twig-melody:
         optional: true
     dependencies:
-      prettier: 2.8.8
-      prettier-plugin-organize-imports: 3.2.2(prettier@2.8.8)(typescript@5.1.3)
+      prettier: 3.0.1
+      prettier-plugin-organize-imports: 3.2.2(prettier@3.0.1)(typescript@5.1.3)
     dev: true
 
   /prettier@2.8.8:
     resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
     engines: {node: '>=10.13.0'}
+    hasBin: true
+    dev: true
+
+  /prettier@3.0.1:
+    resolution: {integrity: sha512-fcOWSnnpCrovBsmFZIGIy9UqK2FaI7Hqax+DIO0A9UxeVoY4iweyaFjS5TavZN97Hfehph0nhsZnjlVKzEQSrQ==}
+    engines: {node: '>=14'}
     hasBin: true
     dev: true
 
@@ -12023,6 +12029,7 @@ packages:
   /vm2@3.9.19:
     resolution: {integrity: sha512-J637XF0DHDMV57R6JyVsTak7nIL8gy5KH4r1HiwWLf/4GBbb5MKL5y7LpmF4A8E2nR6XmzpmMFQ7V7ppPTmUQg==}
     engines: {node: '>=6.0'}
+    deprecated: The library contains critical security issues and should not be used for production! The maintenance of the project has been discontinued. Consider migrating your code to isolated-vm.
     hasBin: true
     dependencies:
       acorn: 8.8.2
