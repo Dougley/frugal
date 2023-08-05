@@ -35,7 +35,7 @@ jobs:
       - name: Deploy
         run: |
           npx wrangler deploy --env ${{ inputs.environment }} \
-            --minify
+            --minify \
             --var STRIPE_WEBHOOK_SECRET:$STRIPE_WEBHOOK_SECRET \
             STRIPE_SECRET_KEY:$STRIPE_SECRET_KEY \
             PREMIUM_PRODUCT_ID:$PREMIUM_PRODUCT_ID \
