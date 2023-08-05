@@ -53,7 +53,7 @@ jobs:
 
       - name: Publish to Cloudflare Pages
         id: cf-deploy
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/pages-action@v1.5.0
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
@@ -61,7 +61,7 @@ jobs:
           directory: ./public
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           workingDirectory: ./apps/web
-          wranglerVersion: '3'
+          wranglerVersion: "latest"
 
   sentry:
     name: Create Sentry release
