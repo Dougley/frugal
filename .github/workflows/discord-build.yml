@@ -58,7 +58,7 @@ jobs:
         # uses: cloudflare/wrangler-action@2.0.0
         if: inputs.skip_deploy != 'true'
         run: |
-          npx wrangler publish --env ${{ inputs.environment }} \
+          npx wrangler deploy --env ${{ inputs.environment }} \
             --var DISCORD_BOT_TOKEN:$DISCORD_BOT_TOKEN \
             DISCORD_APP_ID:$DISCORD_APP_ID \
             DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \

@@ -34,11 +34,13 @@ jobs:
 
       - name: Deploy
         run: |
-          npx wrangler publish --env ${{ inputs.environment }}
-          --env STRIPE_WEBHOOK_SECRET:$STRIPE_WEBHOOK_SECRET \
-          STRIPE_SECRET_KEY:$STRIPE_SECRET_KEY \
-          PREMIUM_PRODUCT_ID:$PREMIUM_PRODUCT_ID \
-          PLUS_PRODUCT_ID:$PLUS_PRODUCT_ID
+          npx wrangler deploy --env ${{ inputs.environment }} \
+            --minify
+            --var STRIPE_WEBHOOK_SECRET:$STRIPE_WEBHOOK_SECRET \
+            STRIPE_SECRET_KEY:$STRIPE_SECRET_KEY \
+            PREMIUM_PRODUCT_ID:$PREMIUM_PRODUCT_ID \
+            PLUS_PRODUCT_ID:$PLUS_PRODUCT_ID
+
         working-directory: ./apps/stripe
         env:
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}

@@ -7,7 +7,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "dev": "wrangler dev --persist-to='../../.mf'",
-    "deploy": "wrangler publish",
+    "deploy": "wrangler deploy",
     "sync": "slash-up sync",
     "sync:dev": "slash-up sync -e development",
     "lint": "eslint --ext .ts .",

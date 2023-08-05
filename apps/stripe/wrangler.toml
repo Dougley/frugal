@@ -1,5 +1,5 @@
 name = "frugal-stripe-dev"
-main = "dist/index.mjs"
+main = "src/index.ts"
 compatibility_date = "2023-04-09"
 workers_dev = true
 
