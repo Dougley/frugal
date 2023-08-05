@@ -2,9 +2,9 @@
 module.exports = {
   devServerBroadcastDelay: 1000,
   ignoredRouteFiles: ["**/.*"],
-  server: "./server.js",
+  server: "./server.ts",
   serverBuildPath: "functions/[[path]].js",
-  serverConditions: ["worker"],
+  serverConditions: ["workerd", "worker", "browser"],
   serverDependenciesToBundle: "all",
   serverMainFields: ["browser", "module", "main"],
   serverMinify: true,
@@ -15,11 +15,6 @@ module.exports = {
   // appDirectory: "app",
   // assetsBuildDirectory: "public/build",
   // publicPath: "/build/",
-  serverNodeBuiltinsPolyfill: {
-    modules: {
-      util: true,
-    },
-  },
   future: {
     v2_errorBoundary: true,
     v2_meta: true,
