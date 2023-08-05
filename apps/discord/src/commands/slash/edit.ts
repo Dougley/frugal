@@ -42,17 +42,12 @@ export default class BotCommand extends SlashCommand {
 
   async run(ctx: CommandContext) {
     console.log(ctx.options);
-    const id = await server.env!.KV.get(ctx.options.id);
-    if (!id)
-      return ctx.send('That message is not a giveaway, or it has expired.', {
-        ephemeral: true
-      });
-    const state = server.states!.get(server.env!.GIVEAWAY_STATE.idFromString(id));
-
     const data = await server
       .db!.selectFrom('giveaways')
-      .select(['prize', 'winners', 'description'])
-      .where('durable_object_id', '=', id)
+      .selectAll()
+      .where('guild_id', '=', ctx.guildID!)
+      .where('end_time', '>', new Date().toISOString())
+      .where('message_id', '=', ctx.options.id)
       .executeTakeFirst();
 
     if (!data)
@@ -76,18 +71,13 @@ export default class BotCommand extends SlashCommand {
             ephemeral: true
           });
 
-        state.class.setup({
-          prize: prize,
-          winners: Number(winners)
-        });
-
         await server
           .db!.updateTable('giveaways')
           .set({
             prize: prize,
             winners: Number(winners)
           })
-          .where('durable_object_id', '=', id)
+          .where('message_id', '=', ctx.options.id)
           .execute();
 
         await ctx.edit(ctx.targetMessage!.id, {

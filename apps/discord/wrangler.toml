@@ -7,7 +7,7 @@ workers_dev = true
 # no_bundle = true
 
 [build]
-command = "npx turbo build"
+command = "NODE_ENV=development npx turbo build"
 watch_dir = "src"
 
 [[rules]]
@@ -24,15 +24,15 @@ ENVIRONMENT = "staging"
 
 [[env.staging.durable_objects.bindings]]
 name = "GIVEAWAY_STATE"
-class_name = "GiveawayState"
+class_name = "GiveawayStateV2"
 
 [[env.staging.migrations]]
 tag = "v1"
 new_classes = ["GiveawayState"]
-
-[[env.staging.kv_namespaces]]
-binding = "KV"
-id = "4a0966b541644a8fb749fb96a4867670"
+[[env.staging.migrations]]
+tag = "v2"
+new_classes = ["GiveawayStateV2"]
+deleted_classes = ["GiveawayState"]
 
 [[env.staging.r2_buckets]]
 binding = "STORAGE"
@@ -47,7 +47,7 @@ command = "NODE_ENV=production npx turbo build"
 [[env.staging.d1_databases]]
 binding = "D1"
 database_name = "frugal"
-database_id = "25175d02-8239-4f77-b53a-f8edd2fe6ebd"
+database_id = "b3f0981c-e213-4b28-be7f-1ba9ad731024"
 migrations_dir = "../../packages/d1-database/migrations"
 
 # --- Production --- #
@@ -60,15 +60,15 @@ ENVIRONMENT = "production"
 
 [[env.production.durable_objects.bindings]]
 name = "GIVEAWAY_STATE"
-class_name = "GiveawayState"
+class_name = "GiveawayStateV2"
 
 [[env.production.migrations]]
 tag = "v1"
 new_classes = ["GiveawayState"]
-
-[[env.production.kv_namespaces]]
-binding = "KV"
-id = "9d21020092f1485badd0d5efdff2352e"
+[[env.production.migrations]]
+tag = "v2"
+new_classes = ["GiveawayStateV2"]
+deleted_classes = ["GiveawayState"]
 
 [[env.production.r2_buckets]]
 binding = "STORAGE"
@@ -94,16 +94,15 @@ ENVIRONMENT = "development"
 
 [[durable_objects.bindings]]
 name = "GIVEAWAY_STATE"
-class_name = "GiveawayState"
+class_name = "GiveawayStateV2"
 
 [[migrations]]
 tag = "v1"
 new_classes = ["GiveawayState"]
-
-[[kv_namespaces]]
-binding = "KV"
-id = "ff4da80f1e42471db838c38e8e73a3ed"
-preview_id = "ff4da80f1e42471db838c38e8e73a3ed"
+[[migrations]]
+tag = "v2"
+new_classes = ["GiveawayStateV2"]
+deleted_classes = ["GiveawayState"]
 
 [[r2_buckets]]
 binding = "STORAGE"

@@ -1,8 +1,6 @@
 -- Migration number: 0005 	 2023-06-01T17:49:21.541Z
 ALTER TABLE premium_subscriptions
-ADD COLUMN subscription_tier_new TEXT CHECK (
-    subscription_tier_new IN ('free', 'basic', 'premium')
-  ) NOT NULL DEFAULT 'free';
+ADD COLUMN subscription_tier_new TEXT NOT NULL DEFAULT 'free';
 --
 UPDATE premium_subscriptions
 SET subscription_tier_new = subscription_tier;

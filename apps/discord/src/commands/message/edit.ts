@@ -16,7 +16,6 @@ export default class BotCommand extends SlashCommand {
       return ctx.send('That message is not a giveaway, or it has expired.', {
         ephemeral: true
       });
-    const state = server.states!.get(server.env!.GIVEAWAY_STATE.idFromString(id));
     const data = await server
       .db!.selectFrom('giveaways')
       .select(['prize', 'winners', 'description'])
@@ -43,11 +42,6 @@ export default class BotCommand extends SlashCommand {
           return data.send('Winners must be a number.', {
             ephemeral: true
           });
-
-        state.class.setup({
-          prize: prize,
-          winners: Number(winners)
-        });
 
         await server
           .db!.updateTable('giveaways')

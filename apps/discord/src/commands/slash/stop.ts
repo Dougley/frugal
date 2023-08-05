@@ -41,16 +41,12 @@ export default class BotCommand extends SlashCommand {
 
   async run(ctx: CommandContext) {
     console.log(ctx.options);
-    const id = await server.env!.KV.get(ctx.options.id);
-    if (!id)
-      return ctx.send('That message is not a giveaway, or it has expired.', {
-        ephemeral: true
-      });
-
     const data = await server
       .db!.selectFrom('giveaways')
-      .select(['message_id'])
-      .where('durable_object_id', '=', id)
+      .selectAll()
+      .where('guild_id', '=', ctx.guildID!)
+      .where('end_time', '>', new Date().toISOString())
+      .where('message_id', '=', ctx.options.id)
       .executeTakeFirst();
 
     if (!data)
@@ -58,13 +54,13 @@ export default class BotCommand extends SlashCommand {
         ephemeral: true
       });
 
-    const state = server.states!.get(server.env!.GIVEAWAY_STATE.idFromString(id));
-    if ((await state.class.getRunning()) === false) {
+    const state = server.states!.get(server.env!.GIVEAWAY_STATE.idFromString(data.durable_object_id));
+    if ((await state.ended) === true) {
       return ctx.send("That giveaway has already ended, so you can't stop it again.", {
         ephemeral: true
       });
     }
-    await state.class.setAlarm('0'); // alarms in the past immediately fire
+    await state.forceTrigger();
     return ctx.send('Giveaway stopped!', {
       ephemeral: true
     });

@@ -1,6 +1,6 @@
 import { Database } from '@dougley/d1-database';
-import { GiveawayState } from '@dougley/frugal-giveaways-do';
-import type { DurableObjectNamespaceProxy } from 'do-proxy';
+import { v2 } from '@dougley/frugal-giveaways-do';
+import { HyperNamespaceProxy, proxyHyperDurables } from '@ticketbridge/hyper-durable';
 import { Kysely } from 'kysely';
 import { D1Dialect } from 'kysely-d1';
 import { RespondFunction, Server, TransformedRequest } from 'slash-create';
@@ -16,7 +16,7 @@ export class CFWorkerServer extends Server {
   handler?: ServerRequestHandler;
   env?: Env;
   db?: Kysely<Database>;
-  states?: DurableObjectNamespaceProxy<GiveawayState>;
+  states?: HyperNamespaceProxy<v2.GiveawayStateV2, Env>;
   constructor() {
     super({ alreadyListening: true });
     this.isWebserver = true;
@@ -34,7 +34,9 @@ export class CFWorkerServer extends Server {
       this.db = new Kysely<Database>({
         dialect: new D1Dialect({ database: env.D1 })
       });
-    this.states = GiveawayState.wrap(env.GIVEAWAY_STATE);
+    this.states = proxyHyperDurables(env, {
+      GIVEAWAY_STATE: v2.GiveawayStateV2
+    }).GIVEAWAY_STATE;
     if (request.method !== 'POST') return new Response('Only POST requests are allowed', { status: 405 });
     return new Promise(async (resolve) => {
       const body = await request.text();
@@ -90,5 +92,5 @@ export class CFWorkerServer extends Server {
     return this;
   }
 }
-
+ 
 export const server = new CFWorkerServer();

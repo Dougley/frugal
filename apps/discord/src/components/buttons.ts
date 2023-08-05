@@ -1,20 +1,25 @@
-import { GiveawayState } from '@dougley/frugal-giveaways-do';
 import { ButtonStyle, ComponentContext, ComponentType } from 'slash-create';
 import { server } from '../shim';
 
 export async function joinButtonRegistryCallback(ctx: ComponentContext) {
-  const stub = GiveawayState.wrap(server.env!.GIVEAWAY_STATE);
-  const durableID = await server.env!.KV.get(ctx.message.id);
-  if (!durableID) {
+  const data = await server
+    .db!.selectFrom('giveaways')
+    .selectAll()
+    .where('message_id', '=', ctx.message.id)
+    .executeTakeFirst();
+  if (!data || new Date(data.end_time) < new Date()) {
     return ctx.send({
-      content: `This giveaway has expired.`,
+      content: `This giveaway has expired, you can't enter it.`,
       ephemeral: true
     });
   }
-  const id = server.env!.GIVEAWAY_STATE.idFromString(durableID);
-  const state = stub.get(id);
-  const alreadyEntered = await state.class.getEntry({ id: ctx.user.id });
-  if (alreadyEntered) {
+  const entered = await server
+    .db!.selectFrom('entries')
+    .select(['user_id'])
+    .where('giveaway_id', '=', ctx.message.id)
+    .where('user_id', '=', ctx.user.id)
+    .executeTakeFirst();
+  if (entered) {
     return ctx.send({
       content: `You have already entered this giveaway. Do you want to leave instead?`,
       ephemeral: true,
@@ -36,18 +41,15 @@ export async function joinButtonRegistryCallback(ctx: ComponentContext) {
       ]
     });
   } else {
-    await state.class.addEntry({
-      id: ctx.user.id,
-      username: ctx.user.username,
-      discriminator: ctx.user.discriminator,
-      avatar: ctx.user.avatar ?? null
-    });
     await server
-      .db!.updateTable('giveaways')
-      .set(({ bxp }) => ({
-        entry_count: bxp('entry_count', '+', 1)
-      }))
-      .where('message_id', '=', ctx.message.id)
+      .db!.insertInto('entries')
+      .values({
+        giveaway_id: ctx.message.id,
+        user_id: ctx.user.id,
+        username: ctx.user.username,
+        discriminator: ctx.user.discriminator,
+        avatar: ctx.user.avatar ?? null
+      })
       .execute();
     return ctx.send({
       content: `You entered the giveaway!`,
@@ -57,23 +59,21 @@ export async function joinButtonRegistryCallback(ctx: ComponentContext) {
 }
 
 export async function leaveButtonRegistryCallback(ctx: ComponentContext) {
-  const stub = GiveawayState.wrap(server.env!.GIVEAWAY_STATE);
-  const durableID = await server.env!.KV.get(ctx.message.messageReference!.messageID!);
-  if (!durableID) {
+  const data = await server
+    .db!.selectFrom('giveaways')
+    .selectAll()
+    .where('message_id', '=', ctx.message.id)
+    .executeTakeFirst();
+  if (!data || new Date(data.end_time) < new Date()) {
     return ctx.editParent({
       content: `This giveaway has expired.`,
       components: []
     });
   }
-  const id = server.env!.GIVEAWAY_STATE.idFromString(durableID);
-  const state = stub.get(id);
-  await state.class.removeEntry({ id: ctx.user.id });
   await server
-    .db!.updateTable('giveaways')
-    .set(({ bxp }) => ({
-      entry_count: bxp('entry_count', '-', 1)
-    }))
-    .where('message_id', '=', ctx.message.messageReference!.messageID!)
+    .db!.deleteFrom('entries')
+    .where('giveaway_id', '=', ctx.message.id)
+    .where('user_id', '=', ctx.user.id)
     .execute();
   return ctx.editParent({
     content: `You left the giveaway!`,

@@ -5,6 +5,8 @@ import editSlashCommand from './slash/edit';
 import inviteSlashCommand from './slash/invite';
 import listSlashCommand from './slash/list';
 import pingSlashCommand from './slash/ping';
+import rerollSlashCommand from './slash/reroll';
+import stopSlashCommand from './slash/stop';
 import startSlashCommand from './slash/start';
 
 export const commands = [
@@ -14,6 +16,8 @@ export const commands = [
   editSlashCommand,
   listSlashCommand,
   inviteSlashCommand,
+  stopSlashCommand,
+  rerollSlashCommand,
 
   // Message commands
   editMsgContextCommand,

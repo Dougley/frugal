@@ -62,8 +62,6 @@ export default class BotCommand extends SlashCommand {
 
   async run(ctx: CommandContext) {
     await ctx.defer();
-    const id = server.env!.GIVEAWAY_STATE.newUniqueId();
-    const state = server.states!.get(id);
     const duration = parseTime(ctx.options.duration);
     if (duration === 0) {
       return ctx.sendFollowUp({
@@ -127,19 +125,9 @@ export default class BotCommand extends SlashCommand {
         }
       ]
     });
-    state.class.setup({
-      channel: ctx.channelID,
-      guild: ctx.guildID,
-      message: msg.id,
-      winners: ctx.options.winners,
-      prize: ctx.options.prize
-    });
-    await state.class.setAlarm(endDate.toISOString());
-    await server.env!.KV.put(msg.id, id.toString(), {
-      // expire keys in 3 months, consistent with summary expiration and DO expiration
-      // 'expiration' expects a value in seconds since epoch
-      expiration: Math.floor((Date.now() + 1000 * 60 * 60 * 24 * 30 * 3) / 1000)
-    });
+    const id = server.states!.newUniqueId();
+    const stub = server.states!.get(id);
+    await stub.setGiveawayId(msg.id);
     await server
       .db!.insertInto('giveaways')
       .values({
@@ -147,11 +135,12 @@ export default class BotCommand extends SlashCommand {
         guild_id: ctx.guildID!,
         channel_id: ctx.channelID!,
         end_time: endDate.toISOString(),
+        host_id: ctx.user.id,
         prize: ctx.options.prize,
         winners: ctx.options.winners,
-        entry_count: 0,
         durable_object_id: id.toString()
       })
       .execute();
+    await stub.startAlarm(endDate.toUTCString());
   }
 }

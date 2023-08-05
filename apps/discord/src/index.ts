@@ -1,4 +1,3 @@
-import { GiveawayState } from '@dougley/frugal-giveaways-do';
 import { commands } from './commands/index.js';
 import { server, SlashCreator } from './shim';
 
@@ -21,6 +20,7 @@ creator.on('commandError', (command, error) => {
 });
 
 // DO bindings
-export { GiveawayState };
+export { GiveawayState } from '@dougley/frugal-giveaways-do';
+export { GiveawayStateV2 } from '@dougley/frugal-giveaways-do/v2';
 
 export default server.moduleWorkerBindings;

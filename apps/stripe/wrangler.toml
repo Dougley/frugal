@@ -25,5 +25,5 @@ name = "frugal-stripe-stg"
 [[env.staging.d1_databases]]
 binding = "D1"
 database_name = "frugal"
-database_id = "25175d02-8239-4f77-b53a-f8edd2fe6ebd"
+database_id = "b3f0981c-e213-4b28-be7f-1ba9ad731024"
 migrations_dir = "../../packages/d1-database/migrations"

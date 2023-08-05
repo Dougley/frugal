@@ -14,14 +14,14 @@
     "build": "tsc"
   },
   "dependencies": {
-    "kysely": "^0.25.0",
+    "kysely": "^0.26.1",
     "kysely-d1": "^0.3.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20230518.0",
+    "@cloudflare/workers-types": "^4.20230801.0",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "discord-api-types": "^0.37.45",
-    "wrangler": "^3.1.0"
+    "discord-api-types": "^0.37.51",
+    "wrangler": "^3.4.0"
   }
 }

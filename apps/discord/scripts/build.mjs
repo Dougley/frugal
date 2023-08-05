@@ -21,7 +21,8 @@ await build({
   logLevel: 'info',
   bundle: true,
   sourcemap: true,
-  platform: 'node',
+  platform: 'browser',
+  external: ['zlib', 'https'],
   minify: process.env.NODE_ENV === 'production',
   minifySyntax: process.env.NODE_ENV === 'production',
   define: {
