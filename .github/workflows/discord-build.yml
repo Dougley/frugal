@@ -62,7 +62,7 @@ jobs:
             --var DISCORD_BOT_TOKEN:$DISCORD_BOT_TOKEN \
             DISCORD_APP_ID:$DISCORD_APP_ID \
             DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
-            SUMMARY_SITE:$SUMMARY_SITE \
+            SUMMARY_URL:$SUMMARY_SITE \
             ENVIROMENT:$ENVIROMENT \
             RELEASE:$RELEASE \
             BRANCH:$BRANCH
@@ -78,5 +78,5 @@ jobs:
           SUMMARY_SITE: ${{ secrets.SUMMARY_SITE }}
           ENVIROMENT: ${{ inputs.environment }}
           RELEASE: ${{ github.sha }}
-          BRANCH: ${{ env.GITHUB_REF_NAME }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
