@@ -32,14 +32,17 @@ jobs:
         run: npx turbo build --no-cache
         working-directory: ./apps/stripe
 
-      - name: Sync secrets
-        working-directory: ./apps/stripe
-        # Wrangler accepts a JSON file with secrets for secret:bulk
-        run: |
-          pnpx wrangler secret:bulk update --env ${{ inputs.environment }} secrets.json
-
       - name: Deploy
-        run: npx wrangler publish --env ${{ inputs.environment }}
+        run: |
+          npx wrangler publish --env ${{ inputs.environment }}
+          --env STRIPE_WEBHOOK_SECRET:$STRIPE_WEBHOOK_SECRET \
+          STRIPE_SECRET_KEY:$STRIPE_SECRET_KEY \
+          PREMIUM_PRODUCT_ID:$PREMIUM_PRODUCT_ID \
+          PLUS_PRODUCT_ID:$PLUS_PRODUCT_ID
         working-directory: ./apps/stripe
         env:
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          PREMIUM_PRODUCT_ID: ${{ secrets.PREMIUM_PRODUCT_ID }}
+          PLUS_PRODUCT_ID: ${{ secrets.PLUS_PRODUCT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
