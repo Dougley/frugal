@@ -15,6 +15,12 @@ module.exports = {
   // appDirectory: "app",
   // assetsBuildDirectory: "public/build",
   // publicPath: "/build/",
+  serverNodeBuiltinsPolyfill: {
+    modules: {
+      process: true,
+      util: true,
+    },
+  },
   future: {
     v2_errorBoundary: true,
     v2_meta: true,
