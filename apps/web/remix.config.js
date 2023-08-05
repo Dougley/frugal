@@ -17,7 +17,6 @@ module.exports = {
   // publicPath: "/build/",
   serverNodeBuiltinsPolyfill: {
     modules: {
-      process: true,
       util: true,
     },
   },
