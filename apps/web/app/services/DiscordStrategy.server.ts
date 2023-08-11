@@ -78,7 +78,6 @@ export class DiscordStrategy<User> extends OAuth2Strategy<
     const profile = {
       provider: "discord",
       id: data.id,
-      // @ts-expect-error - untyped, related to fruit based development 🍊
       displayName: data.global_name ?? data.username,
       username: data.username,
       discriminator:

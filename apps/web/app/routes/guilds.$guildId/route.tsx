@@ -1,11 +1,10 @@
 import type { Database, Giveaway } from "@dougley/d1-database";
 import type { LoaderArgs, V2_MetaFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
-import formatDistance from "date-fns/formatDistance";
-import isPast from "date-fns/isPast";
+import { useLoaderData } from "@remix-run/react";
 import { Kysely } from "kysely";
 import { D1Dialect } from "kysely-d1";
 import type { Authenticator } from "remix-auth";
+import GiveawayTable from "~/components/GiveawayTable";
 import type { DiscordUser } from "~/services/authenticator.server";
 import { defaultMeta } from "~/utils/meta";
 
@@ -57,45 +56,7 @@ export default function Index() {
         Overview for {guild.name}
       </h1>
       <div className="flex flex-row flex-wrap justify-center">
-        {giveaways.length === 0 && (
-          <div className="card m-4 h-auto w-96 bg-base-300 p-4 shadow-xl">
-            <div className="card-body items-center text-center">
-              <p className="card-title">No giveaways</p>
-              <p className="text-xs">There are no giveaways in this server.</p>
-            </div>
-          </div>
-        )}
-        {giveaways.map((g) => {
-          const ended = isPast(new Date(g.end_time));
-          const distance = formatDistance(new Date(g.end_time), new Date(), {
-            addSuffix: true,
-          });
-          return (
-            <Link
-              to={ended ? `/summaries/${g.durable_object_id}` : "#"}
-              key={g.durable_object_id}
-              className={
-                "btn-ghost card btn m-4 h-auto w-96 bg-base-300 p-4 normal-case shadow-xl" +
-                (ended ? "" : " btn-disabled")
-              }
-            >
-              <div className="card-body items-center text-center">
-                <p className="card-title">{g.prize}</p>
-                <p className="text-xs">
-                  {g.winners} winner{g.winners > 1 ? "s" : ""}
-                </p>
-                <p className="text-xs">
-                  {ended ? `Ended ${distance}` : `Ends ${distance}`}
-                </p>
-                {!ended && (
-                  <p className="text-xs">
-                    You can view the summary once the giveaway has ended.
-                  </p>
-                )}
-              </div>
-            </Link>
-          );
-        })}
+        <GiveawayTable data={giveaways} />
       </div>
     </div>
   );

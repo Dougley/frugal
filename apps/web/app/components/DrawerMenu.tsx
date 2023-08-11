@@ -10,6 +10,7 @@ import {
   LuPartyPopper,
   LuScroll,
   LuSettings,
+  LuTicket,
   LuUser,
 } from "react-icons/lu";
 import type { DiscordUser } from "~/services/authenticator.server";
@@ -53,7 +54,7 @@ export function DrawerMenu({
             <li>
               <NavLink to="/profile" onClick={toggleDrawer}>
                 <LuUser className="h-5 w-5" />
-                Your profile
+                Your Profile
               </NavLink>
             </li>
             <li>
@@ -68,7 +69,8 @@ export function DrawerMenu({
                       .filter(
                         (g) =>
                           g.owner ||
-                          (BigInt(g.permissions) & BigInt(0x20)) == BigInt(0x20)
+                          (BigInt(g.permissions) & BigInt(0x20)) ==
+                            BigInt(0x20),
                       )
                       .sort((a, b) => (a.name > b.name ? 1 : -1))
                       .map((guild) => (
@@ -80,14 +82,21 @@ export function DrawerMenu({
                             <Avatar.Root className="avatar h-5 w-5">
                               <Avatar.Image
                                 className="rounded-full"
-                                src={`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`}
+                                src={
+                                  guild.icon === null
+                                    ? `https://cdn.discordapp.com/embed/avatars/${Math.abs(
+                                        // this isnt strictly correct but it's close enough
+                                        ((guild.id as any) >> 22) % 5,
+                                      )}.png`
+                                    : `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
+                                }
                                 alt="avatar"
                               />
                               <Avatar.Fallback delayMs={600}>
                                 <img
                                   className="rounded-full"
                                   src={`https://cdn.discordapp.com/embed/avatars/${Math.abs(
-                                    ((guild.id as any) >> 22) % 5
+                                    ((guild.id as any) >> 22) % 5,
                                   )}.png`}
                                   alt="avatar"
                                 />
@@ -109,6 +118,12 @@ export function DrawerMenu({
                   )}
                 </ul>
               </details>
+            </li>
+            <li>
+              <NavLink to="/giveaways" onClick={toggleDrawer}>
+                <LuTicket className="h-5 w-5" />
+                All Giveaways <div className="badge badge-outline">beta</div>
+              </NavLink>
             </li>
           </>
         )}

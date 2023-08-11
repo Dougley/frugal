@@ -15,6 +15,6 @@ export async function loader({ request, context, params }: LoaderArgs) {
     {
       successRedirect: "/",
       failureRedirect: "/login",
-    }
+    },
   );
 }

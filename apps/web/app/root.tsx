@@ -33,7 +33,7 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
 export const loader = async ({ context, request }: LoaderArgs) => {
   return {
     user: await (context.authenticator as Authenticator).isAuthenticated(
-      request
+      request,
     ),
   };
 };

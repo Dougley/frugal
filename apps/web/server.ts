@@ -53,7 +53,7 @@ const handleRequest = createPagesFunctionHandler({
               headers: {
                 Authorization: `Bearer ${accessToken}`,
               },
-            }
+            },
           );
           const guildsData =
             (await guildsResponse.json()) as RESTAPIPartialCurrentUserGuild[];
@@ -67,9 +67,9 @@ const handleRequest = createPagesFunctionHandler({
             guilds: guildsData,
           };
           return user;
-        }
+        },
       ),
-      "discord"
+      "discord",
     );
     return { ...context.env, sessionStorage, authenticator };
   },

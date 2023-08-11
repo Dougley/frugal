@@ -1,8 +1,6 @@
 import { Link } from "@remix-run/react";
 import type { ReactElement } from "react";
-import { BsMastodon } from "react-icons/bs";
-import { LuGithub, LuTwitter } from "react-icons/lu";
-import { SiGithubsponsors } from "react-icons/si";
+import { LuCloudSun, LuGithub } from "react-icons/lu";
 import Logo from "~/components/Logo";
 
 export function FooterContent(): ReactElement {
@@ -17,7 +15,10 @@ export function FooterContent(): ReactElement {
         </Link>
       </div>
       <div className="grid-flow-col items-center">
-        <Link to="//dougley.com" className="link-hover link">
+        <Link
+          to="//dougley.com"
+          className="link-hover btn btn-ghost link btn-lg"
+        >
           <Logo />
         </Link>
       </div>
@@ -25,18 +26,12 @@ export function FooterContent(): ReactElement {
         <Link to="//github.com/Dougley/frugal" target="_blank" rel="noreferrer">
           <LuGithub size={24} />
         </Link>
-        <Link to="//twitter.com/dougley" target="_blank" rel="noreferrer">
-          <LuTwitter size={24} />
-        </Link>
-        <Link to="//mas.to/@doug" target="_blank" rel="noreferrer">
-          <BsMastodon size={24} />
-        </Link>
         <Link
-          to="//github.com/sponsors/Dougley"
+          to="//bsky.app/profile/dougley.com"
           target="_blank"
           rel="noreferrer"
         >
-          <SiGithubsponsors size={24} />
+          <LuCloudSun size={24} />
         </Link>
       </div>
     </div>

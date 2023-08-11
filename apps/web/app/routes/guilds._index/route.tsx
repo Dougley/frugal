@@ -42,20 +42,27 @@ export default function Index() {
             .filter(
               (g) =>
                 g.owner ||
-                (BigInt(g.permissions) & BigInt(0x20)) == BigInt(0x20)
+                (BigInt(g.permissions) & BigInt(0x20)) == BigInt(0x20),
             )
             .map((guild) => (
               <Link
                 to={`/guilds/${guild.id}`}
                 key={guild.id}
-                className="card-compact btn-ghost card btn m-4 h-auto w-72 bg-base-300 p-4 normal-case shadow-xl"
+                className="btn card btn-ghost card-compact m-4 h-auto w-72 bg-base-300 p-4 normal-case shadow-xl"
               >
                 <figure>
                   <div className="h-32 w-32">
                     <Avatar.Root className="avatar">
                       <Avatar.Image
                         className="rounded-full"
-                        src={`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`}
+                        src={
+                          guild.icon === null
+                            ? `https://cdn.discordapp.com/embed/avatars/${Math.abs(
+                                // this isnt strictly correct but it's close enough
+                                ((guild.id as any) >> 22) % 5,
+                              )}.png`
+                            : `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
+                        }
                         alt={guild.name}
                       />
                       <Avatar.Fallback delayMs={600}>
@@ -63,7 +70,7 @@ export default function Index() {
                           className="rounded-full"
                           src={`https://cdn.discordapp.com/embed/avatars/${Math.abs(
                             // this isnt strictly correct but it's close enough
-                            ((guild.id as any) >> 22) % 5
+                            ((guild.id as any) >> 22) % 5,
                           )}.png`}
                           alt="avatar"
                         />

@@ -22,7 +22,7 @@ export default function Index() {
       <Hero clientId={clientId} />
       <div className="flex flex-col items-center justify-start">
         <a href="#features">
-          <button className="btn-primary btn mb-12 hidden animate-bounce rounded-full xl:block">
+          <button className="btn btn-primary mb-12 hidden animate-bounce rounded-full xl:block">
             <LuArrowBigDown className="h-6 w-6" />
           </button>
         </a>
@@ -30,7 +30,7 @@ export default function Index() {
           className="flex w-full flex-col items-center justify-center lg:flex-row"
           id="features"
         >
-          <div className="mx-auto w-full max-w-[1240px] xl:p-12 xl:w-1/2">
+          <div className="mx-auto w-full max-w-[1240px] xl:w-1/2 xl:p-12">
             <FeatureShowcase
               title="Effortless Giveaways in a Snap"
               image="https://placehold.co/600x400"
@@ -51,7 +51,7 @@ export default function Index() {
               relax, and let the bot do the heavy lifting.
             </FeatureShowcase>
           </div>
-          <div className="mx-auto w-full max-w-[1240px] xl:p-12 xl:w-1/2">
+          <div className="mx-auto w-full max-w-[1240px] xl:w-1/2 xl:p-12">
             <FeatureShowcase
               title="Discord BFF Status Achieved"
               image="https://placehold.co/600x400"

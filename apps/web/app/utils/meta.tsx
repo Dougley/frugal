@@ -2,7 +2,7 @@ import type { V2_MetaDescriptor } from "@remix-run/cloudflare";
 
 export const defaultMeta = (
   titleSuffix?: string,
-  description?: string
+  description?: string,
 ): V2_MetaDescriptor[] => {
   return [
     { charset: "utf-8" },

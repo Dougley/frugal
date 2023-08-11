@@ -29,7 +29,7 @@ export function Hero({ clientId }: { clientId: string }) {
             to={`https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=0&scope=bot%20applications.commands`}
             target="_blank"
           >
-            <button className="btn-primary btn">Get Started</button>
+            <button className="btn btn-primary">Get Started</button>
           </Link>
         </div>
       </div>

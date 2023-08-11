@@ -1,10 +1,9 @@
 import { useRouteLoaderData } from "@remix-run/react";
-import type { APIUser } from "discord-api-types/v9";
 import type { ReactElement } from "react";
 import type { DiscordUser } from "~/services/authenticator.server";
 
 type participantsTableProps = {
-  participants: APIUser[];
+  participants: SavedUserInformation[];
 };
 function ParticipantsTable({
   participants,

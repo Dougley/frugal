@@ -1,7 +1,6 @@
 /// <reference types="@dougley/types/summaries" />
 
-import type { ActionArgs } from "@remix-run/cloudflare";
-import { type V2_MetaFunction } from "@remix-run/cloudflare";
+import type { ActionArgs, V2_MetaFunction } from "@remix-run/cloudflare";
 import { Form, useActionData } from "@remix-run/react";
 import { LuAlertOctagon, LuUpload } from "react-icons/lu";
 import { z } from "zod";
@@ -33,7 +32,7 @@ const summaryScheme: z.ZodType<SummaryOutput> = z.object({
       username: z.string(),
       discriminator: z.string(),
       avatar: z.nullable(z.string()),
-    })
+    }),
   ),
 });
 
@@ -71,7 +70,7 @@ function Upload() {
           className="file-input w-full max-w-xs"
           accept="application/json"
         />
-        <button type="submit" className="btn-primary btn gap-2">
+        <button type="submit" className="btn btn-primary gap-2">
           <LuUpload className="h-6 w-6" />
           Render
         </button>

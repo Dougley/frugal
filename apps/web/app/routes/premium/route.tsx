@@ -2,7 +2,7 @@ import type { Database } from "@dougley/d1-database";
 import type { LoaderArgs } from "@remix-run/cloudflare";
 import { redirect } from "@remix-run/cloudflare";
 import type { ActionArgs, V2_MetaFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Form, Link, useLoaderData } from "@remix-run/react";
 import { Kysely } from "kysely";
 import { D1Dialect } from "kysely-d1";
 import { useEffect } from "react";
@@ -24,7 +24,7 @@ export const meta: V2_MetaFunction = () => {
 
 export async function loader({ request, context, params }: LoaderArgs) {
   const user = (await (context.authenticator as Authenticator).isAuthenticated(
-    request
+    request,
   )) as DiscordUser | null;
   const db = new Kysely<Database>({
     dialect: new D1Dialect({ database: context.D1 as D1Database }),
@@ -48,25 +48,25 @@ export async function loader({ request, context, params }: LoaderArgs) {
     context.SUBSCRIPTION_PLUS_MONTHLY_PRICE_ID as string,
     {
       expand: ["currency_options"],
-    }
+    },
   );
   const plusYear = await stripe.prices.retrieve(
     context.SUBSCRIPTION_PLUS_YEARLY_PRICE_ID as string,
     {
       expand: ["currency_options"],
-    }
+    },
   );
   const premiumMonth = await stripe.prices.retrieve(
     context.SUBSCRIPTION_PREMIUM_MONTHLY_PRICE_ID as string,
     {
       expand: ["currency_options"],
-    }
+    },
   );
   const premiumYear = await stripe.prices.retrieve(
     context.SUBSCRIPTION_PREMIUM_YEARLY_PRICE_ID as string,
     {
       expand: ["currency_options"],
-    }
+    },
   );
 
   return {
@@ -104,7 +104,7 @@ export const action = async ({ context, request }: ActionArgs) => {
     request,
     {
       failureRedirect: "/login",
-    }
+    },
   )) as DiscordUser;
 
   let customerId = await db
@@ -231,15 +231,20 @@ export default function Index() {
       </div>
       <div className="flex flex-row flex-wrap justify-center">
         {loggedIn ? (
-          !alreadyPremium ? (
+          alreadyPremium ? (
             <StripeRedirectModal priceId={premium} />
           ) : (
-            <div className="rounded-box m-2 flex flex-col flex-wrap justify-center border border-base-300 bg-base-200 p-5">
-              <p className="text-center text-xl">You're already subscribed!</p>
-              <Link to="/profile" className="btn-primary btn m-2 w-auto">
-                Manage subscription
-              </Link>
-            </div>
+            <Form action="/premium/manage" method="post">
+              <input type="hidden" name="returnPath" value="premium" />
+              <div className="rounded-box m-2 flex flex-col flex-wrap justify-center border border-base-300 bg-base-200 p-5">
+                <p className="text-center text-xl">
+                  You're already subscribed!
+                </p>
+                <button className="btn btn-primary m-2 w-auto">
+                  Manage subscription
+                </button>
+              </div>
+            </Form>
           )
         ) : (
           <Link to="/login" className="btn m-2 w-auto">
@@ -248,7 +253,7 @@ export default function Index() {
         )}
       </div>
       <div className="mb-5 flex flex-row flex-wrap items-center justify-center">
-        <div className="collapse-arrow rounded-box collapse w-auto border border-base-300">
+        <div className="collapse-arrow collapse rounded-box w-auto border border-base-300">
           <input type="checkbox" />
           <div className="collapse-title font-medium">
             Prefer to keep things simple? You can also subscribe to Plus
@@ -284,14 +289,17 @@ export default function Index() {
                 !alreadyPremium ? (
                   <StripeRedirectModal priceId={plus} />
                 ) : (
-                  <div className="rounded-box m-2 flex flex-col flex-wrap justify-center border border-base-300 bg-base-200 p-5">
-                    <p className="text-center text-xl">
-                      You're already subscribed!
-                    </p>
-                    <Link to="/profile" className="btn-primary btn m-2 w-auto">
-                      Manage subscription
-                    </Link>
-                  </div>
+                  <Form action="/premium/manage" method="post">
+                    <input type="hidden" name="returnPath" value="premium" />
+                    <div className="rounded-box m-2 flex flex-col flex-wrap justify-center border border-base-300 bg-base-200 p-5">
+                      <p className="text-center text-xl">
+                        You're already subscribed!
+                      </p>
+                      <button className="btn btn-primary m-2 w-auto">
+                        Manage subscription
+                      </button>
+                    </div>
+                  </Form>
                 )
               ) : (
                 <Link to="/login" className="btn m-2 w-auto">
