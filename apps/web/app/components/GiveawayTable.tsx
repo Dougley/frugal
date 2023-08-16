@@ -82,13 +82,22 @@ function GiveawayTable({ data, title }: GiveawayTableProps): ReactElement {
                 addSuffix: true,
               },
             );
+            const ended = isPast(new Date(giveaway.end_time));
 
             return (
               <tr key={giveaway.durable_object_id}>
                 <td>
-                  <div>
-                    <span>{giveaway.prize}</span>
-                  </div>
+                  {(ended && (
+                    <Link to={`/summaries/${giveaway.durable_object_id}`}>
+                      <div>
+                        <span>{giveaway.prize}</span>
+                      </div>
+                    </Link>
+                  )) || (
+                    <div>
+                      <span>{giveaway.prize}</span>
+                    </div>
+                  )}
                 </td>
                 <td>
                   <Link to={`/guilds/${guild.id}`}>

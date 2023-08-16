@@ -231,7 +231,7 @@ export default function Index() {
       </div>
       <div className="flex flex-row flex-wrap justify-center">
         {loggedIn ? (
-          alreadyPremium ? (
+          !alreadyPremium ? (
             <StripeRedirectModal priceId={premium} />
           ) : (
             <Form action="/premium/manage" method="post">
