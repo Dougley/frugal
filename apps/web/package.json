@@ -7,6 +7,7 @@
     "build": "remix build",
     "build:mapped": "remix build --sourcemap",
     "dev": "remix dev -c 'wrangler pages dev ./public --persist-to=../../.mf --compatibility-date=\"2023-05-12\"'",
+    "deploy": "wrangler pages deploy ./public --project-name=frugal",
     "start": "remix run",
     "format": "prettier --write ./app"
   },
