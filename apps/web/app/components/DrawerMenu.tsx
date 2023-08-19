@@ -1,5 +1,6 @@
 import * as Avatar from "@radix-ui/react-avatar";
 import { Link, NavLink, useRouteLoaderData } from "@remix-run/react";
+import { PermissionFlags, PermissionsBitField } from "discord-bitflag";
 import React, { Suspense } from "react";
 import { BsDiscord } from "react-icons/bs";
 import {
@@ -66,11 +67,10 @@ export function DrawerMenu({
                 <ul>
                   {user ? (
                     user.guilds
-                      .filter(
-                        (g) =>
-                          g.owner ||
-                          (BigInt(g.permissions) & BigInt(0x20)) ==
-                            BigInt(0x20),
+                      .filter((g) =>
+                        new PermissionsBitField(Number(g.permissions)).has(
+                          PermissionFlags.ManageGuild,
+                        ),
                       )
                       .sort((a, b) => (a.name > b.name ? 1 : -1))
                       .map((guild) => (

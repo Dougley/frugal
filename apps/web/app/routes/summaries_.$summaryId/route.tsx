@@ -2,10 +2,10 @@
 
 import type { LoaderFunction, V2_MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import add from "date-fns/add";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
-import { LuBomb, LuSave } from "react-icons/lu";
+import { LuBomb, LuChevronLeft, LuSave } from "react-icons/lu";
 import ParticipantsTable from "~/components/ParticipantsTable";
 import Stats from "~/components/SummaryStats";
 import WinnersTable from "~/components/WinnersTable";
@@ -28,8 +28,8 @@ export let loader: LoaderFunction = async ({ params, context, request }) => {
   if (cached) {
     console.log(
       `Cache hit for ${id} with etag ${cached.headers.get(
-        "etag"
-      )}, and url ${url.toString()}`
+        "etag",
+      )}, and url ${url.toString()}`,
     );
     return cached;
   }
@@ -37,14 +37,14 @@ export let loader: LoaderFunction = async ({ params, context, request }) => {
   const obj = await bucket.head(`giveaway-${id}.json`);
   if (obj === null) {
     console.log(
-      `Cache miss for ${id} with url ${url.toString()}, but not found in bucket.`
+      `Cache miss for ${id} with url ${url.toString()}, but not found in bucket.`,
     );
     throw json({ ok: false, error: "not found" }, { status: 404 });
   }
 
   const data = await bucket.get(`giveaway-${id}.json`);
   console.log(
-    `Cache miss for ${id} with url ${url.toString()}, but found in bucket.`
+    `Cache miss for ${id} with url ${url.toString()}, but found in bucket.`,
   );
 
   const headers = new Headers();
@@ -71,6 +71,12 @@ export default function Index() {
 
   return (
     <div className="flex min-h-screen w-full flex-col justify-center overflow-x-auto">
+      <Link to="/giveaways" className="mx-auto">
+        <button className="btn">
+          <LuChevronLeft className="h-6 w-6" />
+          Back to Giveaways
+        </button>
+      </Link>
       <h1 className="m-5 text-center text-4xl font-semibold">
         Giveaway Summary
       </h1>
@@ -102,7 +108,7 @@ export default function Index() {
             Download
           </button>
         </div>
-        <button className="btn-disabled btn-error btn gap-2">
+        <button className="btn btn-disabled btn-error gap-2">
           <LuBomb className="h-6 w-6" />
           Delete
         </button>
@@ -114,7 +120,7 @@ export default function Index() {
             add(new Date(data.details.time.end), { days: 90 }),
             {
               addSuffix: true,
-            }
+            },
           )}
         </p>
       </div>

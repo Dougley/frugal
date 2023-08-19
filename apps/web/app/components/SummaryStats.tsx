@@ -30,8 +30,10 @@ function getStats({
       value: formatter.format(Number(details.winners)),
     },
     {
-      title: "Ended",
-      value: formatDistance(new Date(details.time.end), new Date()) + " ago",
+      title: "End Time",
+      value: formatDistance(new Date(details.time.end), new Date(), {
+        addSuffix: true,
+      }),
     },
   ];
 }

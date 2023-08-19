@@ -22,8 +22,14 @@ export const loader = async ({ context, request }: LoaderArgs) => {
       failureRedirect: "/login",
     },
   )) as DiscordUser;
+  const premium = await db
+    .selectFrom("premium_subscriptions")
+    .where("discord_user_id", "=", user.id)
+    .select(["discord_user_id", "active"])
+    .executeTakeFirst();
   return {
     user,
+    premium,
     hosted: await db
       .selectFrom("giveaways")
       .where("host_id", "=", user.id)

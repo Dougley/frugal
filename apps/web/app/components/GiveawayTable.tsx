@@ -2,6 +2,7 @@ import * as Avatar from "@radix-ui/react-avatar";
 import { Link, useLoaderData } from "@remix-run/react";
 import formatDistance from "date-fns/formatDistance";
 import isPast from "date-fns/isPast";
+import { PermissionFlags, PermissionsBitField } from "discord-bitflag";
 import type { ReactElement } from "react";
 import React from "react";
 import {
@@ -24,6 +25,75 @@ type GiveawayTableProps = {
     guild_id: string;
   }[];
 };
+
+function ViewButton({
+  giveaway,
+}: {
+  giveaway: GiveawayTableProps["data"][number];
+}) {
+  const { user, premium } = useLoaderData<{
+    user: DiscordUser;
+    premium: {
+      discord_user_id: string;
+      active: boolean;
+    };
+  }>();
+
+  // Determine if the giveaway has ended or not
+  const ended = isPast(new Date(giveaway.end_time));
+
+  // Determine if the user has permission to manage the guild the giveaway was hosted in
+  const managableGuilds = user.guilds.filter((g) =>
+    new PermissionsBitField(Number(g.permissions)).has(
+      PermissionFlags.ManageGuild,
+    ),
+  );
+
+  // If the giveaway has ended, show a button to view the giveaway summary
+  if (ended) {
+    return (
+      <Link to={`/summaries/${giveaway.durable_object_id}`}>
+        <button className="btn">View</button>
+      </Link>
+    );
+  }
+
+  // If the user is premium and can manage the guild, show a button to view the giveaway
+  if (
+    premium.active &&
+    managableGuilds.some((g) => g.id === giveaway.guild_id)
+  ) {
+    return (
+      <Link to={`/giveaways/${giveaway.message_id}`}>
+        <button className="btn">View</button>
+      </Link>
+    );
+  } else {
+    // If the user is not premium, show a button to upgrade to premium
+    if (!premium.active) {
+      return (
+        <div
+          className="tooltip"
+          data-tip="You can view the summary once the giveaway has ended. Upgrade to premium to view the summary now."
+        >
+          <Link to="/premium">
+            <button className="btn btn-disabled">View</button>
+          </Link>
+        </div>
+      );
+    } else {
+      // If the user is premium but cannot manage the guild, show a button to upgrade to premium
+      return (
+        <div
+          className="tooltip"
+          data-tip="You cannot view the summary because you do not have permission to manage the guild this giveaway was hosted in."
+        >
+          <button className="btn btn-disabled">View</button>
+        </div>
+      );
+    }
+  }
+}
 
 function GiveawayTable({ data, title }: GiveawayTableProps): ReactElement {
   const { user } = useLoaderData<{
@@ -141,20 +211,7 @@ function GiveawayTable({ data, title }: GiveawayTableProps): ReactElement {
                 </td>
                 <td className={"hidden lg:table-cell"}>{distance}</td>
                 <td>
-                  {(isPast(new Date(giveaway.end_time)) && (
-                    <Link to={`/summaries/${giveaway.durable_object_id}`}>
-                      <button className="btn">View</button>
-                    </Link>
-                  )) || (
-                    <div
-                      className="tooltip"
-                      data-tip="You can view the summary once the giveaway has ended. Upgrade to premium to view the summary now."
-                    >
-                      <Link to="/premium">
-                        <button className="btn btn-disabled">View</button>
-                      </Link>
-                    </div>
-                  )}
+                  <ViewButton giveaway={giveaway} />
                 </td>
               </tr>
             );
