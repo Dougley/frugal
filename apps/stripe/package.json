@@ -18,7 +18,7 @@
     "hono": "^3.3.4",
     "kysely": "^0.26.1",
     "kysely-d1": "^0.3.0",
-    "stripe": "^12.17.0"
+    "stripe": "^13.2.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230801.0",

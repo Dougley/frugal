@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -138,8 +138,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0(kysely@0.26.1)
       stripe:
-        specifier: ^12.17.0
-        version: 12.17.0
+        specifier: ^13.2.0
+        version: 13.2.0
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.20230801.0
@@ -226,8 +226,8 @@ importers:
         specifier: ^1.8.0
         version: 1.8.0(@remix-run/server-runtime@1.19.2)(remix-auth@3.5.1)
       stripe:
-        specifier: ^12.17.0
-        version: 12.17.0
+        specifier: ^13.2.0
+        version: 13.2.0
       zod:
         specifier: ^3.21.4
         version: 3.22.1
@@ -11417,8 +11417,8 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /stripe@12.17.0:
-    resolution: {integrity: sha512-f8GhS2LQlGCDZ1Akyu57txgSWyLUEYf0yZYS7x2aTKJXVua5lLmmgfJFFYHfTgEdS5P6rurf0Ghcf/HVLggv5g==}
+  /stripe@13.2.0:
+    resolution: {integrity: sha512-4a2UHpe/tyxP3sxSGhuKMgbW8hQnqSQIPMigXC8kW3P0+BpsITpKDP+xxriTMDkRAP0xTQwzxcqhfqB+/404Mg==}
     engines: {node: '>=12.*'}
     dependencies:
       '@types/node': 20.5.0

@@ -42,7 +42,7 @@
     "react-icons": "^4.10.1",
     "remix-auth": "^3.5.1",
     "remix-auth-oauth2": "^1.8.0",
-    "stripe": "^12.17.0",
+    "stripe": "^13.2.0",
     "zod": "^3.21.4"
   },
   "devDependencies": {
