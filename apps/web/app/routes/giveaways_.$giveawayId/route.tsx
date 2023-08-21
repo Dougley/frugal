@@ -58,7 +58,7 @@ export let loader: LoaderFunction = async ({
     throw json({ ok: false, error: "not found" }, { status: 404 });
   }
   if (!managableGuilds.some((g) => g.id === giveaway.guild_id)) {
-    throw json({ ok: false, error: "unauthorized" }, { status: 403 });
+    throw json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
   const entries = await db
     .selectFrom("entries")

@@ -17,6 +17,7 @@ import { ErrorBoundary } from "~/components/ErrorBoundary";
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: tailwindStylesheet },
   { rel: "preconnect", href: "https://rsms.me" },
+  { rel: "preconnect", href: "https://js.sentry-cdn.com" },
   {
     rel: "stylesheet",
     href: "https://rsms.me/inter/inter.css",

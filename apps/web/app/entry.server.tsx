@@ -4,10 +4,28 @@
  * For more information, see https://remix.run/docs/en/main/file-conventions/entry.server
  */
 
-import type { EntryContext } from "@remix-run/cloudflare";
+import type { DataFunctionArgs, EntryContext } from "@remix-run/cloudflare";
 import { RemixServer } from "@remix-run/react";
 import isbot from "isbot";
 import { renderToReadableStream } from "react-dom/server";
+import type { Toucan } from "toucan-js";
+
+export async function handleError(
+  error: unknown,
+  { request, context }: DataFunctionArgs,
+): Promise<void> {
+  console.log("handleError");
+  console.error(error);
+  if (error instanceof Error) {
+    const toucan = context.toucan as Toucan;
+    toucan.captureException(error, {
+      data: {
+        url: request.url,
+        process: "remix.server",
+      },
+    });
+  }
+}
 
 export default async function handleRequest(
   request: Request,

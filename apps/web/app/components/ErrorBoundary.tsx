@@ -1,6 +1,6 @@
 import type { V2_MetaFunction } from "@remix-run/node";
 import { isRouteErrorResponse, useRouteError } from "@remix-run/react";
-import { MdError } from "react-icons/md";
+import { LuBan, LuServerCrash, LuXCircle } from "react-icons/lu";
 import { Document } from "~/components/Document";
 import { Layout } from "~/components/Layout";
 import { defaultMeta } from "~/utils/meta";
@@ -45,9 +45,14 @@ export function ErrorBoundary() {
     return (
       <Template>
         <div className="hero min-h-screen justify-center">
-          <div className="hero-content text-center">
+          <div className="hero-content col-span-1 grid text-center">
+            <div className="flex flex-col items-center justify-center">
+              <LuBan size={64} />
+            </div>
             <div className="max-w-md">
-              <h1 className="text-5xl font-bold">{error.status}</h1>
+              <h1 className="text-5xl font-bold">
+                {error.status} {error.statusText}
+              </h1>
               <p className="py-6">{message}</p>
             </div>
           </div>
@@ -68,17 +73,26 @@ export function ErrorBoundary() {
   return (
     <Template>
       <div className="hero flex min-h-screen w-full flex-col justify-center overflow-x-auto">
-        <div className="hero-content text-center">
+        <div className="hero-content col-span-1 grid text-center">
+          <div className="flex flex-col items-center justify-center">
+            <LuServerCrash size={64} />
+          </div>
           <div className="max-w-md">
-            <h1 className="text-5xl font-bold">Yikes!</h1>
-            <p className="py-6">Something went wrong on our side.</p>
+            <h1 className="text-5xl font-bold">Dang it!</h1>
+            <h2 className="my-3 text-3xl font-semibold">Server error</h2>
+            <p className="py-6">
+              Something went wrong. Please try again later.
+            </p>
           </div>
         </div>
         <div className="alert alert-error w-auto shadow-lg">
+          <LuXCircle size={24} />
           <pre className="language-js">
-            <MdError size={24} />
             <code className="language-js">{errorMessage}</code>
           </pre>
+        </div>
+        <div className="col-span-1 my-4 grid text-center opacity-50">
+          This error has been logged. (Hopefully.)
         </div>
       </div>
     </Template>

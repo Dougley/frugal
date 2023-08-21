@@ -13,6 +13,11 @@ export function Document({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <script
+          src="https://js.sentry-cdn.com/f5fc2b2f75ae49098a8eb128a363398f.min.js"
+          crossOrigin="anonymous"
+          defer
+        />
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               const local = localStorage.getItem('theme');
