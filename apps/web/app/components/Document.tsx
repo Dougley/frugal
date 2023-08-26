@@ -4,33 +4,27 @@ import {
   Meta,
   Scripts,
   ScrollRestoration,
+  useRouteLoaderData,
 } from "@remix-run/react";
+import {
+  PreventFlashOfInvertedColors,
+  Theme,
+  ThemeProvider,
+  useTheme,
+} from "~/utils/themes";
 
-export function Document({ children }: { children: React.ReactNode }) {
+function Template({ children }: { children: React.ReactNode }) {
+  const [theme] = useTheme();
   return (
-    <html lang="en" data-theme="light" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" data-theme={theme ?? "dark"}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <script
-          src="https://js.sentry-cdn.com/f5fc2b2f75ae49098a8eb128a363398f.min.js"
-          crossOrigin="anonymous"
-          defer
+        <meta
+          name="color-scheme"
+          content={theme === Theme.DARK ? "dark light" : "light dark"}
         />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              const local = localStorage.getItem('theme');
-              if (local) {
-                console.log('local', local);
-                document.querySelector('html').setAttribute('data-theme', local);
-              } else {
-                const theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                document.querySelector('html').setAttribute('data-theme', theme);
-              }
-            `,
-          }}
-        />
+        <PreventFlashOfInvertedColors render={!theme} />
         <Meta />
         <Links />
       </head>
@@ -41,5 +35,15 @@ export function Document({ children }: { children: React.ReactNode }) {
         <LiveReload />
       </body>
     </html>
+  );
+}
+
+export function Document({ children }: { children: React.ReactNode }) {
+  const data = useRouteLoaderData("root");
+  const theme = data?.theme;
+  return (
+    <ThemeProvider wantedTheme={theme}>
+      <Template>{children}</Template>
+    </ThemeProvider>
   );
 }

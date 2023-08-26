@@ -9,9 +9,12 @@ export function ProfileMenu({
 }: {
   toggleDrawer: () => void;
 }): ReactElement {
-  const { user } = useRouteLoaderData("root") as {
+  const data = useRouteLoaderData("root") as {
     user: DiscordUser | null;
   };
+
+  const { user } = data ?? {};
+
   if (user) {
     return (
       <>

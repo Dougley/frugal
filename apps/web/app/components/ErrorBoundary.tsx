@@ -1,6 +1,13 @@
+import { captureRemixErrorBoundaryError } from "@dougley/sentry-remix";
 import type { V2_MetaFunction } from "@remix-run/node";
-import { isRouteErrorResponse, useRouteError } from "@remix-run/react";
-import { LuBan, LuServerCrash, LuXCircle } from "react-icons/lu";
+import { Link, isRouteErrorResponse, useRouteError } from "@remix-run/react";
+import {
+  LuBan,
+  LuCoins,
+  LuFileQuestion,
+  LuServerCrash,
+  LuXCircle,
+} from "react-icons/lu";
 import { Document } from "~/components/Document";
 import { Layout } from "~/components/Layout";
 import { defaultMeta } from "~/utils/meta";
@@ -23,6 +30,7 @@ export const meta: V2_MetaFunction = () => {
 
 export function ErrorBoundary() {
   const error = useRouteError();
+  captureRemixErrorBoundaryError(error);
 
   // when true, this is what used to go to `CatchBoundary`
   if (isRouteErrorResponse(error)) {
@@ -38,6 +46,19 @@ export function ErrorBoundary() {
       case 401: // Unauthorized
         message = "You're not authorized to view this page, are you logged in?";
         break;
+      case 402: // Payment Required
+        message = (
+          <div className="flex flex-col items-center justify-center">
+            <span>This page needs a premium subscription.</span>
+            <Link to="/premium" className="link">
+              Get one now!
+            </Link>
+            <span className="mt-2 text-xs opacity-50">
+              Already have one? Make sure you're logged in.
+            </span>
+          </div>
+        );
+        break;
       default: // Other 4xx
         message = "Something went wrong.";
         break;
@@ -47,13 +68,19 @@ export function ErrorBoundary() {
         <div className="hero min-h-screen justify-center">
           <div className="hero-content col-span-1 grid text-center">
             <div className="flex flex-col items-center justify-center">
-              <LuBan size={64} />
+              {{
+                403: <LuBan size={64} />, // Forbidden
+                404: <LuFileQuestion size={64} />, // Not Found
+                401: <LuBan size={64} />, // Unauthorized
+                402: <LuCoins size={64} />, // Payment Required
+              }[error.status] ?? <LuBan size={64} />}
             </div>
             <div className="max-w-md">
-              <h1 className="text-5xl font-bold">
-                {error.status} {error.statusText}
-              </h1>
-              <p className="py-6">{message}</p>
+              <h1 className="text-5xl font-bold">{error.status}</h1>
+              <h2 className="my-3 text-3xl font-semibold">
+                {error.statusText}
+              </h2>
+              <span className="py-6">{message}</span>
             </div>
           </div>
         </div>

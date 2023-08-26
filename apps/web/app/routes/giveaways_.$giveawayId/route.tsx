@@ -47,7 +47,7 @@ export let loader: LoaderFunction = async ({
     .select(["discord_user_id", "active"])
     .executeTakeFirst();
   if (!isPremium || !isPremium.active) {
-    throw json({ ok: false, error: "not premium" }, { status: 403 });
+    throw json({ ok: false, error: "not premium" }, { status: 402 });
   }
   const giveaway = await db
     .selectFrom("giveaways")

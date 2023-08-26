@@ -23,9 +23,11 @@ export function DrawerMenu({
 }: {
   toggleDrawer: () => void;
 }): React.ReactElement {
-  const { user } = useRouteLoaderData("root") as {
+  const data = useRouteLoaderData("root") as {
     user: DiscordUser | null;
   };
+
+  const { user } = data ?? {};
 
   return (
     <aside className="min-h-screen w-80">
