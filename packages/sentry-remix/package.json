@@ -14,11 +14,11 @@
     "directory": "packages/sentry-remix"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20230814.0",
+    "@cloudflare/workers-types": "^4.20230821.0",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
     "@sentry/types": "^7.64.0",
-    "@types/react": "^18.2.20"
+    "@types/react": "^18.2.21"
   },
   "dependencies": {
     "@cloudflare/kv-asset-handler": "^0.3.0",
