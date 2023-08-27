@@ -41,6 +41,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Turbo build
+        run: npx turbo build --no-cache
+
       - name: Build
         run: pnpm run build:mapped
 
