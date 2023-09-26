@@ -1,6 +1,7 @@
 import { SentrySSRContext } from "@dougley/sentry-remix";
-import { type AppLoadContext, type EntryContext } from "@remix-run/cloudflare";
+import { type EntryContext } from "@remix-run/cloudflare";
 import { RemixServer } from "@remix-run/react";
+import type { Hub } from "@sentry/remix";
 import isbot from "isbot";
 import { renderToReadableStream } from "react-dom/server";
 
@@ -11,12 +12,13 @@ const entry = async (
   responseStatusCode: number,
   responseHeaders: Headers,
   remixContext: EntryContext,
-  loadContext: AppLoadContext,
+  loadContext: {
+    sentry?: Hub;
+  },
 ) => {
   let updatedResponseStatusCode = responseStatusCode;
 
   const body = await renderToReadableStream(
-    // @ts-ignore
     <SentrySSRContext.Provider value={loadContext.sentry}>
       <RemixServer context={remixContext} url={request.url} />
     </SentrySSRContext.Provider>,

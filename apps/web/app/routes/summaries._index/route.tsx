@@ -1,6 +1,6 @@
 /// <reference types="@dougley/types/summaries" />
 
-import type { ActionArgs, V2_MetaFunction } from "@remix-run/cloudflare";
+import type { ActionFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
 import { Form, useActionData } from "@remix-run/react";
 import { LuAlertOctagon, LuUpload } from "react-icons/lu";
 import { z } from "zod";
@@ -9,7 +9,7 @@ import Stats from "~/components/SummaryStats";
 import WinnersTable from "~/components/WinnersTable";
 import { defaultMeta } from "~/utils/meta";
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return defaultMeta("Summaries");
 };
 
@@ -36,7 +36,7 @@ const summaryScheme: z.ZodType<SummaryOutput> = z.object({
   ),
 });
 
-export async function action({ request }: ActionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   try {
     const body = await request.formData();
     const file = body.get("file") as File;

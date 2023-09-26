@@ -1,16 +1,16 @@
 import * as Avatar from "@radix-ui/react-avatar";
-import type { LoaderArgs, V2_MetaFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
 import { Link, useLoaderData } from "@remix-run/react";
 import { LuUser } from "react-icons/lu";
 import type { Authenticator } from "remix-auth";
 import type { DiscordUser } from "~/services/authenticator.server";
 import { defaultMeta } from "~/utils/meta";
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return defaultMeta();
 };
 
-export const loader = async ({ context, request }: LoaderArgs) => {
+export const loader = async ({ context, request }: LoaderFunctionArgs) => {
   return (context.authenticator as Authenticator).isAuthenticated(request, {
     failureRedirect: "/login",
   });

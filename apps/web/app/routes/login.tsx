@@ -1,14 +1,13 @@
-import type { LoaderArgs } from "@remix-run/cloudflare";
-import type { V2_MetaFunction } from "@remix-run/node";
+import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import type { Authenticator } from "remix-auth";
 
 import { defaultMeta } from "~/utils/meta";
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return defaultMeta();
 };
 
-export async function loader({ request, context, params }: LoaderArgs) {
+export const loader: LoaderFunction = ({ request, context, params }) => {
   return (context.authenticator as Authenticator).authenticate(
     "discord",
     request,
@@ -17,4 +16,4 @@ export async function loader({ request, context, params }: LoaderArgs) {
       failureRedirect: "/login",
     },
   );
-}
+};

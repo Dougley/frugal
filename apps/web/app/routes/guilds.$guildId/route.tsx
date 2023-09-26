@@ -1,5 +1,5 @@
 import type { Database, Giveaway } from "@dougley/d1-database";
-import type { LoaderArgs, V2_MetaFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
 import { Kysely } from "kysely";
 import { D1Dialect } from "kysely-d1";
@@ -8,11 +8,11 @@ import GiveawayTable from "~/components/GiveawayTable";
 import type { DiscordUser } from "~/services/authenticator.server";
 import { defaultMeta } from "~/utils/meta";
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return defaultMeta();
 };
 
-export const loader = async ({ params, context, request }: LoaderArgs) => {
+export const loader = async ({ params, context, request }: LoaderFunctionArgs) => {
   const { guildId } = params;
   const db = new Kysely<Database>({
     dialect: new D1Dialect({ database: context.D1 as D1Database }),

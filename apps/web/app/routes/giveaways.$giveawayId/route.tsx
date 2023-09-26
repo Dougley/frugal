@@ -1,7 +1,7 @@
 /// <reference types="@dougley/types/summaries" />
 
 import type { Database } from "@dougley/d1-database";
-import type { LoaderFunction, V2_MetaFunction } from "@remix-run/cloudflare";
+import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { Link, useLoaderData } from "@remix-run/react";
 import { PermissionFlags, PermissionsBitField } from "discord-bitflag";
@@ -93,7 +93,7 @@ export let loader: LoaderFunction = async ({
   };
 };
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return defaultMeta("Summaries");
 };
 

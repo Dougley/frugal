@@ -1,8 +1,8 @@
 import type {
   HeadersFunction,
   LinksFunction,
-  LoaderArgs,
-  V2_MetaFunction,
+  LoaderFunction,
+  MetaFunction,
 } from "@remix-run/cloudflare";
 import {
   Outlet,
@@ -29,12 +29,13 @@ import { Layout } from "~/components/Layout";
 import tailwindStylesheet from "~/styles/tailwind.css";
 
 import { ExtraErrorData } from "toucan-js";
+import type { DiscordUser } from "./services/authenticator.server";
 import { getThemeSession } from "./utils/prefs.server";
 
 export const meta = (({
   data,
 }: {
-  data?: { sentryHeaders?: { "sentry-trace"?: string; baggage?: string } };
+  data: { sentryHeaders?: { "sentry-trace"?: string; baggage?: string } };
 }) => [
   {
     "sentry-trace": data?.sentryHeaders?.["sentry-trace"],
@@ -42,7 +43,7 @@ export const meta = (({
   {
     baggage: data?.sentryHeaders?.baggage,
   },
-]) satisfies V2_MetaFunction;
+]) satisfies MetaFunction<any>;
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: tailwindStylesheet },
@@ -61,7 +62,7 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
   };
 };
 
-export const loader = async ({ context, request }: LoaderArgs) => {
+export const loader: LoaderFunction = async ({ context, request }) => {
   const themeSession = await getThemeSession(request);
   return {
     user: await (context.authenticator as Authenticator).isAuthenticated(
@@ -82,7 +83,18 @@ export const loader = async ({ context, request }: LoaderArgs) => {
 };
 
 function App() {
-  const { user, sentrySettings } = useLoaderData();
+  const {
+    user,
+    sentrySettings,
+  }: {
+    user: DiscordUser | null;
+    sentrySettings: {
+      enabled: boolean;
+      dsn: string;
+      environment: string;
+      release: string;
+    };
+  } = useLoaderData();
   useEffect(() => {
     if (!localStorage.getItem("seenLoggedinToast") && user) {
       toast.success("Welcome back!");

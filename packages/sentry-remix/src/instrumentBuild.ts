@@ -15,7 +15,7 @@ import {
 } from "@remix-run/server-runtime/dist/responses";
 import {
   type ActionFunction,
-  type LoaderArgs,
+  type LoaderFunctionArgs as LoaderArgs,
   type LoaderFunction,
 } from "@remix-run/server-runtime/dist/routeModules";
 import { type Hub, type WrappedFunction } from "@sentry/types";

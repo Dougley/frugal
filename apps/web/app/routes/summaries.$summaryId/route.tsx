@@ -1,6 +1,6 @@
 /// <reference types="@dougley/types/summaries" />
 
-import type { LoaderFunction, V2_MetaFunction } from "@remix-run/cloudflare";
+import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { Link, useLoaderData } from "@remix-run/react";
 import add from "date-fns/add";
@@ -61,7 +61,7 @@ export let loader: LoaderFunction = async ({ params, context, request }) => {
   return resp;
 };
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return defaultMeta("Summaries");
 };
 

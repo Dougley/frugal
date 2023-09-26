@@ -1,4 +1,4 @@
-import type { LoaderArgs, V2_MetaFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
 import { LuArrowBigDown } from "react-icons/lu";
 import { defaultMeta } from "~/utils/meta";
@@ -7,11 +7,11 @@ import { FeatureShowcase } from "./components/FeatureShowcase";
 import { Hero } from "./components/Hero";
 import { Testimonial } from "./components/Testimonial";
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return defaultMeta();
 };
 
-export const loader = async ({ context }: LoaderArgs) => {
+export const loader = async ({ context }: LoaderFunctionArgs) => {
   return context.DISCORD_CLIENT_ID;
 };
 

@@ -1,5 +1,5 @@
 import { captureRemixErrorBoundaryError } from "@dougley/sentry-remix";
-import type { V2_MetaFunction } from "@remix-run/node";
+import type { MetaFunction } from "@remix-run/cloudflare";
 import { Link, isRouteErrorResponse, useRouteError } from "@remix-run/react";
 import {
   LuBan,
@@ -24,7 +24,7 @@ const Template = ({
   );
 };
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return defaultMeta("Error", "Something went wrong.");
 };
 
@@ -94,7 +94,9 @@ export function ErrorBoundary() {
   if (error instanceof Error) {
     if (error.cause) console.error(error.cause);
     errorMessage =
-      process.env.NODE_ENV === "development" ? error.stack! : error.message;
+      process.env.NODE_ENV === "development"
+        ? error.message + "\n\n" + error.stack!
+        : error.message;
   }
 
   return (
