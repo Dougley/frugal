@@ -1,7 +1,10 @@
 import type { Database } from "@dougley/d1-database";
-import type { LoaderArgs } from "@remix-run/cloudflare";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "@remix-run/cloudflare";
 import { redirect } from "@remix-run/cloudflare";
-import type { ActionArgs, V2_MetaFunction } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { Kysely } from "kysely";
 import { D1Dialect } from "kysely-d1";
@@ -18,11 +21,11 @@ import PricingDisclosure from "./components/Pricing";
 import StripeClimateBadge from "./components/StripeClimateBadge";
 import StripeRedirectModal from "./components/StripeRedirectModal";
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return defaultMeta();
 };
 
-export async function loader({ request, context, params }: LoaderArgs) {
+export async function loader({ request, context, params }: LoaderFunctionArgs) {
   const user = (await (context.authenticator as Authenticator).isAuthenticated(
     request,
   )) as DiscordUser | null;
@@ -30,7 +33,7 @@ export async function loader({ request, context, params }: LoaderArgs) {
     dialect: new D1Dialect({ database: context.D1 as D1Database }),
   });
   const stripe = new Stripe(context.STRIPE_SECRET_KEY as string, {
-    apiVersion: "2022-11-15",
+    apiVersion: "2023-08-16",
     httpClient: Stripe.createFetchHttpClient(),
   });
 
@@ -44,50 +47,52 @@ export async function loader({ request, context, params }: LoaderArgs) {
         active: false,
       };
 
-  const plusMonth = await stripe.prices.retrieve(
-    context.SUBSCRIPTION_PLUS_MONTHLY_PRICE_ID as string,
-    {
-      expand: ["currency_options"],
-    },
-  );
-  const plusYear = await stripe.prices.retrieve(
-    context.SUBSCRIPTION_PLUS_YEARLY_PRICE_ID as string,
-    {
-      expand: ["currency_options"],
-    },
-  );
-  const premiumMonth = await stripe.prices.retrieve(
-    context.SUBSCRIPTION_PREMIUM_MONTHLY_PRICE_ID as string,
-    {
-      expand: ["currency_options"],
-    },
-  );
-  const premiumYear = await stripe.prices.retrieve(
-    context.SUBSCRIPTION_PREMIUM_YEARLY_PRICE_ID as string,
-    {
-      expand: ["currency_options"],
-    },
-  );
+  const plusPrices = await stripe.prices.list({
+    active: true,
+    expand: ["data.currency_options"],
+    product: context.SUBSCRIPTION_PREMIUM_PRODUCT_ID as string,
+    type: "recurring",
+  });
+
+  const premiumPrices = await stripe.prices.list({
+    active: true,
+    expand: ["data.currency_options"],
+    product: context.SUBSCRIPTION_PREMIUM_PRODUCT_ID as string,
+    type: "recurring",
+  });
+
+  const plusYearlyPrice = plusPrices.data.find(
+    (price) => price.recurring!.interval === "year",
+  )!;
+  const plusMonthlyPrice = plusPrices.data.find(
+    (price) => price.recurring!.interval === "month",
+  )!;
+  const premiumYearlyPrice = premiumPrices.data.find(
+    (price) => price.recurring!.interval === "year",
+  )!;
+  const premiumMonthlyPrice = premiumPrices.data.find(
+    (price) => price.recurring!.interval === "month",
+  )!;
 
   return {
     loggedIn: !!user,
     alreadyPremium: alreadyPremium?.active ?? false,
-    plus: context.SUBSCRIPTION_PLUS_MONTHLY_PRICE_ID,
-    premium: context.SUBSCRIPTION_PREMIUM_MONTHLY_PRICE_ID,
+    plus: plusMonthlyPrice.id,
+    premium: premiumMonthlyPrice.id,
     pricing: {
       premium: {
-        yearly: premiumYear,
-        monthly: premiumMonth,
+        yearly: premiumYearlyPrice,
+        monthly: premiumMonthlyPrice,
       },
       plus: {
-        yearly: plusYear,
-        monthly: plusMonth,
+        yearly: plusYearlyPrice,
+        monthly: plusMonthlyPrice,
       },
     },
   };
 }
 
-export const action = async ({ context, request }: ActionArgs) => {
+export const action = async ({ context, request }: ActionFunctionArgs) => {
   const db = new Kysely<Database>({
     dialect: new D1Dialect({ database: context.D1 as D1Database }),
   });
@@ -96,7 +101,7 @@ export const action = async ({ context, request }: ActionArgs) => {
   if (!body || !body.has("priceId")) throw new Error("Parameters missing");
 
   const stripe = new Stripe(context.STRIPE_SECRET_KEY as string, {
-    apiVersion: "2022-11-15",
+    apiVersion: "2023-08-16",
     httpClient: Stripe.createFetchHttpClient(),
   });
 
@@ -131,7 +136,6 @@ export const action = async ({ context, request }: ActionArgs) => {
     customerId = data;
   }
   const session = await stripe.checkout.sessions.create({
-    payment_method_types: ["card", "paypal", "link", "ideal", "sofort"],
     line_items: [
       {
         price: body.get("priceId") as string,
@@ -139,7 +143,7 @@ export const action = async ({ context, request }: ActionArgs) => {
       },
     ],
     mode: "subscription",
-    success_url: request.url + "?result=success",
+    success_url: request.url + "/success?session_id={CHECKOUT_SESSION_ID}",
     cancel_url: request.url + "?result=canceled",
     // locale: "en",
     automatic_tax: {
@@ -219,7 +223,7 @@ export default function Index() {
         <p className="text-center text-sm">
           We donate 1% of all proceeds to
           <a
-            href="https://climate.stripe.com/z71csD"
+            href="https://climate.stripe.com/GhYWr6"
             className="link-hover link m-1"
             target="_blank"
             rel="noreferrer"
@@ -253,7 +257,7 @@ export default function Index() {
         )}
       </div>
       <div className="mb-5 flex flex-row flex-wrap items-center justify-center">
-        <div className="collapse-arrow collapse rounded-box w-auto border border-base-300">
+        <div className="collapse collapse-arrow rounded-box w-auto border border-base-300">
           <input type="checkbox" />
           <div className="collapse-title font-medium">
             Prefer to keep things simple? You can also subscribe to Plus
@@ -274,7 +278,7 @@ export default function Index() {
               <p className="text-center text-sm">
                 We donate 1% of all proceeds to
                 <a
-                  href="https://climate.stripe.com/z71csD"
+                  href="https://climate.stripe.com/GhYWr6"
                   className="link-hover link m-1"
                   target="_blank"
                   rel="noreferrer"
