@@ -30,7 +30,7 @@
     "dotenv": "^16.3.1",
     "esbuild": "^0.19.3",
     "miniflare": "^3.20230922.0",
-    "rimraf": "^5.0.4",
+    "rimraf": "^5.0.5",
     "slash-up": "^1.3.0",
     "wrangler": "^3.10.0"
   },
