@@ -10,12 +10,10 @@ export default function PricingDisclosure({
   return (
     <Disclosure>
       {({ open }) => (
-        <div
-          className={
-            "collapse-arrow collapse w-60" + (open ? " collapse-open" : "")
-          }
-        >
-          <Disclosure.Button>
+        <div className="w-60">
+          <Disclosure.Button
+            className={`collapse collapse-plus ${open ? "collapse-open" : ""}`}
+          >
             <p className="collapse-title text-xl">
               {`${new Intl.NumberFormat("en-US", {
                 style: "currency",
@@ -35,7 +33,10 @@ export default function PricingDisclosure({
             leaveFrom="transform scale-100 opacity-100"
             leaveTo="transform scale-95 opacity-0"
           >
-            <Disclosure.Panel className="rounded-box m-2 border border-base-300 bg-base-200 p-5">
+            <Disclosure.Panel
+              className="rounded-box m-2 border border-base-300 bg-base-200 p-5"
+              unmount
+            >
               <div className="flex flex-col">
                 {pricing.currency_options &&
                   Object.keys(pricing.currency_options!)
@@ -52,11 +53,11 @@ export default function PricingDisclosure({
                               {
                                 style: "currency",
                                 currency: key.toUpperCase(),
-                              }
+                              },
                             ).format(
                               pricing.currency_options![
                                 key as keyof Stripe.Price.CurrencyOptions
-                              ].unit_amount! / 100
+                              ].unit_amount! / 100,
                             )}`}
                           </p>
                         </div>

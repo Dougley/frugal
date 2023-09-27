@@ -50,7 +50,7 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
   const plusPrices = await stripe.prices.list({
     active: true,
     expand: ["data.currency_options"],
-    product: context.SUBSCRIPTION_PREMIUM_PRODUCT_ID as string,
+    product: context.SUBSCRIPTION_PLUS_PRODUCT_ID as string,
     type: "recurring",
   });
 
