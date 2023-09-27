@@ -163,6 +163,17 @@ export function DrawerMenu({
                   <LuExternalLink className="inline-block h-4 w-4" />
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="https://dougley.com/discord/paid-services"
+                  target="_blank"
+                  onClick={toggleDrawer}
+                >
+                  <LuScroll className="h-5 w-5" />
+                  Paid Services Agreement
+                  <LuExternalLink className="inline-block h-4 w-4" />
+                </Link>
+              </li>
             </ul>
           </details>
         </li>
