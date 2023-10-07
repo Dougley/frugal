@@ -134,15 +134,15 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
     automatic_tax: {
       enabled: true,
     },
-    subscription_data:{
+    subscription_data: {
       metadata: {
         discord_user_id: user.id,
       },
       trial_settings: {
-        end_behavior:{
+        end_behavior: {
           missing_payment_method: "cancel",
-        }
-      }
+        },
+      },
     },
     payment_method_collection: "if_required",
     allow_promotion_codes: true,
@@ -193,145 +193,128 @@ export default function Index() {
         </div>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <div className="mx-auto w-full max-w-[1240px] xl:p-6">
-          <ShowcaseItem
-            image="https://placehold.co/600x400"
-            title="More time, more winners"
-          >
-            <p className="mb-5">
-              The fun doesn't have to end after 2 weeks! With Premium, you can
-              extend your giveaways up to 8 weeks (56 days) and have up to 100
-              winners!
-            </p>
-            <div className="flex flex-row flex-wrap">
-              <span>
-                <div className="badge badge-outline mx-1">Plus</div> 4 weeks (30
-                days), 30 winners
-              </span>
-              <span>
-                <div className="badge badge-secondary badge-outline mx-1">
-                  Premium
-                </div>
-                6 weeks (42 days), 50 winners
-              </span>
-              <span>
-                <div className="badge badge-accent badge-outline mx-1">
-                  Ultra
-                </div>
-                8 weeks (56 days), 100 winners
-              </span>
+        <ShowcaseItem
+          image="https://placehold.co/600x400"
+          title="More time, more winners"
+        >
+          <p className="mb-5">
+            The fun doesn't have to end after 2 weeks! With Premium, you can
+            extend your giveaways up to 8 weeks (56 days) and have up to 100
+            winners!
+          </p>
+          <div className="flex flex-row flex-wrap">
+            <span>
+              <div className="badge badge-outline mx-1">Plus</div> 4 weeks (30
+              days), 30 winners
+            </span>
+            <span>
+              <div className="badge badge-secondary badge-outline mx-1">
+                Premium
+              </div>
+              6 weeks (42 days), 50 winners
+            </span>
+            <span>
+              <div className="badge badge-accent badge-outline mx-1">Ultra</div>
+              8 weeks (56 days), 100 winners
+            </span>
+          </div>
+        </ShowcaseItem>
+        <ShowcaseItem
+          image="https://placehold.co/600x400"
+          title="Generate more hype"
+        >
+          <p className="mb-5">
+            Why limit yourself to only 10 giveaways at once? With Premium, you
+            can run up to 50 giveaways per channel! That's 5x the fun! Your
+            members will love you for it.
+          </p>
+          <div className="flex flex-row flex-wrap">
+            <span>
+              <div className="badge badge-outline mx-1">Plus</div> 10 giveaways
+              per channel
+            </span>
+            <span>
+              <div className="badge badge-secondary badge-outline mx-1">
+                Premium
+              </div>
+              25 giveaways per channel
+            </span>
+            <span>
+              <div className="badge badge-accent badge-outline mx-1">Ultra</div>
+              50 giveaways per channel
+            </span>
+          </div>
+        </ShowcaseItem>
+        <ShowcaseItem
+          image="https://placehold.co/600x400"
+          title="Supercharge your analytics"
+        >
+          <p className="mb-5">
+            Premium means going pro with your giveaways. Dive deep into advanced
+            analytics that reveal the secret sauce behind your most successful
+            contests. Numbers, graphs, and insights that'll make your
+            data-loving heart skip a beat!
+          </p>
+          <span>
+            Available on:
+            <div className="badge badge-secondary badge-outline mx-1">
+              Premium
             </div>
-          </ShowcaseItem>
-        </div>
-        <div className="mx-auto w-full max-w-[1240px] xl:p-6">
-          <ShowcaseItem
-            image="https://placehold.co/600x400"
-            title="Generate more hype"
-          >
-            <p className="mb-5">
-              Why limit yourself to only 10 giveaways at once? With Premium, you
-              can run up to 50 giveaways per channel! That's 5x the fun! Your
-              members will love you for it.
-            </p>
-            <div className="flex flex-row flex-wrap">
-              <span>
-                <div className="badge badge-outline mx-1">Plus</div> 10
-                giveaways per channel
-              </span>
-              <span>
-                <div className="badge badge-secondary badge-outline mx-1">
-                  Premium
-                </div>
-                25 giveaways per channel
-              </span>
-              <span>
-                <div className="badge badge-accent badge-outline mx-1">
-                  Ultra
-                </div>
-                50 giveaways per channel
-              </span>
+            <div className="badge badge-accent badge-outline mx-1">Ultra</div>
+          </span>
+        </ShowcaseItem>
+        <ShowcaseItem
+          image="https://placehold.co/600x400"
+          title="Show off your server's style"
+        >
+          <p className="mb-5">
+            Give your giveaways a personal touch with custom themes and emojis.
+            Whether it's a pirate-themed treasure hunt or a space adventure,
+            premium users can theme it up and emojify the excitement!
+          </p>
+          <span>
+            Available on:
+            <div className="badge badge-outline mx-1">Plus</div>
+            <div className="badge badge-secondary badge-outline mx-1">
+              Premium
             </div>
-          </ShowcaseItem>
-        </div>
-        <div className="mx-auto w-full max-w-[1240px] xl:p-6">
-          <ShowcaseItem
-            image="https://placehold.co/600x400"
-            title="Supercharge your analytics"
-          >
-            <p className="mb-5">
-              Premium means going pro with your giveaways. Dive deep into
-              advanced analytics that reveal the secret sauce behind your most
-              successful contests. Numbers, graphs, and insights that'll make
-              your data-loving heart skip a beat!
-            </p>
-            <span>
-              Available on:
-              <div className="badge badge-secondary badge-outline mx-1">
-                Premium
-              </div>
-              <div className="badge badge-accent badge-outline mx-1">Ultra</div>
-            </span>
-          </ShowcaseItem>
-        </div>
-        <div className="mx-auto w-full max-w-[1240px] xl:p-6">
-          <ShowcaseItem
-            image="https://placehold.co/600x400"
-            title="Show off your server's style"
-          >
-            <p className="mb-5">
-              Give your giveaways a personal touch with custom themes and
-              emojis. Whether it's a pirate-themed treasure hunt or a space
-              adventure, premium users can theme it up and emojify the
-              excitement!
-            </p>
-            <span>
-              Available on:
-              <div className="badge badge-outline mx-1">Plus</div>
-              <div className="badge badge-secondary badge-outline mx-1">
-                Premium
-              </div>
-              <div className="badge badge-accent badge-outline mx-1">Ultra</div>
-            </span>
-          </ShowcaseItem>
-        </div>
-        <div className="mx-auto w-full max-w-[1240px] xl:p-6">
-          <ShowcaseItem
-            image="https://placehold.co/600x400"
-            title="Instant gratification"
-          >
-            <p className="mb-5">
-              Why spend time managing and sending out prizes when you can have
-              GiveawayBot do it for you? Premium users enjoy the convenience of
-              automatic prize delivery. Let us take care of distributing prizes
-              to the lucky winners, making your life easier and your giveaways
-              smoother.
-            </p>
-            <span>
-              Available on:
-              <div className="badge badge-accent badge-outline mx-1">Ultra</div>
-            </span>
-          </ShowcaseItem>
-        </div>
-        <div className="mx-auto w-full max-w-[1240px] xl:p-6">
-          <ShowcaseItem
-            image="https://placehold.co/600x400"
-            title="Save all the things!"
-          >
-            <p className="mb-5">
-              With longer giveaways and more winners, we know you'll want to
-              keep track of all the data. Premium users have access to longer
-              giveaway history and more detailed analytics to help you make the
-              most of your giveaways!
-            </p>
-            <span>
-              Available on:
-              <div className="badge badge-secondary badge-outline mx-1">
-                Premium
-              </div>
-              <div className="badge badge-accent badge-outline mx-1">Ultra</div>
-            </span>
-          </ShowcaseItem>
-        </div>
+            <div className="badge badge-accent badge-outline mx-1">Ultra</div>
+          </span>
+        </ShowcaseItem>
+        <ShowcaseItem
+          image="https://placehold.co/600x400"
+          title="Instant gratification"
+        >
+          <p className="mb-5">
+            Why spend time managing and sending out prizes when you can have
+            GiveawayBot do it for you? Premium users enjoy the convenience of
+            automatic prize delivery. Let us take care of distributing prizes to
+            the lucky winners, making your life easier and your giveaways
+            smoother.
+          </p>
+          <span>
+            Available on:
+            <div className="badge badge-accent badge-outline mx-1">Ultra</div>
+          </span>
+        </ShowcaseItem>
+        <ShowcaseItem
+          image="https://placehold.co/600x400"
+          title="Save all the things!"
+        >
+          <p className="mb-5">
+            With longer giveaways and more winners, we know you'll want to keep
+            track of all the data. Premium users have access to longer giveaway
+            history and more detailed analytics to help you make the most of
+            your giveaways!
+          </p>
+          <span>
+            Available on:
+            <div className="badge badge-secondary badge-outline mx-1">
+              Premium
+            </div>
+            <div className="badge badge-accent badge-outline mx-1">Ultra</div>
+          </span>
+        </ShowcaseItem>
       </div>
       <div className="flex flex-row flex-wrap justify-center">
         <ComparisonTable />

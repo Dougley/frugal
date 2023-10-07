@@ -16,7 +16,7 @@ export function Hero({ clientId }: { clientId: string }) {
           </h1>
           <div className="prose py-6">
             <p>
-              Trusted by over <strong>2,500,000</strong> servers,{" "}
+              Trusted by over <strong>2,5 million</strong> servers,{" "}
               <strong>GiveawayBot</strong> is the most popular bot on Discord
               for doing <strong>giveaways</strong>.
             </p>

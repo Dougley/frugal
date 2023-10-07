@@ -4,7 +4,7 @@ This is a set of overrides and helpers to get Sentry working with Remix and Clou
 
 This is heavily based on the work from [huw](https://gist.github.com/huw/e6749ea2e205e0179d0c87c3a9859f9e), thanks!
 
-This package is designed to work with the V2 future flags as defined by remix version 1.19.3. If you are not using these flags, you will need to make some changes to the code.
+This package is designed to work with remix version 2.0.0 and above, if you are using an older version of remix, please enable all the future flags in your `remix.config.ts` file.
 
 ## Usage
 
@@ -21,10 +21,10 @@ We use a mix of Sentry's own packages and this package to get everything working
   <summary>Example</summary>
 
   ```ts
-  import { createPagesFunctionHandler } from "@remix-run/cloudflare-pages";
-  import { Toucan } from "toucan-js";
   import { handleFetch } from "@dougley/sentry-remix";
+  import { createPagesFunctionHandler } from "@remix-run/cloudflare-pages";
   import * as build from "@remix-run/dev/server-build";
+  import { Toucan } from "toucan-js";
 
   export const onRequest = async (context: EventContext) => {
     const sentry = new Toucan({

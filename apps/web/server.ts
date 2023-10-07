@@ -48,7 +48,7 @@ export const onRequest = async (
         clientID: context.env.DISCORD_CLIENT_ID,
         clientSecret: context.env.DISCORD_CLIENT_SECRET,
         callbackURL: context.env.DISCORD_REDIRECT_URI,
-        scope: ["identify", "guilds", "guilds.members.read"],
+        scope: "identify guilds guilds.members.read",
         prompt: "none",
       },
       async ({ accessToken, refreshToken, extraParams, profile, context }) => {

@@ -26,53 +26,46 @@ export default function Index() {
             <LuArrowBigDown className="h-6 w-6" />
           </button>
         </a>
-        <div
-          className="flex w-full flex-col items-center justify-center lg:flex-row"
-          id="features"
-        >
-          <div className="mx-auto w-full max-w-[1240px] xl:w-1/2 xl:p-12">
-            <FeatureShowcase
-              title="Effortless Giveaways in a Snap"
-              image="https://placehold.co/600x400"
-            >
-              GiveawayBot is as easy to set up as pouring a bowl of cereal. No
-              complicated instructions or technical mumbo-jumbo. Just a few
-              clicks, and voila! You're ready to rock those giveaways and dazzle
-              your Discord community!
-            </FeatureShowcase>
-            <FeatureShowcase
-              title="Manage like a Pro, Relax like a Sloth"
-              image="https://placehold.co/600x400"
-            >
-              We get it, managing giveaways can be a hassle. But fear not,
-              because GiveawayBot is here to make it a cakewalk. From wrangling
-              entries to picking winners, it's like having a personal assistant
-              who knows how to juggle without dropping the balls. Kick back,
-              relax, and let the bot do the heavy lifting.
-            </FeatureShowcase>
-          </div>
-          <div className="mx-auto w-full max-w-[1240px] xl:w-1/2 xl:p-12">
-            <FeatureShowcase
-              title="Discord BFF Status Achieved"
-              image="https://placehold.co/600x400"
-            >
-              GiveawayBot and Discord are like two peas in a pod. They go
-              together like pizza and cheese or memes and laughter. With
-              seamless integration, GiveawayBot becomes your server's best
-              friend forever, making giveaways feel like a native part of your
-              Discord experience. It's a match made in bot heaven!
-            </FeatureShowcase>
-            <FeatureShowcase
-              title="More Fun, Less Boredom"
-              image="https://placehold.co/600x400"
-            >
-              Giveaways aren't just about prizes; they're about injecting life
-              and laughter into your Discord server. GiveawayBot brings the fun
-              factor on steroids, transforming your server into a playground of
-              excitement. Prepare for wild conversations, lively banter, and a
-              community that never wants to hit the snooze button.
-            </FeatureShowcase>
-          </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2" id="features">
+          <FeatureShowcase
+            title="Effortless Giveaways in a Snap"
+            image="https://placehold.co/600x400"
+          >
+            GiveawayBot is as easy to set up as pouring a bowl of cereal. No
+            complicated instructions or technical mumbo-jumbo. Just a few
+            clicks, and voila! You're ready to rock those giveaways and dazzle
+            your Discord community!
+          </FeatureShowcase>
+          <FeatureShowcase
+            title="Manage like a Pro, Relax like a Sloth"
+            image="https://placehold.co/600x400"
+          >
+            We get it, managing giveaways can be a hassle. But fear not, because
+            GiveawayBot is here to make it a cakewalk. From wrangling entries to
+            picking winners, it's like having a personal assistant who knows how
+            to juggle without dropping the balls. Kick back, relax, and let the
+            bot do the heavy lifting.
+          </FeatureShowcase>
+          <FeatureShowcase
+            title="Discord BFF Status Achieved"
+            image="https://placehold.co/600x400"
+          >
+            GiveawayBot and Discord are like two peas in a pod. They go together
+            like pizza and cheese or memes and laughter. With seamless
+            integration, GiveawayBot becomes your server's best friend forever,
+            making giveaways feel like a native part of your Discord experience.
+            It's a match made in bot heaven!
+          </FeatureShowcase>
+          <FeatureShowcase
+            title="More Fun, Less Boredom"
+            image="https://placehold.co/600x400"
+          >
+            Giveaways aren't just about prizes; they're about injecting life and
+            laughter into your Discord server. GiveawayBot brings the fun factor
+            on steroids, transforming your server into a playground of
+            excitement. Prepare for wild conversations, lively banter, and a
+            community that never wants to hit the snooze button.
+          </FeatureShowcase>
         </div>
       </div>
       <div className="py-10">

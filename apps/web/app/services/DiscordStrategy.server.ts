@@ -10,7 +10,7 @@ export interface DiscordStrategyOptions {
   clientID: string;
   clientSecret: string;
   callbackURL: string;
-  scope?: string[];
+  scope?: string;
   prompt?: "none" | "consent";
 }
 
@@ -36,7 +36,7 @@ export class DiscordStrategy<User> extends OAuth2Strategy<
   DiscordExtraParams
 > {
   name = "discord";
-  private scope: string[];
+  scope: string;
   private prompt: "none" | "consent" = "consent";
 
   constructor(
@@ -44,7 +44,7 @@ export class DiscordStrategy<User> extends OAuth2Strategy<
     verify: StrategyVerifyCallback<
       User,
       OAuth2StrategyVerifyParams<DiscordProfile, DiscordExtraParams>
-    >
+    >,
   ) {
     super(
       {
@@ -52,16 +52,16 @@ export class DiscordStrategy<User> extends OAuth2Strategy<
         tokenURL: "https://discord.com/api/oauth2/token",
         ...options,
       },
-      verify
+      verify,
     );
 
-    this.scope = options.scope ?? ["identify", "guilds"];
+    this.scope = options.scope ?? "identify guilds";
     this.prompt = options.prompt ?? "consent";
   }
 
   protected authorizationParams() {
     const params = {
-      scope: this.scope.join(" "),
+      scope: this.scope,
       prompt: this.prompt ?? "consent",
     };
     return new URLSearchParams(params);
