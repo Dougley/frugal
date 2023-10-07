@@ -112,7 +112,7 @@ export default function StripeRedirectModal(): ReactElement {
                           ))}
                         </div>
                       </div>
-                      <span className="mb-4 text-sm">
+                      <p className="mb-4 text-sm">
                         1% of all proceeds go to
                         <a
                           href="https://climate.stripe.com/GhYWr6"
@@ -124,8 +124,8 @@ export default function StripeRedirectModal(): ReactElement {
                           Stripe Climate
                         </a>{" "}
                         to help offset carbon emissions.
-                      </span>
-                      <span className="text-sm opacity-50">
+                      </p>
+                      <p className="text-sm opacity-50">
                         By continuing, you agree to our{" "}
                         <a
                           href="https://dougley.com/discord/terms"
@@ -153,7 +153,7 @@ export default function StripeRedirectModal(): ReactElement {
                         >
                           Paid Services Agreement
                         </a>
-                      </span>
+                      </p>
                       <div className="modal-action">
                         <AlertDialogPrimitive.Close className="btn">
                           Cancel
