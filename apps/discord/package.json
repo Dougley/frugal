@@ -26,7 +26,7 @@
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
     "@sentry/esbuild-plugin": "^2.8.0",
-    "better-sqlite3": "8.7.0",
+    "better-sqlite3": "9.0.0",
     "dotenv": "^16.3.1",
     "esbuild": "^0.19.4",
     "miniflare": "^3.20231002.1",
