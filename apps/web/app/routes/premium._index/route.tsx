@@ -5,7 +5,7 @@ import type {
   MetaFunction,
 } from "@remix-run/cloudflare";
 import { defer, redirect } from "@remix-run/cloudflare";
-import { Await, useLoaderData } from "@remix-run/react";
+import { Await, Form, Link, useLoaderData } from "@remix-run/react";
 import { Kysely } from "kysely";
 import { D1Dialect } from "kysely-d1";
 import { Suspense, useEffect } from "react";
@@ -170,7 +170,7 @@ export default function Index() {
       toast.error("Your purchase was canceled.");
     }
   }, []);
-  const { pricing } = useLoaderData<typeof loader>();
+  const { pricing, loggedIn, alreadyPremium } = useLoaderData<typeof loader>();
   return (
     <div className="flex min-h-screen flex-col justify-center overflow-x-auto">
       <div className="hero min-h-[40vh]">
@@ -185,7 +185,10 @@ export default function Index() {
             <div className="flex flex-row flex-wrap justify-center">
               <Suspense fallback={<div className="btn btn-disabled">...</div>}>
                 <Await resolve={pricing.plus}>
-                  <StripeRedirectModal />
+                  <SubscribeButton
+                    alreadyPremium={alreadyPremium}
+                    loggedIn={loggedIn}
+                  />
                 </Await>
               </Suspense>
             </div>
@@ -358,7 +361,10 @@ export default function Index() {
             <div className="mt-4 flex flex-row flex-wrap justify-center">
               <Suspense fallback={<div className="btn btn-disabled">...</div>}>
                 <Await resolve={pricing.plus}>
-                  <StripeRedirectModal />
+                  <SubscribeButton
+                    alreadyPremium={alreadyPremium}
+                    loggedIn={loggedIn}
+                  />
                 </Await>
               </Suspense>
             </div>
@@ -368,3 +374,33 @@ export default function Index() {
     </div>
   );
 }
+
+const SubscribeButton = ({
+  alreadyPremium,
+  loggedIn,
+}: {
+  alreadyPremium: boolean;
+  loggedIn: boolean;
+}) => {
+  if (alreadyPremium) {
+    return (
+      <Form action="/premium/manage" method="post">
+        <input type="hidden" name="returnPath" value="premium" />
+        <div className="rounded-box m-2 flex flex-col flex-wrap justify-center border border-base-300 bg-base-200 p-5">
+          <p className="text-center text-xl">You're already subscribed!</p>
+          <button className="btn btn-primary m-2 w-auto">
+            Manage subscription
+          </button>
+        </div>
+      </Form>
+    );
+  }
+  if (!loggedIn) {
+    return (
+      <Link to="/login" className="btn m-2 w-auto">
+        Login to subscribe
+      </Link>
+    );
+  }
+  return <StripeRedirectModal />;
+};

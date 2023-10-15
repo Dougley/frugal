@@ -73,37 +73,56 @@ export default function StripeRedirectModal(): ReactElement {
                         <div className="form-control m-2">
                           {Object.keys(pricing).map((key) => (
                             <label key={key} className="label">
-                              <div className="flex flex-col flex-wrap">
-                                <PlanBranding {...pricing[key].data[0]} />
-                                <span className="text-sm">
-                                  {new Intl.ListFormat("en-US", {
-                                    style: "short",
-                                    type: "disjunction",
-                                  }).format(
-                                    pricing[key].data.map(
-                                      (price) =>
-                                        `${new Intl.NumberFormat("en-US", {
-                                          style: "currency",
-                                          currency: price.currency!,
-                                          currencyDisplay: "symbol",
-                                        }).format(
-                                          price.unit_amount! / 100,
-                                        )} per ${price.recurring!.interval}`,
-                                    ),
-                                  )}
-                                </span>
-                                <span className="text-sm opacity-50">
-                                  (or regional equivalent, if available)
-                                </span>
-                              </div>
+                              {pricing[key].data.length > 0 ? (
+                                <div className="flex flex-col flex-wrap">
+                                  <PlanBranding {...pricing[key].data[0]} />
+                                  <span className="text-sm">
+                                    {new Intl.ListFormat("en-US", {
+                                      style: "short",
+                                      type: "disjunction",
+                                    }).format(
+                                      pricing[key].data.map(
+                                        (price) =>
+                                          `${new Intl.NumberFormat("en-US", {
+                                            style: "currency",
+                                            currency: price.currency!,
+                                            currencyDisplay: "symbol",
+                                          }).format(
+                                            price.unit_amount! / 100,
+                                          )} per ${price.recurring!.interval}`,
+                                      ),
+                                    )}
+                                  </span>
+                                  <span className="text-sm opacity-50">
+                                    (or regional equivalent, if available)
+                                  </span>
+                                </div>
+                              ) : (
+                                <div className="flex cursor-not-allowed flex-col flex-wrap opacity-50">
+                                  <span className="text-lg font-bold">
+                                    <LuGem className="mr-2 inline h-6 w-6" />
+                                    <span>
+                                      GiveawayBot{" "}
+                                      {key.charAt(0).toUpperCase() +
+                                        key.slice(1)}
+                                    </span>
+                                  </span>
+                                  <span className="text-sm">
+                                    Currently unavailable ¯\_(ツ)_/¯
+                                  </span>
+                                </div>
+                              )}
                               <input
                                 type="radio"
                                 name="priceId"
+                                disabled={pricing[key].data.length === 0}
                                 value={
-                                  (
-                                    pricing[key].data[0]
-                                      .product as Stripe.Product
-                                  ).default_price as string
+                                  pricing[key].data.length === 0
+                                    ? ""
+                                    : ((
+                                        pricing[key].data[0]
+                                          .product as Stripe.Product
+                                      ).default_price as string)
                                 }
                                 className="radio"
                                 onChange={() => setReady(true)}
