@@ -14,21 +14,21 @@
     "directory": "packages/sentry-remix"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20231002.0",
+    "@cloudflare/workers-types": "^4.20231016.0",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "@sentry/types": "^7.73.0",
-    "@types/react": "^18.2.25"
+    "@sentry/types": "^7.74.1",
+    "@types/react": "^18.2.28"
   },
   "dependencies": {
     "@cloudflare/kv-asset-handler": "^0.3.0",
-    "@remix-run/cloudflare": "^2.0.1",
-    "@remix-run/cloudflare-pages": "^2.0.1",
-    "@remix-run/react": "^2.0.1",
-    "@remix-run/server-runtime": "^2.0.1",
-    "@sentry/core": "^7.73.0",
-    "@sentry/remix": "^7.73.0",
-    "@sentry/utils": "^7.73.0",
+    "@remix-run/cloudflare": "^2.1.0",
+    "@remix-run/cloudflare-pages": "^2.1.0",
+    "@remix-run/react": "^2.1.0",
+    "@remix-run/server-runtime": "^2.1.0",
+    "@sentry/core": "^7.74.1",
+    "@sentry/remix": "^7.74.1",
+    "@sentry/utils": "^7.74.1",
     "react": "^18.2.0",
     "toucan-js": "^3.3.0"
   }

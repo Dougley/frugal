@@ -1,16 +1,5 @@
-diff --git a/package.json b/package.json
-index 7b11cce74ca86b97618b3fe6cb7acf994552e275..9526e306b4f819cc1713098adc225d8215fda502 100644
---- a/package.json
-+++ b/package.json
-@@ -1,5 +1,6 @@
- {
-   "name": "slash-create",
-+  "sideEffects": false,
-   "version": "5.13.0",
-   "description": "Create and sync Discord slash commands!",
-   "main": "./lib/index.js",
 diff --git a/lib/creator.js b/lib/creator.js
-index 7818ea53d293b97ce99b7d05951ab9a7d2452470..d226b9866c88feda962d22db27fc7cb9fb48cb96 100644
+index 6a74d096bf56351dec9cd572af63041287060556..737cd061b6c30efb487fdd2f58ff9edbc8b18e12 100644
 --- a/lib/creator.js
 +++ b/lib/creator.js
 @@ -14,7 +14,7 @@ const commandContext_1 = require("./structures/interfaces/commandContext");
@@ -83,10 +72,10 @@ index 5bd43a6c1c881a99cfb9182c215120b7b09a57b0..0e5485d99f269524a12aa5cfdcef1b4b
  __exportStar(require("./structures/message"), exports);
  __exportStar(require("./structures/permissions"), exports);
 diff --git a/lib/structures/interfaces/messageInteraction.d.ts b/lib/structures/interfaces/messageInteraction.d.ts
-index df895c39920f5d594c21534c2400295a71d65532..f2a5878517b33f07a133dc46a02acc4ce70f16b0 100644
+index 4e8cc49f98c559c08573031a885f76a13d875e76..e2731684ef0b6c6a2263bcb7ff41f5c7333c4530 100644
 --- a/lib/structures/interfaces/messageInteraction.d.ts
 +++ b/lib/structures/interfaces/messageInteraction.d.ts
-@@ -132,7 +132,7 @@ export interface EditMessageOptions {
+@@ -137,7 +137,7 @@ export interface EditMessageOptions {
  /** A file within {@link EditMessageOptions}. */
  export interface MessageFile {
      /** The attachment to send. */
@@ -96,7 +85,7 @@ index df895c39920f5d594c21534c2400295a71d65532..f2a5878517b33f07a133dc46a02acc4c
      name: string;
  }
 diff --git a/lib/util/requestHandler.js b/lib/util/requestHandler.js
-index b13dac63b084c484c4cfc7c5c9b139908a8c0b03..b9ebcc345e1407abb890be1b1fa68cd2972cfda7 100644
+index b13dac63b084c484c4cfc7c5c9b139908a8c0b03..2d11b14321c6b8cb9a51cde0da314bca08607668 100644
 --- a/lib/util/requestHandler.js
 +++ b/lib/util/requestHandler.js
 @@ -5,9 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
@@ -116,8 +105,8 @@ index b13dac63b084c484c4cfc7c5c9b139908a8c0b03..b9ebcc345e1407abb890be1b1fa68cd2
          Error.captureStackTrace(_stackHolder);
          return new Promise((resolve, reject) => {
 +            if (!process) {
-+                reject(new Error('Cannot make requests in this environment'));
-+                return;
++              reject(new Error('Cannot make requests in this environment'));
++              return;
 +            }
 +            const https_1 = __importDefault(require("https"));
 +            const zlib_1 = __importDefault(require("zlib"));
@@ -138,17 +127,12 @@ index bfa6d1fc7bd7c2ebb431897709ad1b035807e589..c792286305ee5356b189ad1573f888a4
  /** The allowed mentions for a {@link Message}. */
  export interface MessageAllowedMentions {
 diff --git a/lib/util.js b/lib/util.js
-index 260a3b61f648095c26aaf7b4eb0c770b2f8c5b37..eeb8f93d11f4ddce2796e87a2d0dabb12dc23a61 100644
+index 260a3b61f648095c26aaf7b4eb0c770b2f8c5b37..3557af27b1aa66f06c354b40bac4265dd39d9b18 100644
 --- a/lib/util.js
 +++ b/lib/util.js
-@@ -1,31 +1,31 @@
- "use strict";
--var __importDefault = (this && this.__importDefault) || function (mod) {
--    return (mod && mod.__esModule) ? mod : { "default": mod };
--};
-+// var __importDefault = (this && this.__importDefault) || function (mod) {
-+//     return (mod && mod.__esModule) ? mod : { "default": mod };
-+// };
+@@ -3,29 +3,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
+     return (mod && mod.__esModule) ? mod : { "default": mod };
+ };
  Object.defineProperty(exports, "__esModule", { value: true });
 -exports.generateID = exports.getFiles = exports.validateOptions = exports.oneLine = exports.formatAllowedMentions = exports.verifyKey = void 0;
 +exports.generateID = exports.validateOptions = exports.oneLine = exports.formatAllowedMentions = void 0;
@@ -233,3 +217,14 @@ index 260a3b61f648095c26aaf7b4eb0c770b2f8c5b37..eeb8f93d11f4ddce2796e87a2d0dabb1
  function generateID() {
      return (Date.now() + Math.round(Math.random() * 1000)).toString(36);
  }
+diff --git a/package.json b/package.json
+index 8f0c0f388ccd36e9fc5522ea89b6f1d0402cacda..eb0a0fc4d7a2d85a09800c5761db02c404da5fed 100644
+--- a/package.json
++++ b/package.json
+@@ -1,5 +1,6 @@
+ {
+   "name": "slash-create",
++  "sideEffects": false,
+   "version": "5.14.0",
+   "description": "Create and sync Discord slash commands!",
+   "main": "./lib/index.js",
