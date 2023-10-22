@@ -22,6 +22,6 @@
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
     "discord-api-types": "^0.37.60",
-    "wrangler": "^3.13.2"
+    "wrangler": "^3.14.0"
   }
 }
