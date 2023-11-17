@@ -5,9 +5,9 @@ import {
   ComponentType,
   SlashCommand,
   SlashCreator
-} from 'slash-create';
+} from 'slash-create/web';
 import { joinButtonRegistryCallback, leaveButtonRegistryCallback } from '../../components/buttons';
-import { server } from '../../shim/servers/cfworker';
+import { EnvContext as server } from '../../index';
 import { parseTime } from '../../utils/time';
 
 export default class BotCommand extends SlashCommand {
@@ -35,7 +35,6 @@ export default class BotCommand extends SlashCommand {
           name: 'prize',
           description: 'Prize to win',
           required: true,
-          // @ts-expect-error - min_length and max_length are not in the typings
           min_length: 1,
           max_length: 100
         },
@@ -44,7 +43,6 @@ export default class BotCommand extends SlashCommand {
           name: 'description',
           description: 'Description of the giveaway',
           required: false,
-          // @ts-expect-error - min_length and max_length are not in the typings
           min_length: 1,
           max_length: 1000
         },

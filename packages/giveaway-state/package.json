@@ -13,10 +13,10 @@
     "directory": "packages/giveaway-state"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20231016.0",
+    "@cloudflare/workers-types": "^4.20231025.0",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "discord-api-types": "^0.37.60"
+    "discord-api-types": "^0.37.63"
   },
   "exports": {
     ".": {
@@ -46,7 +46,7 @@
     }
   },
   "dependencies": {
-    "@discordjs/rest": "2.0.1",
+    "@discordjs/rest": "2.1.0",
     "@dougley/d1-database": "workspace:^",
     "@ticketbridge/hyper-durable": "0.2.0-rc1",
     "do-proxy": "^1.3.4",

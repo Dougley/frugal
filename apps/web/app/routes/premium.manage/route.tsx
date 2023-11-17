@@ -1,19 +1,18 @@
 import type { Database } from "@dougley/d1-database";
-import type { ActionArgs } from "@remix-run/cloudflare";
+import type { ActionFunction } from "@remix-run/cloudflare";
 import { Kysely } from "kysely";
 import { D1Dialect } from "kysely-d1";
 import type { Authenticator } from "remix-auth";
 import Stripe from "stripe";
 import type { DiscordUser } from "~/services/authenticator.server";
 
-export const action = async ({ context, request }: ActionArgs) => {
+export const action: ActionFunction = async ({ context, request }) => {
   const body = await request.formData();
   const returnPath = body.get("returnPath");
   const db = new Kysely<Database>({
     dialect: new D1Dialect({ database: context.D1 as D1Database }),
   });
   const stripe = new Stripe(context.STRIPE_SECRET_KEY as string, {
-    apiVersion: "2022-11-15",
     httpClient: Stripe.createFetchHttpClient(),
   });
   const user = (await (context.authenticator as Authenticator).isAuthenticated(

@@ -1,5 +1,5 @@
-import { CommandContext, SlashCommand, SlashCreator } from 'slash-create';
-import { server } from '../../shim';
+import { CommandContext, SlashCommand, SlashCreator } from 'slash-create/web';
+import { EnvContext as server } from '../../index';
 
 export default class BotCommand extends SlashCommand {
   constructor(creator: SlashCreator) {

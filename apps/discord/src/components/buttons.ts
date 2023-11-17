@@ -1,5 +1,5 @@
-import { ButtonStyle, ComponentContext, ComponentType } from 'slash-create';
-import { server } from '../shim';
+import { ButtonStyle, ComponentContext, ComponentType } from 'slash-create/web';
+import { EnvContext as server } from '../index';
 
 export async function joinButtonRegistryCallback(ctx: ComponentContext) {
   const data = await server

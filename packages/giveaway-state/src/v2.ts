@@ -225,7 +225,6 @@ export class GiveawayStateV2 extends HyperDurable<DurableObjectState, Env> {
       const message = (await resp.json()) as RESTGetAPIChannelMessageResult;
       // if the message is still there, we can draw winners
       const winners = await this.drawWinners();
-      console.log(this.env.DISCORD_BOT_TOKEN, message, winners);
       // if there are no winners, we can stop here
       if (winners.length === 0) {
         fetch(RouteBases.api + Routes.channelMessages(giveaway.channel_id), {

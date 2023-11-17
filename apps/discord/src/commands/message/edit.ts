@@ -1,6 +1,6 @@
-import { ApplicationCommandType, CommandContext, SlashCommand, SlashCreator } from 'slash-create';
+import { ApplicationCommandType, CommandContext, SlashCommand, SlashCreator } from 'slash-create/web';
 import { editModalStructure } from '../../components/editModal';
-import { server } from '../../shim';
+import { EnvContext as server } from '../../index';
 
 export default class BotCommand extends SlashCommand {
   constructor(creator: SlashCreator) {
@@ -13,7 +13,8 @@ export default class BotCommand extends SlashCommand {
   async run(ctx: CommandContext) {
     const id = await server.env!.KV.get(ctx.targetMessage!.id);
     if (!id)
-      return ctx.send('That message is not a giveaway, or it has expired.', {
+      return ctx.send({
+        content: 'That message is not a giveaway, or it has expired.',
         ephemeral: true
       });
     const data = await server
@@ -22,10 +23,12 @@ export default class BotCommand extends SlashCommand {
       .where('durable_object_id', '=', id)
       .executeTakeFirst();
 
-    if (!data)
-      return ctx.send('That message is not a giveaway, or it has expired.', {
+    if (!data) {
+      return ctx.send({
+        content: 'Could not find the giveaway data.',
         ephemeral: true
       });
+    }
 
     ctx.sendModal(
       editModalStructure({
@@ -39,7 +42,8 @@ export default class BotCommand extends SlashCommand {
         const description = data.values.description;
 
         if (isNaN(+winners))
-          return data.send('Winners must be a number.', {
+          return data.send({
+            content: 'Winners must be a number.',
             ephemeral: true
           });
 
@@ -63,7 +67,8 @@ export default class BotCommand extends SlashCommand {
             })
           ]
         });
-        return data.send('Giveaway edited successfully.', {
+        return data.send({
+          content: 'Giveaway edited successfully.',
           ephemeral: true
         });
       }

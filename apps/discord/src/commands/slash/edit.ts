@@ -1,6 +1,6 @@
-import { AutocompleteContext, CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
+import { AutocompleteContext, CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create/web';
 import { editModalStructure } from '../../components/editModal';
-import { server } from '../../shim';
+import { EnvContext as server } from '../../index';
 
 export default class BotCommand extends SlashCommand {
   constructor(creator: SlashCreator) {
@@ -51,7 +51,8 @@ export default class BotCommand extends SlashCommand {
       .executeTakeFirst();
 
     if (!data)
-      return ctx.send('That message is not a giveaway, or it has expired.', {
+      return ctx.send({
+        content: 'That message is not a giveaway, or it has expired.',
         ephemeral: true
       });
 
@@ -67,7 +68,8 @@ export default class BotCommand extends SlashCommand {
         const description = data.values.description;
 
         if (isNaN(+winners))
-          return data.send('Winners must be a number.', {
+          return data.send({
+            content: 'Winners must be a number.',
             ephemeral: true
           });
 
@@ -91,7 +93,8 @@ export default class BotCommand extends SlashCommand {
             })
           ]
         });
-        return data.send('Giveaway edited successfully.', {
+        return data.send({
+          content: 'Giveaway edited successfully.',
           ephemeral: true
         });
       }

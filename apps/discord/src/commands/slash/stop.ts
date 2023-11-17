@@ -1,5 +1,5 @@
-import { AutocompleteContext, CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
-import { server } from '../../shim';
+import { AutocompleteContext, CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create/web';
+import { EnvContext as server } from '../../index';
 
 export default class BotCommand extends SlashCommand {
   constructor(creator: SlashCreator) {
@@ -50,18 +50,21 @@ export default class BotCommand extends SlashCommand {
       .executeTakeFirst();
 
     if (!data)
-      return ctx.send('That message is not a giveaway, or it has expired.', {
+      return ctx.send({
+        content: 'That message is not a giveaway, or it has expired.',
         ephemeral: true
       });
 
     const state = server.states!.get(server.env!.GIVEAWAY_STATE.idFromString(data.durable_object_id));
     if ((await state.ended) === true) {
-      return ctx.send("That giveaway has already ended, so you can't stop it again.", {
+      return ctx.send({
+        content: "That giveaway has already ended, so you can't stop it again.",
         ephemeral: true
       });
     }
     await state.forceTrigger();
-    return ctx.send('Giveaway stopped!', {
+    return ctx.send({
+      content: 'Giveaway stopped!',
       ephemeral: true
     });
   }

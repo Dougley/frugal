@@ -17,7 +17,6 @@ const app = new Hono<{
 
 app.post("/webhook", async (c) => {
   const stripe = new Stripe(c.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2022-11-15",
     httpClient: Stripe.createFetchHttpClient(),
   });
   const body = await c.req.text();

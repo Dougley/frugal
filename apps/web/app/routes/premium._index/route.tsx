@@ -31,7 +31,6 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
     dialect: new D1Dialect({ database: context.D1 as D1Database }),
   });
   const stripe = new Stripe(context.STRIPE_SECRET_KEY as string, {
-    apiVersion: "2023-08-16",
     httpClient: Stripe.createFetchHttpClient(),
   });
 
@@ -86,7 +85,6 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
   if (!body || !body.has("priceId")) throw new Error("Parameters missing");
 
   const stripe = new Stripe(context.STRIPE_SECRET_KEY as string, {
-    apiVersion: "2023-08-16",
     httpClient: Stripe.createFetchHttpClient(),
   });
 

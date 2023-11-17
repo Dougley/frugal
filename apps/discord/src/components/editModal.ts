@@ -1,4 +1,4 @@
-import { ComponentType, ModalOptions, TextInputStyle } from 'slash-create';
+import { ComponentType, ModalOptions, TextInputStyle } from 'slash-create/web';
 
 export function editModalStructure(prefill: { prize: string; winners: string; description: string }): ModalOptions {
   return {
