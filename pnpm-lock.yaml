@@ -194,8 +194,8 @@ importers:
         specifier: ^7.0.3
         version: 7.0.3
       daisyui:
-        specifier: ^4.4.7
-        version: 4.4.7(postcss@8.4.31)
+        specifier: ^4.4.8
+        version: 4.4.8(postcss@8.4.31)
       date-fns:
         specifier: ^2.30.0
         version: 2.30.0
@@ -4982,8 +4982,8 @@ packages:
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dev: false
 
-  /daisyui@4.4.7(postcss@8.4.31):
-    resolution: {integrity: sha512-E+jAcaCiXmBgLePaGjH2aEoyp5kthkEO7S0db8JoWNxZ/4q5x6sgdR/+mCphKVXMJMOihGIL0Y8psqFIMxCdBg==}
+  /daisyui@4.4.8(postcss@8.4.31):
+    resolution: {integrity: sha512-snl26WEyX/IoT789Fw5yBoSZA5YHKHJokcVfJ7p7xZa9Dwee3rvlWzBlRUuvJk0FeEGbaSpULcKo42qXkR5wDg==}
     engines: {node: '>=16.9.0'}
     dependencies:
       css-selector-tokenizer: 0.8.0
