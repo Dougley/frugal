@@ -16,7 +16,7 @@
     "@cloudflare/workers-types": "^4.20231121.0",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "discord-api-types": "^0.37.65"
+    "discord-api-types": "^0.37.66"
   },
   "exports": {
     ".": {
