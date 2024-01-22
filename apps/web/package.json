@@ -34,7 +34,7 @@
     "country-region-data": "^3.0.0",
     "cross-env": "^7.0.3",
     "daisyui": "^4.4.23",
-    "date-fns": "^2.30.0",
+    "date-fns": "^3.3.1",
     "discord-bitflag": "^1.0.1",
     "isbot": "^3.7.1",
     "kysely": "^0.26.3",
