@@ -3,8 +3,8 @@
 import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { Link, useLoaderData } from "@remix-run/react";
-import add from "date-fns/add";
-import formatDistanceToNow from "date-fns/formatDistanceToNow";
+import { add } from "date-fns/add";
+import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { LuBomb, LuChevronLeft, LuSave } from "react-icons/lu";
 import ParticipantsTable from "~/components/ParticipantsTable";
 import Stats from "~/components/SummaryStats";

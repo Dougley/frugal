@@ -12,11 +12,11 @@ import {
 } from "@remix-run/react";
 
 import {
-  BrowserProfilingIntegration,
-  BrowserTracing,
-  Replay,
+  browserProfilingIntegration,
+  browserTracingIntegration,
+  feedbackIntegration,
   init as initSentry,
-  remixRouterInstrumentation,
+  replayIntegration,
   withProfiler,
   withSentry,
 } from "@sentry/remix";
@@ -28,7 +28,6 @@ import { ErrorBoundary } from "~/components/ErrorBoundary";
 import { Layout } from "~/components/Layout";
 import tailwindStylesheet from "~/styles/tailwind.css";
 
-import { ExtraErrorData } from "toucan-js";
 import type { DiscordUser } from "./services/authenticator.server";
 import { getThemeSession } from "./utils/prefs.server";
 
@@ -115,22 +114,20 @@ function App() {
         environment: sentrySettings.environment,
         release: sentrySettings.release,
         integrations: [
-          new BrowserTracing({
-            routingInstrumentation: remixRouterInstrumentation(
-              useEffect,
-              useLocation,
-              useMatches,
-            ),
+          browserTracingIntegration({
             tracePropagationTargets: [
               new RegExp(
                 `^https?://${new URL(window.location.href).host}`,
                 "u",
               ),
             ],
+            useEffect,
+            useLocation,
+            useMatches,
           }),
-          new ExtraErrorData(),
-          new Replay(),
-          new BrowserProfilingIntegration(),
+          replayIntegration(),
+          browserProfilingIntegration(),
+          feedbackIntegration(),
         ],
         tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
         replaysSessionSampleRate: 0.1,
