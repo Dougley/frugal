@@ -2,7 +2,7 @@ import { SentrySSRContext } from "@dougley/sentry-remix";
 import { type EntryContext } from "@remix-run/cloudflare";
 import { RemixServer } from "@remix-run/react";
 import type { Hub } from "@sentry/remix";
-import isbot from "isbot";
+import { isbot } from "isbot";
 import { renderToReadableStream } from "react-dom/server";
 
 export { handleError } from "@dougley/sentry-remix";
