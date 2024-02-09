@@ -15,8 +15,8 @@ export function Layout({ children }: React.PropsWithChildren<{}>) {
         <Toaster
           toastOptions={{
             style: {
-              background: "hsl(var(--b1))",
-              color: "hsl(var(--bc))",
+              background: "oklch(var(--b1))",
+              color: "oklch(var(--bc))",
             },
           }}
         />

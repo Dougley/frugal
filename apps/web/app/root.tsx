@@ -85,8 +85,10 @@ function App() {
   const {
     user,
     sentrySettings,
+    theme,
   }: {
     user: DiscordUser | null;
+    theme: "light" | "dark";
     sentrySettings: {
       enabled: boolean;
       dsn: string;
@@ -127,7 +129,9 @@ function App() {
           }),
           replayIntegration(),
           browserProfilingIntegration(),
-          feedbackIntegration(),
+          feedbackIntegration({
+            colorScheme: theme,
+          }),
         ],
         tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
         replaysSessionSampleRate: 0.1,

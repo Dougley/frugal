@@ -196,7 +196,7 @@ export default function Index() {
           </Form>
         ) : (
           <Link to="/premium">
-            <button className="card btn-secondary m-4 h-auto w-80 p-4 normal-case shadow-xl lg:w-96">
+            <button className="btn card btn-secondary m-4 h-auto w-80 p-4 normal-case shadow-xl lg:w-96">
               <figure>
                 <div>
                   <LuGem className="h-16 w-16" />
