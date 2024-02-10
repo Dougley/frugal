@@ -131,6 +131,7 @@ function App() {
           browserProfilingIntegration(),
           feedbackIntegration({
             colorScheme: theme,
+            autoInject: sentrySettings.environment !== "production",
           }),
         ],
         tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
@@ -140,7 +141,7 @@ function App() {
       });
       sentryInitialized.current = true;
     }
-  }, [sentrySettings]);
+  }, [sentrySettings, theme]);
   return (
     <Document>
       <Layout>

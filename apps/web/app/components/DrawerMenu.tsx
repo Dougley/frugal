@@ -25,6 +25,10 @@ export function DrawerMenu({
 }): React.ReactElement {
   const data = useRouteLoaderData("root") as {
     user: DiscordUser | null;
+    sentrySettings: {
+      environment: string;
+      release: string;
+    };
   };
 
   const { user } = data ?? {};
@@ -35,9 +39,20 @@ export function DrawerMenu({
         <li>
           <div className="mr-auto flex h-16 items-center justify-center text-xl font-black">
             <Link to="/" onClick={toggleDrawer}>
-              <LuPartyPopper className="mr-2 inline-block h-8 w-8" />
-              GiveawayBot
+              <span>
+                <LuPartyPopper className="mr-2 inline-block h-8 w-8" />
+                <span>GiveawayBot</span>
+              </span>
             </Link>
+            <div>
+              {data.sentrySettings.environment === "staging" && (
+                <span className="badge badge-info badge-outline">STG</span>
+              )}
+              {data.sentrySettings.environment !== "production" &&
+                data.sentrySettings.environment !== "staging" && (
+                  <span className="badge badge-warning badge-outline">DEV</span>
+                )}
+            </div>
           </div>
         </li>
         <li>
