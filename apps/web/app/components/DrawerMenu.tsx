@@ -1,5 +1,7 @@
 import * as Avatar from "@radix-ui/react-avatar";
 import { Link, NavLink, useRouteLoaderData } from "@remix-run/react";
+import type { BrowserClient, Feedback } from "@sentry/remix";
+import { getClient } from "@sentry/remix";
 import { PermissionFlags, PermissionsBitField } from "discord-bitflag";
 import React, { Suspense } from "react";
 import { BsDiscord } from "react-icons/bs";
@@ -198,7 +200,13 @@ export function DrawerMenu({
           {data.sentrySettings.environment !== "production" && (
             <button
               className="btn btn-error btn-sm"
-              onClick={toggleDrawer}
+              onClick={() => {
+                const client = getClient<BrowserClient>();
+                const feedback = client?.getIntegrationByName("Feedback") as
+                  | Feedback
+                  | undefined;
+                feedback?.openDialog();
+              }}
               id="report-bug"
             >
               <LuBug className="h-5 w-5" />
