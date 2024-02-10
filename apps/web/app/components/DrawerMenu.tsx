@@ -195,17 +195,16 @@ export function DrawerMenu({
         </li>
         {/* profile menu, at the end of the menu and at the bottom of the div */}
         <div className="menu mt-auto w-full">
-          {data.sentrySettings.environment !== "production" &&
-            data.sentrySettings.environment !== "staging" && (
-              <button
-                className="btn btn-error btn-sm"
-                onClick={toggleDrawer}
-                id="report-bug"
-              >
-                <LuBug className="h-5 w-5" />
-                Report a Bug
-              </button>
-            )}
+          {data.sentrySettings.environment !== "production" && (
+            <button
+              className="btn btn-error btn-sm"
+              onClick={toggleDrawer}
+              id="report-bug"
+            >
+              <LuBug className="h-5 w-5" />
+              Report a Bug
+            </button>
+          )}
           <div className="divider" />
           <div className="flex items-center justify-between">
             <ProfileMenu toggleDrawer={toggleDrawer} />
