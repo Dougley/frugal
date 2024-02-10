@@ -110,6 +110,17 @@ function App() {
   const sentryInitialized = useRef(false);
   useEffect(() => {
     if (sentrySettings.enabled && !sentryInitialized.current) {
+      const feedback = feedbackIntegration({
+        colorScheme: theme,
+        autoInject: false,
+      });
+      feedback.attachTo("#report-bug", {
+        formTitle: "Report a bug!!",
+        isEmailRequired: false,
+        useSentryUser: user
+          ? { name: user.username, email: user.email ?? "" }
+          : undefined,
+      });
       initSentry({
         debug: process.env.NODE_ENV !== "production",
         dsn: sentrySettings.dsn,
@@ -129,10 +140,7 @@ function App() {
           }),
           replayIntegration(),
           browserProfilingIntegration(),
-          feedbackIntegration({
-            colorScheme: theme,
-            autoInject: sentrySettings.environment !== "production",
-          }),
+          feedback,
         ],
         tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
         replaysSessionSampleRate: 0.1,
@@ -141,7 +149,7 @@ function App() {
       });
       sentryInitialized.current = true;
     }
-  }, [sentrySettings, theme]);
+  }, [sentrySettings, theme, user]);
   return (
     <Document>
       <Layout>

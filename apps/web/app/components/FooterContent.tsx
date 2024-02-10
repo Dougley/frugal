@@ -1,9 +1,15 @@
-import { Link } from "@remix-run/react";
+import { Link, useRouteLoaderData } from "@remix-run/react";
 import type { ReactElement } from "react";
 import { LuCloudSun, LuGithub } from "react-icons/lu";
 import Logo from "~/components/Logo";
 
 export function FooterContent(): ReactElement {
+  const data = useRouteLoaderData("root") as {
+    sentrySettings: {
+      environment: string;
+      release: string;
+    };
+  };
   return (
     <div className="footer footer-center rounded bg-base-200 p-10 text-base-content">
       <div className="grid grid-flow-col gap-4">
@@ -33,6 +39,11 @@ export function FooterContent(): ReactElement {
         >
           <LuCloudSun size={24} />
         </Link>
+      </div>
+      <div className="grid grid-flow-col gap-4 opacity-50">
+        <span>
+          {data.sentrySettings.environment} - {data.sentrySettings.release}
+        </span>
       </div>
     </div>
   );
