@@ -15,7 +15,7 @@
     "@dougley/d1-database": "workspace:^",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "hono": "^4.0.0",
+    "hono": "^4.0.1",
     "kysely": "^0.27.2",
     "kysely-d1": "^0.3.0",
     "stripe": "^14.16.0"
