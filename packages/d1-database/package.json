@@ -21,7 +21,7 @@
     "@cloudflare/workers-types": "^4.20240208.0",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "discord-api-types": "^0.37.69",
-    "wrangler": "^3.28.1"
+    "discord-api-types": "^0.37.70",
+    "wrangler": "^3.28.3"
   }
 }
