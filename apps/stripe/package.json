@@ -15,13 +15,13 @@
     "@dougley/d1-database": "workspace:^",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "hono": "^4.0.6",
+    "hono": "^4.0.9",
     "kysely": "^0.27.2",
     "kysely-d1": "^0.3.0",
-    "stripe": "^14.18.0"
+    "stripe": "^14.19.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240222.0",
-    "wrangler": "^3.29.0"
+    "wrangler": "^3.30.1"
   }
 }
