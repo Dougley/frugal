@@ -29,10 +29,10 @@
     "better-sqlite3": "9.4.3",
     "dotenv": "^16.4.5",
     "esbuild": "^0.20.1",
-    "miniflare": "^3.20240208.0",
+    "miniflare": "^3.20240223.0",
     "rimraf": "^5.0.5",
     "slash-up": "^1.4.2",
-    "wrangler": "^3.29.0"
+    "wrangler": "^3.30.1"
   },
   "dependencies": {
     "@dougley/d1-database": "workspace:^",
