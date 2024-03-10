@@ -17,18 +17,18 @@
     "@cloudflare/workers-types": "^4.20240222.0",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "@sentry/types": "^7.104.0",
-    "@types/react": "^18.2.61"
+    "@sentry/types": "^7.106.0",
+    "@types/react": "^18.2.64"
   },
   "dependencies": {
     "@cloudflare/kv-asset-handler": "^0.3.1",
-    "@remix-run/cloudflare": "^2.8.0",
-    "@remix-run/cloudflare-pages": "^2.8.0",
-    "@remix-run/react": "^2.8.0",
-    "@remix-run/server-runtime": "^2.8.0",
-    "@sentry/core": "^7.104.0",
-    "@sentry/remix": "^7.104.0",
-    "@sentry/utils": "^7.104.0",
+    "@remix-run/cloudflare": "^2.8.1",
+    "@remix-run/cloudflare-pages": "^2.8.1",
+    "@remix-run/react": "^2.8.1",
+    "@remix-run/server-runtime": "^2.8.1",
+    "@sentry/core": "^7.106.0",
+    "@sentry/remix": "^7.106.0",
+    "@sentry/utils": "^7.106.0",
     "react": "^18.2.0",
     "toucan-js": "^3.3.1"
   }
