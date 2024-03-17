@@ -22,17 +22,17 @@
     "directory": "apps/discord"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240222.0",
+    "@cloudflare/workers-types": "^4.20240314.0",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "@sentry/esbuild-plugin": "^2.14.3",
+    "@sentry/esbuild-plugin": "^2.15.0",
     "better-sqlite3": "9.4.3",
     "dotenv": "^16.4.5",
-    "esbuild": "^0.20.1",
-    "miniflare": "^3.20240304.0",
+    "esbuild": "^0.20.2",
+    "miniflare": "^3.20240304.2",
     "rimraf": "^5.0.5",
     "slash-up": "^1.4.2",
-    "wrangler": "^3.32.0"
+    "wrangler": "^3.34.2"
   },
   "dependencies": {
     "@dougley/d1-database": "workspace:^",
