@@ -9,6 +9,6 @@
     "directory": "packages/types"
   },
   "dependencies": {
-    "@cloudflare/workers-types": "^4.20240320.1"
+    "@cloudflare/workers-types": "^4.20240329.0"
   }
 }
