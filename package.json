@@ -1,14 +1,14 @@
 {
   "name": "@dougley/frugal",
-  "packageManager": "pnpm@8.15.5",
+  "packageManager": "pnpm@8.15.6",
   "version": "0.0.0",
   "license": "MIT",
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.1",
     "@types/jest": "^29.5.12",
-    "@typescript-eslint/eslint-plugin": "^7.4.0",
-    "@typescript-eslint/parser": "^7.4.0",
+    "@typescript-eslint/eslint-plugin": "^7.5.0",
+    "@typescript-eslint/parser": "^7.5.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jest": "^27.9.0",
@@ -17,8 +17,8 @@
     "prettier-plugin-organize-imports": "^3.2.4",
     "rimraf": "^5.0.5",
     "ts-jest": "^29.1.2",
-    "turbo": "^1.13.0",
-    "typescript": "^5.4.3"
+    "turbo": "^1.13.2",
+    "typescript": "^5.4.4"
   },
   "scripts": {
     "lint:report": "eslint --output-file eslint_report.json --format json \"{packages,apps}/**/src/**/*.{ts,tsx,cts,mts}\"",
