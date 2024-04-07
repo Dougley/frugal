@@ -18,10 +18,10 @@
     "kysely-d1": "^0.3.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240329.0",
+    "@cloudflare/workers-types": "^4.20240405.0",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "discord-api-types": "^0.37.77",
-    "wrangler": "^3.41.0"
+    "discord-api-types": "^0.37.79",
+    "wrangler": "^3.48.0"
   }
 }
