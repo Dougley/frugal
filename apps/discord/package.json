@@ -26,13 +26,13 @@
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
     "@sentry/esbuild-plugin": "^2.16.1",
-    "better-sqlite3": "9.4.5",
+    "better-sqlite3": "9.5.0",
     "dotenv": "^16.4.5",
     "esbuild": "^0.20.2",
-    "miniflare": "^3.20240404.0",
+    "miniflare": "^3.20240405.1",
     "rimraf": "^5.0.5",
     "slash-up": "^1.4.2",
-    "wrangler": "^3.48.0"
+    "wrangler": "^3.50.0"
   },
   "dependencies": {
     "@dougley/d1-database": "workspace:^",
