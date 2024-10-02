@@ -233,8 +233,8 @@ importers:
         specifier: ^3.6.0
         version: 3.6.0(@remix-run/react@2.8.1)(@remix-run/server-runtime@2.8.1)
       remix-auth-oauth2:
-        specifier: ^1.11.2
-        version: 1.11.2(@remix-run/server-runtime@2.8.1)(remix-auth@3.6.0)
+        specifier: ^2.4.0
+        version: 2.4.0(@remix-run/cloudflare@2.8.1)(@remix-run/node@2.8.1)(remix-auth@3.6.0)
       remix-utils:
         specifier: ^7.6.0
         version: 7.6.0(@remix-run/cloudflare@2.8.1)(@remix-run/node@2.8.1)(@remix-run/react@2.8.1)(react@18.2.0)(zod@3.22.4)
@@ -2353,6 +2353,7 @@ packages:
   /@humanwhocodes/config-array@0.11.14:
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
     engines: {node: '>=10.10.0'}
+    deprecated: Use @eslint/config-array instead
     dependencies:
       '@humanwhocodes/object-schema': 2.0.2
       debug: 4.3.4(supports-color@5.5.0)
@@ -2368,6 +2369,7 @@ packages:
 
   /@humanwhocodes/object-schema@2.0.2:
     resolution: {integrity: sha512-6EwiSjwWYP7pTckG6I5eyFANjPhmPjUX9JRLUSfNPC7FX7zK9gyZAfUEaECL6ALTpGX5AjnBq3C9XmVWPitNpw==}
+    deprecated: Use @eslint/object-schema instead
     dev: true
 
   /@isaacs/cliui@8.0.2:
@@ -2766,6 +2768,31 @@ packages:
     dependencies:
       which: 3.0.1
     dev: true
+
+  /@oslojs/asn1@0.2.3:
+    resolution: {integrity: sha512-cZOLRzKfv3JTxIzNTAoiN0+utB0is9cQOOp5Xq++SE8MtIXXDLFblZGFrHCdTXLGXvUZmopeB/dFZrkh5MpKqQ==}
+    dependencies:
+      '@oslojs/binary': 0.4.0
+    dev: false
+
+  /@oslojs/binary@0.4.0:
+    resolution: {integrity: sha512-xi1MOhP7t9TFV1nOmzG0qIdCXdFXbeMYskhfI5eakBlU8re/xO+qjdyiBO+hl+nK4z4lZWCDjlgH8BXUWQDWFw==}
+    dev: false
+
+  /@oslojs/crypto@0.6.2:
+    resolution: {integrity: sha512-2y39MOLkkCvaBdi2TrBDtk7106fayDHRLz11K1/UvtW28VgL5/TbV/tPRTmSA5dhvQQqLYDJj3zsBkjeP+aD2w==}
+    dependencies:
+      '@oslojs/asn1': 0.2.3
+      '@oslojs/binary': 0.4.0
+    dev: false
+
+  /@oslojs/encoding@1.1.0:
+    resolution: {integrity: sha512-70wQhgYmndg4GCPxPPxPGevRKqTIJ2Nh4OkiMWmDAVYsTQ+Ta7Sq+rPevXyXGdzr30/qZBnyOalCszoMxlyldQ==}
+    dev: false
+
+  /@oslojs/oauth2@0.5.0:
+    resolution: {integrity: sha512-t70+e4EgnzTbU4MrUWXzqWN2A6RJrlSSvwwuBv6E0Ap6/nsIXrjsdRWeTcSvvXTcC6fi0YdWaqEWLipcEm2Cgw==}
+    dev: false
 
   /@pkgjs/parseargs@0.11.0:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -7064,6 +7091,7 @@ packages:
 
   /glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
     dependencies:
       fs.realpath: 1.0.0
       inflight: 1.0.6
@@ -7076,6 +7104,7 @@ packages:
   /glob@8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
     engines: {node: '>=12'}
+    deprecated: Glob versions prior to v9 are no longer supported
     dependencies:
       fs.realpath: 1.0.0
       inflight: 1.0.6
@@ -7352,6 +7381,7 @@ packages:
 
   /inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
     dependencies:
       once: 1.4.0
       wrappy: 1.0.2
@@ -10757,16 +10787,29 @@ packages:
       unified: 10.1.2
     dev: true
 
-  /remix-auth-oauth2@1.11.2(@remix-run/server-runtime@2.8.1)(remix-auth@3.6.0):
-    resolution: {integrity: sha512-5ORP+LMi5CVCA/Wb8Z+FCAJ73Uiy4uyjEzhlVwNBfdAkPOnfxzoi+q/pY/CrueYv3OniCXRM35ZYqkVi3G1UPw==}
+  /remix-auth-oauth2@2.4.0(@remix-run/cloudflare@2.8.1)(@remix-run/node@2.8.1)(remix-auth@3.6.0):
+    resolution: {integrity: sha512-lsUBvYispJ/MgVR45IYZjqJgYupefLTxEcSiDoP6X3NPn9PUDCDp8okB5aiXZHBCi0/qL6XYCEHRwNvBJaaENw==}
+    engines: {node: ^18.0.0 || ^20.0.0 || >=20.0.0}
     peerDependencies:
-      '@remix-run/server-runtime': ^1.0.0 || ^2.0.0
+      '@remix-run/cloudflare': ^1.0.0 || ^2.0.0
+      '@remix-run/deno': ^1.0.0 || ^2.0.0
+      '@remix-run/node': ^1.0.0 || ^2.0.0
       remix-auth: ^3.6.0
+    peerDependenciesMeta:
+      '@remix-run/cloudflare':
+        optional: true
+      '@remix-run/deno':
+        optional: true
+      '@remix-run/node':
+        optional: true
     dependencies:
-      '@remix-run/server-runtime': 2.8.1(typescript@5.4.5)
+      '@oslojs/crypto': 0.6.2
+      '@oslojs/encoding': 1.1.0
+      '@oslojs/oauth2': 0.5.0
+      '@remix-run/cloudflare': 2.8.1(@cloudflare/workers-types@4.20240405.0)(typescript@5.4.5)
+      '@remix-run/node': 2.8.1(typescript@5.4.5)
       debug: 4.3.4(supports-color@5.5.0)
       remix-auth: 3.6.0(@remix-run/react@2.8.1)(@remix-run/server-runtime@2.8.1)
-      uuid: 9.0.1
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -10911,6 +10954,7 @@ packages:
 
   /rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
     dependencies:
       glob: 7.2.3
@@ -12299,6 +12343,7 @@ packages:
   /uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
+    dev: true
 
   /uvu@0.5.6:
     resolution: {integrity: sha512-+g8ENReyr8YsOc6fv/NVJs2vFdHBnBNdfE49rshrTzDWOlUx4Gq7KOS2GD8eqhy2j+Ejq29+SbKH8yjkAqXqoA==}
