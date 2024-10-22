@@ -1,0 +1,39 @@
+{
+  "name": "@dougley/frugal-discord-new",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "main": "dist/index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "wrangler dev --persist-to='../../.mf' src/index.ts",
+    "deploy": "wrangler deploy --minify src/index.ts",
+    "lint": "eslint --ext .ts .",
+    "lint:fix": "eslint --ext .ts . --fix",
+    "format": "prettier -w ./src",
+    "db:migrate:dev": "wrangler d1 migrations apply frugal --local --persist-to='../../.mf'",
+    "db:migrate": "wrangler d1 migrations apply frugal"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dougley/frugal.git",
+    "directory": "apps/discord"
+  },
+  "dependencies": {
+    "@discord-interactions/api": "^0.3.21",
+    "@discord-interactions/builders": "^0.3.18",
+    "@discord-interactions/core": "^0.3.23",
+    "@dougley/frugal-savestate": "workspace:^",
+    "@sentry/cloudflare": "^8.34.0",
+    "hono": "^4.6.4",
+    "kysely": "catalog:",
+    "kysely-d1": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "@dougley/tsconfig": "workspace:^",
+    "@dougley/types": "workspace:^",
+    "better-sqlite3": "^11.3.0",
+    "wrangler": "catalog:"
+  }
+}

@@ -1,5 +1,11 @@
 import { ColumnType, GeneratedAlways } from "kysely";
 
+export interface GiveawayState {
+  OPEN: "OPEN";
+  CLOSED: "CLOSED";
+  CANCELLED: "CANCELLED";
+}
+
 export interface Giveaway {
   message_id: string;
   guild_id: string;
@@ -11,4 +17,9 @@ export interface Giveaway {
   host_id: string;
   description: ColumnType<string, string | undefined, string | undefined>;
   durable_object_id: string;
+  state: ColumnType<
+    keyof GiveawayState,
+    keyof GiveawayState | undefined,
+    keyof GiveawayState | undefined
+  >;
 }

@@ -1,0 +1,11 @@
+{
+  "extends": "@dougley/tsconfig/workers",
+  "compilerOptions": {
+    "declaration": true,
+    "outDir": "dist",
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "dist"
+  ]
+}

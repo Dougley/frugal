@@ -30,15 +30,6 @@ jobs:
     with:
       environment: production
 
-  stripe:
-    name: Deploy Stripe Webhooks
-    needs: deploy
-    uses: dougley/frugal/.github/workflows/stripe-build.yml@dev
-    if: github.event.inputs.skipdeploy != 'true'
-    secrets: inherit
-    with:
-      environment: production
-
   sentry:
     name: Create Sentry release
     needs: deploy

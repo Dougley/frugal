@@ -10,6 +10,7 @@ declare type Env = {
   DISCORD_BOT_TOKEN: string;
   SUMMARY_URL: string;
   SENTRY_DSN: string | undefined;
+  DEVELOPMENT_GUILD?: string;
 };
 
 declare type WebEnv = Env & {

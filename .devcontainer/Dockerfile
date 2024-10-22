@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/base:jammy as base
+FROM mcr.microsoft.com/devcontainers/base:ubuntu as base
 
 # install sqlite3 and libc++1
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
