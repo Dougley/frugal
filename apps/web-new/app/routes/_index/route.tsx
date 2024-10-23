@@ -83,16 +83,23 @@ export default function Index() {
               <Testimonial
                 user="Jamiea"
                 server="Jamiea's Server"
-                avatar="https://cdn.discordapp.com/avatars/66161308789121024/92fdb20bee012b04578e199588a829dd.png"
+                avatar="https://cdn.discordapp.com/embed/avatars/0.png"
               >
                 they weren't lying this giveawaybot can give away
               </Testimonial>
               <Testimonial
                 user="Dougley"
                 server="Dougley's Very Cool Server"
-                avatar="https://cdn.discordapp.com/avatars/107904023901777920/a48c81d4e17763ad97f0161c4aecd131.png"
+                avatar="https://cdn.discordapp.com/embed/avatars/1.png"
               >
                 i made this so it must be good
+              </Testimonial>
+              <Testimonial
+                user="bup"
+                server="terriblecord"
+                avatar="https://cdn.discordapp.com/embed/avatars/2.png"
+              >
+                i think it looks decent
               </Testimonial>
             </div>
           </div>
