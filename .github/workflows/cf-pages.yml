@@ -35,7 +35,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 18.3
+          node-version: lts
           cache: "pnpm"
 
       - name: Install dependencies
