@@ -13,10 +13,10 @@
     "directory": "packages/giveaway-state"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241004.0",
+    "@cloudflare/workers-types": "^4.20241127.0",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "discord-api-types": "^0.37.101"
+    "discord-api-types": "^0.37.110"
   },
   "exports": {
     ".": {

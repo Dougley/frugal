@@ -4,13 +4,19 @@
  * For more information, see https://remix.run/file-conventions/entry.client
  */
 
-import { RemixBrowser, useLocation, useMatches } from "@remix-run/react";
-import * as Sentry from "@sentry/remix";
-import { replayIntegration } from "@sentry/remix";
+import { HydratedRouter } from "react-router/dom";
+
+import { useLocation, useMatches } from "react-router";
+import {
+  browserTracingIntegration,
+  feedbackAsyncIntegration,
+  init,
+  replayIntegration,
+} from "@sentry/remix";
 import { startTransition, StrictMode, useEffect } from "react";
 import { hydrateRoot } from "react-dom/client";
 
-Sentry.init({
+init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
   tracesSampleRate: 1,
   // functions currently only fire in prod,
@@ -18,7 +24,7 @@ Sentry.init({
   tunnel: import.meta.env.PROD ? "/api/reporting" : undefined,
 
   integrations: [
-    Sentry.browserTracingIntegration({
+    browserTracingIntegration({
       useEffect,
       useLocation,
       useMatches,
@@ -27,7 +33,7 @@ Sentry.init({
       maskAllText: true,
       blockAllMedia: true,
     }),
-    Sentry.feedbackAsyncIntegration(),
+    feedbackAsyncIntegration(),
   ],
 
   replaysSessionSampleRate: 0.1,
@@ -38,7 +44,7 @@ startTransition(() => {
   hydrateRoot(
     document,
     <StrictMode>
-      <RemixBrowser />
+      <HydratedRouter />
     </StrictMode>,
   );
 });

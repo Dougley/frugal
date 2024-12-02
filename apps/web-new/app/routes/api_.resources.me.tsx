@@ -1,7 +1,7 @@
-import { type LoaderFunction } from "@remix-run/cloudflare";
+import { type LoaderFunction } from "react-router";
 
 export let loader: LoaderFunction = async ({ request, context, params }) => {
-  return {
+  return Response.json({
     loggedIn: await context.auth.isAuthenticated(request),
-  };
+  });
 };

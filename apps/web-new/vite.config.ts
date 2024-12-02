@@ -1,16 +1,14 @@
 import mdx from "@mdx-js/rollup";
 import type { Options } from "@r4ai/remark-callout";
 import remarkCallouts from "@r4ai/remark-callout";
-import {
-  vitePlugin as remix,
-  cloudflareDevProxyVitePlugin as remixCloudflareDevProxy,
-} from "@remix-run/dev";
+import { reactRouter } from "@react-router/dev/vite";
+import { cloudflareDevProxy } from "@react-router/dev/vite/cloudflare";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
+import { reactRouterDevTools } from "react-router-devtools";
 import rehypePrettyCode from "rehype-pretty-code";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
-import { remixDevTools } from "remix-development-tools";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
@@ -18,8 +16,8 @@ import { getLoadContext } from "./load-context";
 
 export default defineConfig({
   plugins: [
-    remixCloudflareDevProxy({ getLoadContext }),
-    remixDevTools(),
+    cloudflareDevProxy({ getLoadContext }),
+    reactRouterDevTools(),
     mdx({
       providerImportSource: "@mdx-js/react",
       remarkPlugins: [
@@ -55,14 +53,7 @@ export default defineConfig({
       ],
       rehypePlugins: [rehypePrettyCode],
     }),
-    remix({
-      future: {
-        v3_fetcherPersist: true,
-        v3_relativeSplatPath: true,
-        v3_throwAbortReason: true,
-        v3_singleFetch: true,
-      },
-    }),
+    reactRouter(),
     tsconfigPaths(),
     sentryVitePlugin({
       org: "dougley",

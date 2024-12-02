@@ -1,11 +1,9 @@
-import { SessionStorage, type AppLoadContext } from "@remix-run/cloudflare";
+import { SessionStorage, type AppLoadContext } from "react-router";
 import { type PlatformProxy } from "wrangler";
 
 import { PrismaClient, PrismaD1 } from "@dougley/d1-prisma";
-import {
-  createCookie,
-  createWorkersKVSessionStorage,
-} from "@remix-run/cloudflare";
+import { createCookie } from "react-router";
+import { createWorkersKVSessionStorage } from "@react-router/cloudflare";
 import type { RESTAPIPartialCurrentUserGuild } from "discord-api-types/v9";
 import { Authenticator } from "remix-auth";
 import { DiscordStrategy } from "remix-auth-discord";

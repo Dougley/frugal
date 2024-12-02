@@ -1,17 +1,10 @@
-import type { MetaDescriptor } from "@remix-run/cloudflare";
+import type { MetaDescriptor } from "react-router";
 
 export const defaultMeta = (
   titleSuffix?: string,
   description?: string,
 ): MetaDescriptor[] => {
   return [
-    { charset: "utf-8" },
-    { httpEquiv: "X-UA-Compatible", content: "IE=edge" },
-    {
-      httpEquiv: "Content-Security-Policy",
-      content: "upgrade-insecure-requests",
-    },
-    { name: "viewport", content: "width=device-width,initial-scale=1" },
     { property: "og:site_name", content: "GiveawayBot" },
     { property: "og:type", content: "website" },
     { property: "og:title", content: "GiveawayBot" },

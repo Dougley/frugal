@@ -1,8 +1,4 @@
-import {
-  redirect,
-  type ActionFunction,
-  type LoaderFunction,
-} from "@remix-run/cloudflare";
+import { redirect, type ActionFunction, type LoaderFunction } from "react-router";
 
 export let loader: LoaderFunction = () => redirect("/login");
 

@@ -18,7 +18,7 @@ export const getWikis = async (): Promise<WikiMeta[]> => {
     "../routes/wiki.*.mdx",
     { eager: true },
   );
-  const build = await import("virtual:remix/server-build");
+  const build = await import('virtual:react-router/server-build');
   const wikis = Object.entries(modules).map(([file, wiki]) => {
     let id = file.replace("../", "").replace(/\.mdx$/, "");
     let slug = build.routes[id].path;

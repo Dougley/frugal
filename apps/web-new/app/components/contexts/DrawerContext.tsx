@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import { useDisclosure } from "@mantine/hooks";
+import React, { createContext, useContext } from "react";
 
 interface DrawerContextType {
   isDrawerOpen: boolean;
@@ -7,9 +8,11 @@ interface DrawerContextType {
 
 const DrawerContext = createContext<DrawerContextType | undefined>(undefined);
 
-export const DrawerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const toggleDrawer = () => setIsDrawerOpen((prev) => !prev);
+export const DrawerProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [isDrawerOpen, { toggle }] = useDisclosure();
+  const toggleDrawer = toggle;
 
   return (
     <DrawerContext.Provider value={{ isDrawerOpen, toggleDrawer }}>
@@ -21,7 +24,7 @@ export const DrawerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 export const useDrawer = () => {
   const context = useContext(DrawerContext);
   if (!context) {
-    throw new Error('useDrawer must be used within a DrawerProvider');
+    throw new Error("useDrawer must be used within a DrawerProvider");
   }
   return context;
 };

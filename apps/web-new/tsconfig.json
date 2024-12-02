@@ -5,7 +5,8 @@
     "**/.server/**/*.ts",
     "**/.server/**/*.tsx",
     "**/.client/**/*.ts",
-    "**/.client/**/*.tsx"
+    "**/.client/**/*.tsx",
+    ".react-router/types/**/*"
   ],
   "compilerOptions": {
     "lib": [
@@ -14,9 +15,13 @@
       "ES2022"
     ],
     "types": [
-      "@remix-run/cloudflare",
+      "@react-router/cloudflare",
       "vite/client",
       "@dougley/types/workers-env"
+    ],
+    "rootDirs": [
+      ".",
+      "./.react-router/types"
     ],
     "isolatedModules": true,
     "esModuleInterop": true,

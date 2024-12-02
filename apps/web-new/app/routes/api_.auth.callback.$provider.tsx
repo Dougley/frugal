@@ -1,4 +1,4 @@
-import { redirect, type LoaderFunction } from "@remix-run/cloudflare";
+import { redirect, type LoaderFunction } from "react-router";
 
 export const loader: LoaderFunction = ({ request, context, params }) => {
   const provider = params.provider;
