@@ -47,7 +47,7 @@
     "react-use": "^17.5.1",
     "remix-auth": "^4.0.0",
     "remix-auth-oauth2": "^3.1.0",
-    "remix-utils": "^7.7.0",
+    "remix-utils": "^8.1.0",
     "stripe": "^17.4.0",
     "toucan-js": "^4.0.0",
     "zod": "^3.23.8"
