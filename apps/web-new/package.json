@@ -37,7 +37,7 @@
     "remix-auth": "3.7.0",
     "remix-auth-discord": "^1.4.1",
     "remix-utils": "^7.7.0",
-    "tailwind-merge": "^2.5.5"
+    "tailwind-merge": "^3.0.1"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241127.0",
