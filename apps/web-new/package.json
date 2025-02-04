@@ -24,7 +24,7 @@
     "@react-router/fs-routes": "^7.0.1",
     "@sentry/cloudflare": "^8.41.0",
     "@sentry/remix": "^8.41.0",
-    "@sentry/vite-plugin": "^2.22.6",
+    "@sentry/vite-plugin": "^3.1.2",
     "@tabler/icons-react": "^3.23.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
