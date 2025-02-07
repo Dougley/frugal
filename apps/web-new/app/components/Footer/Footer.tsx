@@ -1,12 +1,8 @@
-import { ActionIcon, Anchor, Container, Group } from "@mantine/core";
+import { ActionIcon, Anchor, Container, Flex, Text } from "@mantine/core";
 import { IconBrandBluesky, IconBrandGithub } from "@tabler/icons-react";
 import Logo from "../DougleyLogo/DougleyLogo";
+import { FeedbackButton } from "../FeedbackButton/FeedbackButton";
 import classes from "./Footer.module.css";
-
-const links = [
-  { link: "https://dougley.com/discord/terms", label: "Terms of Service" },
-  { link: "https://dougley.com/discord/privacy", label: "Privacy Policy" },
-];
 
 const social = [
   {
@@ -22,20 +18,6 @@ const social = [
 ];
 
 export function Footer() {
-  const items = links.map((link) => (
-    <Anchor<"a">
-      c="dimmed"
-      key={link.label}
-      href={link.link}
-      aria-label={link.label}
-      onClick={(event) => event.preventDefault()}
-      size="sm"
-      target="_blank"
-    >
-      {link.label}
-    </Anchor>
-  ));
-
   const socialItems = social.map((link) => (
     <ActionIcon color="dimmed" radius="xl" size="xl" key={link.label}>
       <Anchor
@@ -53,7 +35,7 @@ export function Footer() {
   return (
     <div className={classes.footer}>
       <Container className={classes.inner}>
-        <Anchor<"a">
+        <Anchor
           c="dimmed"
           href="https://dougley.com"
           size="sm"
@@ -62,8 +44,15 @@ export function Footer() {
         >
           <Logo />
         </Anchor>
-        <Group className={classes.links}>{items}</Group>
-        <ActionIcon.Group>{socialItems}</ActionIcon.Group>
+        <Flex direction="column" gap="xs" align="center">
+          <Text c="dimmed" size="sm">
+            © {new Date().getFullYear()} Dougley
+          </Text>
+          <FeedbackButton />
+        </Flex>
+        <Flex gap="md" align="center" justify="flex-end">
+          <ActionIcon.Group>{socialItems}</ActionIcon.Group>
+        </Flex>
       </Container>
     </div>
   );

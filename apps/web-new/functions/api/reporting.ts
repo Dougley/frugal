@@ -1,25 +1,22 @@
-export const onRequest: PagesFunction<
-  WebEnv & {
-    CF_PAGES: 1 | undefined;
-    CF_PAGES_BRANCH: string | undefined;
-    CF_PAGES_COMMIT_SHA: string | undefined;
-    SENTRY_DSN: string | undefined;
-  }
-> = async (context) => {
+const onRequest = async (
+  request: Request,
+  env: Env,
+  context: ExecutionContext,
+) => {
   try {
-    if (context.request.method !== "POST") {
+    if (request.method !== "POST") {
       return new Response("Method Not Allowed", { status: 405 });
     }
-    if (!context.env.SENTRY_DSN) {
+    if (!env.SENTRY_DSN) {
       return new Response("Sentry DSN not configured", { status: 500 });
     }
-    const SENTRY_DSN = context.env.SENTRY_DSN;
+    const SENTRY_DSN = env.SENTRY_DSN;
     const parts = new URL(SENTRY_DSN);
 
     const SENTRY_HOST = parts.hostname;
     const SENTRY_PROJECT_IDS = parts.pathname.split("/");
 
-    const envelopeBytes = await context.request.arrayBuffer();
+    const envelopeBytes = await request.arrayBuffer();
     const envelope = new TextDecoder().decode(envelopeBytes);
     const piece = envelope.split("\n")[0];
     const header = JSON.parse(piece);
@@ -37,7 +34,6 @@ export const onRequest: PagesFunction<
     const upstream = new URL(
       `https://${SENTRY_HOST}/api/${project_id}/envelope/`,
     );
-    console.log(upstream);
     await fetch(upstream, {
       method: "POST",
       headers: {
@@ -57,3 +53,5 @@ export const onRequest: PagesFunction<
     return new Response("Error", { status: 500 });
   }
 };
+
+export default onRequest;

@@ -1,36 +1,33 @@
-import { SessionStorage, type AppLoadContext } from "react-router";
-import { type PlatformProxy } from "wrangler";
-
-import { PrismaClient, PrismaD1 } from "@dougley/d1-prisma";
-import { createCookie } from "react-router";
+// import { PrismaClient, PrismaD1 } from "@dougley/d1-prisma";
+import { PrismaD1 } from "@prisma/adapter-d1";
+import { PrismaClient } from "@prisma/client";
 import { createWorkersKVSessionStorage } from "@react-router/cloudflare";
-import type { RESTAPIPartialCurrentUserGuild } from "discord-api-types/v9";
+import {
+  APIUser,
+  RESTGetAPICurrentUserGuildsResult,
+} from "discord-api-types/v10";
+import { createCookie } from "react-router";
 import { Authenticator } from "remix-auth";
-import { DiscordStrategy } from "remix-auth-discord";
+import { OAuth2Strategy } from "remix-auth-oauth2";
+import { type PlatformProxy } from "wrangler";
 import type { DiscordUser } from "~/types/DiscordUser";
 
-type Cloudflare = Omit<PlatformProxy<Env>, "dispose">;
-
-declare module "@remix-run/cloudflare" {
-  interface AppLoadContext {
-    cloudflare: Cloudflare;
-    sessions: {
-      getSession: SessionStorage["getSession"];
-      commitSession: SessionStorage["commitSession"];
-      destroySession: SessionStorage["destroySession"];
+type GetLoadContextArgs = {
+  request: Request;
+  context: {
+    cloudflare: Omit<PlatformProxy<Env>, "dispose" | "caches" | "cf"> & {
+      caches: PlatformProxy<Env>["caches"] | CacheStorage;
+      cf: Request["cf"];
     };
-    auth: Authenticator<DiscordUser>;
-    prisma: PrismaClient;
-  }
+  };
+};
+
+declare module "react-router" {
+  export interface AppLoadContext extends ReturnType<typeof getLoadContext> {}
 }
 
-type GetLoadContext = (args: {
-  request: Request;
-  context: { cloudflare: Cloudflare }; // load context _before_ augmentation
-}) => AppLoadContext;
-
 // Shared implementation compatible with Vite, Wrangler, and Cloudflare Pages
-export const getLoadContext: GetLoadContext = ({ context, request }) => {
+export function getLoadContext({ context }: GetLoadContextArgs) {
   const sessionCookie = createCookie("__session", {
     secrets: context.cloudflare.env.SESSION_SECRET.split(","),
     path: "/",
@@ -45,22 +42,14 @@ export const getLoadContext: GetLoadContext = ({ context, request }) => {
       kv: context.cloudflare.env.KV_SESSIONS,
       cookie: sessionCookie,
     });
-  const auth = new Authenticator<DiscordUser>(
-    {
-      getSession,
-      commitSession,
-      destroySession,
-    },
-    {
-      throwOnError: true,
-    },
-  );
+  const auth = new Authenticator<DiscordUser>();
   auth.use(
     discordAuth({
-      clientID: context.cloudflare.env.DISCORD_CLIENT_ID,
+      clientId: context.cloudflare.env.DISCORD_CLIENT_ID,
       clientSecret: context.cloudflare.env.DISCORD_CLIENT_SECRET,
       callbackURL: context.cloudflare.env.DISCORD_CALLBACK_URL,
     }),
+    "discord",
   );
   const adapter = new PrismaD1(context.cloudflare.env.D1);
   const prisma = new PrismaClient({ adapter });
@@ -70,63 +59,60 @@ export const getLoadContext: GetLoadContext = ({ context, request }) => {
     auth,
     prisma,
   };
-};
+}
 
 const discordAuth = ({
-  clientID,
+  clientId,
   clientSecret,
   callbackURL,
 }: {
-  clientID: string;
+  clientId: string;
   clientSecret: string;
   callbackURL: string;
-}) =>
-  new DiscordStrategy(
+}) => {
+  const API_BASE = "https://discord.com/api/v10";
+  return new OAuth2Strategy<DiscordUser>(
     {
-      clientID,
+      clientId,
       clientSecret,
-      callbackURL,
-      scope: ["identify", "email", "guilds", "guilds.members.read"],
-      prompt: "consent",
+      authorizationEndpoint: `${API_BASE}/oauth2/authorize`,
+      tokenEndpoint: `${API_BASE}/oauth2/token`,
+      tokenRevocationEndpoint: `${API_BASE}/oauth2/token/revoke`,
+      redirectURI: callbackURL,
+      scopes: ["identify", "email", "guilds", "guilds.members.read"],
     },
-    async ({
-      accessToken,
-      refreshToken,
-      extraParams,
-      profile,
-    }): Promise<DiscordUser> => {
+    async ({ tokens, request }) => {
       try {
-        const guilds = (await fetch(
-          "https://discord.com/api/v9/users/@me/guilds",
+        const user: APIUser = await fetch(`${API_BASE}/users/@me`, {
+          headers: {
+            Authorization: `Bearer ${tokens.accessToken()}`,
+          },
+        }).then((res) => res.json());
+        const guilds: RESTGetAPICurrentUserGuildsResult = await fetch(
+          `${API_BASE}/users/@me/guilds`,
           {
             headers: {
-              Authorization: `Bearer ${accessToken}`,
+              Authorization: `Bearer ${tokens.accessToken()}`,
             },
           },
-        ).then((res) => res.json())) as RESTAPIPartialCurrentUserGuild[];
+        ).then((res) => res.json());
         return {
-          id: profile.id,
-          username: profile.__json.username,
-          displayName: profile.displayName,
-          avatar: profile.photos?.[0]?.value
-            ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.photos?.[0]?.value}.png`
-            : `https://cdn.discordapp.com/embed/avatars/${
-                // discord's default avatars
-                Number((BigInt(profile.id) >> BigInt(22)) % BigInt(6))
-              }.png`,
-          email: profile.emails?.[0]?.value,
+          id: user.id,
+          displayName: user.global_name,
+          username: user.username,
+          avatar: user.avatar
+            ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+            : `https://cdn.discordapp.com/embed/avatars/${Number(user.discriminator) % 5}.png`,
+          discriminator: user.discriminator,
           guilds,
+          __raw: user,
+          accessToken: tokens.accessToken(),
+          refreshToken: tokens.refreshToken(),
         };
       } catch (error) {
-        console.error("Error fetching guilds", error);
-        return {
-          id: profile.id,
-          username: profile.__json.username,
-          displayName: profile.displayName,
-          avatar: profile.photos?.[0]?.value,
-          email: profile.emails?.[0]?.value,
-          guilds: [],
-        };
+        console.error("CONTEXT: Error authenticating", error);
+        throw new Error("Error authenticating");
       }
     },
   );
+};

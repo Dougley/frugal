@@ -1,20 +1,47 @@
 import mdx from "@mdx-js/rollup";
-import type { Options } from "@r4ai/remark-callout";
-import remarkCallouts from "@r4ai/remark-callout";
 import { reactRouter } from "@react-router/dev/vite";
 import { cloudflareDevProxy } from "@react-router/dev/vite/cloudflare";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { reactRouterDevTools } from "react-router-devtools";
-import rehypePrettyCode from "rehype-pretty-code";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
+import { remarkAdmonitions } from "./app/lib/remarkAdmonitions";
 import { getLoadContext } from "./load-context";
 
-export default defineConfig({
+export default defineConfig(({ isSsrBuild }) => ({
+  build: {
+    sourcemap: true,
+    rollupOptions: isSsrBuild
+      ? {
+          input: "./server.ts",
+        }
+      : undefined,
+  },
+  resolve: {
+    conditions: ["module", "browser"],
+    alias: {
+      // /esm/icons/index.mjs only exports the icons statically, so no separate chunks are created
+      "@tabler/icons-react": "@tabler/icons-react/dist/esm/icons/index.mjs",
+    },
+  },
+  ssr: {
+    target: "webworker",
+    resolve: {
+      conditions: ["workerd", "browser"],
+    },
+    optimizeDeps: {
+      include: [
+        "react-router",
+        "@mantine/core",
+        "@mantine/hooks",
+        "@tabler/icons-react",
+      ],
+    },
+  },
   plugins: [
     cloudflareDevProxy({ getLoadContext }),
     reactRouterDevTools(),
@@ -24,34 +51,9 @@ export default defineConfig({
         remarkFrontmatter,
         remarkMdxFrontmatter,
         remarkGfm,
-        [
-          remarkCallouts,
-          {
-            root: (callout) => {
-              return {
-                tagName: "callout-root",
-                properties: {
-                  type: callout.type,
-                  isFoldable: callout.isFoldable.toString(),
-                  defaultFolded: callout.defaultFolded?.toString(),
-                },
-              };
-            },
-            title: (callout) => ({
-              tagName: "callout-title",
-              properties: {
-                type: callout.type,
-                isFoldable: callout.isFoldable.toString(),
-              },
-            }),
-            body: (callout) => ({
-              tagName: "callout-body",
-              properties: {},
-            }),
-          } satisfies Options,
-        ],
+        remarkAdmonitions,
       ],
-      rehypePlugins: [rehypePrettyCode],
+      rehypePlugins: [],
     }),
     reactRouter(),
     tsconfigPaths(),
@@ -60,8 +62,4 @@ export default defineConfig({
       project: "frugal-web",
     }),
   ],
-
-  build: {
-    sourcemap: true,
-  },
-});
+}));

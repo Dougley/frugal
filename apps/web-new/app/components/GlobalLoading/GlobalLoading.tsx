@@ -1,7 +1,6 @@
-import { Box, Loader, LoadingOverlay, Stack } from "@mantine/core";
 import { nprogress } from "@mantine/nprogress";
-import { useNavigation } from "react-router";
 import { useEffect, useMemo } from "react";
+import { useNavigation } from "react-router";
 
 const messages = [
   "Thinking about the meaning of life",
@@ -31,29 +30,30 @@ export function GlobalLoading({ children }: { children: React.ReactNode }) {
     return line + "...";
   }, []);
 
-  return (
-    <Box
-      pos="relative"
-      role="progressbar"
-      aria-valuetext={active ? "Loading" : undefined}
-      aria-hidden={!active}
-    >
-      <LoadingOverlay
-        visible={active}
-        zIndex={1000}
-        overlayProps={{ radius: "sm", blur: 2 }}
-        loaderProps={{
-          children: (
-            <Stack h={300} align="center" justify="center" gap="md">
-              <Box>
-                <Loader />
-              </Box>
-              <Box>{loadingLine}</Box>
-            </Stack>
-          ),
-        }}
-      />
-      {children}
-    </Box>
-  );
+  // return (
+  //   <Box
+  //     pos="relative"
+  //     role="progressbar"
+  //     aria-valuetext={active ? "Loading" : undefined}
+  //     aria-hidden={!active}
+  //   >
+  //     <LoadingOverlay
+  //       visible={active}
+  //       zIndex={1000}
+  //       overlayProps={{ radius: "sm", blur: 2 }}
+  //       loaderProps={{
+  //         children: (
+  //           <Stack h={300} align="center" justify="center" gap="md">
+  //             <Box>
+  //               <Loader />
+  //             </Box>
+  //             <Box>{loadingLine}</Box>
+  //           </Stack>
+  //         ),
+  //       }}
+  //     />
+  //     {children}
+  //   </Box>
+  // );
+  return <>{children}</>;
 }

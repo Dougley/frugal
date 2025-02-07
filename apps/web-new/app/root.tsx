@@ -14,7 +14,10 @@ import Contexts from "~/components/contexts";
 import { Skeleton } from "./components/Skeleton/Skeleton";
 import { TopErrorBoundary } from "./components/TopErrorBoundary/TopErrorBoundary";
 import styles from "./styles.css?url";
+import { getLoggedInUser } from "./utils/auth";
 import { defaultMeta } from "./utils/meta";
+
+import type { Route } from "./+types/root";
 
 export const meta = () => {
   return defaultMeta();
@@ -37,13 +40,19 @@ export const links: LinksFunction = () => [
 const theme = mergeMantineTheme(
   DEFAULT_THEME,
   createTheme({
-    fontFamily: "Inter " + DEFAULT_THEME.fontFamily,
+    fontFamily: "Inter, " + DEFAULT_THEME.fontFamily,
   }),
 );
 
+export async function loader({ request, context }: Route.LoaderArgs) {
+  const user = await getLoggedInUser(request, context);
+  return { user };
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="antialiased scroll-smooth">
+    // hydration: mantine injects a meta tag with the color scheme on the client
+    <html lang="en" suppressHydrationWarning={true}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />

@@ -1,15 +1,18 @@
 import { Burger, Flex, Group, NavLink, ScrollArea } from "@mantine/core";
-import { NavLink as RemixNavLink } from "react-router";
 import {
   IconConfetti,
   IconDiamond,
+  IconFileDollar,
+  IconFileTextShield,
+  IconGavel,
   IconHome,
-  IconLogout,
-  IconSettings,
-  IconSwitchHorizontal,
+  IconSectionSign,
 } from "@tabler/icons-react";
+import { NavLink as RemixNavLink, useRouteLoaderData } from "react-router";
 import { useDrawer } from "../contexts/DrawerContext";
 import classes from "./Navbar.module.css";
+import { Settings } from "./Settings";
+import { UserLoginStateControl } from "./UserLoginStateControl";
 
 const data = [
   { label: "Home", link: "/", icon: IconHome },
@@ -24,32 +27,32 @@ const data = [
     ],
   },
   {
-    label: "Settings",
-    link: "/settings",
-    icon: IconSettings,
+    label: "Legal",
+    link: "/legal",
+    icon: IconGavel,
     children: [
       {
-        label: "General",
-        link: "/settings/general",
-        icon: IconSwitchHorizontal,
+        label: "Terms of Service",
+        link: "/legal/terms",
+        icon: IconSectionSign,
       },
       {
-        label: "Appearance",
-        link: "/settings/appearance",
-        icon: IconSwitchHorizontal,
+        label: "Privacy Policy",
+        link: "/legal/privacy",
+        icon: IconFileTextShield,
       },
       {
-        label: "Security",
-        link: "/settings/security",
-        icon: IconSwitchHorizontal,
+        label: "Paid Services Agreement",
+        link: "/legal/paid-services",
+        icon: IconFileDollar,
       },
     ],
   },
 ];
 
 export function Navbar() {
-  const { isDrawerOpen, toggleDrawer } = useDrawer();
-  // const loaderData = useFetch("/api/resources/me");
+  const { isDrawerOpen, toggleDrawer, closeDrawer, openDrawer } = useDrawer();
+  const rootData = useRouteLoaderData("root");
 
   const links = data.map((item) => (
     <NavLink
@@ -59,6 +62,11 @@ export function Navbar() {
       label={item.label}
       leftSection={<item.icon className={classes.linkIcon} stroke={1.5} />}
       renderRoot={(props) => <RemixNavLink to={item.link} {...props} />}
+      onClick={() => {
+        if (!item.children) {
+          closeDrawer();
+        }
+      }}
     >
       {item.children &&
         item.children.map((child) => (
@@ -71,6 +79,9 @@ export function Navbar() {
               <child.icon className={classes.linkIcon} stroke={1.5} />
             }
             renderRoot={(props) => <RemixNavLink to={child.link} {...props} />}
+            onClick={() => {
+              closeDrawer();
+            }}
           />
         ))}
     </NavLink>
@@ -92,29 +103,14 @@ export function Navbar() {
           />
         </Group>
         <ScrollArea className={classes.scrollArea}>
-          <div>{links}</div>
+          <div className={classes.linksInner}>
+            {links}
+            <Settings />
+          </div>
         </ScrollArea>
       </div>
-
       <div className={classes.footer}>
-        {/* <ColorSchemeToggle /> */}
-        <a
-          href="#"
-          className={classes.link}
-          onClick={(event) => event.preventDefault()}
-        >
-          <IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
-          <span>Change account</span>
-        </a>
-
-        <a
-          href="#"
-          className={classes.link}
-          onClick={(event) => event.preventDefault()}
-        >
-          <IconLogout className={classes.linkIcon} stroke={1.5} />
-          <span>Logout</span>
-        </a>
+        <UserLoginStateControl user={rootData?.user} />
       </div>
     </>
   );

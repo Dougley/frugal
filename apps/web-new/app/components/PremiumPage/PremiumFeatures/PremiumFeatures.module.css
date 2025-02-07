@@ -1,0 +1,23 @@
+.wrapper {
+  padding-bottom: calc(var(--mantine-spacing-xl) * 3);
+}
+
+.title {
+  font-weight: 900;
+  margin-bottom: var(--mantine-spacing-md);
+  text-align: center;
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    font-size: rem(28px);
+    text-align: left;
+  }
+}
+
+.description {
+  text-align: center;
+  padding-bottom: var(--mantine-spacing-xl);
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    text-align: left;
+  }
+}

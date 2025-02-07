@@ -1,6 +1,5 @@
 import { Anchor, Box, Flex, Text } from "@mantine/core";
 import { isRouteErrorResponse, Link, useRouteError } from "react-router";
-import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import {
   IconAlertTriangle,
   IconCoins,
@@ -12,7 +11,6 @@ import styles from "./TopErrorBoundary.module.css";
 
 export function TopErrorBoundary() {
   const error = useRouteError();
-  captureRemixErrorBoundaryError(error);
 
   if (isRouteErrorResponse(error)) {
     let message;

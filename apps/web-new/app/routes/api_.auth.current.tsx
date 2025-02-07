@@ -1,5 +1,14 @@
-import type { LoaderFunction } from "react-router";
+import type { Route } from "./+types/api_.auth.current";
 
-export const loader: LoaderFunction = ({ request, context, params }) => {
-  return context.auth.isAuthenticated(request);
+export const loader = async ({
+  request,
+  context,
+  params,
+}: Route.LoaderArgs) => {
+  const { getSession } = context.sessions;
+  const session = await getSession(request.headers.get("cookie"));
+  const user = session.get("user");
+  return Response.json({
+    user,
+  });
 };

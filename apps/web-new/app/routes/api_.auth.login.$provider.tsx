@@ -1,17 +1,19 @@
-import { redirect, type ActionFunction, type LoaderFunction } from "react-router";
+import { redirect } from "react-router";
+import { Route } from "./+types/api_.auth.login.$provider";
 
-export let loader: LoaderFunction = () => redirect("/login");
+export let loader = () => redirect("/login");
 
-export const action: ActionFunction = ({ request, context, params }) => {
+export const action = async ({
+  request,
+  context,
+  params,
+}: Route.ActionArgs) => {
   const provider = params.provider;
 
   if (!provider) {
-    return redirect("/login");
+    console.error("No provider specified");
+    return redirect("/");
   }
 
-  try {
-    return context.auth.authenticate(provider, request);
-  } catch (error) {
-    return redirect("/login");
-  }
+  return await context.auth.authenticate(provider, request);
 };

@@ -1,0 +1,12 @@
+.card {
+  text-decoration: none;
+  transition: border-color 200ms ease;
+}
+
+.card:hover {
+  border-color: var(--mantine-color-blue-5);
+}
+
+.readMore {
+  margin-top: auto;
+}

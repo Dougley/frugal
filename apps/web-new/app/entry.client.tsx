@@ -6,34 +6,25 @@
 
 import { HydratedRouter } from "react-router/dom";
 
-import { useLocation, useMatches } from "react-router";
 import {
   browserTracingIntegration,
-  feedbackAsyncIntegration,
   init,
   replayIntegration,
-} from "@sentry/remix";
-import { startTransition, StrictMode, useEffect } from "react";
+} from "@sentry/react";
+import { startTransition, StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
 
 init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
   tracesSampleRate: 1,
-  // functions currently only fire in prod,
-  // see https://github.com/remix-run/remix/discussions/9309
-  tunnel: import.meta.env.PROD ? "/api/reporting" : undefined,
+  tunnel: import.meta.env.DEV ? undefined : "/api/reporting",
 
   integrations: [
-    browserTracingIntegration({
-      useEffect,
-      useLocation,
-      useMatches,
-    }),
+    browserTracingIntegration(),
     replayIntegration({
       maskAllText: true,
       blockAllMedia: true,
     }),
-    feedbackAsyncIntegration(),
   ],
 
   replaysSessionSampleRate: 0.1,

@@ -1,8 +1,11 @@
 #:schema node_modules/wrangler/config-schema.json
 name = "frugal"
-compatibility_date = "2024-04-05"
-pages_build_output_dir = "./build/client"
-compatibility_flags = ["nodejs_als"]
+compatibility_date = "2024-09-26"
+compatibility_flags = ["nodejs_compat"]
+
+main = "./build/server/index.js"
+workers_dev = true
+minify = true
 
 [[d1_databases]]
 binding = "D1"
@@ -20,6 +23,13 @@ preview_bucket_name = "frugal-devel"
 binding = "KV_SESSIONS"
 id = "dad8c886278d4341aed8926d38747ea4"
 preview_id = "dad8c886278d4341aed8926d38747ea4"
+
+[assets]
+# https://developers.cloudflare.com/workers/static-assets/binding/
+directory = "./build/client"
+
+[build]
+command = "turbo build"
 
 # Automatically place your workloads in an optimal location to minimize latency.
 # If you are running back-end logic in a Pages Function, running it closer to your back-end infrastructure

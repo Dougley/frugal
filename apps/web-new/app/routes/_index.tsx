@@ -1,15 +1,7 @@
-import type { MetaFunction } from "react-router";
-import { LandingClosing } from "~/components/LandingClosing/LandingClosing";
-import { LandingFeatures } from "~/components/LandingFeatures/LandingFeatures";
-import { LandingHero } from "~/components/LandingHero/LandingHero";
-import { LandingTestimonials } from "~/components/LandingTestimonials/LandingTestimonials";
-
-export const meta: MetaFunction = () => {
-  return [
-    { title: "Mantine Remix App" },
-    { name: "description", content: "Welcome to Mantine!" },
-  ];
-};
+import { LandingClosing } from "~/components/Landing/LandingClosing/LandingClosing";
+import { LandingFeatures } from "~/components/Landing/LandingFeatures/LandingFeatures";
+import { LandingHero } from "~/components/Landing/LandingHero/LandingHero";
+import { LandingTestimonials } from "~/components/Landing/LandingTestimonials/LandingTestimonials";
 
 export default function Index() {
   return (

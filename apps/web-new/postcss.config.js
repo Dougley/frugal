@@ -12,8 +12,6 @@ const config = {
       },
     },
     autoprefixer: {},
-    "tailwindcss/nesting": {},
-    tailwindcss: {},
   },
 };
 
