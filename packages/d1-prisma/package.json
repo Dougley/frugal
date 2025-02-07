@@ -14,20 +14,21 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc && prisma generate",
     "migration:create": "node scripts/create-migration.mjs",
-    "migration:apply:dev": "wrangler d1 migrations apply frugal --local --persist-to='../../.mf'"
+    "migration:apply:dev": "wrangler d1 migrations apply frugal --local --persist-to='../../.mf'",
+    "migration:apply:prod": "wrangler d1 migrations apply frugal"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "@types/node": "^22.10.1",
+    "@types/node": "^22.13.1",
     "discord-api-types": "catalog:",
-    "glob": "^11.0.0",
-    "prisma": "^6.0.0",
+    "glob": "^11.0.1",
+    "prisma": "^6.3.1",
     "wrangler": "catalog:"
   },
   "dependencies": {
-    "@prisma/adapter-d1": "^6.0.0",
-    "@prisma/client": "^6.0.0"
+    "@prisma/adapter-d1": "^6.3.1",
+    "@prisma/client": "^6.3.1"
   }
 }

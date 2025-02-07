@@ -24,8 +24,8 @@
     "@discord-interactions/builders": "^0.3.18",
     "@discord-interactions/core": "^0.3.23",
     "@dougley/frugal-savestate": "workspace:^",
-    "@sentry/cloudflare": "^8.41.0",
-    "hono": "^4.6.12",
+    "@sentry/cloudflare": "^8.54.0",
+    "hono": "^4.7.0",
     "kysely": "catalog:",
     "kysely-d1": "catalog:"
   },
@@ -33,7 +33,7 @@
     "@cloudflare/workers-types": "catalog:",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "better-sqlite3": "^11.6.0",
+    "better-sqlite3": "^11.8.1",
     "wrangler": "catalog:"
   }
 }
