@@ -14,7 +14,14 @@ import classes from "./Navbar.module.css";
 import { Settings } from "./Settings";
 import { UserLoginStateControl } from "./UserLoginStateControl";
 
-const data = [
+interface NavItem {
+  label: string;
+  link: string;
+  icon: React.ComponentType<{ className?: string; stroke?: number }>;
+  children?: NavItem[];
+}
+
+const data: NavItem[] = [
   { label: "Home", link: "/", icon: IconHome },
   { label: "Premium", link: "/premium", icon: IconDiamond },
   {
@@ -50,11 +57,11 @@ const data = [
   },
 ];
 
-export function Navbar() {
-  const { isDrawerOpen, toggleDrawer, closeDrawer, openDrawer } = useDrawer();
-  const rootData = useRouteLoaderData("root");
-
-  const links = data.map((item) => (
+const renderNavLinks = (
+  items: NavItem[],
+  closeDrawer: () => void,
+): React.ReactNode => {
+  return items.map((item) => (
     <NavLink
       className={classes.link}
       href={item.link}
@@ -68,24 +75,16 @@ export function Navbar() {
         }
       }}
     >
-      {item.children &&
-        item.children.map((child) => (
-          <NavLink
-            className={classes.link}
-            href={child.link}
-            key={child.label}
-            label={child.label}
-            leftSection={
-              <child.icon className={classes.linkIcon} stroke={1.5} />
-            }
-            renderRoot={(props) => <RemixNavLink to={child.link} {...props} />}
-            onClick={() => {
-              closeDrawer();
-            }}
-          />
-        ))}
+      {item.children && renderNavLinks(item.children, closeDrawer)}
     </NavLink>
   ));
+};
+
+export function Navbar() {
+  const { isDrawerOpen, toggleDrawer, closeDrawer, openDrawer } = useDrawer();
+  const rootData = useRouteLoaderData("root");
+
+  const links = renderNavLinks(data, closeDrawer);
 
   return (
     <>

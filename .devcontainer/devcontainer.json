@@ -25,7 +25,7 @@
       "extensions": [
         "dbaeumer.vscode-eslint",
         "IronGeek.vscode-env",
-        "bungcip.better-toml",
+        "tamasfe.even-better-toml",
         "esbenp.prettier-vscode",
         "ms-azuretools.vscode-docker",
         "github.vscode-github-actions",
