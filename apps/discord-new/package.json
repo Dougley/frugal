@@ -24,7 +24,7 @@
     "@discord-interactions/builders": "^0.3.18",
     "@discord-interactions/core": "^0.3.23",
     "@dougley/frugal-savestate": "workspace:^",
-    "@sentry/cloudflare": "^8.54.0",
+    "@sentry/cloudflare": "^8.55.0",
     "hono": "^4.7.0",
     "kysely": "catalog:",
     "kysely-d1": "catalog:"
