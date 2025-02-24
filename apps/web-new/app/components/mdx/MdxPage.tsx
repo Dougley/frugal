@@ -10,11 +10,10 @@ import {
   TypographyStylesProvider,
 } from "@mantine/core";
 import { useWindowScroll } from "@mantine/hooks";
-import { MDXProvider } from "@mdx-js/react";
 import { IconArrowUp } from "@tabler/icons-react";
-import { useMDXComponents } from "mdx-components";
 import { ReactNode } from "react";
 import { TableOfContentsNav } from "~/components/mdx/TableOfContents/TableOfContents";
+import { MdxProvider } from "./MdxProvider";
 
 interface MdxPageProps {
   title: string;
@@ -45,9 +44,7 @@ export function MdxPage({
         <Divider my="lg" />
         <div id="mdx">
           <TypographyStylesProvider>
-            <MDXProvider components={useMDXComponents({})}>
-              {children}
-            </MDXProvider>
+            <MdxProvider>{children}</MdxProvider>
           </TypographyStylesProvider>
         </div>
         <Affix position={{ bottom: 20, right: 20 }}>
