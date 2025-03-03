@@ -35,6 +35,7 @@ jobs:
             DISCORD_CLIENT_ID:$DISCORD_CLIENT_ID \
             DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
             DISCORD_CLIENT_SECRET:$DISCORD_CLIENT_SECRET \
+            DISCORD_CALLBACK_URL:$DISCORD_CALLBACK_URL \
             RELEASE:$RELEASE \
             BRANCH:$BRANCH
         working-directory: ./apps/web
