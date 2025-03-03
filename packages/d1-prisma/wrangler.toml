@@ -3,5 +3,19 @@
 [[d1_databases]]
 binding = "D1"
 database_name = "frugal"
-database_id = "ddc7d747-ada2-4e1c-9946-62856277f9a1"
+database_id = "1b4e645a-46d6-4db0-bb53-88b09404d4fe"
+migrations_dir = "./migrations"
+
+[env.production]
+[[d1_databases]]
+binding = "D1"
+database_name = "frugal"
+database_id = "e188be53-0ace-4a2f-adf4-dfcbddb9abeb"
+migrations_dir = "./migrations"
+
+[env.staging]
+[[d1_databases]]
+binding = "D1"
+database_name = "frugal"
+database_id = "d941c81e-6fc7-4e21-90bc-a1698bf6342e"
 migrations_dir = "./migrations"
