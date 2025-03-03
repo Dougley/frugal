@@ -45,8 +45,8 @@
     {
       "binding": "D1",
       "database_name": "frugal",
-      "database_id": "ddc7d747-ada2-4e1c-9946-62856277f9a1",
-      "preview_database_id": "ddc7d747-ada2-4e1c-9946-62856277f9a1",
+      "database_id": "1b4e645a-46d6-4db0-bb53-88b09404d4fe",
+      "preview_database_id": "1b4e645a-46d6-4db0-bb53-88b09404d4fe",
       "migrations_dir": "../../packages/d1-database/migrations"
     }
   ],
@@ -55,8 +55,8 @@
   "kv_namespaces": [
     {
       "binding": "KV",
-      "id": "dad8c886278d4341aed8926d38747ea4",
-      "preview_id": "dad8c886278d4341aed8926d38747ea4"
+      "id": "ff4da80f1e42471db838c38e8e73a3ed",
+      "preview_id": "ff4da80f1e42471db838c38e8e73a3ed"
     }
   ],
 
@@ -69,14 +69,14 @@
         {
           "binding": "D1",
           "database_name": "frugal",
-          "database_id": "a09d43b8-850e-4f4d-ba91-fe47d3be0ec9",
+          "database_id": "9d21020092f1485badd0d5efdff2352e",
           "migrations_dir": "../../packages/d1-database/migrations"
         }
       ],
       "kv_namespaces": [
         {
           "binding": "KV",
-          "id": "dad8c886278d4341aed8926d38747ea4"
+          "id": "9d21020092f1485badd0d5efdff2352e"
         }
       ],
       "durable_objects": {
@@ -102,14 +102,14 @@
         {
           "binding": "D1",
           "database_name": "frugal",
-          "database_id": "b3f0981c-e213-4b28-be7f-1ba9ad731024",
+          "database_id": "d941c81e-6fc7-4e21-90bc-a1698bf6342e",
           "migrations_dir": "../../packages/d1-database/migrations"
         }
       ],
       "kv_namespaces": [
         {
           "binding": "KV",
-          "id": "dad8c886278d4341aed8926d38747ea4"
+          "id": "63222889f12248fc8c438e2d70c8fe4c"
         }
       ],
       "durable_objects": {
