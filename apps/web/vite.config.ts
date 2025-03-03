@@ -61,6 +61,9 @@ export default defineConfig(({ isSsrBuild }) => ({
       authToken: process.env.SENTRY_AUTH_TOKEN,
       org: "dougley",
       project: "frugal-web",
+      sourcemaps: {
+        filesToDeleteAfterUpload: ["./**/*.map"],
+      },
     }),
   ],
 }));
