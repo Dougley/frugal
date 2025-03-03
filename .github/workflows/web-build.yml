@@ -34,7 +34,7 @@ jobs:
             SESSION_SECRET:$SESSION_SECRET \
             DISCORD_CLIENT_ID:$DISCORD_CLIENT_ID \
             DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
-            DISCORD_SECRET:$DISCORD_SECRET \
+            DISCORD_CLIENT_SECRET:$DISCORD_CLIENT_SECRET \
             RELEASE:$RELEASE \
             BRANCH:$BRANCH
         working-directory: ./apps/web
