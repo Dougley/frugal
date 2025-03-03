@@ -37,18 +37,19 @@ jobs:
           SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT_WEB }}
 
       - name: Deploy
-        run: pnpm wrangler deploy --env ${{ inputs.environment }} \
-          --var SENTRY_DSN:$SENTRY_DSN \
-          SENTRY_AUTH_TOKEN:$SENTRY_AUTH_TOKEN \
-          SENTRY_ORG:$SENTRY_ORG \
-          SENTRY_PROJECT:$SENTRY_PROJECT \
-          SESSION_SECRET:$SESSION_SECRET \
-          DISCORD_CLIENT_ID:$DISCORD_CLIENT_ID \
-          DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
-          DISCORD_SECRET:$DISCORD_SECRET \
-          DISCORD_BOT_TOKEN:$DISCORD_BOT_TOKEN \
-          RELEASE:$RELEASE \
-          BRANCH:$BRANCH
+        run: |
+          pnpm wrangler deploy --env ${{ inputs.environment }} \
+            --var SENTRY_DSN:$SENTRY_DSN \
+            SENTRY_AUTH_TOKEN:$SENTRY_AUTH_TOKEN \
+            SENTRY_ORG:$SENTRY_ORG \
+            SENTRY_PROJECT:$SENTRY_PROJECT \
+            SESSION_SECRET:$SESSION_SECRET \
+            DISCORD_CLIENT_ID:$DISCORD_CLIENT_ID \
+            DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
+            DISCORD_SECRET:$DISCORD_SECRET \
+            DISCORD_BOT_TOKEN:$DISCORD_BOT_TOKEN \
+            RELEASE:$RELEASE \
+            BRANCH:$BRANCH
         working-directory: ./apps/web
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
