@@ -37,13 +37,30 @@ jobs:
           SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT_WEB }}
 
       - name: Deploy
-        run: pnpm wrangler deploy --env ${{ inputs.environment }}
+        run: pnpm wrangler deploy --env ${{ inputs.environment }} \
+          --var SENTRY_DSN:$SENTRY_DSN \
+          SENTRY_AUTH_TOKEN:$SENTRY_AUTH_TOKEN \
+          SENTRY_ORG:$SENTRY_ORG \
+          SENTRY_PROJECT:$SENTRY_PROJECT \
+          SESSION_SECRET:$SESSION_SECRET \
+          DISCORD_CLIENT_ID:$DISCORD_CLIENT_ID \
+          DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
+          DISCORD_SECRET:$DISCORD_SECRET \
+          DISCORD_BOT_TOKEN:$DISCORD_BOT_TOKEN \
+          RELEASE:$RELEASE \
+          BRANCH:$BRANCH
         working-directory: ./apps/web
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           SENTRY_DSN: ${{ vars.SENTRY_DSN_WEB }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ vars.SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT_WEB }}
+          SENTRY_PROJECT: ${{ secrets.WEB_SESSION_SECRET }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          DISCORD_CLIENT_ID: ${{ vars.DISCORD_APP_ID }}
+          DISCORD_PUBLIC_KEY: ${{ vars.DISCORD_PUBLIC_KEY }}
+          DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_SECRET }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_CALLBACK_URL: ${{ vars.DISCORD_CALLBACK_URL }}
           RELEASE: ${{ github.sha }}
           BRANCH: ${{ github.head_ref || github.ref_name }}
