@@ -58,6 +58,7 @@ export default defineConfig(({ isSsrBuild }) => ({
     reactRouter(),
     tsconfigPaths(),
     sentryVitePlugin({
+      authToken: process.env.SENTRY_AUTH_TOKEN,
       org: "dougley",
       project: "frugal-web",
     }),
