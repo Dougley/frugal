@@ -21,7 +21,7 @@
     "@cloudflare/workers-types": "catalog:",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "@types/node": "^22.13.8",
+    "@types/node": "^22.13.9",
     "discord-api-types": "catalog:",
     "glob": "^11.0.1",
     "prisma": "^6.4.1",

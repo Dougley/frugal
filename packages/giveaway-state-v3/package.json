@@ -23,8 +23,8 @@
   "dependencies": {
     "@discord-interactions/api": "^0.3.21",
     "@dougley/d1-prisma": "workspace:^",
-    "@trpc/client": "11.0.0-rc.818",
-    "@trpc/server": "11.0.0-rc.818",
+    "@trpc/client": "11.0.0-rc.819",
+    "@trpc/server": "11.0.0-rc.819",
     "superjson": "^2.2.2",
     "zod": "^3.24.2"
   }
