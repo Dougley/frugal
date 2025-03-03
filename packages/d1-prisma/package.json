@@ -21,14 +21,14 @@
     "@cloudflare/workers-types": "catalog:",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "@types/node": "^22.13.1",
+    "@types/node": "^22.13.8",
     "discord-api-types": "catalog:",
     "glob": "^11.0.1",
-    "prisma": "^6.3.1",
+    "prisma": "^6.4.1",
     "wrangler": "catalog:"
   },
   "dependencies": {
-    "@prisma/adapter-d1": "^6.3.1",
-    "@prisma/client": "^6.3.1"
+    "@prisma/adapter-d1": "^6.4.1",
+    "@prisma/client": "^6.4.1"
   }
 }

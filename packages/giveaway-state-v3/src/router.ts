@@ -1,89 +1,45 @@
 /// <reference types="@dougley/types/summaries" />
 
-import { PrismaClient, PrismaD1, getRandomWinners } from "@dougley/d1-prisma";
-import { TRPCError, initTRPC } from "@trpc/server";
-import type { Context } from "trpc-durable-objects";
+import { initTRPC } from "@trpc/server";
 import { z } from "zod";
+import { GiveawayService } from "./services/giveaway";
+import { transformer } from "./transformer";
+import { type Context } from "./trpc";
 
-const t = initTRPC.context<Context<Env>>().create();
+const t = initTRPC.context<Context<Env>>().create({
+  transformer,
+});
 
 const publicProcedure = t.procedure;
-
 const router = t.router;
 
 export const stateRouter = router({
+  getEntries: publicProcedure.query(async ({ ctx }) => {
+    const service = GiveawayService.getInstance(ctx);
+    return service.getEntries();
+  }),
+
   startAlarm: publicProcedure
     .input(
-      // input is a ISO 8601 string, but should be tried to be parsed as a Date
       z
         .string()
-        .datetime({
-          offset: true,
-        })
+        .datetime({ offset: true })
         .transform((value) => new Date(value))
         .refine((value) => value > new Date(), {
           message: "Date must be in the future",
         })
-        .or(z.number().min(1).max(1)), // specifically to force-trigger alarms, if needed
+        .or(z.number().min(1).max(1)),
     )
     .mutation(async ({ input, ctx }) => {
-      const adapter = new PrismaD1(ctx.env.D1);
-      const prisma = new PrismaClient({ adapter });
-      await prisma.giveaways.update({
-        where: {
-          durable_object_id: ctx.state.id.toString(),
-          state: "NEW",
-        },
-        data: {
-          state: "OPEN",
-        },
-      });
+      const service = GiveawayService.getInstance(ctx);
+      const result = await service.startAlarm(input);
       await ctx.state.storage.setAlarm(input);
-      return {
-        success: true,
-      };
+      return result;
     }),
 
   drawWinners: publicProcedure.mutation(async ({ ctx }) => {
-    const adapter = new PrismaD1(ctx.env.D1);
-    const prisma = new PrismaClient({ adapter });
-    const { id } = ctx.state;
-    const info = await prisma.giveaways.findUnique({
-      where: {
-        durable_object_id: id.toString(),
-      },
-    });
-    if (!info) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Giveaway not found",
-      });
-    }
-    const { message_id, winners } = info;
-    const entrants = await prisma.$queryRawTyped(
-      getRandomWinners(message_id, winners),
-    );
-    const winnerIds = entrants.map(({ user_id }) => user_id);
-    await prisma.entries.updateMany({
-      where: {
-        giveaway_id: message_id,
-        user_id: {
-          in: winnerIds,
-        },
-      },
-      data: {
-        winner: true,
-      },
-    });
-    return {
-      success: true,
-      winners: entrants.map(({ user_id, username, discriminator, avatar }) => ({
-        id: user_id,
-        username,
-        discriminator,
-        avatar,
-      })),
-    };
+    const service = GiveawayService.getInstance(ctx);
+    return service.drawWinners();
   }),
 
   flush: publicProcedure
@@ -98,100 +54,77 @@ export const stateRouter = router({
         .array(),
     )
     .mutation(async ({ input, ctx }) => {
-      const adapter = new PrismaD1(ctx.env.D1);
-      const prisma = new PrismaClient({ adapter });
-      const { id } = ctx.state;
-      const info = await prisma.giveaways.findUnique({
-        where: {
-          durable_object_id: id.toString(),
-        },
-      });
-      if (!info) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Giveaway not found",
-        });
-      }
-      const { state, channel_id, message_id, winners, prize, end_time } = info;
-      // state must be CLOSED, otherwise we can't flush
-      if (state !== "CLOSED") {
-        throw new TRPCError({
-          code: "PRECONDITION_FAILED",
-          message: "Giveaway must be closed to flush",
-        });
-      }
-      const entrants = await prisma.entries.findMany({
-        where: {
-          giveaway_id: message_id,
-        },
-      });
-      const summary: SummaryOutput = {
-        _version: 2,
-        entries: entrants.map(
-          ({ user_id, username, discriminator, avatar }) => ({
-            id: user_id,
-            username,
-            discriminator,
-            avatar,
-          }),
-        ),
-        details: {
-          channel: channel_id,
-          message: message_id,
-          winners,
-          prize,
-          originalWinners: input.map((winner) => winner.id),
-          time: {
-            end: end_time.toISOString(),
-            start: end_time.toISOString(),
-          },
-        },
-      };
-      const bucket = ctx.env.STORAGE;
-      const key = `giveaway-${ctx.state.id.toString()}.json`;
-      await bucket.put(key, JSON.stringify(summary), {
-        httpMetadata: {
-          contentType: "application/json",
-          // objects expire in 3 months
-          cacheExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30 * 3),
-          cacheControl: "public, max-age=7776000",
-        },
-      });
-      return {
-        success: true,
-        object: key,
-      };
+      const service = GiveawayService.getInstance(ctx);
+      const winners = input.map(({ id, ...rest }) => ({
+        user_id: id,
+        ...rest,
+      }));
+      return service.flushToStorage(ctx.env.STORAGE, winners);
     }),
 
   cleanup: publicProcedure.mutation(async ({ ctx }) => {
-    const adapter = new PrismaD1(ctx.env.D1);
-    const prisma = new PrismaClient({ adapter });
-    const { id } = ctx.state;
-    const giveaway = await prisma.giveaways.findUnique({
-      where: {
-        durable_object_id: id.toString(),
-      },
-    });
-    if (!giveaway) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Giveaway not found",
-      });
-    }
-    await prisma.entries.deleteMany({
-      where: {
-        giveaway_id: giveaway.message_id,
-      },
-    });
-    await prisma.giveaways.delete({
-      where: {
-        durable_object_id: id.toString(),
-      },
-    });
-    return {
-      success: true,
-    };
+    const service = GiveawayService.getInstance(ctx);
+    return service.cleanup();
   }),
+
+  beginGiveaway: publicProcedure
+    .input(
+      z.object({
+        message_id: z.string(),
+        channel_id: z.string(),
+        guild_id: z.string(),
+        prize: z.string(),
+        winners: z.number().min(1),
+        end_time: z
+          .string()
+          .datetime()
+          .transform((val) => new Date(val)),
+        host_id: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const service = GiveawayService.getInstance(ctx);
+      return service.beginGiveaway(input);
+    }),
+
+  addEntry: publicProcedure
+    .input(
+      z.object({
+        user_id: z.string(),
+        username: z.string(),
+        discriminator: z.string(),
+        avatar: z.string().nullable(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const service = GiveawayService.getInstance(ctx);
+      return service.addEntry(input);
+    }),
+
+  removeEntry: publicProcedure
+    .input(z.object({ user_id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const service = GiveawayService.getInstance(ctx);
+      return service.removeEntry(input.user_id);
+    }),
+
+  getState: publicProcedure.query(async ({ ctx }) => {
+    const service = GiveawayService.getInstance(ctx);
+    return service.getGiveaway();
+  }),
+
+  endGiveaway: publicProcedure.mutation(async ({ ctx }) => {
+    const service = GiveawayService.getInstance(ctx);
+    const result = await service.endGiveaway();
+    await ctx.state.storage.setAlarm(1);
+    return result;
+  }),
+
+  getActiveGiveaways: publicProcedure
+    .input(z.object({ guild_id: z.string() }))
+    .query(async ({ input, ctx }) => {
+      return GiveawayService.getActiveGiveaways(ctx, input.guild_id);
+    }),
 });
 
 export type StateRouter = typeof stateRouter;

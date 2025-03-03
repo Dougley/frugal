@@ -3,15 +3,16 @@ on:
   workflow_dispatch:
     inputs:
       deploycommands:
-        description: "Deploy commands?"
+        description: "Deploy Discord commands?"
         required: false
         type: boolean
-        default: "false"
+        default: false
       skipdeploy:
-        description: "Skip deploy?"
+        description: "Skip deploy? (only deploy commands)"
         required: false
         type: boolean
-        default: "false"
+        default: false
+
   push:
     branches:
       - main
@@ -27,13 +28,6 @@ jobs:
       environment: staging
       deploy_commands: ${{ github.event.inputs.deploycommands }}
       skip_deploy: ${{ github.event.inputs.skipdeploy }}
-
-  d1:
-    name: Run D1 Migrations
-    uses: dougley/frugal/.github/workflows/d1-migrations.yml@dev
-    secrets: inherit
-    with:
-      environment: staging
 
   sentry:
     name: Create Sentry release

@@ -1,144 +1,142 @@
 import {
+  ActionRowBuilder,
   ButtonStyle,
-  CommandContext,
-  CommandOptionType,
-  ComponentType,
-  SlashCommand,
-  SlashCreator
-} from 'slash-create/web';
-import { joinButtonRegistryCallback, leaveButtonRegistryCallback } from '../../components/buttons';
-import { EnvContext as server } from '../../index';
-import { parseTime } from '../../utils/time';
+  EmbedBuilder,
+  LinkButtonBuilder,
+  MessageBuilder,
+  SlashCommandBuilder,
+  SlashCommandIntegerOption,
+  SlashCommandStringOption
+} from '@discord-interactions/builders';
+import { ISlashCommand, SlashCommandContext } from '@discord-interactions/core';
+import { EnvContext } from '../../env';
 
-export default class BotCommand extends SlashCommand {
-  constructor(creator: SlashCreator) {
-    super(creator, {
-      name: 'start',
-      description: 'Starts a giveaway in the current channel',
-      options: [
-        {
-          type: CommandOptionType.STRING,
-          name: 'duration',
-          description: 'Duration of the giveaway',
-          required: true
-        },
-        {
-          type: CommandOptionType.INTEGER,
-          name: 'winners',
-          description: 'Number of winners',
-          required: true,
-          min_value: 1,
-          max_value: 50
-        },
-        {
-          type: CommandOptionType.STRING,
-          name: 'prize',
-          description: 'Prize to win',
-          required: true,
-          min_length: 1,
-          max_length: 100
-        },
-        {
-          type: CommandOptionType.STRING,
-          name: 'description',
-          description: 'Description of the giveaway',
-          required: false,
-          min_length: 1,
-          max_length: 1000
-        },
-        {
-          type: CommandOptionType.ATTACHMENT,
-          name: 'image',
-          description: 'Image to display in the giveaway',
-          required: false
-        }
-      ]
-    });
-    creator.registerGlobalComponent('joinButton', joinButtonRegistryCallback);
-    creator.registerGlobalComponent('leaveButton', leaveButtonRegistryCallback);
-  }
+const parseTime = (duration: string): number => {
+  const units: { [key: string]: number } = {
+    s: 1000,
+    m: 60 * 1000,
+    h: 60 * 60 * 1000,
+    d: 24 * 60 * 60 * 1000
+  };
 
-  async run(ctx: CommandContext) {
-    await ctx.defer();
-    const duration = parseTime(ctx.options.duration);
-    if (duration === 0) {
-      return ctx.sendFollowUp({
-        content: 'Invalid duration',
-        ephemeral: true
+  const match = duration.match(/^(\d+)([smhd])$/);
+  if (!match) return 0;
+
+  const [, value, unit] = match;
+  return parseInt(value, 10) * units[unit];
+};
+
+export class StartSlashCommand implements ISlashCommand {
+  public builder = new SlashCommandBuilder('start')
+    .setDescription('Start a giveaway in the current channel')
+    .addStringOption(
+      new SlashCommandStringOption('duration', 'Duration of the giveaway (e.g., 30s, 5m, 2h, 1d)').setRequired(true)
+    )
+    .addIntegerOption(
+      new SlashCommandIntegerOption('winners', 'Number of winners').setRequired(true).setMinValue(1).setMaxValue(50)
+    )
+    .addStringOption(
+      new SlashCommandStringOption('prize', 'Prize to win').setRequired(true).setMinLength(1).setMaxLength(100)
+    )
+    .addStringOption(
+      new SlashCommandStringOption('description', 'Description of the giveaway')
+        .setRequired(false)
+        .setMinLength(1)
+        .setMaxLength(1000)
+    );
+
+  public handler = async (ctx: SlashCommandContext): Promise<void> => {
+    try {
+      await ctx.defer();
+
+      if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
+        await ctx.edit(new MessageBuilder().setContent('Giveaway state not available'));
+        return;
+      }
+
+      const duration = parseTime(ctx.getStringOption('duration').value);
+      if (duration === 0) {
+        await ctx.edit(new MessageBuilder().setContent('Invalid duration format. Use format like: 30s, 5m, 2h, 1d'));
+        return;
+      }
+
+      // Validate duration limits
+      if (duration > 14 * 24 * 60 * 60 * 1000) {
+        await ctx.edit(new MessageBuilder().setContent("Giveaways can't be longer than 14 days"));
+        return;
+      }
+      if (duration < 10 * 1000) {
+        await ctx.edit(new MessageBuilder().setContent("Giveaways can't be shorter than 10 seconds"));
+        return;
+      }
+
+      const endTime = new Date(Date.now() + duration);
+      const winnersCount = ctx.getIntegerOption('winners').value;
+      const prize = ctx.getStringOption('prize').value;
+      const description = ctx.hasOption('description') ? ctx.getStringOption('description').value : '';
+
+      const timestamp = Math.floor(endTime.getTime() / 1000);
+      const embed = new EmbedBuilder()
+        .setColor(0x00ff00)
+        .setTitle(prize)
+        .setDescription(description)
+        .addFields(
+          {
+            name: 'Winners',
+            value: winnersCount.toString(),
+            inline: true
+          },
+          {
+            name: 'Ends',
+            value: `<t:${timestamp}:R> (<t:${timestamp}:F>)`,
+            inline: true
+          }
+        )
+        .setTimestamp(endTime);
+
+      // Send the giveaway message to the channel
+      const giveawayMessage = await ctx.send(
+        new MessageBuilder().setContent('🎉 **GIVEAWAY** 🎉').addEmbeds(embed).setEphemeral(false)
+      );
+
+      const id = EnvContext.env.GIVEAWAY_STATE.newUniqueId();
+      const stub = EnvContext.state.getInstance(EnvContext.env.GIVEAWAY_STATE, id);
+
+      // Begin the giveaway with the new message ID
+      await stub.beginGiveaway.mutate({
+        message_id: giveawayMessage.id,
+        channel_id: ctx.channelId ?? '0',
+        guild_id: ctx.guildId ?? '0',
+        prize: prize,
+        winners: winnersCount,
+        end_time: endTime.toISOString(),
+        host_id: ctx.user.id
       });
+
+      // Set up the alarm
+      await stub.startAlarm.mutate(endTime.toISOString());
+
+      // Send ephemeral confirmation
+      await ctx.send(
+        new MessageBuilder()
+          .setContent(`✅ Giveaway started successfully!`)
+          .addComponents(
+            new ActionRowBuilder().addComponents(
+              new LinkButtonBuilder()
+                .setLabel('View')
+                .setStyle(ButtonStyle.Link)
+                .setURL(`https://discord.com/channels/${ctx.guildId}/${ctx.channelId}/${giveawayMessage.id}`)
+            )
+          )
+          .setEphemeral(true)
+      );
+    } catch (error) {
+      console.error('Error in start command:', error);
+      await ctx.edit(
+        new MessageBuilder().setContent(
+          `Failed to start giveaway: ${error instanceof Error ? error.message : String(error)}`
+        )
+      );
     }
-    // a giveaway can't be longer than 14 days
-    if (duration > 14 * 24 * 60 * 60 * 1000) {
-      return ctx.sendFollowUp({
-        content: "Giveaways can't be longer than 14 days",
-        ephemeral: true
-      });
-    }
-    // at minimum, a giveaway must be 10 seconds long
-    if (duration < 10 * 1000) {
-      return ctx.sendFollowUp({
-        content: "Giveaways can't be shorter than 10 seconds",
-        ephemeral: true
-      });
-    }
-    const endDate = new Date(Date.now() + duration);
-    const timestamp = (endDate.getTime() / 1000).toFixed(0);
-    const msg = await ctx.sendFollowUp({
-      content: 'Giveaway!',
-      embeds: [
-        {
-          color: 0x00ff00,
-          title: ctx.options.prize,
-          description: ctx.options.description ?? undefined,
-          fields: [
-            {
-              name: 'Winners',
-              value: ctx.options.winners.toString(),
-              inline: true
-            },
-            {
-              name: 'Ends',
-              value: `<t:${timestamp}:R> (<t:${timestamp}:F>)`,
-              inline: true
-            }
-          ],
-          timestamp: endDate.toISOString(),
-          image: ctx.options.image ? { url: ctx.attachments.get(ctx.options.image)!.url } : undefined
-        }
-      ],
-      components: [
-        {
-          type: ComponentType.ACTION_ROW,
-          components: [
-            {
-              type: ComponentType.BUTTON,
-              style: ButtonStyle.PRIMARY,
-              label: 'Enter!',
-              custom_id: `joinButton`,
-              emoji: {
-                name: '🎉'
-              }
-            }
-          ]
-        }
-      ]
-    });
-    const id = server.states!.newUniqueId();
-    const stub = server.states!.get(id);
-    await stub.setGiveawayId(msg.id);
-    await server
-      .db!.insertInto('giveaways')
-      .values({
-        message_id: msg.id,
-        guild_id: ctx.guildID!,
-        channel_id: ctx.channelID!,
-        end_time: endDate.toISOString(),
-        host_id: ctx.user.id,
-        prize: ctx.options.prize,
-        winners: ctx.options.winners,
-        durable_object_id: id.toString()
-      })
-      .execute();
-    await stub.startAlarm(endDate.toUTCString());
-  }
+  };
 }

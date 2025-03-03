@@ -3,5 +3,5 @@
 [[d1_databases]]
 binding = "D1"
 database_name = "frugal"
-database_id = "1b4e645a-46d6-4db0-bb53-88b09404d4fe"
+database_id = "ddc7d747-ada2-4e1c-9946-62856277f9a1"
 migrations_dir = "./migrations"

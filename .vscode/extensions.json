@@ -6,8 +6,9 @@
     "esbenp.prettier-vscode",
     "ms-azuretools.vscode-docker",
     "github.vscode-github-actions",
-    "bradlc.vscode-tailwindcss",
     "mtxr.sqltools-driver-sqlite",
-    "mtxr.sqltools"
+    "mtxr.sqltools",
+    "vitest.explorer",
+    "csstools.postcss"
   ]
 }

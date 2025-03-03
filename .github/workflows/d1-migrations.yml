@@ -14,12 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
         with:
           version: latest
           run_install: false
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
           cache: "pnpm"
@@ -28,8 +28,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Migrate db
-        #uses: cloudflare/wrangler-action@2.0.0
-        run: npx wrangler d1 migrations apply frugal --env ${{ inputs.environment }}
+        # uses: cloudflare/wrangler-action@v3
+        run: pnpm wrangler d1 migrations apply frugal --env ${{ inputs.environment }}
         working-directory: ./apps/discord
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}

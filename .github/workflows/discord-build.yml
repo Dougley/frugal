@@ -21,12 +21,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
         with:
           version: latest
           run_install: false
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
           cache: "pnpm"
@@ -36,29 +36,27 @@ jobs:
 
       - name: Turbo build
         if: inputs.deploy_commands == 'true'
-        run: npx turbo build --no-cache
+        run: pnpm turbo build --no-cache
         working-directory: ./apps/discord
         env:
-          DISCORD_APP_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
-          DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
+          DISCORD_APP_ID: ${{ vars.DISCORD_APPLICATION_ID }}
+          DISCORD_PUBLIC_KEY: ${{ vars.DISCORD_PUBLIC_KEY }}
           DISCORD_SECRET: ${{ secrets.DISCORD_SECRET }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
 
       - name: Deploy commands
         if: inputs.deploy_commands == 'true'
-        run: pnpm run sync
+        run: pnpm run register
         working-directory: ./apps/discord
         env:
-          DISCORD_APP_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
-          DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
-          DISCORD_SECRET: ${{ secrets.DISCORD_SECRET }}
+          DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
 
       - name: Publish
-        # uses: cloudflare/wrangler-action@2.0.0
+        # uses: cloudflare/wrangler-action@v3
         if: inputs.skip_deploy != 'true'
         run: |
-          npx wrangler deploy --env ${{ inputs.environment }} \
+          pnpm wrangler deploy --env ${{ inputs.environment }} \
             --var DISCORD_BOT_TOKEN:$DISCORD_BOT_TOKEN \
             DISCORD_APP_ID:$DISCORD_APP_ID \
             DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
@@ -68,14 +66,14 @@ jobs:
             BRANCH:$BRANCH
         working-directory: ./apps/discord
         env:
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN_WORKERS }}
-          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT_WORKERS }}
+          SENTRY_DSN: ${{ vars.SENTRY_DSN_WORKERS }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT_WORKERS }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-          DISCORD_APP_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
-          DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
-          SUMMARY_SITE: ${{ secrets.SUMMARY_SITE }}
+          DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
+          DISCORD_PUBLIC_KEY: ${{ vars.DISCORD_PUBLIC_KEY }}
+          SUMMARY_SITE: ${{ vars.SUMMARY_SITE }}
           ENVIROMENT: ${{ inputs.environment }}
           RELEASE: ${{ github.sha }}
           BRANCH: ${{ github.head_ref || github.ref_name }}

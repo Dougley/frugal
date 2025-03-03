@@ -32,7 +32,7 @@
     {
       "previewLimit": 50,
       "driver": "SQLite",
-      "database": "${workspaceFolder:frugal}/.mf/v3/d1/miniflare-D1DatabaseObject/5d027405317058c2d5410b0d0cec67f5d856be287f5acbbfd88c147a0980bda2.sqlite",
+      "database": "${workspaceFolder:frugal}/.mf/v3/d1/miniflare-D1DatabaseObject/48b5a6b23b1c4b6daf429388afab38fca04b17ab542c7c4f0a78f228fe945c8e.sqlite",
       "name": "frugal-d1-sqlite"
     }
   ]
