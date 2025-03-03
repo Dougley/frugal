@@ -43,7 +43,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           SENTRY_DSN: ${{ vars.SENTRY_DSN_WEB }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          SESSION_SECRET: ${{ secrets.WEB_SESSION_SECRET }}
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_APP_ID }}
           DISCORD_PUBLIC_KEY: ${{ vars.DISCORD_PUBLIC_KEY }}
           DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_SECRET }}
