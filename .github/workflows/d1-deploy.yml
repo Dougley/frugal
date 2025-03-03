@@ -1,0 +1,24 @@
+name: Deploy D1 Migrations
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy to"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/d1-prisma/**"
+
+jobs:
+  d1:
+    name: Run D1 Migrations
+    uses: dougley/frugal/.github/workflows/d1-migrations.yml@dev
+    secrets: inherit
+    with:
+      environment: ${{ github.event.inputs.environment || 'staging' }}

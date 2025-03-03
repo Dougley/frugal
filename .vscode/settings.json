@@ -17,14 +17,22 @@
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "prettier.prettierPath": "./node_modules/prettier",
   "editor.formatOnSave": true,
   "eslint.format.enable": false,
   "sqltools.useNodeRuntime": true,
+  "cssVariables.lookupFiles": [
+    "**/*.css",
+    "**/*.scss",
+    "**/*.sass",
+    "**/*.less",
+    "**/node_modules/@mantine/core/styles.css"
+  ],
   "sqltools.connections": [
     {
       "previewLimit": 50,
       "driver": "SQLite",
-      "database": "${workspaceFolder:frugal}/.mf/d1/D1.sqlite3",
+      "database": "${workspaceFolder:frugal}/.mf/v3/d1/miniflare-D1DatabaseObject/48b5a6b23b1c4b6daf429388afab38fca04b17ab542c7c4f0a78f228fe945c8e.sqlite",
       "name": "frugal-d1-sqlite"
     }
   ]

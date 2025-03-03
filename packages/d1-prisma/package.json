@@ -1,0 +1,34 @@
+{
+  "private": true,
+  "type": "module",
+  "name": "@dougley/d1-prisma",
+  "version": "0.0.0",
+  "author": "Remco Jongschaap <hey@dougley.com>",
+  "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dougley/frugal.git",
+    "directory": "packages/d1-prisma"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc && prisma generate",
+    "migration:create": "node scripts/create-migration.mjs",
+    "migration:apply:dev": "wrangler d1 migrations apply frugal --local --persist-to='../../.mf'",
+    "migration:apply:prod": "wrangler d1 migrations apply frugal"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "@dougley/tsconfig": "workspace:^",
+    "@dougley/types": "workspace:^",
+    "@types/node": "^22.13.8",
+    "discord-api-types": "catalog:",
+    "glob": "^11.0.1",
+    "prisma": "^6.4.1",
+    "wrangler": "catalog:"
+  },
+  "dependencies": {
+    "@prisma/adapter-d1": "^6.4.1",
+    "@prisma/client": "^6.4.1"
+  }
+}

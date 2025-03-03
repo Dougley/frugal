@@ -1,0 +1,45 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../../../.mf/v3/d1/miniflare-D1DatabaseObject/5d027405317058c2d5410b0d0cec67f5d856be287f5acbbfd88c147a0980bda2.sqlite"
+}
+
+model Entries {
+  giveaway_id   String
+  user_id       String
+  winner        Boolean   @default(false)
+  timestamp     DateTime  @default(now())
+  avatar        String?
+  username      String
+  discriminator String?
+  giveaways     Giveaways @relation(fields: [giveaway_id], references: [message_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, giveaway_id])
+  @@index([winner, giveaway_id], map: "idx_entries_winner")
+  @@index([user_id], map: "idx_entries_user_id")
+  @@index([giveaway_id], map: "idx_entries_giveaway_id")
+}
+
+model Giveaways {
+  message_id        String    @id
+  guild_id          String
+  channel_id        String
+  end_time          DateTime
+  prize             String
+  winners           Int
+  entry_count       Int       @default(0)
+  durable_object_id String    @unique()
+  description       String?
+  host_id           String
+  state             String    @default("NEW")
+  entries           Entries[]
+
+  @@index([state], map: "idx_giveaways_state")
+  @@index([durable_object_id], map: "idx_durable_object_id")
+  @@index([channel_id], map: "idx_channel_id")
+  @@index([guild_id], map: "idx_guild_id")
+}

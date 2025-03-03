@@ -7,22 +7,33 @@
   },
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/common-utils:2": {},
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "18.3"
+      "version": "lts"
     },
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers-contrib/features/cloudflared:1": {}
   },
   "customizations": {
+    "codespaces": {
+      "openFiles": [
+        ".github/CONTRIBUTING.md"
+      ]
+    },
     "vscode": {
       "extensions": [
         "dbaeumer.vscode-eslint",
         "IronGeek.vscode-env",
-        "bungcip.better-toml",
+        "tamasfe.even-better-toml",
         "esbenp.prettier-vscode",
-        "ms-azuretools.vscode-docker"
+        "ms-azuretools.vscode-docker",
+        "github.vscode-github-actions",
+        "stripe.vscode-stripe",
+        "bradlc.vscode-tailwindcss"
       ]
     }
   },
-  "postCreateCommand": "pnpm install --frozen-lockfile"
+  "waitFor": "onCreateCommand",
+  "updateContentCommand": "corepack prepare & pnpm install"
 }

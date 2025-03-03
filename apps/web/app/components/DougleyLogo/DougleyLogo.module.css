@@ -1,0 +1,3 @@
+.logo {
+  fill: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-3));
+}

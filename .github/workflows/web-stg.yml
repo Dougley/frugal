@@ -1,0 +1,24 @@
+name: Deploy to Cloudflare Pages - Staging
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/web/**"
+
+jobs:
+  deploy:
+    name: Deploy Web Application
+    uses: dougley/frugal/.github/workflows/web-build.yml@dev
+    secrets: inherit
+    with:
+      environment: staging
+
+  sentry:
+    name: Create Sentry release
+    needs: deploy
+    uses: dougley/frugal/.github/workflows/sentry.yml@dev
+    secrets: inherit
+    with:
+      environment: staging
+      project: web

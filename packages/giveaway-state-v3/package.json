@@ -1,0 +1,31 @@
+{
+  "name": "@dougley/frugal-savestate",
+  "version": "0.0.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dougley/frugal.git",
+    "directory": "packages/giveaway-state"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250224.0",
+    "@dougley/tsconfig": "workspace:^",
+    "@dougley/types": "workspace:^",
+    "discord-api-types": "^0.37.119",
+    "vitest": "^3.0.7",
+    "vitest-environment-miniflare": "^2.14.4"
+  },
+  "dependencies": {
+    "@discord-interactions/api": "^0.3.21",
+    "@dougley/d1-prisma": "workspace:^",
+    "@trpc/client": "11.0.0-rc.818",
+    "@trpc/server": "11.0.0-rc.818",
+    "superjson": "^2.2.2",
+    "zod": "^3.24.2"
+  }
+}

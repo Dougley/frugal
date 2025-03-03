@@ -1,9 +1,14 @@
 {
   "recommendations": [
-    "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
     "IronGeek.vscode-env",
-    "bungcip.better-toml",
-    "alexcvzz.vscode-sqlite"
+    "tamasfe.even-better-toml",
+    "esbenp.prettier-vscode",
+    "ms-azuretools.vscode-docker",
+    "github.vscode-github-actions",
+    "mtxr.sqltools-driver-sqlite",
+    "mtxr.sqltools",
+    "vitest.explorer",
+    "csstools.postcss"
   ]
 }

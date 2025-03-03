@@ -1,36 +1,60 @@
-import { CommandContext, SlashCommand, SlashCreator } from 'slash-create';
-import { server } from '../../shim';
+import { EmbedBuilder, MessageBuilder, SlashCommandBuilder } from '@discord-interactions/builders';
+import { ISlashCommand, SlashCommandContext } from '@discord-interactions/core';
+import { EnvContext } from '../../env';
 
-export default class BotCommand extends SlashCommand {
-  constructor(creator: SlashCreator) {
-    super(creator, {
-      name: 'list',
-      description: 'Lists all giveaways in the server'
-    });
-  }
+interface GiveawayState {
+  message_id: string;
+  channel_id: string;
+  prize: string;
+  winners: number;
+  end_time: Date;
+  state: string;
+}
 
-  async run(ctx: CommandContext) {
-    const giveaways = await server
-      .db!.selectFrom('giveaways')
-      .select(['prize', 'end_time', 'winners'])
-      .where('guild_id', '=', ctx.guildID!)
-      .where('end_time', '>', new Date().toISOString())
-      .orderBy('end_time', 'asc')
-      .execute();
-    if (giveaways.length === 0) return ctx.send('There are no giveaways in this server.');
-    const description = giveaways.map((giveaway) => {
-      const winners = giveaway.winners === 1 ? '1 winner' : `${giveaway.winners} winners`;
-      return `**${giveaway.prize}** - ${winners} - Ends <t:${Math.floor(
-        new Date(giveaway.end_time).getTime() / 1000
-      )}:R> (<t:${Math.floor(new Date(giveaway.end_time).getTime() / 1000)}:F>)`;
-    });
-    return ctx.send({
-      embeds: [
-        {
-          title: 'Giveaways',
-          description: description.join('\n')
-        }
-      ]
-    });
-  }
+export class ListSlashCommand implements ISlashCommand {
+  public builder = new SlashCommandBuilder('list').setDescription(
+    'Lists all giveaways in the server that are currently running'
+  );
+
+  public handler = async (ctx: SlashCommandContext): Promise<void> => {
+    await ctx.defer();
+
+    if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
+      await ctx.edit(new MessageBuilder().setContent('Giveaway state not available'));
+      return;
+    }
+
+    try {
+      const currentGiveaways = await EnvContext.state
+        .getInstance(EnvContext.env.GIVEAWAY_STATE, EnvContext.env.GIVEAWAY_STATE.newUniqueId())
+        .getActiveGiveaways.query({
+          guild_id: ctx.guildId ?? '0'
+        });
+
+      if (!currentGiveaways || currentGiveaways.length === 0) {
+        await ctx.edit(new MessageBuilder().setContent('There are no giveaways running in this server.'));
+        return;
+      }
+
+      const description = currentGiveaways.map((giveaway: GiveawayState) => {
+        const winners = giveaway.winners === 1 ? '1 winner' : `${giveaway.winners} winners`;
+        const timestamp = Math.floor(new Date(giveaway.end_time).getTime() / 1000);
+        return `[**${giveaway.prize}**](https://discord.com/channels/${ctx.guildId}/${giveaway.channel_id}/${giveaway.message_id}) - ${winners} - Ends <t:${timestamp}:R> (<t:${timestamp}:F>)`;
+      });
+
+      const embed = new EmbedBuilder()
+        .setTitle('Giveaways currently running')
+        .setDescription(description.join('\n'))
+        .setColor(0x00ff00);
+
+      await ctx.edit(new MessageBuilder().addEmbeds(embed));
+    } catch (error) {
+      console.error('Error in list command:', error);
+      await ctx.edit(
+        new MessageBuilder().setContent(
+          `Failed to list giveaways: ${error instanceof Error ? error.message : String(error)}`
+        )
+      );
+    }
+  };
 }

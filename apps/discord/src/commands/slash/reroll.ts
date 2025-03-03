@@ -1,82 +1,105 @@
-import { AutocompleteContext, CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
-import { server } from '../../shim';
+import { MessageBuilder, SlashCommandBuilder, SlashCommandStringOption } from '@discord-interactions/builders';
+import { AutocompleteContext, ISlashCommand, SlashCommandContext } from '@discord-interactions/core';
+import { PrismaClient, PrismaD1 } from '@dougley/d1-prisma';
+import { EnvContext } from '../../env';
 
-export default class BotCommand extends SlashCommand {
-  constructor(creator: SlashCreator) {
-    super(creator, {
-      name: 'reroll',
-      description: 'Reroll a giveaway',
-      options: [
-        {
-          type: CommandOptionType.STRING,
-          name: 'id',
-          description: 'ID of the giveaway to reroll',
-          required: true,
-          autocomplete: true
-        }
-      ]
+interface WinnerInfo {
+  id: string;
+  username: string;
+  discriminator: string;
+  avatar: string | null;
+}
+
+export class RerollSlashCommand implements ISlashCommand {
+  public builder = new SlashCommandBuilder('reroll')
+    .setDescription('Reroll winners for an ended giveaway')
+    .addStringOption(
+      new SlashCommandStringOption('id', 'ID of the giveaway to reroll').setRequired(true).setAutocomplete(true)
+    );
+
+  public autocompleteHandler = async (ctx: AutocompleteContext): Promise<void> => {
+    if (!EnvContext.env?.D1) {
+      await ctx.reply([]);
+      return;
+    }
+    const prisma = new PrismaClient({ adapter: new PrismaD1(EnvContext.env.D1) });
+
+    // Get closed giveaways for this guild, ordered by end time descending
+    const giveaways = await prisma.giveaways.findMany({
+      where: {
+        guild_id: ctx.guildId,
+        state: 'CLOSED'
+      },
+      orderBy: {
+        end_time: 'desc'
+      },
+      take: 25 // Limit to 25 choices as per Discord's limits
     });
-  }
 
-  async autocomplete(ctx: AutocompleteContext) {
-    const id = ctx.options.id;
-    const giveaway = await server
-      .db!.selectFrom('giveaways')
-      .select(['prize', 'message_id'])
-      .where('guild_id', '=', ctx.guildID!)
-      .where('end_time', '>', new Date().toISOString())
-      .where('message_id', 'like', `${id}%`)
-      .orderBy('end_time', 'asc')
-      .limit(10)
-      .execute();
-    console.log(giveaway);
-    if (giveaway.length === 0) return ctx.sendResults([]);
-    return ctx.sendResults(
-      giveaway.map((giveaway) => ({
-        name: `${giveaway.prize}`,
-        value: `${giveaway.message_id}`
+    await ctx.reply(
+      giveaways.map((g) => ({
+        name: `${g.prize} (${g.winners} winner${g.winners > 1 ? 's' : ''})`,
+        value: g.durable_object_id
       }))
     );
-  }
+  };
 
-  async run(ctx: CommandContext) {
-    console.log(ctx.options);
-    const id = await server.env!.KV.get(ctx.options.id);
-    if (!id)
-      return ctx.send('That message is not a giveaway, or it has expired.', {
-        ephemeral: true
-      });
-    const state = server.states!.get(server.env!.GIVEAWAY_STATE.idFromString(id));
+  public handler = async (ctx: SlashCommandContext): Promise<void> => {
+    await ctx.defer();
 
-    const data = await server
-      .db!.selectFrom('giveaways')
-      .select(['prize', 'winners', 'description'])
-      .where('durable_object_id', '=', id)
-      .executeTakeFirst();
-
-    if (!data)
-      return ctx.send('That message is not a giveaway, or it has expired.', {
-        ephemeral: true
-      });
-
-    if ((await state.class.getRunning()) === true) {
-      return ctx.send("That giveaway is still running, so you can't reroll it right now. Try stopping it first.", {
-        ephemeral: true
-      });
+    if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
+      await ctx.edit(new MessageBuilder().setContent('Giveaway state not available'));
+      return;
     }
 
-    const newWinners = await state.class.drawWinners(1);
-    // const message = await state.class.getFormattedEntries(newWinners);
-    if (newWinners.length === 0) {
-      return ctx.send('No new winners could be drawn, as there were no (other) entries.', {
-        ephemeral: true
-      });
-    }
-    await ctx.send(`A new winner has been drawn! The new winner is <@${newWinners[0].id}>, congrats!`, {
-      allowedMentions: {
-        everyone: false,
-        users: [newWinners[0].id]
+    const giveawayId = ctx.getStringOption('id').value;
+
+    try {
+      const stub = EnvContext.state.getInstance(
+        EnvContext.env.GIVEAWAY_STATE,
+        EnvContext.env.GIVEAWAY_STATE.idFromString(giveawayId)
+      );
+
+      const state = await stub.getState.query();
+      if (!state) {
+        await ctx.edit(new MessageBuilder().setContent('That giveaway does not exist.'));
+        return;
       }
-    });
-  }
+
+      if (state.state !== 'CLOSED') {
+        await ctx.edit(
+          new MessageBuilder().setContent(
+            "That giveaway is still running. You can't reroll it until it ends. Try stopping it first."
+          )
+        );
+        return;
+      }
+
+      // Draw new winners
+      const result = await stub.drawWinners.mutate();
+      if (!result.success || result.winners.length === 0) {
+        await ctx.edit(
+          new MessageBuilder().setContent('No new winners could be drawn, as there were no (other) entries.')
+        );
+        return;
+      }
+
+      const winnerMentions = result.winners.map((winner) => `<@${winner.id}>`).join(', ');
+      await ctx.edit(
+        new MessageBuilder()
+          .setContent(
+            `🎉 New ${result.winners.length === 1 ? 'winner has' : 'winners have'} been drawn!\n` +
+              `Congratulations to ${winnerMentions}!`
+          )
+          .setAllowedMentions({ users: result.winners.map((w) => w.id) })
+      );
+    } catch (error) {
+      console.error('Error in reroll command:', error);
+      await ctx.edit(
+        new MessageBuilder().setContent(
+          `Failed to reroll giveaway: ${error instanceof Error ? error.message : String(error)}`
+        )
+      );
+    }
+  };
 }

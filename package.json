@@ -1,24 +1,24 @@
 {
   "name": "@dougley/frugal",
-  "packageManager": "pnpm@8.1.1",
+  "packageManager": "pnpm@10.3.0",
   "version": "0.0.0",
   "license": "MIT",
   "devDependencies": {
-    "@changesets/changelog-github": "^0.4.8",
-    "@changesets/cli": "^2.26.1",
-    "@types/jest": "^29.5.1",
-    "@typescript-eslint/eslint-plugin": "^5.59.1",
-    "@typescript-eslint/parser": "^5.59.1",
-    "eslint": "^8.39.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-jest": "^27.2.1",
-    "jest": "^29.5.0",
-    "prettier": "2.8.1",
-    "prettier-plugin-organize-imports": "^3.2.2",
-    "rimraf": "^4.4.1",
-    "ts-jest": "^29.1.0",
-    "turbo": "^1.9.3",
-    "typescript": "^4.9.5"
+    "@changesets/changelog-github": "^0.5.1",
+    "@changesets/cli": "^2.28.1",
+    "@types/jest": "^29.5.14",
+    "@typescript-eslint/eslint-plugin": "^8.25.0",
+    "@typescript-eslint/parser": "^8.25.0",
+    "eslint": "^9.21.0",
+    "eslint-config-prettier": "^10.0.2",
+    "eslint-plugin-jest": "^28.11.0",
+    "jest": "^29.7.0",
+    "prettier": "3.5.3",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "rimraf": "^6.0.1",
+    "ts-jest": "^29.2.6",
+    "turbo": "^2.4.4",
+    "typescript": "^5.8.2"
   },
   "scripts": {
     "lint:report": "eslint --output-file eslint_report.json --format json \"{packages,apps}/**/src/**/*.{ts,tsx,cts,mts}\"",
@@ -31,9 +31,10 @@
     "packages/*"
   ],
   "pnpm": {
-    "patchedDependencies": {
-      "slash-create@5.12.0": "patches/slash-create@5.12.0.patch",
-      "@miniflare/d1@2.13.0": "patches/@miniflare__d1@2.13.0.patch"
+    "peerDependencyRules": {
+      "allowAny": [
+        "@cloudflare/workers-types"
+      ]
     }
   }
 }

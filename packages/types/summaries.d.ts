@@ -1,7 +1,7 @@
 declare type SavedUserInformation = {
   id: string;
   username: string;
-  discriminator: string;
+  discriminator: string | null;
   avatar: string | null;
 };
 

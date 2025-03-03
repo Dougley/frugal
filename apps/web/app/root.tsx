@@ -1,37 +1,89 @@
-import type { HeadersFunction, LinksFunction } from "@remix-run/cloudflare";
-import { Outlet } from "@remix-run/react";
+import {
+  ColorSchemeScript,
+  createTheme,
+  DEFAULT_THEME,
+  MantineProvider,
+  mergeMantineTheme,
+} from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
+import { Notifications } from "@mantine/notifications";
+import { NavigationProgress } from "@mantine/nprogress";
+import type { LinksFunction } from "react-router";
+import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import Contexts from "~/components/contexts";
+import { Skeleton } from "./components/Skeleton/Skeleton";
+import { TopErrorBoundary } from "./components/TopErrorBoundary/TopErrorBoundary";
+import styles from "./styles.css?url";
+import { getLoggedInUser } from "./utils/auth";
+import { defaultMeta } from "./utils/meta";
 
-import { Document } from "~/components/Document";
-import { Layout } from "~/components/Layout";
-import tailwindStylesheet from "~/styles/tailwind.css";
+import type { Route } from "./+types/root";
 
-import { ErrorBoundary } from "~/components/ErrorBoundary";
-
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: tailwindStylesheet },
-  { rel: "preconnect", href: "https://fonts.gstatic.com" },
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap",
-  },
-];
-
-export const headers: HeadersFunction = ({ loaderHeaders }) => {
-  return {
-    "Accept-CH": "Sec-CH-Prefers-Color-Scheme",
-    ...loaderHeaders,
-  };
+export const meta = () => {
+  return defaultMeta();
 };
 
-export default function App() {
+export const links: LinksFunction = () => [
+  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  {
+    rel: "preconnect",
+    href: "https://fonts.gstatic.com",
+    crossOrigin: "anonymous",
+  },
+  {
+    rel: "stylesheet",
+    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+  },
+  { rel: "stylesheet", href: styles },
+];
+
+const theme = mergeMantineTheme(
+  DEFAULT_THEME,
+  createTheme({
+    fontFamily: "Inter, " + DEFAULT_THEME.fontFamily,
+  }),
+);
+
+export async function loader({ request, context }: Route.LoaderArgs) {
+  const user = await getLoggedInUser(request, context);
+  return { user };
+}
+
+export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <Document>
-      <Layout>
-        <Outlet />
-      </Layout>
-    </Document>
+    // hydration: mantine injects a meta tag with the color scheme on the client
+    <html lang="en" suppressHydrationWarning={true}>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+        <meta
+          httpEquiv="Content-Security-Policy"
+          content="upgrade-insecure-requests"
+        />
+        <Meta />
+        <Links />
+        <ColorSchemeScript />
+      </head>
+      <body>
+        <MantineProvider theme={theme} defaultColorScheme="auto">
+          <Notifications />
+          <NavigationProgress />
+          <ModalsProvider>
+            <Contexts>
+              <Skeleton>{children}</Skeleton>
+            </Contexts>
+          </ModalsProvider>
+        </MantineProvider>
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
   );
 }
 
-export { ErrorBoundary };
+export const ErrorBoundary = TopErrorBoundary;
+
+export default function App() {
+  return <Outlet />;
+}

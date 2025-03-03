@@ -1,22 +1,18 @@
-import editMsgContextCommand from './message/edit';
-import rerollMsgContextCommand from './message/reroll';
-import stopMsgContextCommand from './message/stop';
-import editSlashCommand from './slash/edit';
-import inviteSlashCommand from './slash/invite';
-import listSlashCommand from './slash/list';
-import pingSlashCommand from './slash/ping';
-import startSlashCommand from './slash/start';
+import { EditSlashCommand } from './slash/edit';
+import { ListSlashCommand } from './slash/list';
+import { PingSlashCommand } from './slash/ping';
+import { RerollSlashCommand } from './slash/reroll';
+import { SaveTestSlashCommand } from './slash/savetest';
+import { StartSlashCommand } from './slash/start';
+import { StopSlashCommand } from './slash/stop';
 
-export const commands = [
-  // Slash commands
-  pingSlashCommand,
-  startSlashCommand,
-  editSlashCommand,
-  listSlashCommand,
-  inviteSlashCommand,
-
-  // Message commands
-  editMsgContextCommand,
-  rerollMsgContextCommand,
-  stopMsgContextCommand
-];
+export {
+  // slash commands
+  EditSlashCommand,
+  ListSlashCommand,
+  PingSlashCommand,
+  RerollSlashCommand,
+  SaveTestSlashCommand,
+  StartSlashCommand,
+  StopSlashCommand
+};
