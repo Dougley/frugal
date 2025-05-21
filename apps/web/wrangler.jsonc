@@ -2,7 +2,8 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   // Basic worker configuration
   "name": "frugal-web-development",
-  "main": "./build/server/index.js",
+  // "main": "./build/server/index.js",
+  "main": "./server.ts",
   "compatibility_date": "2024-09-26",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,

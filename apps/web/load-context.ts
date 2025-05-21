@@ -1,6 +1,4 @@
-// import { PrismaClient, PrismaD1 } from "@dougley/d1-prisma";
-import { PrismaD1 } from "@prisma/adapter-d1";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, PrismaD1 } from "@dougley/d1-prisma";
 import { createWorkersKVSessionStorage } from "@react-router/cloudflare";
 import {
   APIUser,

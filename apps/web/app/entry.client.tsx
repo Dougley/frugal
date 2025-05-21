@@ -15,6 +15,8 @@ import { startTransition, StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
 
 init({
+  debug: import.meta.env.DEV,
+
   dsn: import.meta.env.VITE_SENTRY_DSN,
   tracesSampleRate: 1,
   tunnel: import.meta.env.DEV ? undefined : "/api/reporting",

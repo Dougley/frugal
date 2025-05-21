@@ -1,6 +1,7 @@
 import mdx from "@mdx-js/rollup";
 import { reactRouter } from "@react-router/dev/vite";
 import { cloudflareDevProxy } from "@react-router/dev/vite/cloudflare";
+// import { cloudflare } from "@cloudflare/vite-plugin";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { reactRouterDevTools } from "react-router-devtools";
 import remarkFrontmatter from "remark-frontmatter";
@@ -44,6 +45,11 @@ export default defineConfig(({ isSsrBuild }) => ({
   },
   plugins: [
     cloudflareDevProxy({ getLoadContext }),
+    // cloudflare({
+    //   viteEnvironment: {
+    //     name: "ssr",
+    //   },
+    // }),
     reactRouterDevTools(),
     mdx({
       providerImportSource: "@mdx-js/react",

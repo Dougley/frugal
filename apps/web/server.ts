@@ -1,9 +1,9 @@
 import { withSentry } from "@sentry/cloudflare";
 import { createRequestHandler } from "react-router";
 import { getLoadContext } from "./load-context";
+import { meta } from "~/routes/legal";
 
 const handleRemixRequest = createRequestHandler(
-  // @ts-expect-error - virtual module provided by React Router at build time
   () => import("virtual:react-router/server-build"),
   import.meta.env.MODE,
 );
@@ -16,6 +16,7 @@ export default withSentry(
   (env) => ({
     dsn: env.SENTRY_DSN,
     tracesSampleRate: 1.0,
+    debug: import.meta.env.DEV,
   }),
   {
     // @ts-expect-error - type mismatch due to `withSentry` wrapper
