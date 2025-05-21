@@ -1,16 +1,25 @@
-import { MessageBuilder, SlashCommandBuilder } from '@discord-interactions/builders';
-import { ISlashCommand, SlashCommandContext } from '@discord-interactions/core';
+import { CommandContext, SlashCommand, SlashCreator } from 'slash-create/web';
 
-export class PingSlashCommand implements ISlashCommand {
-  public builder = new SlashCommandBuilder('ping', "Test the bot's latency");
+export default class PingCommand extends SlashCommand {
+  constructor(creator: SlashCreator) {
+    super(creator, {
+      name: 'ping',
+      description: "Test the bot's latency"
+    });
+  }
 
-  public handler = async (ctx: SlashCommandContext): Promise<void> => {
+  async run(ctx: CommandContext) {
     await ctx.defer();
-    const msg = await ctx.send(new MessageBuilder().setContent('🏓 Pinging...'));
-    const sigOffset = Date.now() - ctx.signedAt.getTime();
-    const rtt = new Date(msg.timestamp).getTime() - ctx.receivedAt.getTime();
-    await ctx.edit(
-      new MessageBuilder().setContent(`🏓 Pong! Signature offset is \`${sigOffset}\`ms, RTT is \`${rtt}\`ms`)
-    );
-  };
+
+    // Send initial message
+    const startTime = Date.now();
+    const msg = await ctx.send('🏓 Pinging...');
+
+    // Calculate time difference
+    const endTime = Date.now();
+    const rtt = endTime - startTime;
+
+    // Edit the message with the ping information
+    return ctx.editOriginal(`🏓 Pong! RTT is \`${rtt}\`ms`);
+  }
 }

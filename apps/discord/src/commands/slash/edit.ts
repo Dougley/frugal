@@ -1,27 +1,40 @@
-import { ActionRowBuilder, MessageBuilder, SlashCommandBuilder, SlashCommandStringOption } from '@discord-interactions/builders';
-import { AutocompleteContext, ISlashCommand, SlashCommandContext } from '@discord-interactions/core';
 import { PrismaClient, PrismaD1 } from '@dougley/d1-prisma';
+import { EditModal } from '@dougley/frugal-utils';
+import { AutocompleteContext, CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create/web';
 import { EnvContext } from '../../env';
 
-export class EditSlashCommand implements ISlashCommand {
-  public builder = new SlashCommandBuilder('edit')
-    .setDescription('Edit a giveaway')
-    .addStringOption(
-      new SlashCommandStringOption('id', 'ID of the giveaway to edit').setRequired(true).setAutocomplete(true)
-    );
+export default class EditCommand extends SlashCommand {
+  constructor(creator: SlashCreator) {
+    super(creator, {
+      name: 'edit',
+      description: 'Edit a giveaway',
+      options: [
+        {
+          type: CommandOptionType.STRING,
+          name: 'id',
+          description: 'ID of the giveaway to edit',
+          required: true,
+          autocomplete: true
+        }
+      ]
+    });
+  }
 
-  public autocompleteHandler = async (ctx: AutocompleteContext): Promise<void> => {
+  async autocomplete(ctx: AutocompleteContext) {
+    console.log('Autocomplete called');
+
     if (!EnvContext.env?.D1) {
-      await ctx.reply([]);
-      return;
+      console.error('D1 environment not available');
+      return [];
     }
+
     const prisma = new PrismaClient({ adapter: new PrismaD1(EnvContext.env.D1) });
 
     // Get active giveaways for this guild, ordered by end time ascending
     const giveaways = await prisma.giveaways.findMany({
       where: {
-        guild_id: ctx.guildId,
-        state: 'ACTIVE'
+        guild_id: ctx.guildID,
+        state: 'OPEN'
       },
       orderBy: {
         end_time: 'asc'
@@ -29,54 +42,48 @@ export class EditSlashCommand implements ISlashCommand {
       take: 25 // Limit to 25 choices as per Discord's limits
     });
 
-    await ctx.reply(
-      giveaways.map((g) => ({
-        name: `${g.prize} (${g.winners} winner${g.winners > 1 ? 's' : ''})`,
-        value: g.durable_object_id
-      }))
-    );
-  };
+    console.log('Giveaways:', giveaways);
+    // dd-mm-yyyy hh:mm:ss
+    const datestr = (date: Date) => {
+      return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+    };
 
-  public handler = async (ctx: SlashCommandContext): Promise<void> => {
-    await ctx.defer();
+    return giveaways.map((g) => ({
+      name: `${g.prize.slice(
+        0,
+        20
+      )} - Ends ${datestr(new Date(g.end_time))} with ${g.winners} winner${g.winners === 1 ? '' : 's'}`,
+      value: g.durable_object_id
+    }));
+  }
+
+  async run(ctx: CommandContext): Promise<any> {
+    // No need to defer the response as we're showing a modal immediately
 
     if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      await ctx.edit(new MessageBuilder().setContent('Giveaway state not available'));
-      return;
+      return ctx.send({
+        content: 'Giveaway state not available',
+        ephemeral: true
+      });
     }
 
-    const giveawayId = ctx.getStringOption('id').value;
+    const giveawayId = ctx.options.id;
 
-    try {
-      const stub = EnvContext.state.getInstance(
-        EnvContext.env.GIVEAWAY_STATE,
-        EnvContext.env.GIVEAWAY_STATE.idFromString(giveawayId)
-      );
+    const stub = EnvContext.state.getInstance(
+      EnvContext.env.GIVEAWAY_STATE,
+      EnvContext.env.GIVEAWAY_STATE.idFromString(giveawayId)
+    );
 
-      const state = await stub.getState.query();
-      if (!state) {
-        await ctx.edit(new MessageBuilder().setContent('That giveaway does not exist or has expired.'));
-        return;
-      }
+    const state = await stub.getState.query();
 
-      // TODO: Add modal support once available in new framework
-      // For now, we'll just show the current state
-      await ctx.edit(
-        new MessageBuilder().setContent(
-          `**Current Giveaway State**\n` +
-            `🎁 **Prize:** ${state.prize}\n` +
-            `👥 **Winners:** ${state.winners}\n` +
-            `⏱️ **End Time:** ${new Date(state.end_time).toLocaleString()}\n` +
-            `\nModal support for editing will be added once available in the framework.`
-        )
-      );
-    } catch (error) {
-      console.error('Error in edit command:', error);
-      await ctx.edit(
-        new MessageBuilder().setContent(
-          `Failed to edit giveaway: ${error instanceof Error ? error.message : String(error)}`
-        )
-      );
+    if (!state) {
+      return ctx.send({
+        content: 'That giveaway does not exist or has expired.',
+        ephemeral: true
+      });
     }
-  };
+
+    // Show the modal immediately using the component's createModal method
+    return ctx.sendModal(EditModal.createModal(giveawayId, state));
+  }
 }

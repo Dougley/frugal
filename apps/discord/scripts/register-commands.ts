@@ -1,8 +1,16 @@
+import { config } from 'dotenv';
+
 import { RESTPutAPIApplicationCommandsResult, RouteBases, Routes } from 'discord-api-types/v10';
-import * as Commands from '../src/commands';
+import { Creator } from 'slash-create/web';
+import { commands } from '../src/commands';
+
+config({
+  path: '.dev.vars'
+});
 
 const DISCORD_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const APP_ID = process.env.DISCORD_APP_ID;
+const PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY || 'dummy-key-for-registration';
 const DEV_GUILD = process.env.DEVELOPMENT_GUILD;
 
 if (!DISCORD_TOKEN) {
@@ -14,10 +22,23 @@ if (!APP_ID) {
 }
 
 async function registerCommands() {
-  const commands = Object.values(Commands).map((Command) => new Command().builder.toJSON());
-
   try {
+    // Extract command data using the toCommandJSON method
+    const commandData = commands.map((Command) =>
+      new Command(
+        // Spoof the creator to get the command JSON
+        new Creator({
+          applicationID: APP_ID!,
+          publicKey: PUBLIC_KEY,
+          token: DISCORD_TOKEN
+        })
+      ).toCommandJSON()
+    );
+
+    console.log(commandData);
+
     console.log('Started refreshing application commands...');
+
     if (DEV_GUILD) {
       console.log(`Registering commands in development guild: ${DEV_GUILD}`);
     }
@@ -33,7 +54,7 @@ async function registerCommands() {
         'User-Agent': 'DiscordBot (@giveawaybot/cmd-register, v1; +https://github.com/dougley/frugal)',
         'Content-Type': 'application/json;charset=UTF-8'
       },
-      body: JSON.stringify(commands)
+      body: JSON.stringify(commandData)
     });
 
     if (!response.ok) {

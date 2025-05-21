@@ -5,7 +5,7 @@
   "main": "src/index.ts",
 	"compatibility_date": "2025-02-24",
   "workers_dev": true,
-  "compatibility_flags": ["nodejs_als"],
+  "compatibility_flags": ["nodejs_compat"],
 
   "observability": {
     "enabled": true
@@ -27,7 +27,7 @@
   "migrations": [
     {
       "tag": "v1",
-      "new_classes": ["GiveawayStateV3"]
+      "new_sqlite_classes": ["GiveawayStateV3"]
     }
   ],
 

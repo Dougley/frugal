@@ -1,142 +1,202 @@
+import { createGiveawayComponents, JoinButton } from '@dougley/frugal-utils';
 import {
-  ActionRowBuilder,
-  ButtonStyle,
-  EmbedBuilder,
-  LinkButtonBuilder,
-  MessageBuilder,
-  SlashCommandBuilder,
-  SlashCommandIntegerOption,
-  SlashCommandStringOption
-} from '@discord-interactions/builders';
-import { ISlashCommand, SlashCommandContext } from '@discord-interactions/core';
+  BitField,
+  CommandContext,
+  CommandOptionType,
+  ComponentType,
+  Message,
+  MessageFlags,
+  SlashCommand,
+  SlashCreator
+} from 'slash-create/web';
 import { EnvContext } from '../../env';
 
-const parseTime = (duration: string): number => {
-  const units: { [key: string]: number } = {
-    s: 1000,
-    m: 60 * 1000,
-    h: 60 * 60 * 1000,
-    d: 24 * 60 * 60 * 1000
-  };
+// Constants for duration limits
+const MAX_DURATION_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
+const MIN_DURATION_MS = 10 * 1000; // 10 seconds
 
-  const match = duration.match(/^(\d+)([smhd])$/);
-  if (!match) return 0;
+export default class StartCommand extends SlashCommand {
+  constructor(creator: SlashCreator) {
+    super(creator, {
+      name: 'start',
+      description: 'Start a giveaway in the current channel',
+      options: [
+        {
+          type: CommandOptionType.STRING,
+          name: 'duration',
+          description: 'Duration of the giveaway (e.g., 30s, 5m, 2h, 1d)',
+          required: true
+        },
+        {
+          type: CommandOptionType.INTEGER,
+          name: 'winners',
+          description: 'Number of winners',
+          required: true,
+          min_value: 1,
+          max_value: 50
+        },
+        {
+          type: CommandOptionType.STRING,
+          name: 'prize',
+          description: 'Prize to win',
+          required: true,
+          min_length: 1,
+          max_length: 100
+        },
+        {
+          type: CommandOptionType.STRING,
+          name: 'description',
+          description: 'Description of the giveaway',
+          required: false,
+          min_length: 1,
+          max_length: 1000
+        }
+      ]
+    });
+  }
 
-  const [, value, unit] = match;
-  return parseInt(value, 10) * units[unit];
-};
+  /**
+   * Validates and parses a duration string (e.g., "30s", "5m", "2h", "1d")
+   * Returns milliseconds if valid, or an error message if invalid
+   */
+  private validateDuration(durationStr: string): { valid: true; duration: number } | { valid: false; error: string } {
+    // Parse the duration string into milliseconds
+    const units: Record<string, number> = {
+      s: 1000,
+      m: 60 * 1000,
+      h: 60 * 60 * 1000,
+      d: 24 * 60 * 60 * 1000
+    };
 
-export class StartSlashCommand implements ISlashCommand {
-  public builder = new SlashCommandBuilder('start')
-    .setDescription('Start a giveaway in the current channel')
-    .addStringOption(
-      new SlashCommandStringOption('duration', 'Duration of the giveaway (e.g., 30s, 5m, 2h, 1d)').setRequired(true)
-    )
-    .addIntegerOption(
-      new SlashCommandIntegerOption('winners', 'Number of winners').setRequired(true).setMinValue(1).setMaxValue(50)
-    )
-    .addStringOption(
-      new SlashCommandStringOption('prize', 'Prize to win').setRequired(true).setMinLength(1).setMaxLength(100)
-    )
-    .addStringOption(
-      new SlashCommandStringOption('description', 'Description of the giveaway')
-        .setRequired(false)
-        .setMinLength(1)
-        .setMaxLength(1000)
-    );
+    const match = durationStr.match(/^(\d+)([smhd])$/);
+    if (!match) {
+      return {
+        valid: false,
+        error: 'Invalid duration format. Use format like: 30s, 5m, 2h, 1d'
+      };
+    }
 
-  public handler = async (ctx: SlashCommandContext): Promise<void> => {
+    const [, value, unit] = match;
+    const duration = parseInt(value, 10) * units[unit];
+
+    // Validate the duration limits
+    if (duration > MAX_DURATION_MS) {
+      return {
+        valid: false,
+        error: "Giveaways can't be longer than 14 days"
+      };
+    }
+
+    if (duration < MIN_DURATION_MS) {
+      return {
+        valid: false,
+        error: "Giveaways can't be shorter than 10 seconds"
+      };
+    }
+
+    return { valid: true, duration };
+  }
+
+  async run(ctx: CommandContext): Promise<any> {
     try {
       await ctx.defer();
 
+      // Validate environment
       if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-        await ctx.edit(new MessageBuilder().setContent('Giveaway state not available'));
-        return;
+        return ctx.editOriginal('Giveaway state not available');
       }
 
-      const duration = parseTime(ctx.getStringOption('duration').value);
-      if (duration === 0) {
-        await ctx.edit(new MessageBuilder().setContent('Invalid duration format. Use format like: 30s, 5m, 2h, 1d'));
-        return;
+      // Parse and validate duration
+      const durationResult = this.validateDuration(ctx.options.duration);
+      if (!durationResult.valid) {
+        return ctx.editOriginal(durationResult.error);
       }
 
-      // Validate duration limits
-      if (duration > 14 * 24 * 60 * 60 * 1000) {
-        await ctx.edit(new MessageBuilder().setContent("Giveaways can't be longer than 14 days"));
-        return;
-      }
-      if (duration < 10 * 1000) {
-        await ctx.edit(new MessageBuilder().setContent("Giveaways can't be shorter than 10 seconds"));
-        return;
-      }
-
+      // Process giveaway parameters
+      const duration = durationResult.duration;
       const endTime = new Date(Date.now() + duration);
-      const winnersCount = ctx.getIntegerOption('winners').value;
-      const prize = ctx.getStringOption('prize').value;
-      const description = ctx.hasOption('description') ? ctx.getStringOption('description').value : '';
+      const winnersCount = ctx.options.winners;
+      const prize = ctx.options.prize;
+      const description = ctx.options.description || '';
 
-      const timestamp = Math.floor(endTime.getTime() / 1000);
-      const embed = new EmbedBuilder()
-        .setColor(0x00ff00)
-        .setTitle(prize)
-        .setDescription(description)
-        .addFields(
-          {
-            name: 'Winners',
-            value: winnersCount.toString(),
-            inline: true
-          },
-          {
-            name: 'Ends',
-            value: `<t:${timestamp}:R> (<t:${timestamp}:F>)`,
-            inline: true
-          }
-        )
-        .setTimestamp(endTime);
+      // Host information
+      const host = {
+        id: ctx.user.id,
+        username: ctx.user.username,
+        avatar: ctx.user.avatar
+      };
 
-      // Send the giveaway message to the channel
-      const giveawayMessage = await ctx.send(
-        new MessageBuilder().setContent('🎉 **GIVEAWAY** 🎉').addEmbeds(embed).setEphemeral(false)
-      );
-
+      // Create a new Durable Object ID for this giveaway
       const id = EnvContext.env.GIVEAWAY_STATE.newUniqueId();
+
+      const flags = new BitField([MessageFlags.IS_COMPONENTS_V2, MessageFlags.SUPPRESS_EMBEDS]);
+
+      const giveawayMessage = (await ctx.send({
+        flags: flags.bitfield as number,
+        allowedMentions: {
+          parse: []
+        },
+        components: createGiveawayComponents({
+          prize,
+          winners: winnersCount,
+          end_time: endTime,
+          host_username: host.username,
+          host_id: host.id,
+          description,
+          giveaway_id: id.toString(),
+          join_button: JoinButton.createActionRow(id.toString())
+        })
+      })) as Message;
+
+      // Ensure we have valid IDs
+      const guildID = ctx.guildID ?? '0';
+      const channelID = ctx.channelID ?? '0';
+
+      if (!giveawayMessage || !giveawayMessage.id) {
+        return ctx.editOriginal('Failed to create giveaway message');
+      }
+
+      // Get the durable object instance
       const stub = EnvContext.state.getInstance(EnvContext.env.GIVEAWAY_STATE, id);
 
-      // Begin the giveaway with the new message ID
-      await stub.beginGiveaway.mutate({
+      // Start the giveaway
+      const giveawayData = {
         message_id: giveawayMessage.id,
-        channel_id: ctx.channelId ?? '0',
-        guild_id: ctx.guildId ?? '0',
+        channel_id: channelID,
+        guild_id: guildID,
         prize: prize,
         winners: winnersCount,
         end_time: endTime.toISOString(),
-        host_id: ctx.user.id
-      });
+        host_id: ctx.user.id,
+        host_username: ctx.user.username,
+        host_avatar: ctx.user.avatar || undefined,
+        description: ctx.options.description || undefined
+      };
 
-      // Set up the alarm
+      await stub.beginGiveaway.mutate(giveawayData);
+
+      // Set up the alarm for when the giveaway ends
       await stub.startAlarm.mutate(endTime.toISOString());
-
-      // Send ephemeral confirmation
-      await ctx.send(
-        new MessageBuilder()
-          .setContent(`✅ Giveaway started successfully!`)
-          .addComponents(
-            new ActionRowBuilder().addComponents(
-              new LinkButtonBuilder()
-                .setLabel('View')
-                .setStyle(ButtonStyle.Link)
-                .setURL(`https://discord.com/channels/${ctx.guildId}/${ctx.channelId}/${giveawayMessage.id}`)
-            )
-          )
-          .setEphemeral(true)
-      );
     } catch (error) {
       console.error('Error in start command:', error);
-      await ctx.edit(
-        new MessageBuilder().setContent(
-          `Failed to start giveaway: ${error instanceof Error ? error.message : String(error)}`
-        )
-      );
+      return ctx.editOriginal(`Failed to start giveaway: ${error instanceof Error ? error.message : String(error)}`);
     }
+  }
+}
+
+function generateDescription(description: string): import('slash-create/web').AnyComponent {
+  return {
+    type: ComponentType.CONTAINER,
+    accent_color: 0x00ff00,
+    components: [
+      {
+        type: ComponentType.TEXT_DISPLAY,
+        content: `${description}`
+      },
+      {
+        type: ComponentType.TEXT_DISPLAY,
+        content: `-# Description provided by the host`
+      }
+    ]
   };
 }
