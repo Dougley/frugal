@@ -29,7 +29,7 @@
     "@dougley/d1-prisma": "workspace:^",
     "@dougley/frugal-savestate": "workspace:^",
     "@dougley/frugal-utils": "workspace:^",
-    "@sentry/cloudflare": "^9.20.0",
+    "@sentry/cloudflare": "^9.22.0",
     "slash-create": "^6.4.1"
   },
   "devDependencies": {

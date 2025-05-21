@@ -14,7 +14,7 @@
     "directory": "packages/utils"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250520.0",
+    "@cloudflare/workers-types": "^4.20250521.0",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^"
   },
