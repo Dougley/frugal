@@ -50,10 +50,33 @@ export function createProxy(
   return class DOProxy implements DurableObject {
     state: DurableObjectState;
     env: Env;
+    sql: SqlStorage;
 
     constructor(state: DurableObjectState, env: Env) {
       this.state = state;
       this.env = env;
+      this.sql = state.storage.sql;
+
+      this.state.blockConcurrencyWhile(async () => {
+        // Setup sql storage
+        await this.sql.exec(`
+          CREATE TABLE IF NOT EXISTS entries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            userId TEXT NOT NULL,
+            avatar TEXT,
+            username TEXT,
+            winner BOOLEAN DEFAULT FALSE,
+            UNIQUE (userId)
+          );
+          CREATE INDEX IF NOT EXISTS idx_userId ON entries (userId);
+          CREATE INDEX IF NOT EXISTS idx_winner ON entries (winner);
+          CREATE TABLE IF NOT EXISTS config (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+          );
+        `);
+      });
     }
 
     static getFactory(namespace: DurableObjectNamespace, env: Env) {
