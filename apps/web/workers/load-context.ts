@@ -1,13 +1,15 @@
-import { PrismaClient, PrismaD1 } from "@dougley/d1-prisma";
+/// <reference types="../worker-configuration.d.ts" />
+
+import { drizzleD1 } from "@dougley/frugal-drizzle/workers";
 import { createWorkersKVSessionStorage } from "@react-router/cloudflare";
 import {
-  APIUser,
-  RESTGetAPICurrentUserGuildsResult,
+  type APIUser,
+  type RESTGetAPICurrentUserGuildsResult,
 } from "discord-api-types/v10";
 import { createCookie } from "react-router";
 import { Authenticator } from "remix-auth";
 import { OAuth2Strategy } from "remix-auth-oauth2";
-import { type PlatformProxy } from "wrangler";
+import type { PlatformProxy } from "wrangler";
 import type { DiscordUser } from "~/types/DiscordUser";
 
 type GetLoadContextArgs = {
@@ -49,13 +51,12 @@ export function getLoadContext({ context }: GetLoadContextArgs) {
     }),
     "discord",
   );
-  const adapter = new PrismaD1(context.cloudflare.env.D1);
-  const prisma = new PrismaClient({ adapter });
+
   return {
     ...context,
     sessions: { getSession, commitSession, destroySession },
     auth,
-    prisma,
+    drizzle: drizzleD1(context.cloudflare.env.D1),
   };
 }
 

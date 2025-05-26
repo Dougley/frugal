@@ -7,13 +7,13 @@
     "build": "react-router build",
     "deploy": "wrangler deploy",
     "dev": "react-router dev",
-    "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
+    "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
     "preview": "wrangler dev --port 3000",
     "start": "wrangler dev",
     "typecheck": "wrangler types && react-router typegen && tsc"
   },
   "dependencies": {
-    "@dougley/d1-prisma": "workspace:^",
+    "@dougley/frugal-drizzle": "workspace:^",
     "@mantine/code-highlight": "^8.0.1",
     "@mantine/core": "^8.0.1",
     "@mantine/dropzone": "^8.0.1",
@@ -46,7 +46,6 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.2.3",
-    "@cloudflare/workers-types": "^4.20250521.0",
     "@dougley/types": "workspace:^",
     "@mdx-js/react": "^3.1.0",
     "@mdx-js/rollup": "^3.1.0",

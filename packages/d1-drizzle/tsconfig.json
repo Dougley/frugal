@@ -1,11 +1,20 @@
 {
   "extends": "@dougley/tsconfig/workers",
+  "include": [
+    "src/**/*.ts",
+    "src/**/drizzle/**/*.*",
+    "worker-configuration.d.ts",
+  ],
   "compilerOptions": {
+    "allowJs": true,
+    "types": [
+      "node"
+    ],
     "declaration": true,
     "outDir": "dist",
     "skipLibCheck": true
   },
   "exclude": [
     "dist"
-  ]
+  ],
 }

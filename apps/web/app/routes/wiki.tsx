@@ -1,4 +1,4 @@
-import { MetaArgs, Outlet, useLocation } from "react-router";
+import { type MetaArgs, Outlet, useLocation } from "react-router";
 import { MdxPage } from "~/components/mdx/MdxPage";
 import { getPage } from "~/utils/mdx";
 

@@ -1,4 +1,5 @@
 import type { ExecutionContext, Request } from '@cloudflare/workers-types';
+import { drizzleD1 } from '@dougley/frugal-drizzle/workers';
 import { createProxy, type DurableObjectProxy, handleAlarm, stateRouter } from '@dougley/frugal-savestate';
 import * as Sentry from '@sentry/cloudflare';
 import { CloudflareWorkerServer } from 'slash-create/web';
@@ -69,6 +70,7 @@ export default Sentry.withSentry(
       // Set the environment context
       EnvContext.env = env;
       EnvContext.state = createProxy(stateRouter, handleAlarm);
+      EnvContext.drizzle = drizzleD1(env.D1);
 
       Sentry.instrumentD1WithSentry(env.D1);
 

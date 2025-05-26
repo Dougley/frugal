@@ -1,5 +1,5 @@
 import { redirect } from "react-router";
-import { Route } from "./+types/api_.auth.logout";
+import type { Route } from "./+types/api_.auth.logout";
 
 export let loader = () => redirect("/login");
 

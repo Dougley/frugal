@@ -1,0 +1,39 @@
+{
+  "private": true,
+  "type": "module",
+  "name": "@dougley/frugal-drizzle",
+  "version": "0.0.0",
+  "author": "Remco Jongschaap <hey@dougley.com>",
+  "exports": {
+    "./workers": {
+      "import": "./src/workers/index.ts"
+    },
+    "./workers/*": {
+      "import": "./src/workers/*"
+    },
+    "./durables": {
+      "import": "./src/durables/index.ts"
+    },
+    "./durables/*": {
+      "import": "./src/durables/*"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dougley/frugal.git",
+    "directory": "packages/d1-prisma"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "drizzle-orm": "catalog:"
+  },
+  "devDependencies": {
+    "@dougley/tsconfig": "workspace:^",
+    "@dougley/types": "workspace:^",
+    "@types/node": "^22.15.21",
+    "drizzle-kit": "catalog:",
+    "wrangler": "catalog:"
+  }
+}

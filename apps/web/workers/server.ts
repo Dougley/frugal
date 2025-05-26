@@ -1,7 +1,8 @@
+/// <reference types="../worker-configuration.d.ts" />
+
 import { withSentry } from "@sentry/cloudflare";
 import { createRequestHandler } from "react-router";
 import { getLoadContext } from "./load-context";
-import { meta } from "~/routes/legal";
 
 const handleRemixRequest = createRequestHandler(
   () => import("virtual:react-router/server-build"),
@@ -10,7 +11,7 @@ const handleRemixRequest = createRequestHandler(
 
 const functionRoutes = import.meta.glob<{
   default: ExportedHandlerFetchHandler<Env>;
-}>("./functions/**/*.ts");
+}>("../functions/**/*.ts");
 
 export default withSentry(
   (env) => ({
@@ -26,15 +27,8 @@ export default withSentry(
           request,
           context: {
             cloudflare: {
-              // This object matches the return value from Wrangler's
-              // `getPlatformProxy` used during development via Remix's
-              // `cloudflareDevProxyVitePlugin`:
-              // https://developers.cloudflare.com/workers/wrangler/api/#getplatformproxy
               cf: request.cf,
-              ctx: {
-                waitUntil: ctx.waitUntil.bind(ctx),
-                passThroughOnException: ctx.passThroughOnException.bind(ctx),
-              },
+              ctx,
               caches,
               env,
             },

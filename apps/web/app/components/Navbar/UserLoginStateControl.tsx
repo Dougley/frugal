@@ -9,7 +9,7 @@ import {
 } from "@mantine/core";
 import { IconLogin, IconLogout, IconMenu2 } from "@tabler/icons-react";
 import { Form } from "react-router";
-import { DiscordUser } from "~/types/DiscordUser";
+import type { DiscordUser } from "~/types/DiscordUser";
 import classes from "./Navbar.module.css";
 
 export const UserLoginStateControl = ({

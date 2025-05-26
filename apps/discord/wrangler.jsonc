@@ -3,16 +3,17 @@
   // Basic worker configuration
   "name": "frugal-discord-development",
   "main": "src/index.ts",
-	"compatibility_date": "2025-02-24",
+  "compatibility_date": "2025-02-24",
   "workers_dev": true,
-  "compatibility_flags": ["nodejs_compat"],
-
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "observability": {
     "enabled": true
   },
-
-  "placement": { "mode": "smart" },
-
+  "placement": {
+    "mode": "smart"
+  },
   // Durable Objects configuration for managing giveaway state
   "durable_objects": {
     "bindings": [
@@ -22,15 +23,24 @@
       }
     ]
   },
-
+  "rules": [
+    {
+      "type": "Text",
+      "globs": [
+        "**/*.sql"
+      ],
+      "fallthrough": true
+    }
+  ],
   // Durable Object migrations
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": ["GiveawayStateV3"]
+      "new_sqlite_classes": [
+        "GiveawayStateV3"
+      ]
     }
   ],
-
   // Default R2 bucket configuration for file storage
   "r2_buckets": [
     {
@@ -39,7 +49,6 @@
       "preview_bucket_name": "frugal-devel"
     }
   ],
-
   // Default D1 database configuration
   "d1_databases": [
     {
@@ -47,10 +56,9 @@
       "database_name": "frugal",
       "database_id": "1b4e645a-46d6-4db0-bb53-88b09404d4fe",
       "preview_database_id": "1b4e645a-46d6-4db0-bb53-88b09404d4fe",
-      "migrations_dir": "../../packages/d1-database/migrations"
+      "migrations_dir": "../../packages/d1-drizzle/migrations"
     }
   ],
-
   // Default KV namespace configuration
   "kv_namespaces": [
     {
@@ -59,7 +67,6 @@
       "preview_id": "ff4da80f1e42471db838c38e8e73a3ed"
     }
   ],
-
   // Environment-specific configurations
   "env": {
     // Production environment bindings
@@ -70,7 +77,7 @@
           "binding": "D1",
           "database_name": "frugal",
           "database_id": "9d21020092f1485badd0d5efdff2352e",
-          "migrations_dir": "../../packages/d1-database/migrations"
+          "migrations_dir": "../../packages/d1-drizzle/migrations"
         }
       ],
       "kv_namespaces": [
@@ -94,7 +101,6 @@
         }
       ]
     },
-
     // Staging environment bindings
     "staging": {
       "name": "frugal-discord-staging",
@@ -103,7 +109,7 @@
           "binding": "D1",
           "database_name": "frugal",
           "database_id": "d941c81e-6fc7-4e21-90bc-a1698bf6342e",
-          "migrations_dir": "../../packages/d1-database/migrations"
+          "migrations_dir": "../../packages/d1-drizzle/migrations"
         }
       ],
       "kv_namespaces": [

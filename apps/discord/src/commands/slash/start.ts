@@ -3,7 +3,6 @@ import {
   BitField,
   CommandContext,
   CommandOptionType,
-  ComponentType,
   Message,
   MessageFlags,
   SlashCommand,
@@ -182,21 +181,4 @@ export default class StartCommand extends SlashCommand {
       return ctx.editOriginal(`Failed to start giveaway: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
-}
-
-function generateDescription(description: string): import('slash-create/web').AnyComponent {
-  return {
-    type: ComponentType.CONTAINER,
-    accent_color: 0x00ff00,
-    components: [
-      {
-        type: ComponentType.TEXT_DISPLAY,
-        content: `${description}`
-      },
-      {
-        type: ComponentType.TEXT_DISPLAY,
-        content: `-# Description provided by the host`
-      }
-    ]
-  };
 }

@@ -1,5 +1,10 @@
 import { DiscordApiClient } from "@discord-interactions/api";
-import { PrismaClient, PrismaD1 } from "@dougley/d1-prisma";
+import {
+  Schema as D1Schema,
+  drizzleD1,
+  eq,
+  sql,
+} from "@dougley/frugal-drizzle/workers";
 import { createEndedGiveawayComponents } from "@dougley/frugal-utils";
 import { Routes } from "discord-api-types/v10";
 import { stateRouter } from "./router";
@@ -8,7 +13,7 @@ import type { Context } from "./trpc";
 const CLEANUP_DELAY = 1000 * 60 * 60 * 24 * 14; // 14 days
 
 export async function handleAlarm(
-  ctx: Omit<Context<Env>, "req" | "resHeaders">,
+  ctx: Omit<Context<LegacyEnv>, "req" | "resHeaders">,
 ) {
   console.log("Handling alarm");
   // Create a full context with dummy req and resHeaders
@@ -18,8 +23,7 @@ export async function handleAlarm(
     resHeaders: new Headers(),
   };
 
-  const adapter = new PrismaD1(ctx.env.D1);
-  const prisma = new PrismaClient({ adapter });
+  const db = drizzleD1(ctx.env.D1);
   const client = new DiscordApiClient({
     userAgent:
       "DiscordBot (@giveawaybot/timer, v1; +https://github.com/dougley/frugal)",
@@ -27,11 +31,11 @@ export async function handleAlarm(
 
   client.setToken(ctx.env.DISCORD_BOT_TOKEN);
 
-  const giveaway = await prisma.giveaways.findUnique({
-    where: {
-      durable_object_id: ctx.state.id.toString(),
-    },
-  });
+  const giveaway = await db
+    .select()
+    .from(D1Schema.giveaways)
+    .where(eq(D1Schema.giveaways.durableObjectId, ctx.state.id.toString()))
+    .get();
 
   if (!giveaway) {
     return;
@@ -53,18 +57,18 @@ export async function handleAlarm(
   try {
     // Use the helper function to create the embed
     const resp = await client.patch(
-      Routes.channelMessage(giveaway.channel_id, giveaway.message_id),
+      Routes.channelMessage(giveaway.channelId, giveaway.messageId),
       {
         body: {
           flags: 32768,
           components: createEndedGiveawayComponents({
             prize: giveaway.prize,
             winners: giveaway.winners,
-            end_time: giveaway.end_time,
+            end_time: new Date(giveaway.endTime),
             host_username: "", // Set this to the actual username if available
-            host_id: giveaway.host_id,
+            host_id: giveaway.hostId,
             description: giveaway.description || undefined,
-            giveaway_id: giveaway.message_id,
+            giveaway_id: giveaway.messageId,
             winners_list:
               drawResult.winners.length > 0
                 ? drawResult.winners.map((w) => `<@${w.id}>`)
@@ -89,14 +93,12 @@ export async function handleAlarm(
       console.log(
         "Message not accessible (404/403). Proceeding with cleanup immediately.",
       );
-      await prisma.giveaways.update({
-        where: {
-          durable_object_id: ctx.state.id.toString(),
-        },
-        data: {
-          state: "CLOSED",
-        },
-      });
+      await db
+        .update(D1Schema.giveaways)
+        .set({ state: "CLOSED" })
+        .where(eq(D1Schema.giveaways.durableObjectId, ctx.state.id.toString()))
+        .run();
+
       await ctx.state.storage.setAlarm(new Date(Date.now() + CLEANUP_DELAY));
       return {
         success: true,
@@ -106,21 +108,19 @@ export async function handleAlarm(
   }
 
   // Get entry count to distinguish between no entries and no valid winners
-  const entries = await prisma.entries.count({
-    where: {
-      giveaway_id: giveaway.message_id,
-    },
-  });
+  const entries = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(D1Schema.entries)
+    .where(eq(D1Schema.entries.giveawayId, giveaway.messageId))
+    .get()
+    .then((result) => result?.count ?? 0);
 
   // Close the giveaway
-  await prisma.giveaways.update({
-    where: {
-      durable_object_id: ctx.state.id.toString(),
-    },
-    data: {
-      state: "CLOSED",
-    },
-  });
+  await db
+    .update(D1Schema.giveaways)
+    .set({ state: "CLOSED" })
+    .where(eq(D1Schema.giveaways.durableObjectId, ctx.state.id.toString()))
+    .run();
 
   // Handle case where there are no winners
   if (!drawResult.winners.length) {
@@ -129,13 +129,13 @@ export async function handleAlarm(
         ? `😔 The giveaway for **${giveaway.prize}** has ended, but nobody entered.\n\nBetter luck next time!`
         : `😔 The giveaway for **${giveaway.prize}** has ended, but no valid winners could be drawn.\n\nThank you to everyone who participated!`;
 
-    await client.post(Routes.channelMessages(giveaway.channel_id), {
+    await client.post(Routes.channelMessages(giveaway.channelId), {
       body: {
         content: noWinnersMessage,
         message_reference: {
-          message_id: giveaway.message_id,
-          channel_id: giveaway.channel_id,
-          guild_id: giveaway.guild_id,
+          message_id: giveaway.messageId,
+          channel_id: giveaway.channelId,
+          guild_id: giveaway.guildId,
         },
         allowed_mentions: {
           everyone: false,
@@ -166,13 +166,13 @@ export async function handleAlarm(
 
   const winnerMentions = drawResult.winners.map((w) => `<@${w.id}>`).join(", ");
 
-  await client.post(Routes.channelMessages(giveaway.channel_id), {
+  await client.post(Routes.channelMessages(giveaway.channelId), {
     body: {
       content: `🎉 The giveaway for **${giveaway.prize}** has ended!\n\nCongratulations to the winners: ${winnerMentions}\n\nThank you to everyone who participated!`,
       message_reference: {
-        message_id: giveaway.message_id,
-        channel_id: giveaway.channel_id,
-        guild_id: giveaway.guild_id,
+        message_id: giveaway.messageId,
+        channel_id: giveaway.channelId,
+        guild_id: giveaway.guildId,
       },
       allowed_mentions: {
         users: drawResult.winners.map((w) => w.id),

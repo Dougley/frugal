@@ -9,7 +9,7 @@
     "declaration": true,
     "strict": true,
     "preserveConstEnums": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "sourceMap": true,
     "esModuleInterop": true

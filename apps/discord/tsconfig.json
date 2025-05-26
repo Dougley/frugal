@@ -1,3 +1,6 @@
 {
   "extends": "@dougley/tsconfig/workers",
+  "include": [
+    "src/**/*.ts",
+  ]
 }

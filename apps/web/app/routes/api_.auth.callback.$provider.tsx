@@ -1,5 +1,5 @@
 import { redirect } from "react-router";
-import { Route } from "./+types/api_.auth.callback.$provider";
+import type { Route } from "./+types/api_.auth.callback.$provider";
 
 export const loader = async ({
   request,

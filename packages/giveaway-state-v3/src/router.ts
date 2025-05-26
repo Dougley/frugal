@@ -2,7 +2,18 @@
 /// <reference types="@dougley/types/giveaway-types" />
 
 import { DiscordApiClient } from "@discord-interactions/api";
-import { PrismaClient, PrismaD1 } from "@dougley/d1-prisma";
+import {
+  drizzleDurable,
+  Schema as DurableSchema,
+} from "@dougley/frugal-drizzle/durables";
+import {
+  and,
+  Schema as D1Schema,
+  drizzleD1,
+  eq,
+  inArray,
+  sql,
+} from "@dougley/frugal-drizzle/workers";
 import { createGiveawayComponents, JoinButton } from "@dougley/frugal-utils";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { Routes } from "discord-api-types/v10";
@@ -12,7 +23,7 @@ import { transformer } from "./transformer";
 import { type Context } from "./trpc";
 
 // TRPC Setup
-const t = initTRPC.context<Context<Env>>().create({
+const t = initTRPC.context<Context<LegacyEnv>>().create({
   transformer,
 });
 
@@ -31,14 +42,15 @@ const exitRateLimit = createRateLimitMiddleware(t, {
 });
 
 // Utility functions
-async function getGiveaway(ctx: Context<Env>) {
-  const adapter = new PrismaD1(ctx.env.D1);
-  const prisma = new PrismaClient({ adapter });
+async function getGiveaway(ctx: Context<LegacyEnv>) {
+  const db = drizzleD1(ctx.env.D1);
   const id = ctx.state.id.toString();
 
-  const giveaway = await prisma.giveaways.findUnique({
-    where: { durable_object_id: id },
-  });
+  const giveaway = await db
+    .select()
+    .from(D1Schema.giveaways)
+    .where(eq(D1Schema.giveaways.durableObjectId, id))
+    .get();
 
   if (!giveaway) {
     throw new TRPCError({
@@ -57,127 +69,104 @@ const entriesDb = {
   /**
    * Get all entries for the current giveaway
    */
-  getAll: (ctx: Context<Env>) => {
-    return ctx.state.storage.sql
-      .exec(
-        `
-      SELECT * FROM entries
-    `,
-      )
-      .toArray();
+  getAll: (ctx: Context<LegacyEnv>) => {
+    const db = drizzleDurable(ctx.state.storage);
+    return db.select().from(DurableSchema.entries).all();
   },
 
   /**
    * Get a count of all entries
    */
-  count: (ctx: Context<Env>) => {
-    const result = ctx.state.storage.sql
-      .exec(
-        `
-      SELECT COUNT(*) as count FROM entries
-    `,
-      )
-      .toArray();
-    return result[0]?.count ?? 0;
+  count: async (ctx: Context<LegacyEnv>) => {
+    const db = drizzleDurable(ctx.state.storage);
+    const result = db
+      .select({ count: sql<number>`count(*)` })
+      .from(DurableSchema.entries)
+      .get();
+    return result?.count ?? 0;
   },
 
   /**
    * Get a single entry by userId
    */
-  getByUserId: (ctx: Context<Env>, userId: string) => {
-    return ctx.state.storage.sql
-      .exec(
-        `
-      SELECT * FROM entries WHERE userId = ?
-    `,
-        userId,
-      )
-      .toArray()[0];
+  getByUserId: (ctx: Context<LegacyEnv>, userId: string) => {
+    const db = drizzleDurable(ctx.state.storage);
+    return db
+      .select()
+      .from(DurableSchema.entries)
+      .where(eq(DurableSchema.entries.userId, userId))
+      .get();
   },
 
   /**
    * Add a new entry
    */
   create: (
-    ctx: Context<Env>,
+    ctx: Context<LegacyEnv>,
     entry: { userId: string; username: string; avatar: string | null },
   ) => {
-    return ctx.state.storage.sql.exec(
-      `
-      INSERT INTO entries (userId, username, avatar)
-      VALUES (?, ?, ?)
-    `,
-      entry.userId,
-      entry.username,
-      entry.avatar,
-    );
+    const db = drizzleDurable(ctx.state.storage);
+    return db
+      .insert(DurableSchema.entries)
+      .values({
+        userId: entry.userId,
+        username: entry.username,
+        avatar: entry.avatar,
+        winner: false,
+        timestamp: new Date().toISOString(),
+      })
+      .run();
   },
 
   /**
    * Delete an entry by userId
    */
-  delete: (ctx: Context<Env>, userId: string) => {
-    return ctx.state.storage.sql.exec(
-      `
-      DELETE FROM entries WHERE userId = ?
-    `,
-      userId,
-    );
+  delete: (ctx: Context<LegacyEnv>, userId: string) => {
+    const db = drizzleDurable(ctx.state.storage);
+    return db
+      .delete(DurableSchema.entries)
+      .where(eq(DurableSchema.entries.userId, userId))
+      .run();
   },
 
   /**
    * Get random winners
    */
-  getRandomWinners: (ctx: Context<Env>, limit: number) => {
-    return ctx.state.storage.sql
-      .exec(
-        `
-        SELECT *
-        FROM entries
-        WHERE ROWID IN (
-          SELECT ROWID
-          FROM entries
-          WHERE winner = 0
-          ORDER BY RANDOM()
-          LIMIT ?
-        )
-        ORDER BY RANDOM()
-        `,
-        limit,
-      )
-      .toArray();
+  getRandomWinners: (ctx: Context<LegacyEnv>, limit: number) => {
+    const db = drizzleDurable(ctx.state.storage);
+    return db
+      .select()
+      .from(DurableSchema.entries)
+      .where(eq(DurableSchema.entries.winner, false))
+      .orderBy(sql`RANDOM()`)
+      .limit(limit)
+      .all();
   },
 
   /**
    * Mark users as winners
    */
-  markAsWinners: (ctx: Context<Env>, userIds: string[]) => {
+  markAsWinners: (ctx: Context<LegacyEnv>, userIds: string[]) => {
     if (userIds.length === 0) return;
 
-    // Use placeholders for each userId
-    const placeholders = userIds.map(() => "?").join(",");
-
-    return ctx.state.storage.sql.exec(
-      `
-      UPDATE entries 
-      SET winner = 1 
-      WHERE userId IN (${placeholders})
-    `,
-      ...userIds,
-    );
+    const db = drizzleDurable(ctx.state.storage);
+    return db
+      .update(DurableSchema.entries)
+      .set({ winner: true })
+      .where(inArray(DurableSchema.entries.userId, userIds))
+      .run();
   },
 
   /**
    * Get all winners
    */
-  getWinners: (ctx: Context<Env>) => {
-    return ctx.state.storage.sql
-      .exec(
-        `
-      SELECT * FROM entries WHERE winner = 1
-    `,
-      )
-      .toArray();
+  getWinners: (ctx: Context<LegacyEnv>) => {
+    const db = drizzleDurable(ctx.state.storage);
+    return db
+      .select()
+      .from(DurableSchema.entries)
+      .where(eq(DurableSchema.entries.winner, true))
+      .all();
   },
 };
 
@@ -225,17 +214,14 @@ export const stateRouter = router({
         return await ctx.state.storage.setAlarm(input);
       }
 
-      const adapter = new PrismaD1(ctx.env.D1);
-      const prisma = new PrismaClient({ adapter });
+      const db = drizzleD1(ctx.env.D1);
       const id = ctx.state.id.toString();
 
-      await prisma.giveaways.update({
-        where: {
-          durable_object_id: id,
-          state: "NEW",
-        },
-        data: { state: "OPEN" },
-      });
+      await db
+        .update(D1Schema.giveaways)
+        .set({ state: "OPEN" })
+        .where(eq(D1Schema.giveaways.durableObjectId, id))
+        .run();
 
       await ctx.state.storage.setAlarm(input);
       return { success: true };
@@ -303,14 +289,14 @@ export const stateRouter = router({
           avatar: String(avatar || ""),
         })),
         details: {
-          channel: giveaway.channel_id,
-          message: giveaway.message_id,
+          channel: giveaway.channelId,
+          message: giveaway.messageId,
           winners: giveaway.winners,
           prize: giveaway.prize,
           originalWinners: winners.map((w) => w.user_id),
           time: {
-            end: giveaway.end_time.toISOString(),
-            start: giveaway.end_time.toISOString(),
+            end: giveaway.endTime,
+            start: giveaway.endTime,
           },
         },
       };
@@ -328,15 +314,15 @@ export const stateRouter = router({
     }),
 
   cleanup: publicProcedure.mutation(async ({ ctx }) => {
-    const adapter = new PrismaD1(ctx.env.D1);
-    const prisma = new PrismaClient({ adapter });
+    const db = drizzleD1(ctx.env.D1);
     const giveaway = await getGiveaway(ctx);
     const id = ctx.state.id.toString();
 
     // Delete from central database
-    await prisma.giveaways.delete({
-      where: { durable_object_id: id },
-    });
+    await db
+      .delete(D1Schema.giveaways)
+      .where(eq(D1Schema.giveaways.durableObjectId, id))
+      .run();
 
     // This will delete all data in the durable object including the entries
     await ctx.state.storage.deleteAll();
@@ -361,23 +347,32 @@ export const stateRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const adapter = new PrismaD1(ctx.env.D1);
-      const prisma = new PrismaClient({ adapter });
+      const db = drizzleD1(ctx.env.D1);
       const id = ctx.state.id.toString();
 
-      const giveaway = await prisma.giveaways.create({
-        data: {
-          durable_object_id: id,
-          ...input,
+      const giveaway = await db
+        .insert(D1Schema.giveaways)
+        .values({
+          messageId: input.message_id,
+          channelId: input.channel_id,
+          guildId: input.guild_id,
+          prize: input.prize,
+          winners: input.winners,
+          endTime: input.end_time.toISOString(),
+          hostId: input.host_id,
+          description: input.description,
+          durableObjectId: id,
           state: "NEW",
-        },
-      });
+          entryCount: 0,
+        })
+        .returning()
+        .get();
 
       return {
         success: true,
         giveaway: {
           ...giveaway,
-          end_time: giveaway.end_time.toISOString(),
+          end_time: giveaway.endTime,
         },
       };
     }),
@@ -391,8 +386,7 @@ export const stateRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const adapter = new PrismaD1(ctx.env.D1);
-      const prisma = new PrismaClient({ adapter });
+      const db = drizzleD1(ctx.env.D1);
       const client = new DiscordApiClient({
         userAgent:
           "DiscordBot (@giveawaybot/timer, v1; +https://github.com/dougley/frugal)",
@@ -405,33 +399,40 @@ export const stateRouter = router({
       validateGiveawayState(giveaway, ["OPEN"]);
 
       // Update the giveaway with new data
-      const updated = await prisma.giveaways.update({
-        where: { durable_object_id: id },
-        data: {
+      const updated = await db
+        .update(D1Schema.giveaways)
+        .set({
           prize: input.prize,
           winners: input.winners,
           description: input.description,
-        },
-      });
+        })
+        .where(eq(D1Schema.giveaways.durableObjectId, id))
+        .returning()
+        .get();
 
       // Get current entries count
-      const entries = await prisma.entries.count({
-        where: { giveaway_id: updated.message_id },
-      });
+      const entries = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(D1Schema.entries)
+        .where(eq(D1Schema.entries.giveawayId, updated.messageId))
+        .get();
 
       // Update the Discord message
       try {
         await client.patch(
-          Routes.channelMessage(updated.channel_id, updated.message_id),
+          Routes.channelMessage(updated.channelId, updated.messageId),
           {
             body: {
               components: createGiveawayComponents({
-                ...updated,
-                description: input.description ?? undefined,
+                prize: updated.prize,
+                winners: updated.winners,
+                end_time: new Date(updated.endTime),
                 host_username: "",
-                giveaway_id: "",
+                host_id: updated.hostId,
+                description: input.description ?? undefined,
+                giveaway_id: updated.messageId,
                 join_button: JoinButton.createActionRow(
-                  updated.durable_object_id,
+                  updated.durableObjectId,
                 ),
               }),
             },
@@ -446,7 +447,7 @@ export const stateRouter = router({
         success: true,
         giveaway: {
           ...updated,
-          end_time: updated.end_time.toISOString(),
+          end_time: updated.endTime,
         },
       };
     }),
@@ -525,17 +526,17 @@ export const stateRouter = router({
   }),
 
   endGiveaway: publicProcedure.mutation(async ({ ctx }) => {
-    const adapter = new PrismaD1(ctx.env.D1);
-    const prisma = new PrismaClient({ adapter });
+    const db = drizzleD1(ctx.env.D1);
     const giveaway = await getGiveaway(ctx);
     const id = ctx.state.id.toString();
 
     validateGiveawayState(giveaway, ["OPEN"]);
 
-    await prisma.giveaways.update({
-      where: { durable_object_id: id },
-      data: { state: "CLOSED" },
-    });
+    await db
+      .update(D1Schema.giveaways)
+      .set({ state: "CLOSED" })
+      .where(eq(D1Schema.giveaways.durableObjectId, id))
+      .run();
 
     await ctx.state.storage.setAlarm(1);
     return { success: true };
@@ -544,16 +545,19 @@ export const stateRouter = router({
   getActiveGiveaways: publicProcedure
     .input(z.object({ guild_id: z.string() }))
     .query(async ({ input, ctx }) => {
-      const adapter = new PrismaD1(ctx.env.D1);
-      const prisma = new PrismaClient({ adapter });
+      const db = drizzleD1(ctx.env.D1);
 
-      return prisma.giveaways.findMany({
-        where: {
-          guild_id: input.guild_id,
-          state: "OPEN",
-        },
-        orderBy: { end_time: "asc" },
-      });
+      return db
+        .select()
+        .from(D1Schema.giveaways)
+        .where(
+          and(
+            eq(D1Schema.giveaways.guildId, input.guild_id),
+            eq(D1Schema.giveaways.state, "OPEN"),
+          ),
+        )
+        .orderBy(D1Schema.giveaways.endTime)
+        .all();
     }),
 });
 

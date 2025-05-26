@@ -1,4 +1,4 @@
-import { PrismaClient, PrismaD1 } from '@dougley/d1-prisma';
+import { Schema, and, asc, eq } from '@dougley/frugal-drizzle/workers';
 import { AutocompleteContext, CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create/web';
 import { EnvContext } from '../../env';
 
@@ -20,27 +20,21 @@ export default class StopCommand extends SlashCommand {
   }
 
   async autocomplete(ctx: AutocompleteContext) {
-    if (!EnvContext.env?.D1) {
+    if (!EnvContext.env?.D1 || !EnvContext.drizzle) {
       return [];
     }
 
-    const prisma = new PrismaClient({ adapter: new PrismaD1(EnvContext.env.D1) });
-
     // Get active giveaways for this guild, ordered by end time ascending
-    const giveaways = await prisma.giveaways.findMany({
-      where: {
-        guild_id: ctx.guildID,
-        state: 'OPEN'
-      },
-      orderBy: {
-        end_time: 'asc'
-      },
-      take: 25 // Limit to 25 choices as per Discord's limits
-    });
+    const activeGiveaways = await EnvContext.drizzle
+      .select()
+      .from(Schema.giveaways)
+      .where(and(eq(Schema.giveaways.guildId, ctx.guildID!), eq(Schema.giveaways.state, 'OPEN')))
+      .orderBy(asc(Schema.giveaways.endTime))
+      .limit(25); // Limit to 25 choices as per Discord's limits
 
-    return giveaways.map((g) => ({
+    return activeGiveaways.map((g) => ({
       name: `${g.prize} (${g.winners} winner${g.winners > 1 ? 's' : ''})`,
-      value: g.durable_object_id
+      value: g.durableObjectId
     }));
   }
 

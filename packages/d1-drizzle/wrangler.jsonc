@@ -1,6 +1,7 @@
 // shim file
 {
   "$schema": "node_modules/wrangler/config-schema.json",
+  "compatibility_date": "2025-05-26",
   "d1_databases": [
     {
       "binding": "D1",

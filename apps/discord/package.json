@@ -15,7 +15,8 @@
     "format": "prettier -w ./src",
     "db:migrate:dev": "wrangler d1 migrations apply frugal --local --persist-to='../../.mf'",
     "db:migrate": "wrangler d1 migrations apply frugal",
-    "register": "tsx scripts/register-commands.ts"
+    "register": "tsx scripts/register-commands.ts",
+    "typecheck": "wrangler types && tsc --noEmit"
   },
   "repository": {
     "type": "git",
@@ -26,14 +27,13 @@
     "@discord-interactions/api": "^0.3.21",
     "@discord-interactions/builders": "^0.3.18",
     "@discord-interactions/core": "^0.3.23",
-    "@dougley/d1-prisma": "workspace:^",
+    "@dougley/frugal-drizzle": "workspace:^",
     "@dougley/frugal-savestate": "workspace:^",
     "@dougley/frugal-utils": "workspace:^",
     "@sentry/cloudflare": "^9.22.0",
     "slash-create": "^6.4.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "catalog:",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
     "better-sqlite3": "^11.10.0",
