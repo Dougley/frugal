@@ -29,8 +29,8 @@ const data: NavItem[] = [
     link: "/giveaways",
     icon: IconConfetti,
     children: [
+      { label: "List", link: "/giveaways", icon: IconConfetti },
       { label: "Create", link: "/giveaways/create", icon: IconConfetti },
-      { label: "List", link: "/giveaways/list", icon: IconConfetti },
     ],
   },
   {

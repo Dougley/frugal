@@ -56,7 +56,7 @@
       "database_name": "frugal",
       "database_id": "1b4e645a-46d6-4db0-bb53-88b09404d4fe",
       "preview_database_id": "1b4e645a-46d6-4db0-bb53-88b09404d4fe",
-      "migrations_dir": "../../packages/d1-drizzle/migrations"
+      "migrations_dir": "../../packages/d1-drizzle/src/workers/drizzle"
     }
   ],
   // Default KV namespace configuration

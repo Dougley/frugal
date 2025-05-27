@@ -49,9 +49,8 @@ export function Skeleton({ children }: { children: React.ReactNode }) {
             style={{
               display: "flex",
               flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              minHeight: "100vh",
+              minHeight: "75vh",
+              width: "100%",
             }}
           >
             {children}
