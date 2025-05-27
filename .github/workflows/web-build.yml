@@ -29,7 +29,7 @@ jobs:
 
       - name: Deploy
         run: |
-          pnpm turbo build && pnpm wrangler deploy --env ${{ inputs.environment }} \
+          pnpm turbo build && pnpm wrangler deploy \
             --var SENTRY_DSN:$SENTRY_DSN \
             SESSION_SECRET:$SESSION_SECRET \
             DISCORD_CLIENT_ID:$DISCORD_CLIENT_ID \
@@ -40,6 +40,7 @@ jobs:
             BRANCH:$BRANCH
         working-directory: ./apps/web
         env:
+          CLOUDFLARE_ENV: ${{ inputs.environment }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           SENTRY_DSN: ${{ vars.SENTRY_DSN_WEB }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
