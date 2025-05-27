@@ -24,9 +24,6 @@
     "directory": "apps/discord"
   },
   "dependencies": {
-    "@discord-interactions/api": "^0.3.21",
-    "@discord-interactions/builders": "^0.3.18",
-    "@discord-interactions/core": "^0.3.23",
     "@dougley/frugal-drizzle": "workspace:^",
     "@dougley/frugal-savestate": "workspace:^",
     "@dougley/frugal-utils": "workspace:^",

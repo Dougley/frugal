@@ -6,15 +6,6 @@ settings:
 
 catalogs:
   default:
-    '@cloudflare/workers-types':
-      specifier: ^4.20250204.0
-      version: 4.20250520.0
-    drizzle-kit:
-      specifier: ^0.31.1
-      version: 0.31.1
-    drizzle-orm:
-      specifier: ^0.43.1
-      version: 0.43.1
     wrangler:
       specifier: ^4.16.0
       version: 4.16.0
@@ -71,15 +62,6 @@ importers:
 
   apps/discord:
     dependencies:
-      '@discord-interactions/api':
-        specifier: ^0.3.21
-        version: 0.3.21
-      '@discord-interactions/builders':
-        specifier: ^0.3.18
-        version: 0.3.18
-      '@discord-interactions/core':
-        specifier: ^0.3.23
-        version: 0.3.23
       '@dougley/frugal-drizzle':
         specifier: workspace:^
         version: link:../../packages/d1-drizzle
@@ -772,20 +754,8 @@ packages:
     resolution: {integrity: sha512-Fl3x9nFp2dMS2HhNd4sEeD/y/QePD1H8Q99vurqzvGTH8qeKHMyeFu+7kI9cCRycvlPG6J4Yj6ybnWXGcKJ8SQ==}
     engines: {node: '>=16'}
 
-  '@discord-interactions/builders@0.3.18':
-    resolution: {integrity: sha512-OLmkgyoF0bCSSY5OhgFJPbTYER1+gOGQckgFTSpZ+Xfu9w/c/qjTHFmppTpBsnXfINZCgbKYoBEk6Y24kp0x9A==}
-    engines: {node: '>=16'}
-
-  '@discord-interactions/core@0.3.23':
-    resolution: {integrity: sha512-LZglOxfRirsBBusrVlDvdsf6Kl/6KmphnJRJybUd9t3ba0sBrnYKPh1MaFq+D6SflKDTWTPwYWm37NWZbIcrTA==}
-    engines: {node: '>=16'}
-
   '@discord-interactions/request@0.3.21':
     resolution: {integrity: sha512-oVvJClH2mMOx7TRNFxGBRwDw4LxwJLEPYh7XX8t8SVVpXVfCSaM/9ePVKxEM4hA7mF2krFF3ZELMxhFP0YbJZQ==}
-    engines: {node: '>=16'}
-
-  '@discord-interactions/verify@0.3.16':
-    resolution: {integrity: sha512-ECXctx/G2yerCl5Jx9wE7xBG7n82y0tvNCODak31GsFBJLnWPoTUHJNeLpNI9dfJUS4zDhDwkg94RlTGxYgKXg==}
     engines: {node: '>=16'}
 
   '@drizzle-team/brocli@0.10.2':
@@ -7544,22 +7514,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@discord-interactions/builders@0.3.18':
-    dependencies:
-      discord-api-types: 0.37.120
-      formdata-node: 4.4.1
-
-  '@discord-interactions/core@0.3.23':
-    dependencies:
-      '@discord-interactions/api': 0.3.21
-      '@discord-interactions/builders': 0.3.18
-      '@discord-interactions/verify': 0.3.16
-      discord-api-types: 0.37.120
-      formdata-node: 4.4.1
-      uuid: 8.3.2
-    transitivePeerDependencies:
-      - supports-color
-
   '@discord-interactions/request@0.3.21':
     dependencies:
       debug: 4.4.1
@@ -7568,10 +7522,6 @@ snapshots:
       isomorphic-fetch-ponyfill: 0.3.18
     transitivePeerDependencies:
       - supports-color
-
-  '@discord-interactions/verify@0.3.16':
-    dependencies:
-      discord-api-types: 0.37.120
 
   '@drizzle-team/brocli@0.10.2': {}
 
