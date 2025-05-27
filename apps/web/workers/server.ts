@@ -17,7 +17,7 @@ export default withSentry(
   (env) => ({
     dsn: env.SENTRY_DSN,
     tracesSampleRate: 1.0,
-    debug: import.meta.env.DEV,
+    // debug: import.meta.env.DEV,
   }),
   {
     // @ts-expect-error - type mismatch due to `withSentry` wrapper

@@ -8,7 +8,7 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 import { IconLogin, IconLogout, IconMenu2 } from "@tabler/icons-react";
-import { Form } from "react-router";
+import { Form, useLocation } from "react-router";
 import type { DiscordUser } from "~/types/DiscordUser";
 import classes from "./Navbar.module.css";
 
@@ -17,9 +17,14 @@ export const UserLoginStateControl = ({
 }: {
   user: DiscordUser | null;
 }) => {
+  const location = useLocation();
+
   if (!user) {
     return (
-      <Form action="/api/auth/login/discord" method="post">
+      <Form
+        action={`/api/auth/login/discord?returnTo=${encodeURIComponent(location.pathname + location.search)}`}
+        method="post"
+      >
         <UnstyledButton type="submit" className={classes.link}>
           <IconLogin className={classes.linkIcon} stroke={1.5} />
           <span>Login</span>
@@ -51,7 +56,10 @@ export const UserLoginStateControl = ({
         </Popover.Target>
         <Popover.Dropdown bg="var(--mantine-color-body)">
           <Stack align="stretch" justify="center" gap="md">
-            <Form action="/api/auth/logout" method="post">
+            <Form
+              action={`/api/auth/logout?returnTo=${encodeURIComponent(location.pathname + location.search)}`}
+              method="post"
+            >
               <Button
                 type="submit"
                 variant="outline"

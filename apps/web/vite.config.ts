@@ -21,13 +21,13 @@ export default defineConfig(({ isSsrBuild }) => ({
   //       }
   //     : undefined,
   // },
-  // resolve: {
-  //   conditions: ["module", "browser"],
-  //   alias: {
-  //     // /esm/icons/index.mjs only exports the icons statically, so no separate chunks are created
-  //     "@tabler/icons-react": "@tabler/icons-react/dist/esm/icons/index.mjs",
-  //   },
-  // },
+  resolve: {
+    conditions: ["module", "browser"],
+    alias: {
+      // /esm/icons/index.mjs only exports the icons statically, so no separate chunks are created
+      "@tabler/icons-react": "@tabler/icons-react/dist/esm/icons/index.mjs",
+    },
+  },
   // ssr: {
   //   target: "webworker",
   //   resolve: {
