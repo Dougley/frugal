@@ -34,7 +34,6 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Turbo build
-        if: inputs.deploy_commands == 'true'
         run: pnpm turbo build --no-cache
         working-directory: ./apps/discord
         env:
