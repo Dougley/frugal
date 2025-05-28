@@ -11,7 +11,7 @@ const handleRemixRequest = createRequestHandler(
 
 const functionRoutes = import.meta.glob<{
   default: ExportedHandlerFetchHandler<Env>;
-}>("../functions/**/*.ts");
+}>("./functions/**/*.ts");
 
 export default withSentry(
   (env) => ({

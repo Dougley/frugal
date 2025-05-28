@@ -1,4 +1,11 @@
-import { Burger, Flex, Group, NavLink, ScrollArea } from "@mantine/core";
+import {
+  Burger,
+  Button,
+  Flex,
+  Group,
+  NavLink,
+  ScrollArea,
+} from "@mantine/core";
 import {
   IconConfetti,
   IconDiamond,
@@ -6,9 +13,16 @@ import {
   IconFileTextShield,
   IconGavel,
   IconHome,
+  IconList,
+  IconPlus,
   IconSectionSign,
+  IconZoomIn,
 } from "@tabler/icons-react";
-import { NavLink as RemixNavLink, useRouteLoaderData } from "react-router";
+import {
+  Link,
+  NavLink as RemixNavLink,
+  useRouteLoaderData,
+} from "react-router";
 import { useDrawer } from "../contexts/DrawerContext";
 import classes from "./Navbar.module.css";
 import { Settings } from "./Settings";
@@ -29,8 +43,9 @@ const data: NavItem[] = [
     link: "/giveaways",
     icon: IconConfetti,
     children: [
-      { label: "List", link: "/giveaways", icon: IconConfetti },
-      { label: "Create", link: "/giveaways/create", icon: IconConfetti },
+      { label: "List", link: "/giveaways", icon: IconList },
+      { label: "Create", link: "/giveaways/create", icon: IconPlus },
+      { label: "Summaries", link: "/giveaways/summaries", icon: IconZoomIn },
     ],
   },
   {
@@ -91,8 +106,18 @@ export function Navbar() {
       <div className={classes.navbar}>
         <Group className={classes.header} justify="space-between">
           <Flex gap="xs">
-            <IconConfetti size={30} />
-            <span className={classes.title}>GiveawayBot</span>
+            <Link to="/">
+              <Button
+                variant="subtle"
+                size="xs"
+                color="gray"
+                leftSection={
+                  <IconConfetti className={classes.title} size={30} />
+                }
+              >
+                <span className={classes.title}>GiveawayBot</span>
+              </Button>
+            </Link>
           </Flex>
           <Burger
             opened={isDrawerOpen}

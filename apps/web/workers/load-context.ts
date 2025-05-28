@@ -16,7 +16,7 @@ type GetLoadContextArgs = {
   request: Request;
   context: {
     cloudflare: Omit<PlatformProxy<Env>, "dispose" | "caches" | "cf"> & {
-      caches: PlatformProxy<Env>["caches"] | CacheStorage;
+      caches: CacheStorage;
       cf: Request["cf"];
     };
   };
@@ -25,6 +25,8 @@ type GetLoadContextArgs = {
 declare module "react-router" {
   export interface AppLoadContext extends ReturnType<typeof getLoadContext> {}
 }
+
+const SCOPES = ["identify", "email", "guilds", "guilds.members.read"];
 
 // Shared implementation compatible with Vite, Wrangler, and Cloudflare Pages
 export function getLoadContext({ context }: GetLoadContextArgs) {
@@ -78,10 +80,32 @@ const discordAuth = ({
       tokenEndpoint: `${API_BASE}/oauth2/token`,
       tokenRevocationEndpoint: `${API_BASE}/oauth2/token/revoke`,
       redirectURI: callbackURL,
-      scopes: ["identify", "email", "guilds", "guilds.members.read"],
+      scopes: SCOPES,
     },
     async ({ tokens, request }) => {
       try {
+        console.log("[Auth] Tokens", tokens);
+        console.log("[Auth] Scopes", tokens.scopes());
+        console.log("[Auth] Has scopes", tokens.hasScopes());
+        console.log("[Auth] Required scopes", SCOPES);
+        console.log(
+          "[Auth] Scopes include all required",
+          SCOPES.every((required) => tokens.scopes().includes(required)),
+        );
+        if (
+          tokens.hasScopes() &&
+          !SCOPES.every((required) => tokens.scopes().includes(required))
+        ) {
+          console.warn("[Auth] Missing required scopes", tokens.scopes());
+          throw new Response("", {
+            status: 302,
+            headers: {
+              Location: `/auth/error?message=${encodeURIComponent(
+                "Missing required scopes",
+              )}`,
+            },
+          });
+        }
         const user: APIUser = await fetch(`${API_BASE}/users/@me`, {
           headers: {
             Authorization: `Bearer ${tokens.accessToken()}`,
@@ -108,9 +132,27 @@ const discordAuth = ({
           accessToken: tokens.accessToken(),
           refreshToken: tokens.refreshToken(),
         };
-      } catch (error) {
-        console.error("CONTEXT: Error authenticating", error);
-        throw new Error("Error authenticating");
+      } catch (error: unknown) {
+        if (error instanceof Response) {
+          throw error;
+        }
+        if (error instanceof Error) {
+          // Bubble up all errors as Response objects with a message
+          throw new Response("", {
+            status: 302,
+            headers: {
+              Location: `/auth/error?message=${encodeURIComponent(error?.message || "Error authenticating")}`,
+            },
+          });
+        }
+        throw new Response("", {
+          status: 302,
+          headers: {
+            Location: `/auth/error?message=${encodeURIComponent(
+              "An unknown error occurred",
+            )}`,
+          },
+        });
       }
     },
   );

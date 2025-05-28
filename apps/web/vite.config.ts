@@ -2,7 +2,7 @@ import mdx from "@mdx-js/rollup";
 import { reactRouter } from "@react-router/dev/vite";
 // import { cloudflareDevProxy } from "@react-router/dev/vite/cloudflare";
 import { cloudflare } from "@cloudflare/vite-plugin";
-import { sentryVitePlugin } from "@sentry/vite-plugin";
+import { sentryReactRouter } from "@sentry/react-router";
 import { reactRouterDevTools } from "react-router-devtools";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
@@ -12,7 +12,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 import { remarkAdmonitions } from "./app/lib/remarkAdmonitions";
 
-export default defineConfig(({ isSsrBuild }) => ({
+export default defineConfig((config) => ({
   // build: {
   //   sourcemap: true,
   //   rollupOptions: isSsrBuild
@@ -65,13 +65,13 @@ export default defineConfig(({ isSsrBuild }) => ({
     }),
     reactRouter(),
     tsconfigPaths(),
-    sentryVitePlugin({
-      authToken: process.env.SENTRY_AUTH_TOKEN,
-      org: "dougley",
-      project: "frugal-web",
-      sourcemaps: {
-        filesToDeleteAfterUpload: ["./**/*.map"],
+    sentryReactRouter(
+      {
+        org: "dougley",
+        project: "frugal-web",
+        authToken: process.env.SENTRY_AUTH_TOKEN,
       },
-    }),
+      config,
+    ),
   ],
 }));

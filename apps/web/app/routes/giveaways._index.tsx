@@ -119,6 +119,58 @@ function GuildCard({
   );
 }
 
+function GiveawayCard({ giveaway }: { giveaway: any }) {
+  const { hovered, ref } = useHover();
+  const isClosed = giveaway.state === "CLOSED";
+
+  return (
+    <Anchor
+      component={Link}
+      to={isClosed ? `/giveaways/summaries/${giveaway.durableObjectId}` : "#"}
+      underline="never"
+    >
+      <Card
+        ref={ref}
+        shadow="sm"
+        radius="md"
+        withBorder
+        style={{
+          transition: "all 0.2s ease",
+          cursor: isClosed ? "pointer" : "default",
+          transform: hovered && isClosed ? "translateY(-2px)" : "none",
+          boxShadow:
+            hovered && isClosed ? "0 4px 12px rgba(0, 0, 0, 0.1)" : "none",
+        }}
+      >
+        <Stack gap="xs">
+          <Title order={4} size="h5">
+            {giveaway.prize}
+          </Title>
+          <Text c="dimmed" size="sm">
+            {giveaway.state === "OPEN" ? "Ends in" : "Ended"}{" "}
+            {formatDistanceToNow(new Date(giveaway.endTime), {
+              addSuffix: true,
+            })}
+          </Text>
+          <Group>
+            <Badge color={giveaway.state === "OPEN" ? "green" : "red"}>
+              {giveaway.state}
+            </Badge>
+            {isClosed && (
+              <Group gap="xs">
+                <Text size="sm" c="dimmed">
+                  View summary
+                </Text>
+                <IconInfoCircle size={16} style={{ opacity: 0.5 }} />
+              </Group>
+            )}
+          </Group>
+        </Stack>
+      </Card>
+    </Anchor>
+  );
+}
+
 function GuildHostedGiveaways({
   guildId,
   giveaways,
@@ -169,22 +221,7 @@ function GuildHostedGiveaways({
           style={{ minHeight: giveaways.length === 0 ? 0 : undefined }}
         >
           {giveaways.map((g) => (
-            <Card key={g.messageId} shadow="sm" radius="md" withBorder>
-              <Stack gap="xs">
-                <Title order={4} size="h5">
-                  {g.prize}
-                </Title>
-                <Text c="dimmed" size="sm">
-                  Ends{" "}
-                  {formatDistanceToNow(new Date(g.endTime), {
-                    addSuffix: true,
-                  })}
-                </Text>
-                <Badge color={g.state === "OPEN" ? "green" : "red"}>
-                  {g.state}
-                </Badge>
-              </Stack>
-            </Card>
+            <GiveawayCard key={g.messageId} giveaway={g} />
           ))}
         </SimpleGrid>
       </Collapse>

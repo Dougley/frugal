@@ -1,5 +1,6 @@
-import { Burger, Container, Flex } from "@mantine/core";
+import { Burger, Button, Container, Flex } from "@mantine/core";
 import { IconConfetti } from "@tabler/icons-react";
+import { Link } from "react-router";
 import { useDrawer } from "../contexts/DrawerContext";
 import classes from "./Header.module.css";
 
@@ -17,8 +18,16 @@ export function Header() {
     <header className={classes.header}>
       <Container size="md" className={classes.inner}>
         <Flex gap="xs">
-          <IconConfetti size={30} />
-          <span className={classes.title}>GiveawayBot</span>
+          <Link to="/">
+            <Button
+              variant="subtle"
+              size="xs"
+              color="gray"
+              leftSection={<IconConfetti className={classes.title} size={30} />}
+            >
+              <span className={classes.title}>GiveawayBot</span>
+            </Button>
+          </Link>
         </Flex>
 
         <Burger

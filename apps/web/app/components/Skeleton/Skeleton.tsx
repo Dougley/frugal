@@ -47,8 +47,8 @@ export function Skeleton({ children }: { children: React.ReactNode }) {
         >
           <div
             style={{
-              display: "flex",
-              flexDirection: "column",
+              // display: "flex",
+              // flexDirection: "column",
               minHeight: "75vh",
               width: "100%",
             }}

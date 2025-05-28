@@ -1,4 +1,5 @@
 import { redirect } from "react-router";
+import { OAuth2RequestError } from "remix-auth-oauth2";
 import { getAndClearReturnUrl } from "~/utils/auth";
 import type { Route } from "./+types/api_.auth.callback.$provider";
 
@@ -37,8 +38,20 @@ export const loader = async ({
       },
     });
   } catch (error) {
+    if (error instanceof Response) {
+      return error;
+    }
     console.error("[Auth] Error during authentication callback:", error);
     console.log(JSON.stringify(error, null, 2));
-    return redirect("/");
+    if (error instanceof OAuth2RequestError) {
+      return redirect(
+        `/auth/error?message=${encodeURIComponent(
+          error.description ?? "Unknown error",
+        )}`,
+      );
+    }
+    return redirect(
+      `/auth/error?message=${encodeURIComponent("Unknown error")}`,
+    );
   }
 };

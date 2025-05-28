@@ -28,6 +28,7 @@
     "@react-router/fs-routes": "^7.6.1",
     "@sentry/cloudflare": "^9.22.0",
     "@sentry/react": "^9.22.0",
+    "@sentry/react-router": "^9.23.0",
     "@sentry/vite-plugin": "^3.5.0",
     "@tabler/icons-react": "^3.33.0",
     "clsx": "^2.1.1",
@@ -42,7 +43,8 @@
     "remix-auth-oauth2": "^3.4.1",
     "remix-utils": "^8.7.0",
     "unified": "^11.0.5",
-    "unist-util-visit": "^5.0.0"
+    "unist-util-visit": "^5.0.0",
+    "zod": "^3.25.30"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.2.4",
