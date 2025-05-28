@@ -1,6 +1,22 @@
 {
   "extends": "@dougley/tsconfig/workers",
+  "compilerOptions": {
+    "outDir": "dist",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "noErrorTruncation": false,
+    "types": [
+      "./worker-configuration.d.ts",
+      "@dougley/types/workers-env",
+      "node"
+    ]
+  },
   "include": [
     "src/**/*.ts",
+    "worker-configuration.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
   ]
 }

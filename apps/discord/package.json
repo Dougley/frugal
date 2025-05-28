@@ -5,6 +5,7 @@
   "private": true,
   "main": "dist/index.mjs",
   "scripts": {
+    "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -33,6 +34,7 @@
   "devDependencies": {
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
+    "@types/node": "^22.15.21",
     "better-sqlite3": "^11.10.0",
     "discord-api-types": "^0.38.8",
     "dotenv": "^16.5.0",

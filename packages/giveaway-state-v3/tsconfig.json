@@ -4,7 +4,11 @@
     "declaration": true,
     "outDir": "dist",
     "allowJs": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": [
+      "@dougley/types/workers-env",
+      "@cloudflare/workers-types"
+    ]
   },
   "include": [
     "src/**/*.ts",

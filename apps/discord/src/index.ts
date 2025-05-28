@@ -1,4 +1,3 @@
-import type { ExecutionContext, Request } from '@cloudflare/workers-types';
 import { drizzleD1 } from '@dougley/frugal-drizzle/workers';
 import { createProxy, type DurableObjectProxy, handleAlarm, stateRouter } from '@dougley/frugal-savestate';
 import * as Sentry from '@sentry/cloudflare';
@@ -15,7 +14,7 @@ const cfServer = new CloudflareWorkerServer();
 let creator: SlashCreator;
 
 // Create the SlashCreator instance with env variables
-function makeCreator(env: Env) {
+function makeCreator(env: LegacyEnv) {
   creator = new SlashCreator({
     applicationID: env.DISCORD_APP_ID,
     publicKey: env.DISCORD_PUBLIC_KEY,
@@ -66,7 +65,7 @@ export default Sentry.withSentry(
     tracesSampleRate: 1.0
   }),
   {
-    async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    async fetch(request: Request, env: LegacyEnv, ctx: ExecutionContext): Promise<Response> {
       // Set the environment context
       EnvContext.env = env;
       EnvContext.state = createProxy(stateRouter, handleAlarm);
@@ -80,5 +79,5 @@ export default Sentry.withSentry(
       // Use the CloudflareWorkerServer to handle the request
       return cfServer.fetch(request, env, ctx);
     }
-  } satisfies ExportedHandler<Env>
+  } satisfies ExportedHandler<LegacyEnv>
 );

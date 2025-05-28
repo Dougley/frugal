@@ -214,7 +214,7 @@ export default class SaveTestCommand extends SlashCommand {
     const state = await stub.getState.query();
     const entries = await stub.getEntries.query();
 
-    const endTime = new Date(state.end_time);
+    const endTime = new Date(state.endTime);
     const now = new Date();
     const remaining = Math.max(0, endTime.getTime() - now.getTime());
     const remainingMinutes = Math.floor(remaining / 60000);

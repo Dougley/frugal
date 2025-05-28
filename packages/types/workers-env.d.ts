@@ -1,5 +1,3 @@
-/// <reference types="@cloudflare/workers-types" />
-
 declare type LegacyEnv = {
   KV: KVNamespace;
   D1: D1Database;

@@ -2,6 +2,7 @@
   "name": "@dougley/frugal-savestate",
   "version": "0.0.0",
   "license": "MIT",
+  "type": "module",
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -13,6 +14,7 @@
     "directory": "packages/giveaway-state"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
     "discord-api-types": "^0.38.8",
