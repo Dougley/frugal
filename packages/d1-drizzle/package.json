@@ -6,22 +6,22 @@
   "author": "Remco Jongschaap <hey@dougley.com>",
   "exports": {
     "./workers": {
-      "import": "./dist/workers/index.js",
+      "import": "./src/workers/index.ts",
       "types": "./dist/workers/index.d.ts",
       "require": "./dist/workers/index.js"
     },
     "./workers/*": {
-      "import": "./dist/workers/*",
+      "import": "./src/workers/*",
       "types": "./dist/workers/*",
       "require": "./dist/workers/*"
     },
     "./durables": {
-      "import": "./dist/durables/index.js",
+      "import": "./src/durables/index.ts",
       "types": "./dist/durables/index.d.ts",
       "require": "./dist/durables/index.js"
     },
     "./durables/*": {
-      "import": "./dist/durables/*",
+      "import": "./src/durables/*",
       "types": "./dist/durables/*",
       "require": "./dist/durables/*"
     }
