@@ -28,13 +28,13 @@
     "@dougley/frugal-drizzle": "workspace:^",
     "@dougley/frugal-savestate": "workspace:^",
     "@dougley/frugal-utils": "workspace:^",
-    "@sentry/cloudflare": "^9.22.0",
+    "@sentry/cloudflare": "^9.23.0",
     "slash-create": "^6.4.1"
   },
   "devDependencies": {
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "@types/node": "^22.15.21",
+    "@types/node": "^22.15.24",
     "better-sqlite3": "^11.10.0",
     "discord-api-types": "^0.38.8",
     "dotenv": "^16.5.0",
