@@ -16,7 +16,7 @@
     "format": "prettier -w ./src",
     "db:migrate:dev": "wrangler d1 migrations apply frugal --local --persist-to='../../.mf'",
     "db:migrate": "wrangler d1 migrations apply frugal",
-    "register": "tsx scripts/register-commands.ts",
+    "register": "slash-up sync",
     "typecheck": "wrangler types && tsc --noEmit"
   },
   "repository": {
@@ -38,6 +38,7 @@
     "better-sqlite3": "^11.10.0",
     "discord-api-types": "^0.38.8",
     "dotenv": "^16.5.0",
+    "slash-up": "^1.4.2",
     "tsx": "^4.19.4",
     "wrangler": "catalog:"
   }

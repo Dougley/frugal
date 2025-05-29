@@ -6,16 +6,24 @@
   "author": "Remco Jongschaap <hey@dougley.com>",
   "exports": {
     "./workers": {
-      "import": "./src/workers/index.ts"
+      "import": "./dist/workers/index.js",
+      "types": "./dist/workers/index.d.ts",
+      "require": "./dist/workers/index.js"
     },
     "./workers/*": {
-      "import": "./src/workers/*"
+      "import": "./dist/workers/*",
+      "types": "./dist/workers/*",
+      "require": "./dist/workers/*"
     },
     "./durables": {
-      "import": "./src/durables/index.ts"
+      "import": "./dist/durables/index.js",
+      "types": "./dist/durables/index.d.ts",
+      "require": "./dist/durables/index.js"
     },
     "./durables/*": {
-      "import": "./src/durables/*"
+      "import": "./dist/durables/*",
+      "types": "./dist/durables/*",
+      "require": "./dist/durables/*"
     }
   },
   "repository": {
@@ -24,7 +32,8 @@
     "directory": "packages/d1-prisma"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "dependencies": {
     "drizzle-orm": "catalog:"
