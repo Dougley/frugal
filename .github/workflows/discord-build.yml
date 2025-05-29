@@ -47,7 +47,7 @@ jobs:
         run: pnpm run register
         working-directory: ./apps/discord
         env:
-          DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
+          DISCORD_APPLICATION_ID: ${{ vars.DISCORD_APP_ID }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
 
       - name: Publish
@@ -56,7 +56,7 @@ jobs:
         run: |
           pnpm wrangler deploy --env ${{ inputs.environment }} \
             --var DISCORD_BOT_TOKEN:$DISCORD_BOT_TOKEN \
-            DISCORD_APP_ID:$DISCORD_APP_ID \
+            DISCORD_APPLICATION_ID:$DISCORD_APP_ID \
             DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
             SUMMARY_URL:$SUMMARY_SITE \
             ENVIROMENT:$ENVIROMENT \
