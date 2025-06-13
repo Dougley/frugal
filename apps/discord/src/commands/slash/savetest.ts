@@ -1,8 +1,9 @@
 import { JoinButton } from '@dougley/frugal-utils';
-import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create/web';
+import { CommandContext, CommandOptionType, SlashCreator } from 'slash-create/web';
+import { BaseCommand } from '../../classes/BaseCommand';
 import { EnvContext } from '../../env';
 
-export default class SaveTestCommand extends SlashCommand {
+export default class SaveTestCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
     super(creator, {
       name: 'savetest',
@@ -46,7 +47,10 @@ export default class SaveTestCommand extends SlashCommand {
     await ctx.defer();
 
     if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      return ctx.editOriginal('Giveaway state not available');
+      const errorMessage = await EnvContext.i18n!.translate('common.errors.giveaway_state_unavailable', {
+        language: ctx.locale
+      });
+      return ctx.editOriginal(errorMessage!);
     }
 
     const testType = ctx.options.type ?? 'full';
@@ -59,7 +63,10 @@ export default class SaveTestCommand extends SlashCommand {
       case 'info':
         return this.handleInfoTest(ctx);
       default:
-        return ctx.editOriginal('Unknown test type');
+        const errorMessage = await EnvContext.i18n!.translate('commands.savetest.errors.unknown_test_type', {
+          language: ctx.locale
+        });
+        return ctx.editOriginal(errorMessage!);
     }
   }
 
@@ -203,7 +210,10 @@ export default class SaveTestCommand extends SlashCommand {
     const objectIdStr = ctx.options.id;
 
     if (!objectIdStr) {
-      return ctx.editOriginal('Missing object ID');
+      const errorMessage = await EnvContext.i18n!.translate('commands.savetest.errors.missing_object_id', {
+        language: ctx.locale
+      });
+      return ctx.editOriginal(errorMessage!);
     }
 
     const stub = EnvContext.state!.getInstance(

@@ -1,8 +1,9 @@
 import { Schema, and, asc, eq } from '@dougley/frugal-drizzle/workers';
-import { AutocompleteContext, CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create/web';
+import { AutocompleteContext, CommandContext, CommandOptionType, SlashCreator } from 'slash-create/web';
+import { BaseCommand } from '../../classes/BaseCommand';
 import { EnvContext } from '../../env';
 
-export default class StopCommand extends SlashCommand {
+export default class StopCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
     super(creator, {
       name: 'stop',
@@ -42,7 +43,10 @@ export default class StopCommand extends SlashCommand {
     await ctx.defer();
 
     if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      return ctx.editOriginal('Giveaway state not available');
+      const errorMessage = await EnvContext.i18n!.translate('common.errors.giveaway_state_unavailable', {
+        language: ctx.locale
+      });
+      return ctx.editOriginal(errorMessage!);
     }
 
     const giveawayId = ctx.options.id;
@@ -56,12 +60,16 @@ export default class StopCommand extends SlashCommand {
     const state = await stub.getState.query();
 
     if (!state) {
-      return ctx.editOriginal('That giveaway does not exist or has already expired.');
+      const errorMessage = await EnvContext.i18n!.translate('commands.stop.errors.giveaway_not_found', {
+        language: ctx.locale
+      });
+      return ctx.editOriginal(errorMessage!);
     }
 
     // Update giveaway state to closed and trigger winner selection
     await stub.startAlarm.mutate(1);
 
-    return ctx.editOriginal('Giveaway stopped successfully! Drawing winners...');
+    const successMessage = await EnvContext.i18n!.translate('commands.stop.messages.success', { language: ctx.locale });
+    return ctx.editOriginal(successMessage!);
   }
 }

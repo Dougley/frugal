@@ -56,7 +56,6 @@ export function createProxy(
     db: ReturnType<typeof drizzleDurable>;
 
     constructor(state: DurableObjectState, env: LegacyEnv) {
-      0;
       this.state = state;
       this.env = env;
       this.db = drizzleDurable(state.storage);

@@ -1,20 +1,13 @@
 import { createGiveawayComponents, JoinButton } from '@dougley/frugal-utils';
-import {
-  BitField,
-  CommandContext,
-  CommandOptionType,
-  Message,
-  MessageFlags,
-  SlashCommand,
-  SlashCreator
-} from 'slash-create/web';
+import { BitField, CommandContext, CommandOptionType, Message, MessageFlags, SlashCreator } from 'slash-create/web';
+import { BaseCommand } from '../../classes/BaseCommand';
 import { EnvContext } from '../../env';
 
 // Constants for duration limits
 const MAX_DURATION_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
 const MIN_DURATION_MS = 10 * 1000; // 10 seconds
 
-export default class StartCommand extends SlashCommand {
+export default class StartCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
     super(creator, {
       name: 'start',
@@ -58,7 +51,10 @@ export default class StartCommand extends SlashCommand {
    * Validates and parses a duration string (e.g., "30s", "5m", "2h", "1d")
    * Returns milliseconds if valid, or an error message if invalid
    */
-  private validateDuration(durationStr: string): { valid: true; duration: number } | { valid: false; error: string } {
+  private async validateDuration(
+    durationStr: string,
+    locale: string
+  ): Promise<{ valid: true; duration: number } | { valid: false; error: string }> {
     // Parse the duration string into milliseconds
     const units: Record<string, number> = {
       s: 1000,
@@ -69,9 +65,12 @@ export default class StartCommand extends SlashCommand {
 
     const match = durationStr.match(/^(\d+)([smhd])$/);
     if (!match) {
+      const error = await EnvContext.i18n!.translate('commands.start.errors.invalid_duration_format', {
+        language: locale
+      });
       return {
         valid: false,
-        error: 'Invalid duration format. Use format like: 30s, 5m, 2h, 1d'
+        error: error!
       };
     }
 
@@ -80,16 +79,18 @@ export default class StartCommand extends SlashCommand {
 
     // Validate the duration limits
     if (duration > MAX_DURATION_MS) {
+      const error = await EnvContext.i18n!.translate('commands.start.errors.duration_too_long', { language: locale });
       return {
         valid: false,
-        error: "Giveaways can't be longer than 14 days"
+        error: error!
       };
     }
 
     if (duration < MIN_DURATION_MS) {
+      const error = await EnvContext.i18n!.translate('commands.start.errors.duration_too_short', { language: locale });
       return {
         valid: false,
-        error: "Giveaways can't be shorter than 10 seconds"
+        error: error!
       };
     }
 
@@ -102,11 +103,14 @@ export default class StartCommand extends SlashCommand {
 
       // Validate environment
       if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-        return ctx.editOriginal('Giveaway state not available');
+        const errorMessage = await EnvContext.i18n!.translate('common.errors.giveaway_state_unavailable', {
+          language: ctx.locale
+        });
+        return ctx.editOriginal(errorMessage!);
       }
 
       // Parse and validate duration
-      const durationResult = this.validateDuration(ctx.options.duration);
+      const durationResult = await this.validateDuration(ctx.options.duration, ctx.locale ?? 'en-US');
       if (!durationResult.valid) {
         return ctx.editOriginal(durationResult.error);
       }
@@ -152,7 +156,10 @@ export default class StartCommand extends SlashCommand {
       const channelID = ctx.channelID ?? '0';
 
       if (!giveawayMessage || !giveawayMessage.id) {
-        return ctx.editOriginal('Failed to create giveaway message');
+        const errorMessage = await EnvContext.i18n!.translate('commands.start.errors.failed_to_create_message', {
+          language: ctx.locale
+        });
+        return ctx.editOriginal(errorMessage!);
       }
 
       // Get the durable object instance
@@ -178,7 +185,11 @@ export default class StartCommand extends SlashCommand {
       await stub.startAlarm.mutate(endTime.toISOString());
     } catch (error) {
       console.error('Error in start command:', error);
-      return ctx.editOriginal(`Failed to start giveaway: ${error instanceof Error ? error.message : String(error)}`);
+      const errorMessage = await EnvContext.i18n!.translate('commands.start.errors.failed_to_start', {
+        language: ctx.locale,
+        params: { error: error instanceof Error ? error.message : String(error) }
+      });
+      return ctx.editOriginal(errorMessage!);
     }
   }
 }

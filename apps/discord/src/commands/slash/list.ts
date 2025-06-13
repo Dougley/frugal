@@ -1,4 +1,5 @@
-import { CommandContext, SlashCommand, SlashCreator } from 'slash-create/web';
+import { CommandContext, SlashCreator } from 'slash-create/web';
+import { BaseCommand } from '../../classes/BaseCommand';
 import { EnvContext } from '../../env';
 
 interface GiveawayState {
@@ -15,7 +16,7 @@ interface GiveawayState {
   hostId: string;
 }
 
-export default class ListCommand extends SlashCommand {
+export default class ListCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
     super(creator, {
       name: 'list',
@@ -27,7 +28,10 @@ export default class ListCommand extends SlashCommand {
     await ctx.defer();
 
     if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      return ctx.editOriginal('Giveaway state not available');
+      const errorMessage = await EnvContext.i18n!.translate('common.errors.giveaway_state_unavailable', {
+        language: ctx.locale
+      });
+      return ctx.editOriginal(errorMessage!);
     }
 
     const currentGiveaways = await EnvContext.state
@@ -37,19 +41,32 @@ export default class ListCommand extends SlashCommand {
       });
 
     if (!currentGiveaways || currentGiveaways.length === 0) {
-      return ctx.editOriginal('There are no giveaways running in this server.');
+      const noGiveawaysMessage = await EnvContext.i18n!.translate('commands.list.messages.no_giveaways', {
+        language: ctx.locale
+      });
+      return ctx.editOriginal(noGiveawaysMessage!);
     }
 
-    const description = currentGiveaways.map((giveaway: GiveawayState) => {
-      const winners = giveaway.winners === 1 ? '1 winner' : `${giveaway.winners} winners`;
-      const timestamp = Math.floor(new Date(giveaway.endTime).getTime() / 1000);
-      return `[**${giveaway.prize}**](https://discord.com/channels/${ctx.guildID}/${giveaway.channelId}/${giveaway.messageId}) - ${winners} - Ends <t:${timestamp}:R> (<t:${timestamp}:F>)`;
-    });
+    const description = await Promise.all(
+      currentGiveaways.map(async (giveaway: GiveawayState) => {
+        const winnersText = await EnvContext.i18n!.translate(
+          giveaway.winners === 1 ? 'common.winner_singular' : 'common.winners_plural',
+          {
+            language: ctx.locale,
+            params: { count: giveaway.winners.toString() }
+          }
+        );
+        const timestamp = Math.floor(new Date(giveaway.endTime).getTime() / 1000);
+        const endsText = await EnvContext.i18n!.translate('common.ends', { language: ctx.locale });
+        return `[**${giveaway.prize}**](https://discord.com/channels/${ctx.guildID}/${giveaway.channelId}/${giveaway.messageId}) - ${winnersText} - ${endsText} <t:${timestamp}:R> (<t:${timestamp}:F>)`;
+      })
+    );
 
+    const title = await EnvContext.i18n!.translate('commands.list.messages.title', { language: ctx.locale });
     return ctx.editOriginal({
       embeds: [
         {
-          title: 'Giveaways currently running',
+          title: title!,
           description: description.join('\n'),
           color: 0x00ff00
         }

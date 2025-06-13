@@ -64,9 +64,15 @@
     {
       "binding": "KV",
       "id": "ff4da80f1e42471db838c38e8e73a3ed",
-      "preview_id": "ff4da80f1e42471db838c38e8e73a3ed"
+    },
+    {
+      "binding": "KV_LOCALES",
+      "id": "040246d076f74f6dad013569151d7221",
     }
   ],
+  "version_metadata": {
+    "binding": "CF_VERSION_METADATA"
+  },
   // Environment-specific configurations
   "env": {
     // Production environment bindings
@@ -84,6 +90,10 @@
         {
           "binding": "KV",
           "id": "9d21020092f1485badd0d5efdff2352e"
+        },
+        {
+          "binding": "KV_LOCALES",
+          "id": "a41bad6972874bf280cfb036147e70f4"
         }
       ],
       "durable_objects": {
@@ -99,7 +109,10 @@
           "binding": "STORAGE",
           "bucket_name": "frugal-prod"
         }
-      ]
+      ],
+      "version_metadata": {
+        "binding": "CF_VERSION_METADATA"
+      }
     },
     // Staging environment bindings
     "staging": {
@@ -116,6 +129,10 @@
         {
           "binding": "KV",
           "id": "63222889f12248fc8c438e2d70c8fe4c"
+        },
+        {
+          "binding": "KV_LOCALES",
+          "id": "52c6967161134ccdac1e6927dc528e43"
         }
       ],
       "durable_objects": {
@@ -131,7 +148,10 @@
           "binding": "STORAGE",
           "bucket_name": "frugal-staging"
         }
-      ]
+      ],
+      "version_metadata": {
+        "binding": "CF_VERSION_METADATA"
+      }
     }
   }
 }

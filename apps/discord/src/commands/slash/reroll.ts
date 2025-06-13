@@ -1,5 +1,6 @@
 import { Schema, and, eq } from '@dougley/frugal-drizzle/workers';
-import { AutocompleteContext, CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create/web';
+import { AutocompleteContext, CommandContext, CommandOptionType, SlashCreator } from 'slash-create/web';
+import { BaseCommand } from '../../classes/BaseCommand';
 import { EnvContext } from '../../env';
 
 interface WinnerInfo {
@@ -9,7 +10,7 @@ interface WinnerInfo {
   avatar: string | null;
 }
 
-export default class RerollCommand extends SlashCommand {
+export default class RerollCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
     super(creator, {
       name: 'reroll',
@@ -58,7 +59,10 @@ export default class RerollCommand extends SlashCommand {
     await ctx.defer();
 
     if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      return ctx.editOriginal('Giveaway state not available');
+      const errorMessage = await EnvContext.i18n!.translate('common.errors.giveaway_state_unavailable', {
+        language: ctx.locale
+      });
+      return ctx.editOriginal(errorMessage!);
     }
 
     const giveawayId = ctx.options.id;
@@ -72,13 +76,17 @@ export default class RerollCommand extends SlashCommand {
     const state = await stub.getState.query();
 
     if (!state) {
-      return ctx.editOriginal('That giveaway does not exist.');
+      const errorMessage = await EnvContext.i18n!.translate('commands.reroll.errors.giveaway_not_found', {
+        language: ctx.locale
+      });
+      return ctx.editOriginal(errorMessage!);
     }
 
     if (state.state !== 'CLOSED') {
-      return ctx.editOriginal(
-        "That giveaway is still running. You can't reroll it until it ends. Try stopping it first."
-      );
+      const errorMessage = await EnvContext.i18n!.translate('commands.reroll.errors.giveaway_still_running', {
+        language: ctx.locale
+      });
+      return ctx.editOriginal(errorMessage!);
     }
 
     // Helper to coerce winner fields to string|null
@@ -95,7 +103,10 @@ export default class RerollCommand extends SlashCommand {
       const result = await stub.drawWinners.mutate(count);
 
       if (!result.success || !result.winners || result.winners.length === 0) {
-        return ctx.editOriginal('No new winners could be drawn, as there were no (other) entries.');
+        const errorMessage = await EnvContext.i18n!.translate('commands.reroll.errors.no_winners_available', {
+          language: ctx.locale
+        });
+        return ctx.editOriginal(errorMessage!);
       }
 
       const winners = mapWinners(result.winners);
@@ -105,10 +116,18 @@ export default class RerollCommand extends SlashCommand {
         .join(', ');
       const allowedMentionIds = winners.map((w) => w.id).filter((id): id is string => typeof id === 'string');
 
+      const successMessage = await EnvContext.i18n!.translate(
+        winners.length === 1
+          ? 'commands.reroll.messages.partial_success_singular'
+          : 'commands.reroll.messages.partial_success_plural',
+        {
+          language: ctx.locale,
+          params: { count: winners.length.toString(), winners: winnerMentions }
+        }
+      );
+
       return ctx.editOriginal({
-        content:
-          `🎉 ${winners.length === 1 ? 'A new winner has' : `${winners.length} new winners have`} been drawn!\n` +
-          `Congratulations to ${winnerMentions}!`,
+        content: successMessage!,
         allowedMentions: {
           users: allowedMentionIds,
           everyone: false,
@@ -119,7 +138,10 @@ export default class RerollCommand extends SlashCommand {
       const result = await stub.drawWinners.mutate();
 
       if (!result.success || !result.winners || result.winners.length === 0) {
-        return ctx.editOriginal('No new winners could be drawn, as there were no (other) entries.');
+        const errorMessage = await EnvContext.i18n!.translate('commands.reroll.errors.no_winners_available', {
+          language: ctx.locale
+        });
+        return ctx.editOriginal(errorMessage!);
       }
 
       const winners = mapWinners(result.winners);
@@ -129,10 +151,16 @@ export default class RerollCommand extends SlashCommand {
         .join(', ');
       const allowedMentionIds = winners.map((w) => w.id).filter((id): id is string => typeof id === 'string');
 
+      const successMessage = await EnvContext.i18n!.translate(
+        winners.length === 1 ? 'commands.reroll.messages.success_singular' : 'commands.reroll.messages.success_plural',
+        {
+          language: ctx.locale,
+          params: { winners: winnerMentions }
+        }
+      );
+
       return ctx.editOriginal({
-        content:
-          `🎉 New ${winners.length === 1 ? 'winner has' : 'winners have'} been drawn!\n` +
-          `Congratulations to ${winnerMentions}!`,
+        content: successMessage!,
         allowedMentions: {
           users: allowedMentionIds,
           everyone: false,

@@ -1,8 +1,8 @@
-import { Schema } from '@dougley/frugal-drizzle/workers';
-import { CommandContext, SlashCommand, SlashCreator } from 'slash-create/web';
+import { CommandContext, SlashCreator } from 'slash-create/web';
+import { BaseCommand } from '../../classes/BaseCommand';
 import { EnvContext } from '../../env';
 
-export default class PingCommand extends SlashCommand {
+export default class PingCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
     super(creator, {
       name: 'ping',
@@ -14,7 +14,8 @@ export default class PingCommand extends SlashCommand {
     await ctx.defer();
 
     // Send initial message
-    const msg = await ctx.send('🏓 Pinging...');
+    const pingingMessage = await EnvContext.i18n!.translate('commands.ping.messages.pinging', { language: ctx.locale });
+    const msg = await ctx.send(pingingMessage!);
 
     // Calculate time difference
     let rtt = 0;
@@ -24,12 +25,15 @@ export default class PingCommand extends SlashCommand {
     } else {
       // Fallback or error handling if msg is not the expected type
       console.error('Failed to get message object for RTT calculation or timestamp is not a number.');
-      return ctx.editOriginal('🏓 Pong! Could not calculate RTT.');
+      const errorMessage = await EnvContext.i18n!.translate('commands.ping.messages.error', { language: ctx.locale });
+      return ctx.editOriginal(errorMessage!);
     }
-    console.log(Schema, Schema.entries);
-    console.log(await EnvContext.drizzle!.select().from(Schema.entries).limit(1));
 
     // Edit the message with the ping information
-    return ctx.editOriginal(`🏓 Pong! RTT is \`${rtt}\`ms`);
+    const successMessage = await EnvContext.i18n!.translate('commands.ping.messages.success', {
+      language: ctx.locale,
+      params: { rtt: rtt.toString() }
+    });
+    return ctx.editOriginal(successMessage!);
   }
 }

@@ -1,20 +1,29 @@
 import { drizzleD1 } from '@dougley/frugal-drizzle/workers';
-import { createProxy, type DurableObjectProxy, handleAlarm, stateRouter } from '@dougley/frugal-savestate';
+import { createI18n } from '@dougley/frugal-i18n';
+import { createProxy, handleAlarm, stateRouter } from '@dougley/frugal-savestate';
 import * as Sentry from '@sentry/cloudflare';
 import { CloudflareWorkerServer } from 'slash-create/web';
 import { SlashCreator } from './classes/SlashCreator';
 import { commands, componentHandlers, modalHandlers } from './commands';
 import { EnvContext } from './env';
 
-const GiveawayStateV3Class: DurableObjectProxy = createProxy(stateRouter, handleAlarm);
-export { GiveawayStateV3Class as GiveawayStateV3 }; // Durable Object
+export const GiveawayStateV3 = Sentry.instrumentDurableObjectWithSentry(
+  (env: Env) => ({
+    dsn: env.SENTRY_DSN,
+    release: env.CF_VERSION_METADATA.id,
+    tracesSampleRate: 1.0,
+    sendDefaultPii: true
+  }),
+  // @ts-expect-error
+  createProxy(stateRouter, handleAlarm)
+);
 
 // Using CloudflareWorkerServer from slash-create/web
 const cfServer = new CloudflareWorkerServer();
 let creator: SlashCreator;
 
 // Create the SlashCreator instance with env variables
-function makeCreator(env: LegacyEnv) {
+function makeCreator(env: Env) {
   creator = new SlashCreator({
     applicationID: env.DISCORD_APP_ID,
     publicKey: env.DISCORD_PUBLIC_KEY,
@@ -60,17 +69,26 @@ function makeCreator(env: LegacyEnv) {
 }
 
 export default Sentry.withSentry(
-  (env) => ({
-    dsn: env.SENTRY_DSN,
-    tracesSampleRate: 1.0
-  }),
+  (env) => {
+    const { id: versionId } = env.CF_VERSION_METADATA;
+    return {
+      dsn: env.SENTRY_DSN,
+      release: versionId,
+      tracesSampleRate: 1.0,
+      sendDefaultPii: true
+    };
+  },
   {
-    async fetch(request: Request, env: LegacyEnv, ctx: ExecutionContext): Promise<Response> {
+    async fetch(request: Request, env, ctx: ExecutionContext): Promise<Response> {
       // Set the environment context
       EnvContext.env = env;
-      EnvContext.state = createProxy(stateRouter, handleAlarm);
+      // @ts-expect-error
+      EnvContext.state = GiveawayStateV3;
       EnvContext.drizzle = drizzleD1(env.D1);
-
+      EnvContext.i18n = createI18n({
+        kv: env.KV_LOCALES,
+        defaultLanguage: 'en-pirate'
+      });
       Sentry.instrumentD1WithSentry(env.D1);
 
       // Initialize the creator if it doesn't exist
@@ -79,5 +97,5 @@ export default Sentry.withSentry(
       // Use the CloudflareWorkerServer to handle the request
       return cfServer.fetch(request, env, ctx);
     }
-  } satisfies ExportedHandler<LegacyEnv>
+  } satisfies ExportedHandler<Cloudflare.Env>
 );

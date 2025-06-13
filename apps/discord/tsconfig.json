@@ -7,13 +7,12 @@
     "noErrorTruncation": false,
     "types": [
       "./worker-configuration.d.ts",
-      "@dougley/types/workers-env",
+      // "@dougley/types/workers-env",
       "node"
     ]
   },
   "include": [
     "src/**/*.ts",
-    "worker-configuration.d.ts"
   ],
   "exclude": [
     "node_modules",

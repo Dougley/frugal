@@ -16,8 +16,13 @@
     "format": "prettier -w ./src",
     "db:migrate:dev": "wrangler d1 migrations apply frugal --local --persist-to='../../.mf'",
     "db:migrate": "wrangler d1 migrations apply frugal",
-    "register": "slash-up sync",
-    "typecheck": "wrangler types && tsc --noEmit"
+    "register": "tsx scripts/register-commands.mjs",
+    "register:dev": "tsx scripts/register-commands.mjs --env development",
+    "typecheck": "wrangler types && tsc --noEmit",
+    "i18n:sync": "node scripts/kv-i18n-sync.mjs",
+    "i18n:sync:staging": "node scripts/kv-i18n-sync.mjs --env staging",
+    "i18n:sync:production": "node scripts/kv-i18n-sync.mjs --env production",
+    "i18n:sync:dry-run": "node scripts/kv-i18n-sync.mjs --dry-run"
   },
   "repository": {
     "type": "git",
@@ -26,6 +31,7 @@
   },
   "dependencies": {
     "@dougley/frugal-drizzle": "workspace:^",
+    "@dougley/frugal-i18n": "workspace:^",
     "@dougley/frugal-savestate": "workspace:^",
     "@dougley/frugal-utils": "workspace:^",
     "@sentry/cloudflare": "^9.23.0",

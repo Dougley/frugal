@@ -1,9 +1,10 @@
 import { Schema, and, asc, eq } from '@dougley/frugal-drizzle/workers';
 import { EditModal } from '@dougley/frugal-utils';
-import { AutocompleteContext, CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create/web';
+import { AutocompleteContext, CommandContext, CommandOptionType, SlashCreator } from 'slash-create/web';
+import { BaseCommand } from '../../classes/BaseCommand';
 import { EnvContext } from '../../env';
 
-export default class EditCommand extends SlashCommand {
+export default class EditCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
     super(creator, {
       name: 'edit',
@@ -55,8 +56,11 @@ export default class EditCommand extends SlashCommand {
     // No need to defer the response as we're showing a modal immediately
 
     if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
+      const errorMessage = await EnvContext.i18n!.translate('common.errors.giveaway_state_unavailable', {
+        language: ctx.locale
+      });
       return ctx.send({
-        content: 'Giveaway state not available',
+        content: errorMessage!,
         ephemeral: true
       });
     }
@@ -71,8 +75,11 @@ export default class EditCommand extends SlashCommand {
     const state = await stub.getState.query();
 
     if (!state) {
+      const errorMessage = await EnvContext.i18n!.translate('commands.edit.errors.giveaway_not_found', {
+        language: ctx.locale
+      });
       return ctx.send({
-        content: 'That giveaway does not exist or has expired.',
+        content: errorMessage!,
         ephemeral: true
       });
     }
