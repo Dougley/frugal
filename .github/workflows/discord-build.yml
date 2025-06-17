@@ -12,12 +12,35 @@ on:
       deploy_commands:
         required: true
         type: string
+    secrets:
+      DISCORD_SECRET:
+        required: true
+      DISCORD_TOKEN:
+        required: true
+      CF_API_TOKEN:
+        required: true
+      SENTRY_AUTH_TOKEN:
+        required: true
+    outputs:
+      attestation-id:
+        description: "Build attestation ID"
+        value: ${{ jobs.deploy.outputs.attestation-id }}
+      sbom-attestation-id:
+        description: "SBOM attestation ID"
+        value: ${{ jobs.deploy.outputs.sbom-attestation-id }}
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     name: Deploy Discord Bot to ${{ inputs.environment }}
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+    outputs:
+      attestation-id: ${{ steps.attest-build.outputs.attestation-id }}
+      sbom-attestation-id: ${{ steps.attest-sbom.outputs.attestation-id }}
     steps:
       - uses: actions/checkout@v4
 
@@ -32,6 +55,28 @@ jobs:
           DISCORD_PUBLIC_KEY: ${{ vars.DISCORD_PUBLIC_KEY }}
           DISCORD_SECRET: ${{ secrets.DISCORD_SECRET }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+
+      - name: Generate SBOM for Discord application
+        uses: anchore/sbom-action@v0
+        with:
+          path: ./apps/discord
+          format: spdx-json
+          output-file: discord-sbom.spdx.json
+
+      - name: Generate build attestation for Discord worker
+        id: attest-build
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "./apps/discord/dist/**"
+        if: inputs.skip_deploy != 'true'
+
+      - name: Generate SBOM attestation for Discord worker
+        id: attest-sbom
+        uses: actions/attest-sbom@v1
+        with:
+          subject-path: "./apps/discord/dist/**"
+          sbom-path: "discord-sbom.spdx.json"
+        if: inputs.skip_deploy != 'true'
 
       - name: Deploy Discord commands
         if: inputs.deploy_commands == 'true'

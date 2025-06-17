@@ -1,5 +1,8 @@
 import { ActionIcon, Anchor, Container, Flex, Text } from "@mantine/core";
 import { IconBrandBluesky, IconBrandGithub } from "@tabler/icons-react";
+import { useRouteLoaderData } from "react-router";
+import type { loader } from "~/root";
+import { BuildVerificationBadge } from "../BuildVerificationBadge/BuildVerificationBadge";
 import Logo from "../DougleyLogo/DougleyLogo";
 import { FeedbackButton } from "../FeedbackButton/FeedbackButton";
 import classes from "./Footer.module.css";
@@ -18,6 +21,9 @@ const social = [
 ];
 
 export function Footer() {
+  const data = useRouteLoaderData<typeof loader>("root");
+  const buildInfo = data?.buildInfo;
+
   const socialItems = social.map((link) => (
     <ActionIcon color="dimmed" radius="xl" size="xl" key={link.label}>
       <Anchor
@@ -48,6 +54,7 @@ export function Footer() {
           <Text c="dimmed" size="sm">
             © {new Date().getFullYear()} Dougley
           </Text>
+          {buildInfo && <BuildVerificationBadge buildInfo={buildInfo} />}
           <FeedbackButton />
         </Flex>
         <Flex gap="md" align="center" justify="flex-end">

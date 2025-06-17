@@ -15,6 +15,7 @@ import { Skeleton } from "./components/Skeleton/Skeleton";
 import { TopErrorBoundary } from "./components/TopErrorBoundary/TopErrorBoundary";
 import styles from "./styles.css?url";
 import { getLoggedInUser } from "./utils/auth";
+import { getBuildInfo } from "./utils/build-info";
 import { defaultMeta } from "./utils/meta";
 
 import type { Route } from "./+types/root";
@@ -46,7 +47,9 @@ const theme = mergeMantineTheme(
 
 export async function loader({ request, context }: Route.LoaderArgs) {
   const user = await getLoggedInUser(request, context);
-  return { user };
+  const buildInfo = getBuildInfo(context);
+
+  return { user, buildInfo };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
