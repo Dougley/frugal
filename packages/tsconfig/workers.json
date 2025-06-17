@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "./base",
   "compilerOptions": {
-    "types": ["@types/jest", "@dougley/types/workers-env"],
+    "types": ["@dougley/types/workers-env"],
     "moduleResolution": "bundler"
   }
 }

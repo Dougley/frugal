@@ -47,7 +47,7 @@ jobs:
         run: pnpm turbo build --filter=@dougley/frugal-${{ matrix.package }}^...
 
       - name: Run tests
-        run: pnpm test
+        run: pnpm test:coverage
         working-directory: ./packages/${{ matrix.package }}
 
       - name: Upload coverage
