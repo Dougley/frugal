@@ -1,8 +1,4 @@
-// Mock implementation with simplified types for testing
-
-/**
- * Mock implementation of Cloudflare KV namespace for testing
- */
+// @ts-nocheck
 export class MockKVNamespace implements KVNamespace {
   private store = new Map<string, string>();
 

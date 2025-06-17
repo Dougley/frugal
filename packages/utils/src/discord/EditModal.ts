@@ -39,7 +39,7 @@ export class EditModal {
    */
   public static createModal(
     giveawayId: string,
-    state: { prize: string; winners: number; description: string },
+    state: { prize: string; winners: number; description?: string | null },
   ) {
     return {
       title: "Edit Giveaway",

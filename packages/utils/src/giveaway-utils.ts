@@ -1,4 +1,8 @@
-import { ComponentActionRow, ComponentType } from "slash-create/web";
+import {
+  AnyComponent,
+  ComponentActionRow,
+  ComponentType,
+} from "slash-create/web";
 
 // Constants
 export const PARTY_POPPER_EMOJI = "🎉";
@@ -86,7 +90,7 @@ export const createGiveawayComponents = (params: {
   description?: string;
   giveaway_id: string;
   join_button: ComponentActionRow;
-}): unknown[] => {
+}): AnyComponent[] => {
   const {
     prize,
     winners,
@@ -159,7 +163,7 @@ export const createGiveawayComponents = (params: {
     },
   ];
 
-  return components;
+  return components as AnyComponent[];
 };
 
 export const createEndedGiveawayComponents = (params: {

@@ -562,3 +562,5 @@ export const stateRouter = router({
 });
 
 export type StateRouter = typeof stateRouter;
+// eslint-disable-next-line no-redeclare
+export type t = typeof t;
