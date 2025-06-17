@@ -2,9 +2,9 @@ name: Security
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, dev]
   push:
-    branches: [main]
+    branches: [main, dev]
   schedule:
     - cron: "0 2 * * 1" # Weekly on Mondays at 2 AM
 

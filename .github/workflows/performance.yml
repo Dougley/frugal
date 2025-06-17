@@ -2,7 +2,7 @@ name: Performance
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, dev]
     paths:
       - "apps/web/**"
 
