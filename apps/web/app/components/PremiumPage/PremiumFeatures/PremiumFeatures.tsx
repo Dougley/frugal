@@ -123,7 +123,7 @@ export function PremiumFeatures() {
         <Space h="md" />
         <Text>
           Get access to even more features, including early access to new
-          features as they're developed.
+          features as they&apos;re developed.
         </Text>
       </Paper>
     </Container>

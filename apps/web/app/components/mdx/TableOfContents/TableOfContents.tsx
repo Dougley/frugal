@@ -11,9 +11,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { IconList } from "@tabler/icons-react";
 import classes from "./TableOfContents.module.css";
 
-interface TableOfContentsProps {}
-
-export function TableOfContentsNav({}: TableOfContentsProps) {
+export function TableOfContentsNav() {
   const [opened, { open, close }] = useDisclosure(false);
 
   return (

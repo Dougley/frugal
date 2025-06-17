@@ -434,7 +434,7 @@ export class I18n {
       const translations = value as Translation;
       this.setCacheEntry(language, translations);
       return translations;
-    } catch (error) {
+    } catch (_error) {
       // Silent error handling in Workers environment
       return null;
     }
@@ -504,7 +504,7 @@ export class I18n {
    */
   private getNestedValue(obj: Translation, path: string): string | null {
     const keys = path.split(".");
-    let current: any = obj;
+    let current: Translation | string = obj;
 
     for (const key of keys) {
       if (current && typeof current === "object" && key in current) {
@@ -535,7 +535,7 @@ export class I18n {
    */
   private setNestedValue(obj: Translation, path: string, value: string): void {
     const keys = path.split(".");
-    let current: any = obj;
+    let current: Translation | string = obj;
 
     for (let i = 0; i < keys.length - 1; i++) {
       const key = keys[i];
@@ -576,7 +576,8 @@ export class I18n {
     try {
       const formatter = new IntlMessageFormat(message, language);
       // Convert params to ensure proper formatting
-      const processedParams: Record<string, any> = {};
+      const processedParams: Record<string, string | number | boolean | Date> =
+        {};
       for (const [key, value] of Object.entries(params)) {
         if (typeof value === "boolean") {
           processedParams[key] = String(value);
@@ -588,7 +589,7 @@ export class I18n {
       }
       const result = formatter.format(processedParams);
       return typeof result === "string" ? result : String(result);
-    } catch (error) {
+    } catch (_error) {
       // If parsing/formatting fails, return the original message
       return message;
     }

@@ -25,7 +25,7 @@ export function NotLoggedIn() {
               <Flex direction="column" align="center" justify="center">
                 <IconUserQuestion size={64} />
                 <Text size="lg" fw={900}>
-                  You're logged out.
+                  You&apos;re logged out.
                 </Text>
               </Flex>
               <Stack align="center" justify="center">

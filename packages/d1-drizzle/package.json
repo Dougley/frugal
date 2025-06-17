@@ -41,7 +41,7 @@
   "devDependencies": {
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "@types/node": "^22.15.24",
+    "@types/node": "^24.0.3",
     "drizzle-kit": "catalog:",
     "wrangler": "catalog:"
   }

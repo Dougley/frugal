@@ -19,6 +19,6 @@
     "@dougley/types": "workspace:^"
   },
   "dependencies": {
-    "slash-create": "^6.4.1"
+    "slash-create": "^6.4.2"
   }
 }

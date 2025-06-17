@@ -4,13 +4,6 @@ import { Link } from "react-router";
 import { useDrawer } from "../contexts/DrawerContext";
 import classes from "./Header.module.css";
 
-const links = [
-  { link: "/about", label: "Features" },
-  { link: "/pricing", label: "Pricing" },
-  { link: "/learn", label: "Learn" },
-  { link: "/community", label: "Community" },
-];
-
 export function Header() {
   const { isDrawerOpen, toggleDrawer } = useDrawer();
 

@@ -315,7 +315,7 @@ export const stateRouter = router({
 
   cleanup: publicProcedure.mutation(async ({ ctx }) => {
     const db = drizzleD1(ctx.env.D1);
-    const giveaway = await getGiveaway(ctx);
+    const _giveaway = await getGiveaway(ctx);
     const id = ctx.state.id.toString();
 
     // Delete from central database
@@ -411,7 +411,7 @@ export const stateRouter = router({
         .get();
 
       // Get current entries count
-      const entries = await db
+      const _entries = await db
         .select({ count: sql<number>`count(*)` })
         .from(D1Schema.entries)
         .where(eq(D1Schema.entries.giveawayId, updated.messageId))
@@ -562,4 +562,3 @@ export const stateRouter = router({
 });
 
 export type StateRouter = typeof stateRouter;
-export type t = typeof t;

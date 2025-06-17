@@ -119,7 +119,17 @@ function GuildCard({
   );
 }
 
-function GiveawayCard({ giveaway }: { giveaway: any }) {
+function GiveawayCard({
+  giveaway,
+}: {
+  giveaway: {
+    messageId: string;
+    prize: string;
+    state: string;
+    endTime: string;
+    durableObjectId: string;
+  };
+}) {
   const { hovered, ref } = useHover();
   const isClosed = giveaway.state === "CLOSED";
 
@@ -177,7 +187,13 @@ function GuildHostedGiveaways({
   guilds,
 }: {
   guildId: string;
-  giveaways: any[];
+  giveaways: {
+    messageId: string;
+    prize: string;
+    state: string;
+    endTime: string;
+    durableObjectId: string;
+  }[];
   guilds: Array<{ id: string; name: string; icon: string | null }>;
 }) {
   const [isOpen, setIsOpen] = React.useState(true);
@@ -264,7 +280,7 @@ export default function GiveawaysIndex({ loaderData }: Route.ComponentProps) {
           </Alert>
           {guilds.length === 0 ? (
             <Text c="dimmed">
-              There's nothing here yet, go host a giveaway!
+              There&apos;s nothing here yet, go host a giveaway!
             </Text>
           ) : (
             <SimpleGrid
@@ -285,7 +301,7 @@ export default function GiveawaysIndex({ loaderData }: Route.ComponentProps) {
           </Title>
           {Object.keys(hostedByGuild).length === 0 ? (
             <Text c="dimmed">
-              There's nothing here yet, go host a giveaway!
+              There&apos;s nothing here yet, go host a giveaway!
             </Text>
           ) : (
             <Stack gap="lg">

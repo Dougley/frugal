@@ -7,7 +7,7 @@ export let loader = () => redirect("/login");
 export const action = async ({
   request,
   context,
-  params,
+  params: _params,
 }: Route.ActionArgs) => {
   console.log("[Auth] Processing logout request");
 

@@ -15,7 +15,7 @@ export default class EditButton {
    * Handles the button click to open the edit modal
    * @param ctx The component context
    */
-  public static async handleButtonInteraction(ctx: ComponentContext): Promise<any> {
+  public static async handleButtonInteraction(ctx: ComponentContext) {
     // Extract giveaway ID from button custom_id
     const giveawayId = ctx.customID.split(':')[1];
 
@@ -48,7 +48,7 @@ export default class EditButton {
    * Handles the modal submission
    * @param ctx The modal response context
    */
-  public static async handleModalSubmit(ctx: ModalInteractionContext): Promise<any> {
+  public static async handleModalSubmit(ctx: ModalInteractionContext) {
     // Extract giveaway ID from modal custom_id
     const match = ctx.customID.match(EditButton.modal_id_regex);
     if (!match) {

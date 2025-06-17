@@ -96,7 +96,7 @@ const renderNavLinks = (
 };
 
 export function Navbar() {
-  const { isDrawerOpen, toggleDrawer, closeDrawer, openDrawer } = useDrawer();
+  const { isDrawerOpen, toggleDrawer, closeDrawer } = useDrawer();
   const rootData = useRouteLoaderData("root");
 
   const links = renderNavLinks(data, closeDrawer);

@@ -1,3 +1,4 @@
+import { ComponentContext, ModalInteractionContext } from 'slash-create/web';
 import EditButton from './components/edit-modal';
 import JoinButton from './components/join-button';
 import EditCommand from './slash/edit';
@@ -23,7 +24,7 @@ export const commands = [
 export const componentHandlers: {
   pattern?: RegExp;
   custom_id?: string;
-  handler: (ctx: any) => Promise<any>;
+  handler: (ctx: ComponentContext) => Promise<unknown>;
 }[] = [
   {
     pattern: JoinButton.custom_id_regex,
@@ -39,7 +40,7 @@ export const componentHandlers: {
 export const modalHandlers: {
   pattern?: RegExp;
   custom_id?: string;
-  handler: (ctx: any) => Promise<any>;
+  handler: (ctx: ModalInteractionContext) => Promise<unknown>;
 }[] = [
   {
     pattern: EditButton.modal_id_regex,

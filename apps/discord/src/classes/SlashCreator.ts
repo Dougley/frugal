@@ -16,8 +16,8 @@ interface BaseCallback<T> {
   onExpired?: () => void;
 }
 
-interface ComponentCallback extends BaseCallback<ComponentRegisterCallback> {}
-interface ModalCallback extends BaseCallback<ModalRegisterCallback> {}
+type ComponentCallback = BaseCallback<ComponentRegisterCallback>;
+type ModalCallback = BaseCallback<ModalRegisterCallback>;
 
 export class SlashCreator extends BaseSlashCreator {
   regexComponentHandlers = new Map<RegExp, ComponentCallback>();

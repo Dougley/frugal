@@ -55,7 +55,7 @@ export default class RerollCommand extends BaseCommand {
     }));
   }
 
-  async run(ctx: CommandContext): Promise<any> {
+  async run(ctx: CommandContext) {
     await ctx.defer();
 
     if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
@@ -90,7 +90,14 @@ export default class RerollCommand extends BaseCommand {
     }
 
     // Helper to coerce winner fields to string|null
-    const mapWinners = (winners: any[]): WinnerInfo[] =>
+    const mapWinners = (
+      winners: {
+        id?: string | number | null;
+        username?: string | null;
+        discriminator?: string | null;
+        avatar?: string | null;
+      }[]
+    ): WinnerInfo[] =>
       winners.map((w) => ({
         id: w.id != null ? String(w.id) : null,
         username: w.username != null ? String(w.username) : null,

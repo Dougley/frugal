@@ -28,13 +28,6 @@ export const meta = () => {
   return defaultMeta("Giveaway Summaries");
 };
 
-type SummaryEntry = {
-  id: string;
-  username: string;
-  discriminator: string;
-  avatar: string | null;
-};
-
 const summarySchema = z.object({
   _version: z.literal(2),
   details: z.object({
@@ -89,7 +82,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function SummariesIndex() {
   const data = useActionData<typeof action>();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [parsedData, setParsedData] = useState<any>(null);
+  const [parsedData, setParsedData] = useState<SummaryOutput | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
 
   const handleFileDrop = async (files: FileWithPath[]) => {
@@ -212,8 +205,8 @@ export default function SummariesIndex() {
               {parseError}
             </Text>
             <Text size="sm" mt="xs">
-              Make sure you're using a valid summary file. Contact the original
-              sender if this file came from someone else.
+              Make sure you&apos;re using a valid summary file. Contact the
+              original sender if this file came from someone else.
             </Text>
           </Alert>
         )}
@@ -229,8 +222,8 @@ export default function SummariesIndex() {
               {data.error}
             </Text>
             <Text size="sm" mt="xs">
-              The submitted file couldn't be processed. Double-check the file
-              format and try again.
+              The submitted file couldn&apos;t be processed. Double-check the
+              file format and try again.
             </Text>
           </Alert>
         )}
@@ -255,7 +248,7 @@ export default function SummariesIndex() {
                     parsedData?.entries ||
                     data?.data?.entries ||
                     []
-                  ).filter((entry: SummaryEntry) =>
+                  ).filter((entry: SavedUserInformation) =>
                     (
                       parsedData?.details.originalWinners ||
                       data?.data?.details.originalWinners ||

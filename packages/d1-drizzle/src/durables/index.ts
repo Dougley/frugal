@@ -7,7 +7,8 @@ const drizzleDurable = (storage: DurableObjectStorage) => {
 
 export * from "drizzle-orm";
 export { migrate } from "drizzle-orm/durable-sqlite/migrator";
-// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - This is a workaround to get the migrations to work
 export * as Migrations from "./drizzle/migrations";
 export * as Schema from "./schema";
 export { drizzleDurable };

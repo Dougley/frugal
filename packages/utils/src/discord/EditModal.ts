@@ -37,7 +37,10 @@ export class EditModal {
    * @param state The current giveaway state
    * @returns Modal configuration
    */
-  public static createModal(giveawayId: string, state: any) {
+  public static createModal(
+    giveawayId: string,
+    state: { prize: string; winners: number; description: string },
+  ) {
     return {
       title: "Edit Giveaway",
       custom_id: `${EditModal.modal_id}:${giveawayId}`,

@@ -23,7 +23,7 @@ export function PremiumHero() {
         </h1>
         <Text className={classes.description}>
           Go above and beyond with GiveawayBot Premium. Unlock exclusive
-          features and support the bot's development.
+          features and support the bot&apos;s development.
         </Text>
         <Group className={classes.controls}>
           <Button

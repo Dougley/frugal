@@ -35,7 +35,12 @@ export default withSentry(
           },
         });
         const url = new URL(request.url);
-        if (functionRoutes.hasOwnProperty(`./functions${url.pathname}.ts`)) {
+        if (
+          Object.prototype.hasOwnProperty.call(
+            functionRoutes,
+            `./functions${url.pathname}.ts`,
+          )
+        ) {
           const functionRoute = functionRoutes[`./functions${url.pathname}.ts`];
           if (functionRoute) {
             return await functionRoute().then((fn) =>

@@ -3,7 +3,7 @@ import type { Route } from "./+types/api_.auth.current";
 export const loader = async ({
   request,
   context,
-  params,
+  params: _params,
 }: Route.LoaderArgs) => {
   const { getSession } = context.sessions;
   const session = await getSession(request.headers.get("cookie"));

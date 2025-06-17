@@ -1,6 +1,7 @@
 import { Locale } from 'discord-api-types/v10';
 import { SlashCommand, SlashCommandOptions, SlashCreator } from 'slash-create/web';
 import { EnvContext } from '../env';
+import { I18n } from '@dougley/frugal-i18n';
 
 // Environment constants for registration mode detection
 const REGISTRATION_ENV_FLAG = 'FRUGAL_REGISTRATION_MODE';
@@ -40,7 +41,7 @@ export abstract class BaseCommand extends SlashCommand {
 
     if (isRegistrationMode) {
       // During registration, use global i18n instance from registration script
-      return (global as any)[REGISTRATION_I18N_KEY] || null;
+      return (global as unknown as Record<string, I18n>)[REGISTRATION_I18N_KEY] || null;
     }
 
     // During runtime, use EnvContext i18n
@@ -86,7 +87,7 @@ export abstract class BaseCommand extends SlashCommand {
    * @param i18n - i18n instance to use for translations
    * @param commandKey - Base translation key for the command
    */
-  private async localizeOptions(i18n: any, commandKey: string): Promise<void> {
+  private async localizeOptions(i18n: I18n, commandKey: string): Promise<void> {
     if (!this.options?.length) return;
 
     await Promise.all(

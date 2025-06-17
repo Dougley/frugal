@@ -23,6 +23,7 @@ type GetLoadContextArgs = {
 };
 
 declare module "react-router" {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   export interface AppLoadContext extends ReturnType<typeof getLoadContext> {}
 }
 
@@ -82,7 +83,7 @@ const discordAuth = ({
       redirectURI: callbackURL,
       scopes: SCOPES,
     },
-    async ({ tokens, request }) => {
+    async ({ tokens, request: _request }) => {
       try {
         console.log("[Auth] Tokens", tokens);
         console.log("[Auth] Scopes", tokens.scopes());

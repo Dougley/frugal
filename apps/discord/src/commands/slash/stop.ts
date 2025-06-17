@@ -39,7 +39,7 @@ export default class StopCommand extends BaseCommand {
     }));
   }
 
-  async run(ctx: CommandContext): Promise<any> {
+  async run(ctx: CommandContext) {
     await ctx.defer();
 
     if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {

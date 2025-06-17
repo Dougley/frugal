@@ -13,7 +13,7 @@
     },
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-    "ghcr.io/devcontainers-contrib/features/cloudflared:1": {}
+    "ghcr.io/devcontainers-extra/features/cloudflared:1": {}
   },
   "customizations": {
     "codespaces": {

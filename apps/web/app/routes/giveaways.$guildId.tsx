@@ -61,7 +61,17 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   };
 }
 
-function GiveawayCard({ giveaway }: { giveaway: any }) {
+function GiveawayCard({
+  giveaway,
+}: {
+  giveaway: {
+    messageId: string;
+    prize: string;
+    state: string;
+    endTime: string;
+    durableObjectId: string;
+  };
+}) {
   const { hovered, ref } = useHover();
   const isClosed = giveaway.state === "CLOSED";
 

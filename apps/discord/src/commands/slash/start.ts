@@ -97,7 +97,7 @@ export default class StartCommand extends BaseCommand {
     return { valid: true, duration };
   }
 
-  async run(ctx: CommandContext): Promise<any> {
+  async run(ctx: CommandContext) {
     try {
       await ctx.defer();
 

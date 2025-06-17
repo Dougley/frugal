@@ -9,7 +9,7 @@ describe("I18n", () => {
   beforeEach(() => {
     mockKV = new MockKVNamespace();
     i18n = createI18n({
-      kv: mockKV as any,
+      kv: mockKV as unknown as KVNamespace,
       defaultLanguage: "en",
       cacheSize: 10,
       cacheTtl: 300,
@@ -18,13 +18,13 @@ describe("I18n", () => {
 
   describe("Constructor and Factory", () => {
     it("should create an instance with default config", () => {
-      const instance = createI18n({ kv: mockKV as any });
+      const instance = createI18n({ kv: mockKV as unknown as KVNamespace });
       expect(instance).toBeInstanceOf(I18n);
     });
 
     it("should use provided configuration", () => {
       const instance = createI18n({
-        kv: mockKV as any,
+        kv: mockKV as unknown as KVNamespace,
         defaultLanguage: "es",
         cacheSize: 100,
         cacheTtl: 600,
@@ -254,7 +254,7 @@ describe("I18n", () => {
     it("should allow disabling fallback to default language", async () => {
       // Create instance with fallback disabled
       const i18nNoFallback = createI18n({
-        kv: mockKV as any,
+        kv: mockKV as unknown as KVNamespace,
         defaultLanguage: "en",
         fallbackToDefault: false,
       });

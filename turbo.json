@@ -18,6 +18,7 @@
     },
     "lint": {},
     "format": {},
+    "typecheck": {},
     "deploy": {
       "dependsOn": ["build", "test", "lint"]
     }

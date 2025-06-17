@@ -43,7 +43,7 @@ export default class SaveTestCommand extends BaseCommand {
     });
   }
 
-  async run(ctx: CommandContext): Promise<any> {
+  async run(ctx: CommandContext) {
     await ctx.defer();
 
     if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
@@ -62,15 +62,16 @@ export default class SaveTestCommand extends BaseCommand {
         return this.handleAlarmTest(ctx);
       case 'info':
         return this.handleInfoTest(ctx);
-      default:
+      default: {
         const errorMessage = await EnvContext.i18n!.translate('commands.savetest.errors.unknown_test_type', {
           language: ctx.locale
         });
         return ctx.editOriginal(errorMessage!);
+      }
     }
   }
 
-  private async handleFullTest(ctx: CommandContext): Promise<any> {
+  private async handleFullTest(ctx: CommandContext) {
     await ctx.defer();
 
     const id = EnvContext.env!.GIVEAWAY_STATE.newUniqueId();
@@ -95,6 +96,8 @@ export default class SaveTestCommand extends BaseCommand {
 
     // Step 2: Start the alarm
     const alarmResult = await stub.startAlarm.mutate(endTime.toISOString());
+
+    console.trace(giveawayResult, alarmResult);
 
     // Step 3: Add some test entries (10 fake users)
     const testUsers = [
@@ -192,7 +195,7 @@ export default class SaveTestCommand extends BaseCommand {
     });
   }
 
-  private async handleAlarmTest(ctx: CommandContext): Promise<any> {
+  private async handleAlarmTest(ctx: CommandContext) {
     const id = EnvContext.env!.GIVEAWAY_STATE.newUniqueId();
     const stub = EnvContext.state!.getInstance(EnvContext.env!.GIVEAWAY_STATE, id);
     const duration = parseInt(ctx.options.duration ?? '60', 10) * 1000;
@@ -206,7 +209,7 @@ export default class SaveTestCommand extends BaseCommand {
     );
   }
 
-  private async handleInfoTest(ctx: CommandContext): Promise<any> {
+  private async handleInfoTest(ctx: CommandContext) {
     const objectIdStr = ctx.options.id;
 
     if (!objectIdStr) {

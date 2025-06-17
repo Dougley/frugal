@@ -1,7 +1,7 @@
 const onRequest = async (
   request: Request,
   env: Env,
-  context: ExecutionContext,
+  _context: ExecutionContext,
 ) => {
   try {
     if (request.method !== "POST") {

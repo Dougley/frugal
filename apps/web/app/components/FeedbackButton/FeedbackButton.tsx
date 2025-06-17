@@ -149,6 +149,7 @@ export function FeedbackButton() {
     modals.closeAll();
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const turnstileControl = useRef<any>(null);
 
   return (

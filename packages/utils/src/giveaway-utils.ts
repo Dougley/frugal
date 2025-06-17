@@ -86,7 +86,7 @@ export const createGiveawayComponents = (params: {
   description?: string;
   giveaway_id: string;
   join_button: ComponentActionRow;
-}): any[] => {
+}): unknown[] => {
   const {
     prize,
     winners,
@@ -94,7 +94,7 @@ export const createGiveawayComponents = (params: {
     host_username,
     host_id,
     description,
-    giveaway_id,
+    giveaway_id: _giveaway_id,
     join_button,
   } = params;
 
@@ -171,7 +171,7 @@ export const createEndedGiveawayComponents = (params: {
   description?: string;
   giveaway_id: string;
   winners_list: string[];
-}): any[] => {
+}): unknown[] => {
   const {
     prize,
     winners,
@@ -179,7 +179,7 @@ export const createEndedGiveawayComponents = (params: {
     host_username,
     host_id,
     description,
-    giveaway_id,
+    giveaway_id: _giveaway_id,
     winners_list,
   } = params;
 

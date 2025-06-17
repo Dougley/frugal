@@ -69,7 +69,7 @@ const INTENTIONAL_ERRORS: Record<
           Get one now!
         </Anchor>
         <Text size="xs" c="dimmed">
-          Already have one? Make sure you're logged in.
+          Already have one? Make sure you&apos;re logged in.
         </Text>
       </Flex>
     ),
@@ -101,6 +101,14 @@ function getIntentionalErrorDetails(status: number, statusText: string) {
 export function TopErrorBoundary() {
   const error = useRouteError();
   const navigate = useNavigate();
+  const [eventId, setEventId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (error instanceof Error && !eventId) {
+      const id = Sentry.captureException(error);
+      setEventId(id);
+    }
+  }, [error, eventId]);
 
   if (isRouteErrorResponse(error)) {
     const { icon, title, message, showRetry, retryLabel, retryAction } =
@@ -141,13 +149,6 @@ export function TopErrorBoundary() {
       </Container>
     );
   } else if (error instanceof Error) {
-    const [eventId, setEventId] = React.useState<string | null>(null);
-    React.useEffect(() => {
-      if (!eventId) {
-        const id = Sentry.captureException(error);
-        setEventId(id);
-      }
-    }, [error, eventId]);
     return (
       <Box>
         <Flex justify="center" align="center" h="100vh">

@@ -1,10 +1,10 @@
 packages:
-  - "packages/*"
-  - "apps/*"
+  - packages/*
+  - apps/*
 
 catalog:
-  wrangler: ^4.16.0
-  '@cloudflare/workers-types': ^4.20250204.0
-  drizzle-orm: ^0.43.1
+  wrangler: ^4.20.1
+  '@cloudflare/workers-types': ^4.20250617.0
+  drizzle-orm: ^0.44.2
   drizzle-kit: ^0.31.1
   discord-api-types: ^0.37.119

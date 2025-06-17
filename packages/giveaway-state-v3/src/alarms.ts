@@ -87,8 +87,9 @@ export async function handleAlarm(
     // we might want to just clean up immediately
     if (
       error instanceof Error &&
-      typeof (error as any).code !== "undefined" &&
-      ((error as any).code === 10008 || (error as any).code === 50001) // 10008 = Unknown Message, 50001 = Missing Access
+      typeof (error as { code?: number }).code !== "undefined" &&
+      ((error as { code?: number }).code === 10008 ||
+        (error as { code?: number }).code === 50001) // 10008 = Unknown Message, 50001 = Missing Access
     ) {
       console.log(
         "Message not accessible (404/403). Proceeding with cleanup immediately.",

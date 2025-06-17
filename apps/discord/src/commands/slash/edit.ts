@@ -52,7 +52,7 @@ export default class EditCommand extends BaseCommand {
     }));
   }
 
-  async run(ctx: CommandContext): Promise<any> {
+  async run(ctx: CommandContext) {
     // No need to defer the response as we're showing a modal immediately
 
     if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {

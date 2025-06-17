@@ -25,7 +25,7 @@ export async function loader({ params, context, request }: Route.LoaderArgs) {
   const cacheKey = new Request(url.toString(), request);
   const id = params.summaryId;
 
-  // @ts-ignore - this is how cf suggests to do it, ts hates it
+  // @ts-expect-error - this is how cf suggests to do it, ts hates it
   const cache = context.cloudflare.caches.default as Cache;
 
   // Check if the request is already in the cache

@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { useWindowScroll } from "@mantine/hooks";
 import { IconArrowUp } from "@tabler/icons-react";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { TableOfContentsNav } from "~/components/mdx/TableOfContents/TableOfContents";
 import { MdxProvider } from "./MdxProvider";
 

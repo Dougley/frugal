@@ -1,4 +1,4 @@
-// @ts-nocheck - expected type errors, this is just a shallow mock of KV
+// Mock implementation with simplified types for testing
 
 /**
  * Mock implementation of Cloudflare KV namespace for testing
@@ -9,7 +9,7 @@ export class MockKVNamespace implements KVNamespace {
   async get(
     key: string,
     type?: "text" | "json" | "arrayBuffer" | "stream",
-  ): Promise<any> {
+  ): Promise<string | null | unknown> {
     const value = this.store.get(key);
     if (value === undefined) {
       return null;

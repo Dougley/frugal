@@ -4,8 +4,8 @@ import styles from "./CodeHighlight.module.css";
 
 export function CodeHighlightBlock({
   children,
-  ...props
 }: ComponentPropsWithoutRef<"pre">) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const language = (children: any) => {
     const matches = (children.props.className || "").match(
       /language-(?<lang>.*)/,
@@ -33,7 +33,7 @@ export function CodeHighlightBlock({
   return (
     <div className={styles.codeBlock}>
       <CodeHighlight
-        // @ts-expect-error
+        // @ts-expect-error - children is a ReactNode
         code={children?.props.children}
         language={language(children)}
       />

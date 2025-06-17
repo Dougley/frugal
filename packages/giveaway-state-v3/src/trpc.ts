@@ -29,7 +29,7 @@ export type Context<LegacyEnv> = {
   env: LegacyEnv;
 };
 
-export class ContextFactory<LegacyEnv = any> {
+export class ContextFactory<LegacyEnv = unknown> {
   state: DurableObjectState;
 
   env: LegacyEnv;
@@ -48,7 +48,7 @@ export function createProxy(
   router: StateRouter,
   alarm?: (
     context: Omit<Context<LegacyEnv>, "req" | "resHeaders">,
-  ) => Promise<any>,
+  ) => Promise<unknown>,
 ) {
   return class DOProxy implements DurableObject {
     state: DurableObjectState;
@@ -66,7 +66,7 @@ export function createProxy(
       });
     }
 
-    static getFactory(namespace: DurableObjectNamespace, env: LegacyEnv) {
+    static getFactory(namespace: DurableObjectNamespace, _env: LegacyEnv) {
       return {
         getInstance: (id: DurableObjectId) => this.getInstance(namespace, id),
       };

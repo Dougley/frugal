@@ -1,3 +1,5 @@
+/// <reference types="../worker-configuration.d.ts" />
+
 import { drizzleD1 } from '@dougley/frugal-drizzle/workers';
 import { createI18n } from '@dougley/frugal-i18n';
 import { createProxy, handleAlarm, stateRouter } from '@dougley/frugal-savestate';
@@ -14,7 +16,7 @@ export const GiveawayStateV3 = Sentry.instrumentDurableObjectWithSentry(
     tracesSampleRate: 1.0,
     sendDefaultPii: true
   }),
-  // @ts-expect-error
+  // @ts-expect-error - The way we're using the state router is not typed
   createProxy(stateRouter, handleAlarm)
 );
 
@@ -82,7 +84,7 @@ export default Sentry.withSentry(
     async fetch(request: Request, env, ctx: ExecutionContext): Promise<Response> {
       // Set the environment context
       EnvContext.env = env;
-      // @ts-expect-error
+      // @ts-expect-error - The way we're using the state router is not typed
       EnvContext.state = GiveawayStateV3;
       EnvContext.drizzle = drizzleD1(env.D1);
       EnvContext.i18n = createI18n({

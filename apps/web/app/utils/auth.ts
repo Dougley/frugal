@@ -4,13 +4,6 @@ import type { DiscordUser } from "~/types/DiscordUser";
 // Cookie name for storing the return URL
 const RETURN_URL_COOKIE = "return_url";
 
-// List of allowed domains for redirects
-const ALLOWED_DOMAINS = [
-  "localhost",
-  "127.0.0.1",
-  "frugal.dougley.com", // Add your production domain here
-];
-
 /**
  * Validates if a URL is safe to redirect to
  */
@@ -29,10 +22,7 @@ export async function setReturnUrl(
   context: AppLoadContext,
   returnUrl: string,
 ): Promise<void> {
-  console.log(`[Auth] Setting return URL: ${returnUrl}`);
-
   if (!isValidReturnUrl(returnUrl)) {
-    console.log(`[Auth] Rejected invalid return URL: ${returnUrl}`);
     return;
   }
 

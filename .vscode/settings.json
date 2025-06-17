@@ -20,6 +20,14 @@
   "prettier.prettierPath": "./node_modules/prettier",
   "editor.formatOnSave": true,
   "eslint.format.enable": false,
+  "eslint.workingDirectories": [
+    {
+      "pattern": "./apps/*/"
+    },
+    {
+      "pattern": "./packages/*/"
+    }
+  ],
   "sqltools.useNodeRuntime": true,
   "cssVariables.lookupFiles": [
     "**/*.css",

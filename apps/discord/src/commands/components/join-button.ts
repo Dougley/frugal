@@ -61,7 +61,7 @@ export default class JoinButton {
     // Check if the user has already joined
     try {
       if (action === 'giveaway_join') {
-        const joinResponse = await stub.addEntry.mutate({
+        const _joinResponse = await stub.addEntry.mutate({
           user_id: ctx.user.id,
           username: ctx.user.username,
           avatar: ctx.user.avatar || null,
@@ -72,7 +72,7 @@ export default class JoinButton {
           ephemeral: true
         });
       } else if (action === 'giveaway_leave') {
-        const leaveResponse = await stub.removeEntry.mutate({
+        const _leaveResponse = await stub.removeEntry.mutate({
           user_id: ctx.user.id
         });
         return await ctx.send({
