@@ -1,0 +1,8 @@
+{
+  "ci": {
+    "collect": {
+      "numberOfRuns": 3,
+      "startServerCommand": "pnpm turbo build && pnpm wrangler dev --port 3000"
+    }
+  }
+}

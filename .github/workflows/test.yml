@@ -1,0 +1,89 @@
+name: Test
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.changes.outputs.packages }}
+      apps: ${{ steps.changes.outputs.apps }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            packages:
+              - 'packages/**'
+            apps:
+              - 'apps/**'
+
+  test-packages:
+    name: Test Packages
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.packages == 'true'
+    strategy:
+      matrix:
+        package: [i18n]
+      fail-fast: false
+    steps:
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Build dependencies
+        run: pnpm turbo build --filter=@dougley/frugal-${{ matrix.package }}^...
+
+      - name: Run tests
+        run: pnpm test
+        working-directory: ./packages/${{ matrix.package }}
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./packages/${{ matrix.package }}/coverage/coverage-final.json
+          flags: ${{ matrix.package }}
+          fail_ci_if_error: false
+
+  type-check:
+    name: TypeScript Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Type check all packages
+        run: pnpm turbo build --dry-run
+
+  build-test:
+    name: Build Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: [web, discord]
+      fail-fast: false
+    steps:
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Build ${{ matrix.app }}
+        run: pnpm turbo build
+        working-directory: ./apps/${{ matrix.app }}
+        env:
+          # Provide mock env vars for build
+          DISCORD_APP_ID: "mock"
+          DISCORD_PUBLIC_KEY: "mock"
+          DISCORD_SECRET: "mock"
+          DISCORD_BOT_TOKEN: "mock"

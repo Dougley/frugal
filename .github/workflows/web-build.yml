@@ -13,19 +13,8 @@ jobs:
     environment: ${{ inputs.environment }}
     name: Deploy
     steps:
-      - uses: actions/checkout@v3
-
-      - uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "lts/*"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
 
       - name: Deploy
         run: |

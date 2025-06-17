@@ -17,32 +17,21 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
-    name: Deploy
+    name: Deploy Discord Bot to ${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
 
-      - uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Turbo build
+      - name: Build Discord application
         run: pnpm turbo build --no-cache
         working-directory: ./apps/discord
         env:
-          DISCORD_APP_ID: ${{ vars.DISCORD_APPLICATION_ID }}
+          DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
           DISCORD_PUBLIC_KEY: ${{ vars.DISCORD_PUBLIC_KEY }}
           DISCORD_SECRET: ${{ secrets.DISCORD_SECRET }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
 
-      - name: Deploy commands
+      - name: Deploy Discord commands
         if: inputs.deploy_commands == 'true'
         run: pnpm run register
         working-directory: ./apps/discord
@@ -50,8 +39,7 @@ jobs:
           DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
 
-      - name: Publish
-        # uses: cloudflare/wrangler-action@v3
+      - name: Deploy to Cloudflare Workers
         if: inputs.skip_deploy != 'true'
         run: |
           pnpm wrangler deploy --env ${{ inputs.environment }} \
@@ -59,7 +47,7 @@ jobs:
             DISCORD_APP_ID:$DISCORD_APP_ID \
             DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
             SUMMARY_URL:$SUMMARY_SITE \
-            ENVIROMENT:$ENVIROMENT \
+            ENVIRONMENT:$ENVIRONMENT \
             RELEASE:$RELEASE \
             BRANCH:$BRANCH
         working-directory: ./apps/discord
@@ -72,7 +60,7 @@ jobs:
           DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
           DISCORD_PUBLIC_KEY: ${{ vars.DISCORD_PUBLIC_KEY }}
           SUMMARY_SITE: ${{ vars.SUMMARY_SITE }}
-          ENVIROMENT: ${{ inputs.environment }}
+          ENVIRONMENT: ${{ inputs.environment }}
           RELEASE: ${{ github.sha }}
           BRANCH: ${{ github.head_ref || github.ref_name }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
