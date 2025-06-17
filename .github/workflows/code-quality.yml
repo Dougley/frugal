@@ -19,6 +19,8 @@ jobs:
     name: ESLint Report
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Setup Node.js and pnpm
         uses: ./.github/actions/setup-node-pnpm
 
