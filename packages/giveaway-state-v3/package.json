@@ -24,7 +24,6 @@
     "@discord-interactions/api": "^0.3.21",
     "@dougley/frugal-drizzle": "workspace:^",
     "@dougley/frugal-utils": "workspace:^",
-    "@prisma/client": "^6.9.0",
     "@trpc/client": "11.4.1",
     "@trpc/server": "11.4.1",
     "superjson": "^2.2.2",

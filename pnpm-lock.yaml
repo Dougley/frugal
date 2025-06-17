@@ -362,9 +362,6 @@ importers:
       '@dougley/frugal-utils':
         specifier: workspace:^
         version: link:../utils
-      '@prisma/client':
-        specifier: ^6.9.0
-        version: 6.9.0(prisma@6.8.2(typescript@5.8.3))(typescript@5.8.3)
       '@trpc/client':
         specifier: 11.4.1
         version: 11.4.1(@trpc/server@11.4.1(typescript@5.8.3))(typescript@5.8.3)
@@ -8562,6 +8559,7 @@ snapshots:
     optionalDependencies:
       prisma: 6.8.2(typescript@5.8.3)
       typescript: 5.8.3
+    optional: true
 
   '@prisma/config@6.8.2':
     dependencies:
