@@ -1,7 +1,12 @@
-import { Schema, and, eq } from '@dougley/frugal-drizzle/workers';
-import { AutocompleteContext, CommandContext, CommandOptionType, SlashCreator } from 'slash-create/web';
-import { BaseCommand } from '../../classes/BaseCommand';
-import { EnvContext } from '../../env';
+import { and, eq, Schema } from "@dougley/frugal-drizzle/workers";
+import {
+  type AutocompleteContext,
+  type CommandContext,
+  CommandOptionType,
+  type SlashCreator,
+} from "slash-create/web";
+import { BaseCommand } from "../../classes/BaseCommand";
+import { EnvContext } from "../../env";
 
 interface WinnerInfo {
   id: string | null;
@@ -13,24 +18,24 @@ interface WinnerInfo {
 export default class RerollCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
     super(creator, {
-      name: 'reroll',
-      description: 'Reroll a giveaway',
+      name: "reroll",
+      description: "Reroll a giveaway",
       options: [
         {
           type: CommandOptionType.STRING,
-          name: 'id',
-          description: 'ID of the giveaway to reroll',
+          name: "id",
+          description: "ID of the giveaway to reroll",
           required: true,
-          autocomplete: true
+          autocomplete: true,
         },
         {
           type: CommandOptionType.INTEGER,
-          name: 'count',
-          description: 'Number of winners to reroll (defaults to all)',
+          name: "count",
+          description: "Number of winners to reroll (defaults to all)",
           required: false,
-          min_value: 1
-        }
-      ]
+          min_value: 1,
+        },
+      ],
     });
   }
 
@@ -45,13 +50,18 @@ export default class RerollCommand extends BaseCommand {
     const closedGiveaways = await EnvContext.drizzle
       .select()
       .from(Schema.giveaways)
-      .where(and(eq(Schema.giveaways.guildId, ctx.guildID), eq(Schema.giveaways.state, 'CLOSED')))
+      .where(
+        and(
+          eq(Schema.giveaways.guildId, ctx.guildID),
+          eq(Schema.giveaways.state, "CLOSED")
+        )
+      )
       .orderBy(Schema.giveaways.endTime)
       .limit(25);
 
     return closedGiveaways.map((g) => ({
-      name: `${g.prize} (${g.winners} winner${g.winners > 1 ? 's' : ''})`,
-      value: g.durableObjectId
+      name: `${g.prize} (${g.winners} winner${g.winners > 1 ? "s" : ""})`,
+      value: g.durableObjectId,
     }));
   }
 
@@ -59,9 +69,12 @@ export default class RerollCommand extends BaseCommand {
     await ctx.defer();
 
     if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      const errorMessage = await EnvContext.i18n!.translate('common.errors.giveaway_state_unavailable', {
-        language: ctx.locale
-      });
+      const errorMessage = await EnvContext.i18n!.translate(
+        "common.errors.giveaway_state_unavailable",
+        {
+          language: ctx.locale,
+        }
+      );
       return ctx.editOriginal(errorMessage!);
     }
 
@@ -76,16 +89,22 @@ export default class RerollCommand extends BaseCommand {
     const state = await stub.getState.query();
 
     if (!state) {
-      const errorMessage = await EnvContext.i18n!.translate('commands.reroll.errors.giveaway_not_found', {
-        language: ctx.locale
-      });
+      const errorMessage = await EnvContext.i18n!.translate(
+        "commands.reroll.errors.giveaway_not_found",
+        {
+          language: ctx.locale,
+        }
+      );
       return ctx.editOriginal(errorMessage!);
     }
 
-    if (state.state !== 'CLOSED') {
-      const errorMessage = await EnvContext.i18n!.translate('commands.reroll.errors.giveaway_still_running', {
-        language: ctx.locale
-      });
+    if (state.state !== "CLOSED") {
+      const errorMessage = await EnvContext.i18n!.translate(
+        "commands.reroll.errors.giveaway_still_running",
+        {
+          language: ctx.locale,
+        }
+      );
       return ctx.editOriginal(errorMessage!);
     }
 
@@ -101,8 +120,8 @@ export default class RerollCommand extends BaseCommand {
       winners.map((w) => ({
         id: w.id != null ? String(w.id) : null,
         username: w.username != null ? String(w.username) : null,
-        discriminator: w.discriminator != null ? String(w.discriminator) : '',
-        avatar: w.avatar != null ? String(w.avatar) : null
+        discriminator: w.discriminator != null ? String(w.discriminator) : "",
+        avatar: w.avatar != null ? String(w.avatar) : null,
       }));
 
     // If count is specified, perform a partial reroll
@@ -110,9 +129,12 @@ export default class RerollCommand extends BaseCommand {
       const result = await stub.drawWinners.mutate(count);
 
       if (!result.success || !result.winners || result.winners.length === 0) {
-        const errorMessage = await EnvContext.i18n!.translate('commands.reroll.errors.no_winners_available', {
-          language: ctx.locale
-        });
+        const errorMessage = await EnvContext.i18n!.translate(
+          "commands.reroll.errors.no_winners_available",
+          {
+            language: ctx.locale,
+          }
+        );
         return ctx.editOriginal(errorMessage!);
       }
 
@@ -120,16 +142,18 @@ export default class RerollCommand extends BaseCommand {
       const winnerMentions = winners
         .map((winner) => (winner.id ? `<@${winner.id}>` : null))
         .filter(Boolean)
-        .join(', ');
-      const allowedMentionIds = winners.map((w) => w.id).filter((id): id is string => typeof id === 'string');
+        .join(", ");
+      const allowedMentionIds = winners
+        .map((w) => w.id)
+        .filter((id): id is string => typeof id === "string");
 
       const successMessage = await EnvContext.i18n!.translate(
         winners.length === 1
-          ? 'commands.reroll.messages.partial_success_singular'
-          : 'commands.reroll.messages.partial_success_plural',
+          ? "commands.reroll.messages.partial_success_singular"
+          : "commands.reroll.messages.partial_success_plural",
         {
           language: ctx.locale,
-          params: { count: winners.length.toString(), winners: winnerMentions }
+          params: { count: winners.length.toString(), winners: winnerMentions },
         }
       );
 
@@ -138,16 +162,19 @@ export default class RerollCommand extends BaseCommand {
         allowedMentions: {
           users: allowedMentionIds,
           everyone: false,
-          roles: []
-        }
+          roles: [],
+        },
       });
     } else {
       const result = await stub.drawWinners.mutate();
 
       if (!result.success || !result.winners || result.winners.length === 0) {
-        const errorMessage = await EnvContext.i18n!.translate('commands.reroll.errors.no_winners_available', {
-          language: ctx.locale
-        });
+        const errorMessage = await EnvContext.i18n!.translate(
+          "commands.reroll.errors.no_winners_available",
+          {
+            language: ctx.locale,
+          }
+        );
         return ctx.editOriginal(errorMessage!);
       }
 
@@ -155,14 +182,18 @@ export default class RerollCommand extends BaseCommand {
       const winnerMentions = winners
         .map((winner) => (winner.id ? `<@${winner.id}>` : null))
         .filter(Boolean)
-        .join(', ');
-      const allowedMentionIds = winners.map((w) => w.id).filter((id): id is string => typeof id === 'string');
+        .join(", ");
+      const allowedMentionIds = winners
+        .map((w) => w.id)
+        .filter((id): id is string => typeof id === "string");
 
       const successMessage = await EnvContext.i18n!.translate(
-        winners.length === 1 ? 'commands.reroll.messages.success_singular' : 'commands.reroll.messages.success_plural',
+        winners.length === 1
+          ? "commands.reroll.messages.success_singular"
+          : "commands.reroll.messages.success_plural",
         {
           language: ctx.locale,
-          params: { winners: winnerMentions }
+          params: { winners: winnerMentions },
         }
       );
 
@@ -171,8 +202,8 @@ export default class RerollCommand extends BaseCommand {
         allowedMentions: {
           users: allowedMentionIds,
           everyone: false,
-          roles: []
-        }
+          roles: [],
+        },
       });
     }
   }

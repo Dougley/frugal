@@ -11,14 +11,13 @@ import { NavigationProgress } from "@mantine/nprogress";
 import type { LinksFunction } from "react-router";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import Contexts from "~/components/contexts";
+import type { Route } from "./+types/root";
 import { Skeleton } from "./components/Skeleton/Skeleton";
 import { TopErrorBoundary } from "./components/TopErrorBoundary/TopErrorBoundary";
 import styles from "./styles.css?url";
 import { getLoggedInUser } from "./utils/auth";
 import { getBuildInfo } from "./utils/build-info";
 import { defaultMeta } from "./utils/meta";
-
-import type { Route } from "./+types/root";
 
 export const meta = () => {
   return defaultMeta();
@@ -42,7 +41,7 @@ const theme = mergeMantineTheme(
   DEFAULT_THEME,
   createTheme({
     fontFamily: "Inter, " + DEFAULT_THEME.fontFamily,
-  }),
+  })
 );
 
 export async function loader({ request, context }: Route.LoaderArgs) {

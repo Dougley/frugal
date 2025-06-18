@@ -24,7 +24,7 @@ export default {
         welcome:
           "Welcome, {name}! You have {count, plural, =0 {no messages} one {# message} other {# messages}}.",
       },
-      "en",
+      "en"
     );
 
     await i18n.setTranslations(
@@ -39,7 +39,7 @@ export default {
         welcome:
           "¡Bienvenido, {name}! Tienes {count, plural, =0 {ningún mensaje} one {# mensaje} other {# mensajes}}.",
       },
-      "es",
+      "es"
     );
 
     await i18n.setTranslations(
@@ -49,7 +49,7 @@ export default {
         "buttons.cancel": "Annuler",
         "errors.not_found": "Page non trouvée",
       },
-      "fr",
+      "fr"
     );
 
     // Get user's preferred language from Accept-Language header

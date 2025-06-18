@@ -16,7 +16,7 @@ export default async function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   routerContext: EntryContext,
-  _loadContext: AppLoadContext,
+  _loadContext: AppLoadContext
 ): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), ABORT_DELAY);
@@ -31,7 +31,7 @@ export default async function handleRequest(
         }
         responseStatusCode = 500;
       },
-    },
+    }
   );
 
   body.allReady.then(() => clearTimeout(timeoutId));

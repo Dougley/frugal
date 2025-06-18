@@ -1,7 +1,7 @@
 import { redirect } from "react-router";
 import type { Route } from "./+types/api_.auth.login.$provider";
 
-export let loader = () => redirect("/login");
+export const loader = () => redirect("/login");
 
 export const action = async ({
   request,
@@ -47,7 +47,7 @@ export const action = async ({
   }
 
   console.log(
-    `[Auth] Proceeding with authentication for provider: ${provider}`,
+    `[Auth] Proceeding with authentication for provider: ${provider}`
   );
   return await context.auth.authenticate(provider, request);
 };

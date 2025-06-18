@@ -4,16 +4,16 @@ import { drizzleDurable, migrate } from "@dougley/frugal-drizzle/durables";
 import migrations from "@dougley/frugal-drizzle/durables/drizzle/migrations.js";
 import { createTRPCClient, httpBatchLink, loggerLink } from "@trpc/client";
 import {
-  FetchCreateContextFnOptions,
+  type FetchCreateContextFnOptions,
   fetchRequestHandler,
 } from "@trpc/server/adapters/fetch";
-import { StateRouter } from "./router";
+import type { StateRouter } from "./router";
 import { transformer } from "./transformer";
 
 export type DurableObjectProxy = {
   new (
     state: DurableObjectState,
-    env: LegacyEnv,
+    env: LegacyEnv
   ): {
     state: DurableObjectState;
     env: LegacyEnv;
@@ -47,8 +47,8 @@ export class ContextFactory<LegacyEnv = unknown> {
 export function createProxy(
   router: StateRouter,
   alarm?: (
-    context: Omit<Context<LegacyEnv>, "req" | "resHeaders">,
-  ) => Promise<unknown>,
+    context: Omit<Context<LegacyEnv>, "req" | "resHeaders">
+  ) => Promise<unknown>
 ) {
   return class DOProxy implements DurableObject {
     state: DurableObjectState;
@@ -68,7 +68,8 @@ export function createProxy(
 
     static getFactory(namespace: DurableObjectNamespace, _env: LegacyEnv) {
       return {
-        getInstance: (id: DurableObjectId) => this.getInstance(namespace, id),
+        getInstance: (id: DurableObjectId) =>
+          DOProxy.getInstance(namespace, id),
       };
     }
 

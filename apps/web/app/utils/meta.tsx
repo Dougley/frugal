@@ -2,7 +2,7 @@ import type { MetaDescriptor } from "react-router";
 
 export const defaultMeta = (
   titleSuffix?: string,
-  description?: string,
+  description?: string
 ): MetaDescriptor[] => {
   return [
     { property: "og:site_name", content: "GiveawayBot" },

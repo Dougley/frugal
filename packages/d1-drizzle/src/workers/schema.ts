@@ -27,7 +27,7 @@ export const giveaways = sqliteTable(
     index("idx_durable_object_id").on(table.durableObjectId),
     index("idx_channel_id").on(table.channelId),
     index("idx_guild_id").on(table.guildId),
-  ],
+  ]
 );
 
 export const entries = sqliteTable(
@@ -41,9 +41,7 @@ export const entries = sqliteTable(
       }),
     userId: text("user_id").notNull(),
     winner: int("winner", { mode: "boolean" }).notNull().default(false),
-    timestamp: text("timestamp")
-      .notNull()
-      .default(sql`CURRENT_TIMESTAMP`),
+    timestamp: text("timestamp").notNull().default(sql`CURRENT_TIMESTAMP`),
     avatar: text("avatar"),
     username: text("username").notNull(),
     discriminator: text("discriminator"),
@@ -53,5 +51,5 @@ export const entries = sqliteTable(
     index("idx_entries_winner").on(table.winner, table.giveawayId),
     index("idx_entries_user_id").on(table.userId),
     index("idx_entries_giveaway_id").on(table.giveawayId),
-  ],
+  ]
 );

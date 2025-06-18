@@ -13,7 +13,7 @@ import type { Context } from "./trpc";
 const CLEANUP_DELAY = 1000 * 60 * 60 * 24 * 14; // 14 days
 
 export async function handleAlarm(
-  ctx: Omit<Context<LegacyEnv>, "req" | "resHeaders">,
+  ctx: Omit<Context<LegacyEnv>, "req" | "resHeaders">
 ) {
   console.log("Handling alarm");
   // Create a full context with dummy req and resHeaders
@@ -75,7 +75,7 @@ export async function handleAlarm(
                 : ["Nobody won"],
           }),
         },
-      },
+      }
     );
     console.log("Successfully updated giveaway message to closed state", resp);
   } catch (error) {
@@ -92,7 +92,7 @@ export async function handleAlarm(
         (error as { code?: number }).code === 50001) // 10008 = Unknown Message, 50001 = Missing Access
     ) {
       console.log(
-        "Message not accessible (404/403). Proceeding with cleanup immediately.",
+        "Message not accessible (404/403). Proceeding with cleanup immediately."
       );
       await db
         .update(D1Schema.giveaways)
@@ -162,7 +162,7 @@ export async function handleAlarm(
       username: String(w.username ?? ""),
       discriminator: String("0"),
       avatar: w.avatar === null ? null : String(w.avatar),
-    })),
+    }))
   );
 
   const winnerMentions = drawResult.winners.map((w) => `<@${w.id}>`).join(", ");

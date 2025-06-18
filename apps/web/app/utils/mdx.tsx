@@ -13,7 +13,7 @@ export type PageMeta = {
 
 const modules = import.meta.glob<{ frontmatter: Frontmatter }>(
   "../routes/*.mdx",
-  { eager: true },
+  { eager: true }
 );
 
 export const getPage = (slug: string): PageMeta => {

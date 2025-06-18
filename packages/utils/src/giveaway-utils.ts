@@ -1,6 +1,6 @@
 import {
-  AnyComponent,
-  ComponentActionRow,
+  type AnyComponent,
+  type ComponentActionRow,
   ComponentType,
 } from "slash-create/web";
 
@@ -24,7 +24,7 @@ export const createGiveawayEmbed = (
     host_avatar?: string | null;
   },
   entriesCount = 0,
-  isOpen = true,
+  isOpen = true
 ) => {
   const timestamp = Math.floor(giveaway.end_time.getTime() / 1000);
 

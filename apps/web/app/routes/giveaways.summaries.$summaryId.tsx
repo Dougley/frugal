@@ -32,7 +32,7 @@ export async function loader({ params, context, request }: Route.LoaderArgs) {
   const cached = await cache.match(cacheKey);
   if (cached) {
     console.log(
-      `Cache hit for ${id} with etag ${cached.headers.get("etag")}, and url ${url.toString()}`,
+      `Cache hit for ${id} with etag ${cached.headers.get("etag")}, and url ${url.toString()}`
     );
     return {
       json: await cached.json(),
@@ -43,14 +43,14 @@ export async function loader({ params, context, request }: Route.LoaderArgs) {
   const obj = await bucket.head(`giveaway-${id}.json`);
   if (obj === null) {
     console.log(
-      `Cache miss for ${id} with url ${url.toString()}, but not found in bucket.`,
+      `Cache miss for ${id} with url ${url.toString()}, but not found in bucket.`
     );
     throw new Response("Not found", { status: 404 });
   }
 
   const data = await bucket.get(`giveaway-${id}.json`);
   console.log(
-    `Cache miss for ${id} with url ${url.toString()}, but found in bucket.`,
+    `Cache miss for ${id} with url ${url.toString()}, but found in bucket.`
   );
 
   const headers = new Headers();
@@ -136,7 +136,7 @@ export default function SummaryPage({
             Summary expires{" "}
             {formatDistanceToNow(
               add(new Date(data.details.time.end), { days: 90 }),
-              { addSuffix: true },
+              { addSuffix: true }
             )}
           </Text>
           <Divider my={12} />
@@ -146,7 +146,7 @@ export default function SummaryPage({
           <Box flex={1}>
             <WinnersTable
               winners={data.entries.filter((entry) =>
-                data.details.originalWinners.includes(entry.id),
+                data.details.originalWinners.includes(entry.id)
               )}
             />
           </Box>

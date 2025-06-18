@@ -32,7 +32,7 @@ export function NotLoggedIn() {
                 <Text>You must be logged in to do this.</Text>
                 <Form
                   action={`/api/auth/login/discord?returnTo=${encodeURIComponent(
-                    location.pathname + location.search,
+                    location.pathname + location.search
                   )}`}
                   method="post"
                 >
@@ -50,33 +50,25 @@ export function NotLoggedIn() {
         }}
       />
       <Stack align="center" justify="center">
-        <>
-          <Skeleton
-            height={50}
-            animate={false}
-            mt={12}
-            width="70%"
-            radius="xl"
-          />
-          {[...Array(20)].map((_, i) => {
-            // vary the width of the skeleton
-            // so it appears as if the page is loading
-            // and not just a static page.
-            // width should not be more than 70%
-            // and should not be less than 50%
-            const width = Math.random() * 20 + 50;
-            return (
-              <Skeleton
-                key={i}
-                height={8}
-                mt={6}
-                width={`${width}%`}
-                radius="xl"
-                animate={false}
-              />
-            );
-          })}
-        </>
+        <Skeleton height={50} animate={false} mt={12} width="70%" radius="xl" />
+        {[...Array(20)].map((_, i) => {
+          // vary the width of the skeleton
+          // so it appears as if the page is loading
+          // and not just a static page.
+          // width should not be more than 70%
+          // and should not be less than 50%
+          const width = Math.random() * 20 + 50;
+          return (
+            <Skeleton
+              key={crypto.randomUUID()}
+              height={8}
+              mt={6}
+              width={`${width}%`}
+              radius="xl"
+              animate={false}
+            />
+          );
+        })}
       </Stack>
     </Box>
   );

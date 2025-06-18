@@ -4,7 +4,7 @@ export class MockKVNamespace implements KVNamespace {
 
   async get(
     key: string,
-    type?: "text" | "json" | "arrayBuffer" | "stream",
+    type?: "text" | "json" | "arrayBuffer" | "stream"
   ): Promise<string | null | unknown> {
     const value = this.store.get(key);
     if (value === undefined) {

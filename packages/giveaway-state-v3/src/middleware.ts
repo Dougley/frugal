@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { type t } from "./router";
+import type { t } from "./router";
 
 const DEFAULT_RATE_LIMIT_COOLDOWN = 5000; // 5 seconds
 
@@ -57,7 +57,7 @@ const createRateLimitMiddleware = (t: t, options: RateLimitOptions = {}) => {
       // Skip rate limiting if we can't determine the identifier
       console.warn(
         `Rate limiting skipped for ${path}: identifier not found in input`,
-        input,
+        input
       );
       return next();
     }
@@ -110,7 +110,7 @@ const createRateLimitMiddleware = (t: t, options: RateLimitOptions = {}) => {
         now,
         cooldown,
         cooldown,
-        now,
+        now
       )
       .toArray();
 
@@ -119,7 +119,7 @@ const createRateLimitMiddleware = (t: t, options: RateLimitOptions = {}) => {
 
     console.log(
       `Rate limit check for ${action} by ${identifier}: success=${success}, retry_after=${retry_after}`,
-      result,
+      result
     );
 
     // Check if rate limited
@@ -127,7 +127,7 @@ const createRateLimitMiddleware = (t: t, options: RateLimitOptions = {}) => {
       throw new TRPCError({
         code: "TOO_MANY_REQUESTS",
         message: `Rate limited. Try again in ${Math.ceil(
-          (retry_after as number) / 1000,
+          (retry_after as number) / 1000
         )} seconds.`,
       });
     }
@@ -137,7 +137,7 @@ const createRateLimitMiddleware = (t: t, options: RateLimitOptions = {}) => {
       "INSERT OR REPLACE INTO rate_limits (action, identifier, timestamp) VALUES (?, ?, ?)",
       action,
       identifier,
-      now,
+      now
     );
 
     return next();

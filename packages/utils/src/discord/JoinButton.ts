@@ -1,4 +1,8 @@
-import { ButtonStyle, ComponentButton, ComponentType } from "slash-create/web";
+import {
+  ButtonStyle,
+  type ComponentButton,
+  ComponentType,
+} from "slash-create/web";
 
 /**
  * A button component for joining or leaving giveaways.
@@ -33,7 +37,7 @@ export class JoinButton {
   public static createActionRow(giveawayId: string) {
     return {
       type: ComponentType.ACTION_ROW as const,
-      components: [this.createButton(giveawayId)],
+      components: [JoinButton.createButton(giveawayId)],
     };
   }
 }

@@ -6,7 +6,7 @@ export interface DotsProps extends React.ComponentPropsWithoutRef<"svg"> {
 export function Dots({ size = 185, radius = 2.5, ...others }: DotsProps) {
   return (
     <svg
-      aria-hidden
+      aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 185 185"

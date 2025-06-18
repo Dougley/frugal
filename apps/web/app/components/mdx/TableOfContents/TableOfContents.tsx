@@ -2,10 +2,10 @@ import {
   ActionIcon,
   Box,
   Drawer,
+  rem,
   TableOfContents,
   Text,
   VisuallyHidden,
-  rem,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconList } from "@tabler/icons-react";

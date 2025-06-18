@@ -9,7 +9,7 @@ import {
   Transition,
   TypographyStylesProvider,
 } from "@mantine/core";
-import { useWindowScroll } from "@mantine/hooks";
+import { useId, useWindowScroll } from "@mantine/hooks";
 import { IconArrowUp } from "@tabler/icons-react";
 import type { ReactNode } from "react";
 import { TableOfContentsNav } from "~/components/mdx/TableOfContents/TableOfContents";
@@ -42,7 +42,7 @@ export function MdxPage({
         <Title order={1}>{title}</Title>
         {description && <Text c="dimmed">{description}</Text>}
         <Divider my="lg" />
-        <div id="mdx">
+        <div id={useId("mdx")}>
           <TypographyStylesProvider>
             <MdxProvider>{children}</MdxProvider>
           </TypographyStylesProvider>

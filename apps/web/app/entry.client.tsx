@@ -4,15 +4,14 @@
  * For more information, see https://remix.run/file-conventions/entry.client
  */
 
-import { HydratedRouter } from "react-router/dom";
-
 import {
   browserTracingIntegration,
   init,
   replayIntegration,
 } from "@sentry/react";
-import { startTransition, StrictMode } from "react";
+import { StrictMode, startTransition } from "react";
 import { hydrateRoot } from "react-dom/client";
+import { HydratedRouter } from "react-router/dom";
 
 init({
   //debug: import.meta.env.DEV,
@@ -38,6 +37,6 @@ startTransition(() => {
     document,
     <StrictMode>
       <HydratedRouter />
-    </StrictMode>,
+    </StrictMode>
   );
 });

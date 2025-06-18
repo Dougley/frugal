@@ -2,9 +2,9 @@
 
 import { drizzleD1 } from "@dougley/frugal-drizzle/workers";
 import { createWorkersKVSessionStorage } from "@react-router/cloudflare";
-import {
-  type APIUser,
-  type RESTGetAPICurrentUserGuildsResult,
+import type {
+  APIUser,
+  RESTGetAPICurrentUserGuildsResult,
 } from "discord-api-types/v10";
 import { createCookie } from "react-router";
 import { Authenticator } from "remix-auth";
@@ -52,7 +52,7 @@ export function getLoadContext({ context }: GetLoadContextArgs) {
       clientSecret: context.cloudflare.env.DISCORD_CLIENT_SECRET,
       callbackURL: context.cloudflare.env.DISCORD_CALLBACK_URL,
     }),
-    "discord",
+    "discord"
   );
 
   return {
@@ -91,7 +91,7 @@ const discordAuth = ({
         console.log("[Auth] Required scopes", SCOPES);
         console.log(
           "[Auth] Scopes include all required",
-          SCOPES.every((required) => tokens.scopes().includes(required)),
+          SCOPES.every((required) => tokens.scopes().includes(required))
         );
         if (
           tokens.hasScopes() &&
@@ -102,7 +102,7 @@ const discordAuth = ({
             status: 302,
             headers: {
               Location: `/auth/error?message=${encodeURIComponent(
-                "Missing required scopes",
+                "Missing required scopes"
               )}`,
             },
           });
@@ -118,7 +118,7 @@ const discordAuth = ({
             headers: {
               Authorization: `Bearer ${tokens.accessToken()}`,
             },
-          },
+          }
         ).then((res) => res.json());
         return {
           id: user.id,
@@ -150,11 +150,11 @@ const discordAuth = ({
           status: 302,
           headers: {
             Location: `/auth/error?message=${encodeURIComponent(
-              "An unknown error occurred",
+              "An unknown error occurred"
             )}`,
           },
         });
       }
-    },
+    }
   );
 };

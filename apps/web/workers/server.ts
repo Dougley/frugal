@@ -6,7 +6,7 @@ import { getLoadContext } from "./load-context";
 
 const handleRemixRequest = createRequestHandler(
   () => import("virtual:react-router/server-build"),
-  import.meta.env.MODE,
+  import.meta.env.MODE
 );
 
 const functionRoutes = import.meta.glob<{
@@ -35,16 +35,11 @@ export default withSentry(
           },
         });
         const url = new URL(request.url);
-        if (
-          Object.prototype.hasOwnProperty.call(
-            functionRoutes,
-            `./functions${url.pathname}.ts`,
-          )
-        ) {
+        if (Object.hasOwn(functionRoutes, `./functions${url.pathname}.ts`)) {
           const functionRoute = functionRoutes[`./functions${url.pathname}.ts`];
           if (functionRoute) {
             return await functionRoute().then((fn) =>
-              fn.default(request, env, ctx),
+              fn.default(request, env, ctx)
             );
           }
         } else {
@@ -55,5 +50,5 @@ export default withSentry(
         return new Response("An unexpected error occurred", { status: 500 });
       }
     },
-  } satisfies ExportedHandler<Env>,
+  } satisfies ExportedHandler<Env>
 );

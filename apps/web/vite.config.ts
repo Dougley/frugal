@@ -1,7 +1,7 @@
-import mdx from "@mdx-js/rollup";
-import { reactRouter } from "@react-router/dev/vite";
 // import { cloudflareDevProxy } from "@react-router/dev/vite/cloudflare";
 import { cloudflare } from "@cloudflare/vite-plugin";
+import mdx from "@mdx-js/rollup";
+import { reactRouter } from "@react-router/dev/vite";
 import { sentryReactRouter } from "@sentry/react-router";
 import { reactRouterDevTools } from "react-router-devtools";
 import remarkFrontmatter from "remark-frontmatter";
@@ -71,7 +71,7 @@ export default defineConfig((config) => ({
         project: "frugal-web",
         authToken: process.env.SENTRY_AUTH_TOKEN,
       },
-      config,
+      config
     ),
   ],
 }));

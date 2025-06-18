@@ -6,7 +6,7 @@ export default function LegalIndex() {
   const legalPages = getPages()
     // Only include pages that start with /legal/ and aren't the index
     .filter(
-      (page) => page.slug.startsWith("/legal.") && page.slug !== "/legal.index",
+      (page) => page.slug.startsWith("/legal.") && page.slug !== "/legal.index"
     )
     .map((page) => ({
       title: page.frontmatter.title,

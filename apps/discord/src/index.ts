@@ -1,20 +1,24 @@
 /// <reference types="../worker-configuration.d.ts" />
 
-import { drizzleD1 } from '@dougley/frugal-drizzle/workers';
-import { createI18n } from '@dougley/frugal-i18n';
-import { createProxy, handleAlarm, stateRouter } from '@dougley/frugal-savestate';
-import * as Sentry from '@sentry/cloudflare';
-import { CloudflareWorkerServer } from 'slash-create/web';
-import { SlashCreator } from './classes/SlashCreator';
-import { commands, componentHandlers, modalHandlers } from './commands';
-import { EnvContext } from './env';
+import { drizzleD1 } from "@dougley/frugal-drizzle/workers";
+import { createI18n } from "@dougley/frugal-i18n";
+import {
+  createProxy,
+  handleAlarm,
+  stateRouter,
+} from "@dougley/frugal-savestate";
+import * as Sentry from "@sentry/cloudflare";
+import { CloudflareWorkerServer } from "slash-create/web";
+import { SlashCreator } from "./classes/SlashCreator";
+import { commands, componentHandlers, modalHandlers } from "./commands";
+import { EnvContext } from "./env";
 
 export const GiveawayStateV3 = Sentry.instrumentDurableObjectWithSentry(
   (env: Env) => ({
     dsn: env.SENTRY_DSN,
     release: env.CF_VERSION_METADATA.id,
     tracesSampleRate: 1.0,
-    sendDefaultPii: true
+    sendDefaultPii: true,
   }),
   // @ts-expect-error - The way we're using the state router is not typed
   createProxy(stateRouter, handleAlarm)
@@ -29,7 +33,7 @@ function makeCreator(env: Env) {
   creator = new SlashCreator({
     applicationID: env.DISCORD_APP_ID,
     publicKey: env.DISCORD_PUBLIC_KEY,
-    token: env.DISCORD_BOT_TOKEN
+    token: env.DISCORD_BOT_TOKEN,
   });
 
   creator.withServer(cfServer).registerCommands(commands);
@@ -55,15 +59,22 @@ function makeCreator(env: Env) {
   });
 
   // Set up event handlers
-  creator.on('warn', (message) => console.warn(message));
-  creator.on('error', (error) => console.error(error.stack || error.toString()));
-  creator.on('commandRun', (command, _, ctx) =>
-    console.info(`${ctx.user.username}#${ctx.user.discriminator} (${ctx.user.id}) ran command ${command.commandName}`)
+  creator.on("warn", (message) => console.warn(message));
+  creator.on("error", (error) =>
+    console.error(error.stack || error.toString())
   );
-  creator.on('commandError', (command, error) => {
-    console.error(`Command ${command.commandName} errored:`, error.stack || error.toString());
+  creator.on("commandRun", (command, _, ctx) =>
+    console.info(
+      `${ctx.user.username}#${ctx.user.discriminator} (${ctx.user.id}) ran command ${command.commandName}`
+    )
+  );
+  creator.on("commandError", (command, error) => {
+    console.error(
+      `Command ${command.commandName} errored:`,
+      error.stack || error.toString()
+    );
   });
-  creator.on('componentInteraction', (ctx) =>
+  creator.on("componentInteraction", (ctx) =>
     console.info(
       `${ctx.user.username}#${ctx.user.discriminator} (${ctx.user.id}) triggered component interaction ${ctx.customID}`
     )
@@ -77,11 +88,15 @@ export default Sentry.withSentry(
       dsn: env.SENTRY_DSN,
       release: versionId,
       tracesSampleRate: 1.0,
-      sendDefaultPii: true
+      sendDefaultPii: true,
     };
   },
   {
-    async fetch(request: Request, env, ctx: ExecutionContext): Promise<Response> {
+    async fetch(
+      request: Request,
+      env,
+      ctx: ExecutionContext
+    ): Promise<Response> {
       // Set the environment context
       EnvContext.env = env;
       // @ts-expect-error - The way we're using the state router is not typed
@@ -89,7 +104,7 @@ export default Sentry.withSentry(
       EnvContext.drizzle = drizzleD1(env.D1);
       EnvContext.i18n = createI18n({
         kv: env.KV_LOCALES,
-        defaultLanguage: 'en-pirate'
+        defaultLanguage: "en-pirate",
       });
       Sentry.instrumentD1WithSentry(env.D1);
 
@@ -98,6 +113,6 @@ export default Sentry.withSentry(
 
       // Use the CloudflareWorkerServer to handle the request
       return cfServer.fetch(request, env, ctx);
-    }
+    },
   } satisfies ExportedHandler<Cloudflare.Env>
 );

@@ -74,7 +74,7 @@ const data: NavItem[] = [
 
 const renderNavLinks = (
   items: NavItem[],
-  closeDrawer: () => void,
+  closeDrawer: () => void
 ): React.ReactNode => {
   return items.map((item) => (
     <NavLink

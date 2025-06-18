@@ -39,14 +39,14 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   // Check if user has ManageEvents permission
   const hasPermission = new BitField(BigInt(guild.permissions)).has(
-    PermissionFlagsBits.ManageEvents,
+    PermissionFlagsBits.ManageEvents
   );
   if (!hasPermission) {
     throw new Response(
       "You don't have permission to view this guild's giveaways",
       {
         status: 403,
-      },
+      }
     );
   }
 

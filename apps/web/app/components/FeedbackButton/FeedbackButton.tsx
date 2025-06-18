@@ -136,7 +136,7 @@ export function FeedbackButton() {
             component: "FeedbackButton",
           },
         },
-      },
+      }
     );
 
     notifications.show({

@@ -1,4 +1,4 @@
-import { Card, Container, SimpleGrid, Text, Title, rem } from "@mantine/core";
+import { Card, Container, rem, SimpleGrid, Text, Title } from "@mantine/core";
 import {
   IconBrandDiscord,
   IconBrandGithub,

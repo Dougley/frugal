@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
-import { spawn } from 'child_process';
-import { existsSync } from 'fs';
-import { mkdir, readdir, unlink, writeFile } from 'fs/promises';
-import { basename, dirname, extname, join } from 'path';
-import { fileURLToPath } from 'url';
+import { spawn } from "child_process";
+import { existsSync } from "fs";
+import { mkdir, readdir, unlink, writeFile } from "fs/promises";
+import { basename, dirname, extname, join } from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Configuration
-const I18N_DIR = join(__dirname, '../i18n');
-const KV_BINDING = 'KV_LOCALES';
-const TEMP_DIR = join(__dirname, '../.temp');
+const I18N_DIR = join(__dirname, "../i18n");
+const KV_BINDING = "KV_LOCALES";
+const TEMP_DIR = join(__dirname, "../.temp");
 
 /**
  * Execute a command with proper error handling
@@ -20,27 +20,29 @@ const TEMP_DIR = join(__dirname, '../.temp');
 function executeCommand(command, args, options = {}) {
   return new Promise((resolve, reject) => {
     const process = spawn(command, args, {
-      stdio: ['inherit', 'pipe', 'pipe'],
-      cwd: join(__dirname, '..'),
-      ...options
+      stdio: ["inherit", "pipe", "pipe"],
+      cwd: join(__dirname, ".."),
+      ...options,
     });
 
-    let stdout = '';
-    let stderr = '';
+    let stdout = "";
+    let stderr = "";
 
-    process.stdout.on('data', (data) => {
+    process.stdout.on("data", (data) => {
       stdout += data.toString();
     });
 
-    process.stderr.on('data', (data) => {
+    process.stderr.on("data", (data) => {
       stderr += data.toString();
     });
 
-    process.on('close', (code) => {
+    process.on("close", (code) => {
       if (code === 0) {
         resolve({ stdout, stderr });
       } else {
-        reject(new Error(`${command} command failed with code ${code}: ${stderr}`));
+        reject(
+          new Error(`${command} command failed with code ${code}: ${stderr}`)
+        );
       }
     });
   });
@@ -50,7 +52,7 @@ function executeCommand(command, args, options = {}) {
  * Execute wrangler command with proper error handling
  */
 function executeWrangler(args) {
-  return executeCommand('pnpm', ['wrangler', ...args]);
+  return executeCommand("pnpm", ["wrangler", ...args]);
 }
 
 /**
@@ -79,7 +81,7 @@ console.log(JSON.stringify(translation));
 
     try {
       // Use tsx to execute the loader
-      const { stdout } = await executeCommand('pnpm', ['tsx', loaderPath]);
+      const { stdout } = await executeCommand("pnpm", ["tsx", loaderPath]);
       const translationData = JSON.parse(stdout.trim());
 
       // Clean up
@@ -87,7 +89,7 @@ console.log(JSON.stringify(translation));
 
       return {
         locale,
-        data: translationData
+        data: translationData,
       };
     } catch (tsxError) {
       // Clean up on error
@@ -97,7 +99,9 @@ console.log(JSON.stringify(translation));
         // Ignore cleanup errors
       }
 
-      throw new Error(`Failed to load translation with tsx: ${tsxError.message}`);
+      throw new Error(
+        `Failed to load translation with tsx: ${tsxError.message}`
+      );
     }
   } catch (error) {
     console.warn(`Failed to load translation file ${filePath}:`, error.message);
@@ -111,7 +115,9 @@ console.log(JSON.stringify(translation));
 async function getTranslationFiles() {
   try {
     const files = await readdir(I18N_DIR);
-    return files.filter((file) => file.endsWith('.ts')).map((file) => join(I18N_DIR, file));
+    return files
+      .filter((file) => file.endsWith(".ts"))
+      .map((file) => join(I18N_DIR, file));
   } catch (error) {
     throw new Error(`Failed to read i18n directory: ${error.message}`);
   }
@@ -133,22 +139,34 @@ async function uploadTranslation(locale, data, environment = null) {
 
   // Write value to a temporary file
   const valuePath = join(TEMP_DIR, `value-${locale}.json`);
-  await writeFile(valuePath, value, 'utf-8');
+  await writeFile(valuePath, value, "utf-8");
 
-  const args = ['kv', 'key', 'put', key, '--path', valuePath, '--binding', KV_BINDING];
+  const args = [
+    "kv",
+    "key",
+    "put",
+    key,
+    "--path",
+    valuePath,
+    "--binding",
+    KV_BINDING,
+  ];
 
   // Add environment flag if specified
   if (environment) {
-    args.push('--env', environment);
+    args.push("--env", environment);
   }
 
   // Add local flags for development environment
-  if (!environment || environment === 'development') {
-    args.push('--local', '--persist-to', '../../.mf');
+  if (!environment || environment === "development") {
+    args.push("--local", "--persist-to", "../../.mf");
   }
 
   try {
-    console.log('🔧 Debug - wrangler command:', ['pnpm', 'wrangler', ...args].join(' '));
+    console.log(
+      "🔧 Debug - wrangler command:",
+      ["pnpm", "wrangler", ...args].join(" ")
+    );
     await executeWrangler(args);
     console.log(`✅ Successfully uploaded ${locale}`);
 
@@ -172,25 +190,33 @@ async function uploadTranslation(locale, data, environment = null) {
  * List all current translations in KV
  */
 async function listKVTranslations(environment = null) {
-  console.log('📋 Listing current translations in KV...');
+  console.log("📋 Listing current translations in KV...");
 
-  const args = ['kv', 'key', 'list', '--binding', KV_BINDING, '--prefix', 'locale:'];
+  const args = [
+    "kv",
+    "key",
+    "list",
+    "--binding",
+    KV_BINDING,
+    "--prefix",
+    "locale:",
+  ];
 
   if (environment) {
-    args.push('--env', environment);
+    args.push("--env", environment);
   }
 
   // Add local flags for development environment
-  if (!environment || environment === 'development') {
-    args.push('--local', '--persist-to', '../../.mf');
+  if (!environment || environment === "development") {
+    args.push("--local", "--persist-to", "../../.mf");
   }
 
   try {
     const { stdout } = await executeWrangler(args);
     const keys = JSON.parse(stdout);
-    return keys.map((item) => item.name.replace('locale:', ''));
+    return keys.map((item) => item.name.replace("locale:", ""));
   } catch (error) {
-    console.warn('Failed to list KV translations:', error.message);
+    console.warn("Failed to list KV translations:", error.message);
     return [];
   }
 }
@@ -203,15 +229,15 @@ async function deleteTranslation(locale, environment = null) {
 
   console.log(`🗑️  Deleting translation for locale: ${locale}`);
 
-  const args = ['kv', 'key', 'delete', key, '--binding', KV_BINDING];
+  const args = ["kv", "key", "delete", key, "--binding", KV_BINDING];
 
   if (environment) {
-    args.push('--env', environment);
+    args.push("--env", environment);
   }
 
   // Add local flags for development environment
-  if (!environment || environment === 'development') {
-    args.push('--local', '--persist-to', '../../.mf');
+  if (!environment || environment === "development") {
+    args.push("--local", "--persist-to", "../../.mf");
   }
 
   try {
@@ -228,12 +254,14 @@ async function deleteTranslation(locale, environment = null) {
 async function syncTranslations(options = {}) {
   const { environment = null, dryRun = false, clean = false } = options;
 
-  console.log('🚀 Starting translation sync to KV...');
-  console.log(`Environment: ${environment || 'development'}`);
-  console.log(`Storage: ${!environment || environment === 'development' ? 'Local KV (../../.mf)' : 'Remote KV'}`);
-  console.log(`Dry run: ${dryRun ? 'Yes' : 'No'}`);
-  console.log(`Clean sync: ${clean ? 'Yes' : 'No'}`);
-  console.log('');
+  console.log("🚀 Starting translation sync to KV...");
+  console.log(`Environment: ${environment || "development"}`);
+  console.log(
+    `Storage: ${!environment || environment === "development" ? "Local KV (../../.mf)" : "Remote KV"}`
+  );
+  console.log(`Dry run: ${dryRun ? "Yes" : "No"}`);
+  console.log(`Clean sync: ${clean ? "Yes" : "No"}`);
+  console.log("");
 
   try {
     // Get all translation files
@@ -251,7 +279,7 @@ async function syncTranslations(options = {}) {
     }
 
     if (translations.length === 0) {
-      console.log('⚠️  No valid translations found to sync');
+      console.log("⚠️  No valid translations found to sync");
       return;
     }
 
@@ -259,23 +287,25 @@ async function syncTranslations(options = {}) {
     let currentLocales = [];
     if (clean) {
       currentLocales = await listKVTranslations(environment);
-      console.log(`Current locales in KV: ${currentLocales.join(', ')}`);
+      console.log(`Current locales in KV: ${currentLocales.join(", ")}`);
     }
 
     if (dryRun) {
-      console.log('\n🔍 DRY RUN - Would perform the following actions:');
+      console.log("\n🔍 DRY RUN - Would perform the following actions:");
       translations.forEach(({ locale }) => {
         console.log(`  - Upload translation: ${locale}`);
       });
 
       if (clean) {
-        const toDelete = currentLocales.filter((locale) => !translations.find((t) => t.locale === locale));
+        const toDelete = currentLocales.filter(
+          (locale) => !translations.find((t) => t.locale === locale)
+        );
         toDelete.forEach((locale) => {
           console.log(`  - Delete translation: ${locale}`);
         });
       }
 
-      console.log('\nRun without --dry-run to execute these actions.');
+      console.log("\nRun without --dry-run to execute these actions.");
       return;
     }
 
@@ -286,17 +316,19 @@ async function syncTranslations(options = {}) {
 
     // Clean up removed translations if requested
     if (clean) {
-      const toDelete = currentLocales.filter((locale) => !translations.find((t) => t.locale === locale));
+      const toDelete = currentLocales.filter(
+        (locale) => !translations.find((t) => t.locale === locale)
+      );
 
       for (const locale of toDelete) {
         await deleteTranslation(locale, environment);
       }
     }
 
-    console.log('\n🎉 Translation sync completed successfully!');
+    console.log("\n🎉 Translation sync completed successfully!");
     console.log(`📊 Synced ${translations.length} translation(s)`);
   } catch (error) {
-    console.error('\n❌ Sync failed:', error.message);
+    console.error("\n❌ Sync failed:", error.message);
     process.exit(1);
   }
 }
@@ -308,27 +340,27 @@ function parseArgs() {
     environment: null,
     dryRun: false,
     clean: false,
-    help: false
+    help: false,
   };
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
 
     switch (arg) {
-      case '--env':
-      case '-e':
+      case "--env":
+      case "-e":
         options.environment = args[++i];
         break;
-      case '--dry-run':
-      case '-d':
+      case "--dry-run":
+      case "-d":
         options.dryRun = true;
         break;
-      case '--clean':
-      case '-c':
+      case "--clean":
+      case "-c":
         options.clean = true;
         break;
-      case '--help':
-      case '-h':
+      case "--help":
+      case "-h":
         options.help = true;
         break;
     }
@@ -375,4 +407,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   syncTranslations(options);
 }
 
-export { deleteTranslation, listKVTranslations, syncTranslations, uploadTranslation };
+export {
+  deleteTranslation,
+  listKVTranslations,
+  syncTranslations,
+  uploadTranslation,
+};

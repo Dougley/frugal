@@ -19,7 +19,7 @@ export interface BuildInfo {
  * This is called server-side during SSR
  */
 export function getBuildInfo(context: AppLoadContext): BuildInfo {
-  const env = context.cloudflare?.env as any;
+  const env = context.cloudflare?.env;
 
   return {
     release: env?.RELEASE,

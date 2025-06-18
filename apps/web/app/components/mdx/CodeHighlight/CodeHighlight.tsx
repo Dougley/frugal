@@ -8,7 +8,7 @@ export function CodeHighlightBlock({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const language = (children: any) => {
     const matches = (children.props.className || "").match(
-      /language-(?<lang>.*)/,
+      /language-(?<lang>.*)/
     );
     const matchedLanguage =
       matches && matches.groups && matches.groups.lang

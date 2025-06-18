@@ -2,7 +2,7 @@ import { redirect } from "react-router";
 import { setReturnUrl } from "~/utils/auth";
 import type { Route } from "./+types/api_.auth.logout";
 
-export let loader = () => redirect("/login");
+export const loader = () => redirect("/login");
 
 export const action = async ({
   request,

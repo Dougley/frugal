@@ -1,14 +1,14 @@
 import {
-  AnyRequestData,
+  type AnyRequestData,
   SlashCreator as BaseSlashCreator,
   ComponentContext,
-  ComponentRegisterCallback,
+  type ComponentRegisterCallback,
   InteractionType,
   ModalInteractionContext,
-  ModalRegisterCallback,
-  RespondFunction,
-  SlashCreatorOptions
-} from 'slash-create/web';
+  type ModalRegisterCallback,
+  type RespondFunction,
+  type SlashCreatorOptions,
+} from "slash-create/web";
 
 interface BaseCallback<T> {
   callback: T;
@@ -52,7 +52,13 @@ export class SlashCreator extends BaseSlashCreator {
   ) {
     switch (interaction.type) {
       case InteractionType.MESSAGE_COMPONENT: {
-        const ctx = new ComponentContext(this, interaction, respond!, !this.options.disableTimeouts, serverContext);
+        const ctx = new ComponentContext(
+          this,
+          interaction,
+          respond!,
+          !this.options.disableTimeouts,
+          serverContext
+        );
         this.cleanRegisteredComponents();
 
         // Process with our custom handlers first
@@ -90,6 +96,11 @@ export class SlashCreator extends BaseSlashCreator {
     }
 
     // Pass the interaction to the parent handler regardless
-    return super._onInteraction(interaction, respond, webserverMode, serverContext);
+    return super._onInteraction(
+      interaction,
+      respond,
+      webserverMode,
+      serverContext
+    );
   }
 }

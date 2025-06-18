@@ -185,7 +185,7 @@ export class I18n {
    */
   async translate(
     path: string,
-    options?: TranslateOptions,
+    options?: TranslateOptions
   ): Promise<string | null> {
     const requestedLang = options?.language || this.defaultLanguage;
     const params = options?.params;
@@ -194,7 +194,7 @@ export class I18n {
     let result = await this.getTranslationForLanguage(
       path,
       requestedLang,
-      params,
+      params
     );
 
     // If translation not found and fallback is enabled, try default language
@@ -206,7 +206,7 @@ export class I18n {
       result = await this.getTranslationForLanguage(
         path,
         this.defaultLanguage,
-        params,
+        params
       );
     }
 
@@ -241,7 +241,7 @@ export class I18n {
    */
   async translateAll(
     path: string,
-    params?: ICUParams,
+    params?: ICUParams
   ): Promise<Record<string, string>> {
     // First, get available languages from KV
     const languages = await this.getAvailableLanguages();
@@ -252,7 +252,7 @@ export class I18n {
       const translation = await this.getTranslationForLanguage(
         path,
         lang,
-        params,
+        params
       );
       if (translation !== null) {
         result[lang] = translation;
@@ -330,7 +330,7 @@ export class I18n {
   async setTranslation(
     path: string,
     value: string,
-    language?: string,
+    language?: string
   ): Promise<void> {
     const lang = language || this.defaultLanguage;
     const translations = (await this.getTranslations(lang)) || {};
@@ -378,7 +378,7 @@ export class I18n {
    */
   async setTranslations(
     translations: Record<string, string> | Translation,
-    language?: string,
+    language?: string
   ): Promise<void> {
     const lang = language || this.defaultLanguage;
     const existingTranslations = (await this.getTranslations(lang)) || {};
@@ -571,7 +571,7 @@ export class I18n {
   private formatICUMessage(
     message: string,
     params: ICUParams,
-    language: string,
+    language: string
   ): string {
     try {
       const formatter = new IntlMessageFormat(message, language);
@@ -629,7 +629,7 @@ export class I18n {
   private async getTranslationForLanguage(
     path: string,
     language: string,
-    params?: ICUParams,
+    params?: ICUParams
   ): Promise<string | null> {
     const translations = await this.getTranslations(language);
     if (!translations) {

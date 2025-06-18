@@ -12,9 +12,7 @@ export const entries = sqliteTable(
   {
     userId: text("user_id").notNull(),
     winner: int("winner", { mode: "boolean" }).notNull().default(false),
-    timestamp: text("timestamp")
-      .notNull()
-      .default(sql`CURRENT_TIMESTAMP`),
+    timestamp: text("timestamp").notNull().default(sql`CURRENT_TIMESTAMP`),
     avatar: text("avatar"),
     username: text("username").notNull(),
     discriminator: text("discriminator"),
@@ -22,5 +20,5 @@ export const entries = sqliteTable(
   (table) => [
     primaryKey({ columns: [table.userId] }),
     index("idx_entries_winner").on(table.winner),
-  ],
+  ]
 );

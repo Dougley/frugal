@@ -1,7 +1,14 @@
-import { createGiveawayComponents, JoinButton } from '@dougley/frugal-utils';
-import { BitField, CommandContext, CommandOptionType, Message, MessageFlags, SlashCreator } from 'slash-create/web';
-import { BaseCommand } from '../../classes/BaseCommand';
-import { EnvContext } from '../../env';
+import { createGiveawayComponents, JoinButton } from "@dougley/frugal-utils";
+import {
+  BitField,
+  type CommandContext,
+  CommandOptionType,
+  type Message,
+  MessageFlags,
+  type SlashCreator,
+} from "slash-create/web";
+import { BaseCommand } from "../../classes/BaseCommand";
+import { EnvContext } from "../../env";
 
 // Constants for duration limits
 const MAX_DURATION_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
@@ -10,40 +17,40 @@ const MIN_DURATION_MS = 10 * 1000; // 10 seconds
 export default class StartCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
     super(creator, {
-      name: 'start',
-      description: 'Start a giveaway in the current channel',
+      name: "start",
+      description: "Start a giveaway in the current channel",
       options: [
         {
           type: CommandOptionType.STRING,
-          name: 'duration',
-          description: 'Duration of the giveaway (e.g., 30s, 5m, 2h, 1d)',
-          required: true
+          name: "duration",
+          description: "Duration of the giveaway (e.g., 30s, 5m, 2h, 1d)",
+          required: true,
         },
         {
           type: CommandOptionType.INTEGER,
-          name: 'winners',
-          description: 'Number of winners',
+          name: "winners",
+          description: "Number of winners",
           required: true,
           min_value: 1,
-          max_value: 50
+          max_value: 50,
         },
         {
           type: CommandOptionType.STRING,
-          name: 'prize',
-          description: 'Prize to win',
+          name: "prize",
+          description: "Prize to win",
           required: true,
           min_length: 1,
-          max_length: 100
+          max_length: 100,
         },
         {
           type: CommandOptionType.STRING,
-          name: 'description',
-          description: 'Description of the giveaway',
+          name: "description",
+          description: "Description of the giveaway",
           required: false,
           min_length: 1,
-          max_length: 1000
-        }
-      ]
+          max_length: 1000,
+        },
+      ],
     });
   }
 
@@ -54,23 +61,28 @@ export default class StartCommand extends BaseCommand {
   private async validateDuration(
     durationStr: string,
     locale: string
-  ): Promise<{ valid: true; duration: number } | { valid: false; error: string }> {
+  ): Promise<
+    { valid: true; duration: number } | { valid: false; error: string }
+  > {
     // Parse the duration string into milliseconds
     const units: Record<string, number> = {
       s: 1000,
       m: 60 * 1000,
       h: 60 * 60 * 1000,
-      d: 24 * 60 * 60 * 1000
+      d: 24 * 60 * 60 * 1000,
     };
 
     const match = durationStr.match(/^(\d+)([smhd])$/);
     if (!match) {
-      const error = await EnvContext.i18n!.translate('commands.start.errors.invalid_duration_format', {
-        language: locale
-      });
+      const error = await EnvContext.i18n!.translate(
+        "commands.start.errors.invalid_duration_format",
+        {
+          language: locale,
+        }
+      );
       return {
         valid: false,
-        error: error!
+        error: error!,
       };
     }
 
@@ -79,18 +91,24 @@ export default class StartCommand extends BaseCommand {
 
     // Validate the duration limits
     if (duration > MAX_DURATION_MS) {
-      const error = await EnvContext.i18n!.translate('commands.start.errors.duration_too_long', { language: locale });
+      const error = await EnvContext.i18n!.translate(
+        "commands.start.errors.duration_too_long",
+        { language: locale }
+      );
       return {
         valid: false,
-        error: error!
+        error: error!,
       };
     }
 
     if (duration < MIN_DURATION_MS) {
-      const error = await EnvContext.i18n!.translate('commands.start.errors.duration_too_short', { language: locale });
+      const error = await EnvContext.i18n!.translate(
+        "commands.start.errors.duration_too_short",
+        { language: locale }
+      );
       return {
         valid: false,
-        error: error!
+        error: error!,
       };
     }
 
@@ -103,14 +121,20 @@ export default class StartCommand extends BaseCommand {
 
       // Validate environment
       if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-        const errorMessage = await EnvContext.i18n!.translate('common.errors.giveaway_state_unavailable', {
-          language: ctx.locale
-        });
+        const errorMessage = await EnvContext.i18n!.translate(
+          "common.errors.giveaway_state_unavailable",
+          {
+            language: ctx.locale,
+          }
+        );
         return ctx.editOriginal(errorMessage!);
       }
 
       // Parse and validate duration
-      const durationResult = await this.validateDuration(ctx.options.duration, ctx.locale ?? 'en-US');
+      const durationResult = await this.validateDuration(
+        ctx.options.duration,
+        ctx.locale ?? "en-US"
+      );
       if (!durationResult.valid) {
         return ctx.editOriginal(durationResult.error);
       }
@@ -120,24 +144,27 @@ export default class StartCommand extends BaseCommand {
       const endTime = new Date(Date.now() + duration);
       const winnersCount = ctx.options.winners;
       const prize = ctx.options.prize;
-      const description = ctx.options.description || '';
+      const description = ctx.options.description || "";
 
       // Host information
       const host = {
         id: ctx.user.id,
         username: ctx.user.username,
-        avatar: ctx.user.avatar
+        avatar: ctx.user.avatar,
       };
 
       // Create a new Durable Object ID for this giveaway
       const id = EnvContext.env.GIVEAWAY_STATE.newUniqueId();
 
-      const flags = new BitField([MessageFlags.IS_COMPONENTS_V2, MessageFlags.SUPPRESS_EMBEDS]);
+      const flags = new BitField([
+        MessageFlags.IS_COMPONENTS_V2,
+        MessageFlags.SUPPRESS_EMBEDS,
+      ]);
 
       const giveawayMessage = (await ctx.send({
         flags: flags.bitfield as number,
         allowedMentions: {
-          parse: []
+          parse: [],
         },
         components: createGiveawayComponents({
           prize,
@@ -147,23 +174,29 @@ export default class StartCommand extends BaseCommand {
           host_id: host.id,
           description,
           giveaway_id: id.toString(),
-          join_button: JoinButton.createActionRow(id.toString())
-        })
+          join_button: JoinButton.createActionRow(id.toString()),
+        }),
       })) as Message;
 
       // Ensure we have valid IDs
-      const guildID = ctx.guildID ?? '0';
-      const channelID = ctx.channelID ?? '0';
+      const guildID = ctx.guildID ?? "0";
+      const channelID = ctx.channelID ?? "0";
 
       if (!giveawayMessage || !giveawayMessage.id) {
-        const errorMessage = await EnvContext.i18n!.translate('commands.start.errors.failed_to_create_message', {
-          language: ctx.locale
-        });
+        const errorMessage = await EnvContext.i18n!.translate(
+          "commands.start.errors.failed_to_create_message",
+          {
+            language: ctx.locale,
+          }
+        );
         return ctx.editOriginal(errorMessage!);
       }
 
       // Get the durable object instance
-      const stub = EnvContext.state.getInstance(EnvContext.env.GIVEAWAY_STATE, id);
+      const stub = EnvContext.state.getInstance(
+        EnvContext.env.GIVEAWAY_STATE,
+        id
+      );
 
       // Start the giveaway
       const giveawayData = {
@@ -176,7 +209,7 @@ export default class StartCommand extends BaseCommand {
         host_id: ctx.user.id,
         host_username: ctx.user.username,
         host_avatar: ctx.user.avatar || undefined,
-        description: ctx.options.description || undefined
+        description: ctx.options.description || undefined,
       };
 
       await stub.beginGiveaway.mutate(giveawayData);
@@ -184,11 +217,16 @@ export default class StartCommand extends BaseCommand {
       // Set up the alarm for when the giveaway ends
       await stub.startAlarm.mutate(endTime.toISOString());
     } catch (error) {
-      console.error('Error in start command:', error);
-      const errorMessage = await EnvContext.i18n!.translate('commands.start.errors.failed_to_start', {
-        language: ctx.locale,
-        params: { error: error instanceof Error ? error.message : String(error) }
-      });
+      console.error("Error in start command:", error);
+      const errorMessage = await EnvContext.i18n!.translate(
+        "commands.start.errors.failed_to_start",
+        {
+          language: ctx.locale,
+          params: {
+            error: error instanceof Error ? error.message : String(error),
+          },
+        }
+      );
       return ctx.editOriginal(errorMessage!);
     }
   }

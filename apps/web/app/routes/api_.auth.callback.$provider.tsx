@@ -46,12 +46,12 @@ export const loader = async ({
     if (error instanceof OAuth2RequestError) {
       return redirect(
         `/auth/error?message=${encodeURIComponent(
-          error.description ?? "Unknown error",
-        )}`,
+          error.description ?? "Unknown error"
+        )}`
       );
     }
     return redirect(
-      `/auth/error?message=${encodeURIComponent("Unknown error")}`,
+      `/auth/error?message=${encodeURIComponent("Unknown error")}`
     );
   }
 };

@@ -6,7 +6,7 @@ export default function WikiIndex() {
   const wikiPages = getPages()
     // Only include pages that start with /wiki/ and aren't the index
     .filter(
-      (page) => page.slug.startsWith("/wiki.") && page.slug !== "/wiki.index",
+      (page) => page.slug.startsWith("/wiki.") && page.slug !== "/wiki.index"
     )
     .map((page) => ({
       title: page.frontmatter.title,

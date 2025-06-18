@@ -20,7 +20,7 @@ function isValidReturnUrl(url: string): boolean {
 export async function setReturnUrl(
   request: Request,
   context: AppLoadContext,
-  returnUrl: string,
+  returnUrl: string
 ): Promise<void> {
   if (!isValidReturnUrl(returnUrl)) {
     return;
@@ -38,14 +38,14 @@ export async function setReturnUrl(
  */
 export async function getAndClearReturnUrl(
   request: Request,
-  context: AppLoadContext,
+  context: AppLoadContext
 ): Promise<string | null> {
   const { getSession, commitSession } = context.sessions;
   const session = await getSession(request.headers.get("cookie"));
   const returnUrl = session.get(RETURN_URL_COOKIE);
 
   console.log(
-    `[Auth] Retrieved return URL from session: ${returnUrl ?? "none"}`,
+    `[Auth] Retrieved return URL from session: ${returnUrl ?? "none"}`
   );
 
   if (returnUrl) {
@@ -67,13 +67,13 @@ export async function getAndClearReturnUrl(
 
 export async function getLoggedInUser(
   request: Request,
-  context: AppLoadContext,
+  context: AppLoadContext
 ): Promise<DiscordUser | null> {
   const { getSession } = context.sessions;
   const session = await getSession(request.headers.get("cookie"));
   const user = session.get("user") ?? null;
   console.log(
-    `[Auth] Retrieved logged in user: ${user ? user.username : "none"}`,
+    `[Auth] Retrieved logged in user: ${user ? user.username : "none"}`
   );
   return user;
 }

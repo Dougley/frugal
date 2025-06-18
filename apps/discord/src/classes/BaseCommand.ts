@@ -1,11 +1,15 @@
-import { Locale } from 'discord-api-types/v10';
-import { SlashCommand, SlashCommandOptions, SlashCreator } from 'slash-create/web';
-import { EnvContext } from '../env';
-import { I18n } from '@dougley/frugal-i18n';
+import type { I18n } from "@dougley/frugal-i18n";
+import { Locale } from "discord-api-types/v10";
+import {
+  SlashCommand,
+  type SlashCommandOptions,
+  type SlashCreator,
+} from "slash-create/web";
+import { EnvContext } from "../env";
 
 // Environment constants for registration mode detection
-const REGISTRATION_ENV_FLAG = 'FRUGAL_REGISTRATION_MODE';
-const REGISTRATION_I18N_KEY = '__FRUGAL_REGISTRATION_I18N__';
+const REGISTRATION_ENV_FLAG = "FRUGAL_REGISTRATION_MODE";
+const REGISTRATION_I18N_KEY = "__FRUGAL_REGISTRATION_I18N__";
 
 /**
  * Base class for Discord slash commands with internationalization support
@@ -24,7 +28,9 @@ export abstract class BaseCommand extends SlashCommand {
    * @param translations - Raw translations object with all locales
    * @returns Filtered object with only valid Discord locale keys
    */
-  private static buildLocalizationMap(translations: Record<string, string>): Record<string, string> {
+  private static buildLocalizationMap(
+    translations: Record<string, string>
+  ): Record<string, string> {
     return Object.fromEntries(
       Object.values(Locale)
         .filter((locale) => translations[locale])
@@ -37,11 +43,14 @@ export abstract class BaseCommand extends SlashCommand {
    * @returns i18n instance or null if not available
    */
   private getI18nInstance() {
-    const isRegistrationMode = process.env[REGISTRATION_ENV_FLAG] === 'true';
+    const isRegistrationMode = process.env[REGISTRATION_ENV_FLAG] === "true";
 
     if (isRegistrationMode) {
       // During registration, use global i18n instance from registration script
-      return (global as unknown as Record<string, I18n>)[REGISTRATION_I18N_KEY] || null;
+      return (
+        (global as unknown as Record<string, I18n>)[REGISTRATION_I18N_KEY] ||
+        null
+      );
     }
 
     // During runtime, use EnvContext i18n
@@ -57,7 +66,9 @@ export abstract class BaseCommand extends SlashCommand {
     const i18n = this.getI18nInstance();
 
     if (!i18n) {
-      console.warn(`⚠️ i18n not available for ${this.commandName} - skipping localization`);
+      console.warn(
+        `⚠️ i18n not available for ${this.commandName} - skipping localization`
+      );
       return;
     }
 
@@ -65,11 +76,12 @@ export abstract class BaseCommand extends SlashCommand {
       // Get command name and description translations
       const [descriptions, names] = await Promise.all([
         i18n.translateAll(`${commandKey}.description`),
-        i18n.translateAll(`${commandKey}.name`)
+        i18n.translateAll(`${commandKey}.name`),
       ]);
 
       // Apply command localizations
-      this.descriptionLocalizations = BaseCommand.buildLocalizationMap(descriptions);
+      this.descriptionLocalizations =
+        BaseCommand.buildLocalizationMap(descriptions);
       this.nameLocalizations = BaseCommand.buildLocalizationMap(names);
 
       // Apply option localizations if command has options
@@ -78,7 +90,10 @@ export abstract class BaseCommand extends SlashCommand {
       }
       console.log(`✅ Localized ${this.commandName}`);
     } catch (error) {
-      console.warn(`⚠️ Failed to apply localizations for ${this.commandName}:`, error);
+      console.warn(
+        `⚠️ Failed to apply localizations for ${this.commandName}:`,
+        error
+      );
     }
   }
 
@@ -96,11 +111,13 @@ export abstract class BaseCommand extends SlashCommand {
 
         const [optionDescriptions, optionNames] = await Promise.all([
           i18n.translateAll(`${optionKey}.description`),
-          i18n.translateAll(`${optionKey}.name`)
+          i18n.translateAll(`${optionKey}.name`),
         ]);
 
-        option.description_localizations = BaseCommand.buildLocalizationMap(optionDescriptions);
-        option.name_localizations = BaseCommand.buildLocalizationMap(optionNames);
+        option.description_localizations =
+          BaseCommand.buildLocalizationMap(optionDescriptions);
+        option.name_localizations =
+          BaseCommand.buildLocalizationMap(optionNames);
       })
     );
   }

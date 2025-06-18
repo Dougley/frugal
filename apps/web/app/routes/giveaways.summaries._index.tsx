@@ -47,7 +47,7 @@ const summarySchema = z.object({
       username: z.string(),
       discriminator: z.string(),
       avatar: z.nullable(z.string()),
-    }),
+    })
   ),
 });
 
@@ -101,7 +101,7 @@ export default function SummariesIndex() {
           setParseError(
             e.issues
               .map((i) => `"${i.path.join(".")}" - ${i.message}`)
-              .join("\n"),
+              .join("\n")
           );
         } else if (e instanceof SyntaxError) {
           setParseError("Invalid JSON");
@@ -253,7 +253,7 @@ export default function SummariesIndex() {
                       parsedData?.details.originalWinners ||
                       data?.data?.details.originalWinners ||
                       []
-                    ).includes(entry.id),
+                    ).includes(entry.id)
                   )}
                 />
                 <ParticipantsTable

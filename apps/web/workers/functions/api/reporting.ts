@@ -1,7 +1,7 @@
 const onRequest = async (
   request: Request,
   env: Env,
-  _context: ExecutionContext,
+  _context: ExecutionContext
 ) => {
   try {
     if (request.method !== "POST") {
@@ -32,7 +32,7 @@ const onRequest = async (
     }
 
     const upstream = new URL(
-      `https://${SENTRY_HOST}/api/${project_id}/envelope/`,
+      `https://${SENTRY_HOST}/api/${project_id}/envelope/`
     );
     await fetch(upstream, {
       method: "POST",
@@ -46,7 +46,7 @@ const onRequest = async (
       JSON.stringify({
         status: 200,
       }),
-      { status: 200, headers: { "Content-Type": "application/json" } },
+      { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (e) {
     console.error(e);

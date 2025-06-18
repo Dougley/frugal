@@ -69,15 +69,15 @@ describe("I18n", () => {
           goodbye: "Goodbye!",
           "buttons.submit": "Submit",
         },
-        "en",
+        "en"
       );
 
       expect(await i18n.translate("hello", { language: "en" })).toBe("Hello!");
       expect(await i18n.translate("goodbye", { language: "en" })).toBe(
-        "Goodbye!",
+        "Goodbye!"
       );
       expect(await i18n.translate("buttons.submit", { language: "en" })).toBe(
-        "Submit",
+        "Submit"
       );
     });
 
@@ -88,15 +88,15 @@ describe("I18n", () => {
           new: "New Value",
           "buttons.submit": "Submit",
         },
-        "en",
+        "en"
       );
 
       expect(await i18n.translate("existing", { language: "en" })).toBe(
-        "Existing Value",
+        "Existing Value"
       );
       expect(await i18n.translate("new", { language: "en" })).toBe("New Value");
       expect(await i18n.translate("buttons.submit", { language: "en" })).toBe(
-        "Submit",
+        "Submit"
       );
     });
 
@@ -113,23 +113,23 @@ describe("I18n", () => {
           },
           simple: "Simple Value",
         },
-        "en",
+        "en"
       );
 
       expect(await i18n.translate("hello.world", { language: "en" })).toBe(
-        "Hello, World!",
+        "Hello, World!"
       );
       expect(await i18n.translate("hello.user", { language: "en" })).toBe(
-        "Hello, User!",
+        "Hello, User!"
       );
       expect(await i18n.translate("buttons.submit", { language: "en" })).toBe(
-        "Submit",
+        "Submit"
       );
       expect(await i18n.translate("buttons.cancel", { language: "en" })).toBe(
-        "Cancel",
+        "Cancel"
       );
       expect(await i18n.translate("simple", { language: "en" })).toBe(
-        "Simple Value",
+        "Simple Value"
       );
     });
 
@@ -144,11 +144,11 @@ describe("I18n", () => {
             },
           },
         },
-        "en",
+        "en"
       );
 
       expect(
-        await i18n.translate("deeply.nested.path.value", { language: "en" }),
+        await i18n.translate("deeply.nested.path.value", { language: "en" })
       ).toBe("Deep Value");
     });
 
@@ -160,14 +160,14 @@ describe("I18n", () => {
             key: "Nested Value",
           },
         },
-        "en",
+        "en"
       );
 
       expect(await i18n.translate("flat.key", { language: "en" })).toBe(
-        "Flat Value",
+        "Flat Value"
       );
       expect(await i18n.translate("nested.key", { language: "en" })).toBe(
-        "Nested Value",
+        "Nested Value"
       );
     });
   });
@@ -180,7 +180,7 @@ describe("I18n", () => {
           "buttons.submit": "Submit",
           "nested.deep.value": "Deep Value",
         },
-        "en",
+        "en"
       );
 
       await i18n.setTranslations(
@@ -188,7 +188,7 @@ describe("I18n", () => {
           hello: "Hola!",
           "buttons.submit": "Enviar",
         },
-        "es",
+        "es"
       );
     });
 
@@ -281,7 +281,7 @@ describe("I18n", () => {
           complex:
             "Hello {name}! You have {count, plural, =0 {no messages} one {# message} other {# messages}}.",
         },
-        "en",
+        "en"
       );
 
       await i18n.setTranslations(
@@ -289,7 +289,7 @@ describe("I18n", () => {
           items:
             "{count, plural, =0 {ningún elemento} one {# elemento} other {# elementos}}",
         },
-        "es",
+        "es"
       );
     });
 
@@ -386,7 +386,7 @@ describe("I18n", () => {
           hello: "Hello!",
           welcome: "Hello, {name}!",
         },
-        "en",
+        "en"
       );
 
       await i18n.setTranslations(
@@ -394,7 +394,7 @@ describe("I18n", () => {
           hello: "Hola!",
           welcome: "¡Hola, {name}!",
         },
-        "es",
+        "es"
       );
 
       await i18n.setTranslations(
@@ -402,7 +402,7 @@ describe("I18n", () => {
           hello: "Bonjour!",
           welcome: "Bonjour, {name}!",
         },
-        "fr",
+        "fr"
       );
     });
 

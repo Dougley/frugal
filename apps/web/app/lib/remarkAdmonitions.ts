@@ -13,7 +13,7 @@ export const remarkAdmonitions: Plugin = () => {
       ) {
         const text = firstParagraph.children[0].value.trim();
         const match = text.match(
-          /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*)/i,
+          /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*)/i
         );
 
         if (match) {
@@ -41,7 +41,7 @@ export const remarkAdmonitions: Plugin = () => {
                 (!child.children?.length ||
                   (child.children.length === 1 &&
                     !child.children[0].value?.trim()))
-              ),
+              )
           );
         }
       }

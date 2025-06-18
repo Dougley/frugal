@@ -3,8 +3,8 @@
 
 import { DiscordApiClient } from "@discord-interactions/api";
 import {
-  drizzleDurable,
   Schema as DurableSchema,
+  drizzleDurable,
 } from "@dougley/frugal-drizzle/durables";
 import {
   and,
@@ -20,7 +20,7 @@ import { Routes } from "discord-api-types/v10";
 import { z } from "zod";
 import createRateLimitMiddleware from "./middleware";
 import { transformer } from "./transformer";
-import { type Context } from "./trpc";
+import type { Context } from "./trpc";
 
 // TRPC Setup
 const t = initTRPC.context<Context<LegacyEnv>>().create({
@@ -103,7 +103,7 @@ const entriesDb = {
    */
   create: (
     ctx: Context<LegacyEnv>,
-    entry: { userId: string; username: string; avatar: string | null },
+    entry: { userId: string; username: string; avatar: string | null }
   ) => {
     const db = drizzleDurable(ctx.state.storage);
     return db
@@ -175,7 +175,7 @@ const entriesDb = {
  */
 const validateGiveawayState = (
   giveaway: { state: string },
-  allowedStates: GiveawayState[],
+  allowedStates: GiveawayState[]
 ) => {
   if (!allowedStates.includes(giveaway.state as GiveawayState)) {
     const stateMessage =
@@ -205,7 +205,7 @@ export const stateRouter = router({
         .refine((value) => value > new Date(), {
           message: "Date must be in the future",
         })
-        .or(z.number().min(1).max(1)),
+        .or(z.number().min(1).max(1))
     )
     .mutation(async ({ input, ctx }) => {
       console.log("startAlarm", input);
@@ -264,7 +264,7 @@ export const stateRouter = router({
           discriminator: z.string().min(1),
           avatar: z.string().nullable(),
         })
-        .array(),
+        .array()
     )
     .mutation(async ({ input, ctx }) => {
       const giveaway = await getGiveaway(ctx);
@@ -344,7 +344,7 @@ export const stateRouter = router({
           .transform((val) => new Date(val)),
         host_id: z.string(),
         description: z.string().optional(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const db = drizzleD1(ctx.env.D1);
@@ -383,7 +383,7 @@ export const stateRouter = router({
         prize: z.string().min(1).max(100),
         winners: z.number().min(1).max(50),
         description: z.string().max(1000).optional(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const db = drizzleD1(ctx.env.D1);
@@ -432,11 +432,11 @@ export const stateRouter = router({
                 description: input.description ?? undefined,
                 giveaway_id: updated.messageId,
                 join_button: JoinButton.createActionRow(
-                  updated.durableObjectId,
+                  updated.durableObjectId
                 ),
               }),
             },
-          },
+          }
         );
       } catch (error) {
         console.error("Failed to update giveaway message:", error);
@@ -459,7 +459,7 @@ export const stateRouter = router({
         username: z.string(),
         discriminator: z.string(),
         avatar: z.string().nullable(),
-      }),
+      })
     )
     .use(entryRateLimit)
     .mutation(async ({ input, ctx }) => {
@@ -553,8 +553,8 @@ export const stateRouter = router({
         .where(
           and(
             eq(D1Schema.giveaways.guildId, input.guild_id),
-            eq(D1Schema.giveaways.state, "OPEN"),
-          ),
+            eq(D1Schema.giveaways.state, "OPEN")
+          )
         )
         .orderBy(D1Schema.giveaways.endTime)
         .all();

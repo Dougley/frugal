@@ -40,15 +40,15 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // First get all guilds with ManageEvents permission
   const eligibleGuilds = currentUser.guilds.filter((guild) =>
     new BitField(BigInt(guild.permissions)).has(
-      PermissionFlagsBits.ManageEvents,
-    ),
+      PermissionFlagsBits.ManageEvents
+    )
   );
 
   // Get all giveaways for these guilds
   const allGiveaways = await context.drizzle.query.giveaways.findMany({
     where: inArray(
       Schema.giveaways.guildId,
-      eligibleGuilds.map((guild) => guild.id),
+      eligibleGuilds.map((guild) => guild.id)
     ),
   });
 
@@ -59,7 +59,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   // Filter guilds to only those that have giveaways
   const guildsWithGiveaways = eligibleGuilds.filter((guild) =>
-    allGiveaways.some((g) => g.guildId === guild.id),
+    allGiveaways.some((g) => g.guildId === guild.id)
   );
 
   return {
@@ -254,7 +254,7 @@ export default function GiveawaysIndex({ loaderData }: Route.ComponentProps) {
 
   // Helper to group giveaways by guildId
   function groupByGuild<T extends { guildId: string }>(
-    giveaways: T[],
+    giveaways: T[]
   ): Record<string, T[]> {
     return giveaways.reduce<Record<string, T[]>>((acc, g) => {
       if (!acc[g.guildId]) acc[g.guildId] = [];
