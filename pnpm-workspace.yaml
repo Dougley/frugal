@@ -4,7 +4,7 @@ packages:
 
 catalog:
   wrangler: ^4.20.1
-  '@cloudflare/workers-types': ^4.20250617.0
+  '@cloudflare/workers-types': ^4.20250618.0
   drizzle-orm: ^0.44.2
   drizzle-kit: ^0.31.1
-  discord-api-types: ^0.37.119
+  discord-api-types: ^0.38.12
