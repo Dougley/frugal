@@ -1,9 +1,8 @@
 {
   "recommendations": [
-    "dbaeumer.vscode-eslint",
+    "biomejs.biome",
     "IronGeek.vscode-env",
     "tamasfe.even-better-toml",
-    "esbenp.prettier-vscode",
     "ms-azuretools.vscode-docker",
     "github.vscode-github-actions",
     "mtxr.sqltools-driver-sqlite",
