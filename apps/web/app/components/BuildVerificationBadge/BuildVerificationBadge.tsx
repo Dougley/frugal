@@ -128,16 +128,12 @@ function AttestationsSection({ buildInfo }: BuildDetailsProps) {
   return (
     <div>
       <Text size="sm" fw={500} mb="sm">
-        Attestations Available
+        Attestation Available
       </Text>
       <Stack gap="xs">
         <AttestationRow
           label="Build Provenance"
           attestationId={buildInfo.attestationId}
-        />
-        <AttestationRow
-          label="Dependencies (SBOM)"
-          attestationId={buildInfo.sbomAttestationId}
         />
       </Stack>
     </div>
@@ -175,57 +171,40 @@ function BuildVerificationModal({
       <Stack gap="lg">
         <Alert
           icon={<IconShieldCheck size={16} />}
-          title="Meets SLSA Level 3 security standards"
+          title="Meets SLSA Level 2 security standards"
           color="green"
           variant="light"
         >
           <Text size="sm" mb="md">
             This application was built using automated, cryptographically signed
-            processes that guarantee the code hasn't been tampered with. Every
-            build is verified and publicly auditable, protecting against malware
-            and ensuring you're getting authentic, unmodified software.
+            processes that establish verifiable build provenance. Every build is
+            tracked and publicly auditable, providing strong supply chain
+            security guarantees and ensuring you're getting authentic,
+            unmodified software.
           </Text>
-          <Text size="xs" c="dimmed">
-            Learn more at{" "}
+          <Group gap="xs">
+            <Text size="xs" c="dimmed">
+              Learn more at
+            </Text>
             <Anchor href="https://slsa.dev/spec" target="_blank">
-              slsa.dev/spec
+              <Group gap="xs">
+                <Text size="xs">slsa.dev/spec</Text>{" "}
+                <IconExternalLink size={12} />
+              </Group>
             </Anchor>
-          </Text>
+          </Group>
         </Alert>
 
         <BuildDetailsSection buildInfo={buildInfo} />
         <AttestationsSection buildInfo={buildInfo} />
 
         <Group justify="space-between">
-          <Group gap="sm">
-            <Anchor
-              href={urls.workflow}
-              target="_blank"
-              size="sm"
-              rel="noopener noreferrer"
-            >
-              <Group gap={4}>
-                <IconExternalLink size={14} />
-                <Text size="sm">Workflows</Text>
-              </Group>
-            </Anchor>
-            <Anchor
-              href={urls.repository}
-              target="_blank"
-              size="sm"
-              rel="noopener noreferrer"
-            >
-              <Group gap={4}>
-                <IconExternalLink size={14} />
-                <Text size="sm">Source</Text>
-              </Group>
-            </Anchor>
-          </Group>
           <Button
             variant="light"
             onClick={handleVerifyAttestation}
             loading={verifying}
             leftSection={<IconInfoCircle size={16} />}
+            rightSection={<IconExternalLink size={16} />}
             size="sm"
           >
             {buildInfo.attestationId ? "View on GitHub" : "Learn More"}
@@ -242,39 +221,53 @@ export function BuildVerificationBadge({
 }: BuildVerificationBadgeProps) {
   const [opened, { open, close }] = useDisclosure(false);
 
-  if (!buildInfo.release) {
+  // Always show the badge if we have environment info
+  if (!buildInfo.environment) {
     return null;
   }
+
+  const hasAttestations = buildInfo.attestationId;
+  const buildIdentifier =
+    buildInfo.release?.slice(0, 8) || buildInfo.environment;
 
   return (
     <>
       <Group justify="center" gap="xs">
-        <Text size="sm" c="dimmed">
-          {buildInfo.release.slice(0, 8)}
-        </Text>
-        <Tooltip
-          label="Verifiable build, click to learn more"
-          position="top"
-          withArrow
-        >
+        {hasAttestations ? (
+          <Tooltip
+            label="Verifiable build, click to learn more"
+            position="top"
+            withArrow
+          >
+            <Badge
+              variant="default"
+              rightSection={<IconShieldCheck size={12} />}
+              className={`${classes.badge} ${classes.subtle}`}
+              onClick={open}
+              style={{ cursor: "pointer" }}
+              size="sm"
+            >
+              {buildIdentifier}
+            </Badge>
+          </Tooltip>
+        ) : (
           <Badge
             variant="default"
-            leftSection={<IconShieldCheck size={12} />}
             className={`${classes.badge} ${classes.subtle}`}
-            onClick={open}
-            style={{ cursor: "pointer" }}
             size="sm"
           >
-            Signed
+            {buildIdentifier}
           </Badge>
-        </Tooltip>
+        )}
       </Group>
 
-      <BuildVerificationModal
-        opened={opened}
-        onClose={close}
-        buildInfo={buildInfo}
-      />
+      {hasAttestations && (
+        <BuildVerificationModal
+          opened={opened}
+          onClose={close}
+          buildInfo={buildInfo}
+        />
+      )}
     </>
   );
 }

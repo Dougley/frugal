@@ -9,7 +9,6 @@ export interface BuildInfo {
   release?: string;
   environment?: string;
   attestationId?: string;
-  sbomAttestationId?: string;
   buildTime?: string;
   repository?: string;
 }
@@ -25,7 +24,6 @@ export function getBuildInfo(context: AppLoadContext): BuildInfo {
     release: env?.RELEASE,
     environment: env?.CLOUDFLARE_ENV || env?.ENVIRONMENT,
     attestationId: env?.ATTESTATION_ID,
-    sbomAttestationId: env?.SBOM_ATTESTATION_ID,
     buildTime: env?.BUILD_TIME,
     repository: env?.REPOSITORY || "dougley/frugal",
   };
@@ -43,7 +41,6 @@ export function isBuildVerificationAvailable(buildInfo: BuildInfo): boolean {
  */
 export function getVerificationCommands(buildInfo: BuildInfo): {
   buildProvenance: string;
-  sbom: string;
 } {
   const repo = buildInfo.repository || "dougley/frugal";
 
@@ -51,8 +48,5 @@ export function getVerificationCommands(buildInfo: BuildInfo): {
     buildProvenance: `gh attestation verify <artifact-path> \\
   -R ${repo} \\
   --signer-workflow .github/workflows/web-build.yml`,
-    sbom: `gh attestation verify <artifact-path> \\
-  -R ${repo} \\
-  --predicate-type https://spdx.dev/Document/v2.3`,
   };
 }

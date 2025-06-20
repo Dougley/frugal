@@ -1,0 +1,27 @@
+# Trivy ignore file for reducing false positives
+
+# Development and test files
+**/*test*
+**/*spec*
+**/*mock*
+**/node_modules/**
+**/dist/**
+**/build/**
+**.md
+
+# Generated files
+**/coverage/**
+**/.turbo/**
+**/.next/**
+
+# Config files that may contain example secrets
+**/wrangler.jsonc
+**/package.json
+**/tsconfig.json
+
+# Ignore example/placeholder values
+# Example: ignore this specific test secret
+# secret-id-here
+
+# Low priority vulnerabilities in dev dependencies
+# (You can add specific CVEs here if needed) 

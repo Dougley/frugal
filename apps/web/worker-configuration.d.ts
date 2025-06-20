@@ -13,7 +13,6 @@ declare namespace Cloudflare {
     RELEASE: string;
     CLOUDFLARE_ENV: string;
     ATTESTATION_ID: string;
-    SBOM_ATTESTATION_ID: string;
     BUILD_TIME: string;
     REPOSITORY: string;
     STORAGE: R2Bucket;
@@ -7299,7 +7298,7 @@ declare module "cloudflare:email" {
     prototype: EmailMessage;
     new (from: string, to: string, raw: ReadableStream | string): EmailMessage;
   };
-  export { _EmailMessage as EmailMessage };
+  export type { _EmailMessage as EmailMessage };
 }
 interface Hyperdrive {
   /**
@@ -7919,7 +7918,7 @@ declare module "cloudflare:sockets" {
     address: string | SocketAddress,
     options?: SocketOptions
   ): Socket;
-  export { _connect as connect };
+  export type { _connect as connect };
 }
 declare namespace TailStream {
   interface Header {
