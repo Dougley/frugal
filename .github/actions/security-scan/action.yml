@@ -147,7 +147,7 @@ runs:
         github_token: ${{ inputs.github-token }}
         trivy_command: "filesystem"
         trivy_target: "."
-        trivy_flags: "--severity HIGH,CRITICAL --scanners secret,vuln --ignore-unfixed --format sarif"
+        trivy_flags: "--severity HIGH,CRITICAL --scanners secret,vuln --ignore-unfixed"
         level: "error"
         reporter: ${{ inputs.reviewdog-reporter }}
         filter_mode: ${{ inputs.reviewdog-filter-mode }}

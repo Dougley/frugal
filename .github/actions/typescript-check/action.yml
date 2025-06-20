@@ -39,15 +39,35 @@ runs:
       with:
         github-token: ${{ inputs.github-token }}
 
-    # TypeScript check with reviewdog
+    # Check if tsconfig exists and run TypeScript check
     - name: TypeScript check with reviewdog
       if: inputs.use-reviewdog == 'true' && inputs.github-token != ''
       shell: bash
       run: |
         echo "Running TypeScript check with reviewdog..."
 
-        # Run TypeScript compiler and capture output
-        pnpm tsc --noEmit --project ${{ inputs.tsconfig-path }} --pretty false > typescript-errors.txt 2>&1 || true
+        # Check if tsconfig exists at specified path
+        if [ ! -f "${{ inputs.tsconfig-path }}" ]; then
+          echo "⚠️ TypeScript config not found at ${{ inputs.tsconfig-path }}, checking workspace projects..."
+          
+          # Run TypeScript check on individual apps/packages that have tsconfig
+          ERRORS_FOUND=false
+          for tsconfig in apps/*/tsconfig.json packages/*/tsconfig.json; do
+            if [ -f "$tsconfig" ]; then
+              echo "Checking TypeScript in $(dirname "$tsconfig")..."
+              if ! pnpm tsc --noEmit --project "$tsconfig" --pretty false > "typescript-errors-$(basename $(dirname "$tsconfig")).txt" 2>&1; then
+                ERRORS_FOUND=true
+                echo "TypeScript errors found in $(dirname "$tsconfig")"
+              fi
+            fi
+          done
+          
+          # Combine all error files
+          cat typescript-errors-*.txt > typescript-errors.txt 2>/dev/null || touch typescript-errors.txt
+        else
+          # Run TypeScript compiler on specified config and capture output
+          pnpm tsc --noEmit --project ${{ inputs.tsconfig-path }} --pretty false > typescript-errors.txt 2>&1 || true
+        fi
 
         # Source reviewdog utilities and process results
         if [ -f "reviewdog-utils.sh" ]; then
@@ -87,9 +107,23 @@ runs:
         fi
 
         # Check exit code separately to handle failures properly
-        if ! pnpm tsc --noEmit --project ${{ inputs.tsconfig-path }} --pretty false; then
-          echo "TypeScript check failed"
-          exit 1
+        if [ ! -f "${{ inputs.tsconfig-path }}" ]; then
+          # For workspace projects, check if any had errors
+          if ls typescript-errors-*.txt 1> /dev/null 2>&1; then
+            for error_file in typescript-errors-*.txt; do
+              if [ -s "$error_file" ]; then
+                echo "TypeScript check failed in workspace projects"
+                exit 1
+              fi
+            done
+          fi
+          echo "TypeScript check completed for all workspace projects"
+        else
+          # For single config, check the actual tsc exit code
+          if ! pnpm tsc --noEmit --project ${{ inputs.tsconfig-path }} --pretty false; then
+            echo "TypeScript check failed"
+            exit 1
+          fi
         fi
       working-directory: ${{ inputs.working-directory }}
       env:
@@ -99,5 +133,18 @@ runs:
     - name: TypeScript check (fallback)
       if: inputs.use-reviewdog != 'true' || inputs.github-token == ''
       shell: bash
-      run: pnpm tsc --noEmit --project ${{ inputs.tsconfig-path }}
+      run: |
+        if [ ! -f "${{ inputs.tsconfig-path }}" ]; then
+          echo "⚠️ TypeScript config not found at ${{ inputs.tsconfig-path }}, checking workspace projects..."
+          
+          # Run TypeScript check on individual apps/packages that have tsconfig
+          for tsconfig in apps/*/tsconfig.json packages/*/tsconfig.json; do
+            if [ -f "$tsconfig" ]; then
+              echo "Checking TypeScript in $(dirname "$tsconfig")..."
+              pnpm tsc --noEmit --project "$tsconfig"
+            fi
+          done
+        else
+          pnpm tsc --noEmit --project ${{ inputs.tsconfig-path }}
+        fi
       working-directory: ${{ inputs.working-directory }}

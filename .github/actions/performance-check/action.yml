@@ -33,6 +33,39 @@ runs:
       run: |
         echo "📦 Analyzing bundle size..."
 
+        # Check if bundlesize config exists
+        if ! grep -q "bundlesize" package.json; then
+          echo "⚠️ No bundlesize configuration found in package.json"
+          echo "## 📦 Bundle Size Analysis" > bundle-comment.md
+          echo "" >> bundle-comment.md
+          echo "❌ **Configuration Missing**: No bundlesize configuration found in package.json" >> bundle-comment.md
+          echo "" >> bundle-comment.md
+          echo "To enable bundle size analysis, add a \`bundlesize\` section to package.json:" >> bundle-comment.md
+          echo "\`\`\`json" >> bundle-comment.md
+          echo '"bundlesize": [' >> bundle-comment.md
+          echo '  { "path": "./build/client/assets/entry.client-*.js", "maxSize": "400kb", "compression": "gzip" },' >> bundle-comment.md
+          echo '  { "path": "./build/client/assets/styles-*.css", "maxSize": "210kb", "compression": "gzip" },' >> bundle-comment.md
+          echo '  { "path": "./build/server/assets/server-build-*.js", "maxSize": "1.5mb", "compression": "gzip" }' >> bundle-comment.md
+          echo ']' >> bundle-comment.md
+          echo "\`\`\`" >> bundle-comment.md
+          echo "" >> bundle-comment.md
+          echo "*Generated on $(date)*" >> bundle-comment.md
+          exit 0
+        fi
+
+        # Check if build directory exists
+        if [ ! -d "build" ]; then
+          echo "⚠️ Build output directory 'build' not found, running build first..."
+          pnpm turbo build || {
+            echo "❌ Build failed, cannot analyze bundle size"
+            echo "## 📦 Bundle Size Analysis" > bundle-comment.md
+            echo "" >> bundle-comment.md
+            echo "❌ **Build Failed**: Cannot analyze bundle size because build failed" >> bundle-comment.md
+            echo "*Generated on $(date)*" >> bundle-comment.md
+            exit 0
+          }
+        fi
+
         # Run bundlesize and capture both JSON and human-readable output
         pnpx bundlesize --json > bundle-report.json 2>&1 || true
         pnpx bundlesize > bundle-output.txt 2>&1 || true
@@ -71,6 +104,15 @@ runs:
           fi
         else
           echo "❌ Bundle size analysis failed or no results available" >> bundle-comment.md
+          if [ -f bundle-output.txt ]; then
+            echo "" >> bundle-comment.md
+            echo "<details><summary>Debug Output</summary>" >> bundle-comment.md
+            echo "" >> bundle-comment.md
+            echo "\`\`\`" >> bundle-comment.md
+            cat bundle-output.txt >> bundle-comment.md
+            echo "\`\`\`" >> bundle-comment.md
+            echo "</details>" >> bundle-comment.md
+          fi
         fi
 
         echo "" >> bundle-comment.md
@@ -87,8 +129,34 @@ runs:
       run: |
         echo "🔍 Running Lighthouse analysis..."
 
-        # Run Lighthouse CI and capture results
-        pnpx lhci autorun --collect.numberOfRuns=1 --upload.target=temporary-public-storage > lighthouse-output.txt 2>&1 || true
+        # Check if lighthouse config exists
+        if [ ! -f "lighthouserc.json" ]; then
+          echo "⚠️ No lighthouserc.json configuration found"
+          echo "## 🔍 Lighthouse Performance Report" > lighthouse-comment.md
+          echo "" >> lighthouse-comment.md
+          echo "❌ **Configuration Missing**: No lighthouserc.json configuration found" >> lighthouse-comment.md
+          echo "" >> lighthouse-comment.md
+          echo "*Generated on $(date)*" >> lighthouse-comment.md
+          exit 0
+        fi
+
+        # Ensure we have the latest build
+        echo "Building application for Lighthouse analysis..."
+        if ! pnpm turbo build; then
+          echo "❌ Build failed, cannot run Lighthouse analysis"
+          echo "## 🔍 Lighthouse Performance Report" > lighthouse-comment.md
+          echo "" >> lighthouse-comment.md
+          echo "❌ **Build Failed**: Cannot run Lighthouse analysis because build failed" >> lighthouse-comment.md
+          echo "*Generated on $(date)*" >> lighthouse-comment.md
+          exit 0
+        fi
+
+        # Run Lighthouse CI and capture results with timeout
+        echo "Running Lighthouse CI..."
+        timeout 300 pnpx lhci autorun --collect.numberOfRuns=1 --upload.target=temporary-public-storage > lighthouse-output.txt 2>&1 || {
+          LIGHTHOUSE_EXIT_CODE=$?
+          echo "Lighthouse CI completed with exit code: $LIGHTHOUSE_EXIT_CODE"
+        }
 
         # Create markdown report
         echo "## 🔍 Lighthouse Performance Report" > lighthouse-comment.md

@@ -2,7 +2,12 @@
   "ci": {
     "collect": {
       "numberOfRuns": 3,
-      "startServerCommand": "pnpm turbo build && pnpm wrangler dev --port 3000"
+      "startServerCommand": "pnpm turbo build && pnpm wrangler dev --port 3000",
+      "url": ["http://localhost:3000"],
+      "startServerReadyPattern": "Ready on"
+    },
+    "upload": {
+      "target": "temporary-public-storage"
     }
   }
 }
