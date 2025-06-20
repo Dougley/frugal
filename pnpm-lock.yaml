@@ -29,7 +29,7 @@ overrides:
   undici@<=5.28.2: '>=5.28.3'
   undici@>=4.5.0 <5.28.5: '>=5.28.5'
   esbuild@<=0.24.2: '>=0.25.0'
-  undici@<5.29.0: '>=5.29.0'
+  undici@<5.29.0: '>=7.10.0'
 
 importers:
 
@@ -1167,10 +1167,6 @@ packages:
   '@eslint/plugin-kit@0.3.2':
     resolution: {integrity: sha512-4SaFZCNfJqvk/kenHpI8xvN42DMaoycy4PzKc5otHxRswww1kAt82OlBuwRVLofCACCTZEcla2Ydxv8scMXaTg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@fastify/busboy@2.1.1':
-    resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
-    engines: {node: '>=14'}
 
   '@floating-ui/core@1.7.1':
     resolution: {integrity: sha512-azI0DrjMMfIug/ExbBaeDVJXcY0a7EPvPjb2xAJPa4HeimBX+Z18HK8QQR3jb6356SnDDdxx+hinMLcJEDdOjw==}
@@ -6190,13 +6186,13 @@ packages:
   undici-types@7.8.0:
     resolution: {integrity: sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw==}
 
-  undici@5.29.0:
-    resolution: {integrity: sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg==}
-    engines: {node: '>=14.0'}
-
   undici@6.21.3:
     resolution: {integrity: sha512-gBLkYIlEnSp8pFbT64yFgGE6UIB9tAkhukC23PmMDCe5Nd+cRqKxSjw5y54MK2AZMgZfJWMaNE4nYUHgi1XEOw==}
     engines: {node: '>=18.17'}
+
+  undici@7.10.0:
+    resolution: {integrity: sha512-u5otvFBOBZvmdjWLVW+5DAc9Nkq8f24g0O9oY7qw2JVIF1VocIFoyz9JFkuVOS2j41AufeO0xnlweJ2RLT8nGw==}
+    engines: {node: '>=20.18.1'}
 
   unenv@2.0.0-rc.17:
     resolution: {integrity: sha512-B06u0wXkEd+o5gOCMl/ZHl5cfpYbDZKAT+HWTL+Hws6jWu7dCiqBBXXXzMFcFVJb8D4ytAnYmxJA83uwOQRSsg==}
@@ -7363,8 +7359,6 @@ snapshots:
     dependencies:
       '@eslint/core': 0.15.0
       levn: 0.4.1
-
-  '@fastify/busboy@2.1.1': {}
 
   '@floating-ui/core@1.7.1':
     dependencies:
@@ -10836,7 +10830,7 @@ snapshots:
 
   isomorphic-fetch-ponyfill@0.3.18:
     dependencies:
-      undici: 6.21.3
+      undici: 7.10.0
 
   istanbul-lib-coverage@3.2.2: {}
 
@@ -11609,7 +11603,7 @@ snapshots:
       glob-to-regexp: 0.4.1
       sharp: 0.33.5
       stoppable: 1.1.0
-      undici: 5.29.0
+      undici: 7.10.0
       workerd: 1.20250612.0
       ws: 8.18.0
       youch: 3.3.4
@@ -12662,7 +12656,7 @@ snapshots:
       eventemitter3: 5.0.1
       lodash.isequal: 4.5.0
       tweetnacl: 1.0.3
-      undici: 5.29.0
+      undici: 7.10.0
 
   slash-up@1.4.2:
     dependencies:
@@ -13113,11 +13107,9 @@ snapshots:
 
   undici-types@7.8.0: {}
 
-  undici@5.29.0:
-    dependencies:
-      '@fastify/busboy': 2.1.1
-
   undici@6.21.3: {}
+
+  undici@7.10.0: {}
 
   unenv@2.0.0-rc.17:
     dependencies:
