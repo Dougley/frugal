@@ -1,0 +1,211 @@
+name: "Performance Check"
+description: "Run performance analysis and post comprehensive PR comment"
+inputs:
+  check-type:
+    description: "Type of performance check: bundle-size, lighthouse"
+    required: true
+  github-token:
+    description: "GitHub token for PR comments"
+    required: false
+    default: ""
+  app:
+    description: "App to analyze (web/discord)"
+    required: false
+    default: "web"
+  working-directory:
+    description: "Working directory for analysis"
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Build app for analysis
+      uses: ./.github/actions/build-app
+      with:
+        app: ${{ inputs.app }}
+        working-directory: ${{ inputs.working-directory }}
+
+        # Bundle size analysis
+    - name: Bundle size analysis
+      if: inputs.check-type == 'bundle-size'
+      shell: bash
+      run: |
+        echo "📦 Analyzing bundle size..."
+
+        # Run bundlesize and capture both JSON and human-readable output
+        pnpx bundlesize --json > bundle-report.json 2>&1 || true
+        pnpx bundlesize > bundle-output.txt 2>&1 || true
+
+        # Create markdown report
+        echo "## 📦 Bundle Size Analysis" > bundle-comment.md
+        echo "" >> bundle-comment.md
+
+        if [ -f bundle-report.json ] && [ -s bundle-report.json ]; then
+          # Parse JSON results
+          if command -v jq >/dev/null 2>&1; then
+            echo "| File | Size | Max Size | Status |" >> bundle-comment.md
+            echo "|------|------|----------|--------|" >> bundle-comment.md
+            
+            cat bundle-report.json | jq -r '
+              .results[]? | 
+              "| \(.path) | \(.size) | \(.maxSize // "N/A") | \(if .size > (.maxSize // 999999999) then "❌ Exceeded" else "✅ OK" end) |"
+            ' >> bundle-comment.md 2>/dev/null || true
+            
+            # Add summary
+            FAILED_COUNT=$(cat bundle-report.json | jq '[.results[]? | select(.size > (.maxSize // 999999999))] | length' 2>/dev/null || echo "0")
+            TOTAL_COUNT=$(cat bundle-report.json | jq '.results | length' 2>/dev/null || echo "0")
+            
+            echo "" >> bundle-comment.md
+            if [ "$FAILED_COUNT" -gt 0 ]; then
+              echo "⚠️ **Warning**: $FAILED_COUNT out of $TOTAL_COUNT bundles exceeded size limits" >> bundle-comment.md
+            else
+              echo "✅ All bundles are within size limits ($TOTAL_COUNT bundles checked)" >> bundle-comment.md
+            fi
+          else
+            # Fallback without jq
+            echo "Raw bundlesize output:" >> bundle-comment.md
+            echo "\`\`\`" >> bundle-comment.md
+            cat bundle-output.txt >> bundle-comment.md 2>/dev/null || echo "No output available" >> bundle-comment.md
+            echo "\`\`\`" >> bundle-comment.md
+          fi
+        else
+          echo "❌ Bundle size analysis failed or no results available" >> bundle-comment.md
+        fi
+
+        echo "" >> bundle-comment.md
+        echo "*Generated on $(date)*" >> bundle-comment.md
+      working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}
+      env:
+        BUNDLESIZE_GITHUB_TOKEN: ${{ inputs.github-token }}
+        CI: true
+
+    # Lighthouse analysis
+    - name: Lighthouse analysis
+      if: inputs.check-type == 'lighthouse'
+      shell: bash
+      run: |
+        echo "🔍 Running Lighthouse analysis..."
+
+        # Run Lighthouse CI and capture results
+        pnpx lhci autorun --collect.numberOfRuns=1 --upload.target=temporary-public-storage > lighthouse-output.txt 2>&1 || true
+
+        # Create markdown report
+        echo "## 🔍 Lighthouse Performance Report" > lighthouse-comment.md
+        echo "" >> lighthouse-comment.md
+
+        if [ -f .lighthouseci/lhr-*.json ]; then
+          LATEST_REPORT=$(ls -t .lighthouseci/lhr-*.json | head -1)
+          
+          if command -v jq >/dev/null 2>&1 && [ -f "$LATEST_REPORT" ]; then
+            # Extract scores
+            PERF_SCORE=$(cat "$LATEST_REPORT" | jq -r '.categories.performance.score * 100 | floor' 2>/dev/null || echo "N/A")
+            A11Y_SCORE=$(cat "$LATEST_REPORT" | jq -r '.categories.accessibility.score * 100 | floor' 2>/dev/null || echo "N/A")
+            BP_SCORE=$(cat "$LATEST_REPORT" | jq -r '.categories["best-practices"].score * 100 | floor' 2>/dev/null || echo "N/A")
+            SEO_SCORE=$(cat "$LATEST_REPORT" | jq -r '.categories.seo.score * 100 | floor' 2>/dev/null || echo "N/A")
+            
+            # Score table
+            echo "| Category | Score | Status |" >> lighthouse-comment.md
+            echo "|----------|-------|--------|" >> lighthouse-comment.md
+            echo "| 🚀 Performance | ${PERF_SCORE}% | $([ "$PERF_SCORE" -ge 90 ] 2>/dev/null && echo "✅ Good" || echo "⚠️ Needs improvement") |" >> lighthouse-comment.md
+            echo "| ♿ Accessibility | ${A11Y_SCORE}% | $([ "$A11Y_SCORE" -ge 90 ] 2>/dev/null && echo "✅ Good" || echo "⚠️ Needs improvement") |" >> lighthouse-comment.md
+            echo "| 🛡️ Best Practices | ${BP_SCORE}% | $([ "$BP_SCORE" -ge 90 ] 2>/dev/null && echo "✅ Good" || echo "⚠️ Needs improvement") |" >> lighthouse-comment.md
+            echo "| 🔍 SEO | ${SEO_SCORE}% | $([ "$SEO_SCORE" -ge 90 ] 2>/dev/null && echo "✅ Good" || echo "⚠️ Needs improvement") |" >> lighthouse-comment.md
+            echo "" >> lighthouse-comment.md
+            
+            # Key metrics
+            echo "### 📊 Key Metrics" >> lighthouse-comment.md
+            FCP=$(cat "$LATEST_REPORT" | jq -r '.audits["first-contentful-paint"].displayValue' 2>/dev/null || echo "N/A")
+            LCP=$(cat "$LATEST_REPORT" | jq -r '.audits["largest-contentful-paint"].displayValue' 2>/dev/null || echo "N/A")
+            CLS=$(cat "$LATEST_REPORT" | jq -r '.audits["cumulative-layout-shift"].displayValue' 2>/dev/null || echo "N/A")
+            TTI=$(cat "$LATEST_REPORT" | jq -r '.audits["interactive"].displayValue' 2>/dev/null || echo "N/A")
+            
+            echo "- **First Contentful Paint**: $FCP" >> lighthouse-comment.md
+            echo "- **Largest Contentful Paint**: $LCP" >> lighthouse-comment.md
+            echo "- **Cumulative Layout Shift**: $CLS" >> lighthouse-comment.md
+            echo "- **Time to Interactive**: $TTI" >> lighthouse-comment.md
+            
+            # Opportunities (top 3)
+            echo "" >> lighthouse-comment.md
+            echo "### 🎯 Top Opportunities" >> lighthouse-comment.md
+            cat "$LATEST_REPORT" | jq -r '
+              [.audits | to_entries[] | select(.value.details?.overallSavingsMs? > 100) | {
+                title: .value.title,
+                savings: .value.details.overallSavingsMs
+              }] | sort_by(-.savings) | .[0:3][] | "- **\(.title)**: \(.savings)ms potential savings"
+            ' >> lighthouse-comment.md 2>/dev/null || echo "- No major optimization opportunities found" >> lighthouse-comment.md
+            
+          else
+            echo "❌ Unable to parse Lighthouse results" >> lighthouse-comment.md
+          fi
+        else
+          echo "❌ Lighthouse analysis failed or no results available" >> lighthouse-comment.md
+          if [ -f lighthouse-output.txt ]; then
+            echo "" >> lighthouse-comment.md
+            echo "<details><summary>Debug Output</summary>" >> lighthouse-comment.md
+            echo "" >> lighthouse-comment.md
+            echo "\`\`\`" >> lighthouse-comment.md
+            tail -20 lighthouse-output.txt >> lighthouse-comment.md
+            echo "\`\`\`" >> lighthouse-comment.md
+            echo "</details>" >> lighthouse-comment.md
+          fi
+        fi
+
+        echo "" >> lighthouse-comment.md
+        echo "*Generated on $(date)*" >> lighthouse-comment.md
+      working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}
+      env:
+        LHCI_GITHUB_APP_TOKEN: ${{ inputs.github-token }}
+        CI: true
+
+    # Post comprehensive performance comment to PR
+    - name: Post performance comment
+      if: github.event_name == 'pull_request' && inputs.github-token != ''
+      shell: bash
+      run: |
+        # Combine all performance reports into one comment
+        COMMENT_FILE="performance-report.md"
+        echo "# 📊 Performance Analysis Report" > "$COMMENT_FILE"
+        echo "" >> "$COMMENT_FILE"
+        echo "*Analysis for app: \`${{ inputs.app }}\` | Check type: \`${{ inputs.check-type }}\`*" >> "$COMMENT_FILE"
+        echo "" >> "$COMMENT_FILE"
+
+        # Add bundle analysis if available
+        if [ -f bundle-comment.md ]; then
+          cat bundle-comment.md >> "$COMMENT_FILE"
+          echo "" >> "$COMMENT_FILE"
+        fi
+
+        # Add lighthouse analysis if available  
+        if [ -f lighthouse-comment.md ]; then
+          cat lighthouse-comment.md >> "$COMMENT_FILE"
+          echo "" >> "$COMMENT_FILE"
+        fi
+
+        # Add footer
+        echo "---" >> "$COMMENT_FILE"
+        echo "*This comment was automatically generated by the performance-check action.*" >> "$COMMENT_FILE"
+
+        # Post comment using GitHub CLI
+        if command -v gh >/dev/null 2>&1; then
+          gh pr comment "${{ github.event.number }}" --body-file "$COMMENT_FILE" || {
+            echo "Failed to post comment with gh CLI, falling back to API"
+            COMMENT_BODY=$(cat "$COMMENT_FILE" | jq -Rs .)
+            curl -s -X POST \
+              -H "Authorization: Bearer ${{ inputs.github-token }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments" \
+              -d "{\"body\": $COMMENT_BODY}" > /dev/null
+          }
+        else
+          # Fallback to direct API call
+          COMMENT_BODY=$(cat "$COMMENT_FILE" | jq -Rs .)
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ inputs.github-token }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments" \
+            -d "{\"body\": $COMMENT_BODY}" > /dev/null
+        fi
+      working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}

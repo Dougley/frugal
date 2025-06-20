@@ -19,9 +19,6 @@ on:
       attestation-id:
         description: "Build attestation ID"
         value: ${{ jobs.deploy.outputs.attestation-id }}
-      sbom-attestation-id:
-        description: "SBOM attestation ID"
-        value: ${{ jobs.deploy.outputs.sbom-attestation-id }}
 
 jobs:
   deploy:
@@ -34,58 +31,33 @@ jobs:
       attestations: write
     outputs:
       attestation-id: ${{ steps.attest-build.outputs.attestation-id }}
-      sbom-attestation-id: ${{ steps.attest-sbom.outputs.attestation-id }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js and pnpm
-        uses: ./.github/actions/setup-node-pnpm
-
       - name: Build Web application
-        run: pnpm turbo build
-        working-directory: ./apps/web
+        uses: ./.github/actions/build-app
+        with:
+          app: web
         env:
           VITE_SENTRY_DSN: ${{ vars.SENTRY_DSN_WEB }}
 
-      - name: Generate SBOM for Web application
-        uses: anchore/sbom-action@v0
-        with:
-          path: ./apps/web
-          format: spdx-json
-          output-file: web-sbom.spdx.json
-
       - name: Generate build attestation for Web application
         id: attest-build
-        uses: actions/attest-build-provenance@v2
+        uses: ./.github/actions/build-attestation
         with:
+          app: web
           subject-path: "./apps/web/build/**"
 
-      - name: Generate SBOM attestation for Web application
-        id: attest-sbom
-        uses: actions/attest-sbom@v1
-        with:
-          subject-path: "./apps/web/build/**"
-          sbom-path: "web-sbom.spdx.json"
+      - run: echo NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ) >> $GITHUB_ENV
 
       - name: Deploy to Cloudflare Pages
-        run: |
-          pnpm wrangler deploy \
-            --var SENTRY_DSN:$SENTRY_DSN \
-            SESSION_SECRET:$SESSION_SECRET \
-            DISCORD_CLIENT_ID:$DISCORD_CLIENT_ID \
-            DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
-            DISCORD_CLIENT_SECRET:$DISCORD_CLIENT_SECRET \
-            DISCORD_CALLBACK_URL:$DISCORD_CALLBACK_URL \
-            RELEASE:$RELEASE \
-            BRANCH:$BRANCH \
-            ATTESTATION_ID:$ATTESTATION_ID \
-            SBOM_ATTESTATION_ID:$SBOM_ATTESTATION_ID \
-            BUILD_TIME:$BUILD_TIME \
-            REPOSITORY:$REPOSITORY
-        working-directory: ./apps/web
+        uses: ./.github/actions/cloudflare-deploy
+        with:
+          app: web
+          environment: ${{ inputs.environment }}
+          api-token: ${{ secrets.CF_API_TOKEN }}
         env:
           CLOUDFLARE_ENV: ${{ inputs.environment }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           SENTRY_DSN: ${{ vars.SENTRY_DSN_WEB }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SESSION_SECRET: ${{ secrets.WEB_SESSION_SECRET }}
@@ -93,11 +65,8 @@ jobs:
           DISCORD_PUBLIC_KEY: ${{ vars.DISCORD_PUBLIC_KEY }}
           DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_SECRET }}
           DISCORD_CALLBACK_URL: ${{ vars.DISCORD_CALLBACK_URL }}
-          RELEASE: ${{ github.sha }}
-          BRANCH: ${{ github.head_ref || github.ref_name }}
           VITE_SENTRY_DSN: ${{ vars.SENTRY_DSN_WEB }}
           # Build verification variables
           ATTESTATION_ID: ${{ steps.attest-build.outputs.attestation-id }}
-          SBOM_ATTESTATION_ID: ${{ steps.attest-sbom.outputs.attestation-id }}
-          BUILD_TIME: ${{ github.event.head_commit.timestamp }}
+          BUILD_TIME: ${{ env.NOW }}
           REPOSITORY: dougley/frugal

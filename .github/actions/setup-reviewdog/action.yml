@@ -1,0 +1,97 @@
+name: "Setup reviewdog"
+description: "Setup reviewdog for code review automation with common utilities"
+inputs:
+  reviewdog-version:
+    description: "reviewdog version to install (latest, nightly, or specific version)"
+    required: false
+    default: "latest"
+  github-token:
+    description: "GitHub token for reviewdog authentication"
+    required: false
+    default: ""
+
+outputs:
+  reviewdog-available:
+    description: "Whether reviewdog is available and properly configured"
+    value: ${{ steps.verify.outputs.available }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup reviewdog
+      id: setup
+      uses: reviewdog/action-setup@v1
+      with:
+        reviewdog_version: ${{ inputs.reviewdog-version }}
+
+    - name: Verify reviewdog setup
+      id: verify
+      shell: bash
+      run: |
+        if command -v reviewdog >/dev/null 2>&1 && [ -n "${{ inputs.github-token }}" ]; then
+          echo "available=true" >> $GITHUB_OUTPUT
+          echo "✅ reviewdog is available and configured"
+          reviewdog -version
+        else
+          echo "available=false" >> $GITHUB_OUTPUT
+          if [ -z "${{ inputs.github-token }}" ]; then
+            echo "⚠️ reviewdog setup skipped: no GitHub token provided"
+          else
+            echo "❌ reviewdog setup failed"
+          fi
+        fi
+      env:
+        REVIEWDOG_GITHUB_API_TOKEN: ${{ inputs.github-token }}
+
+    - name: Create reviewdog utilities
+      shell: bash
+      run: |
+        # Create a utility script for common reviewdog patterns
+        cat > reviewdog-utils.sh << 'EOF'
+        #!/bin/bash
+        # Common reviewdog utility functions
+
+        # Function to run reviewdog with standard error handling
+        run_reviewdog() {
+          local input_file="$1"
+          local errorformat="$2" 
+          local name="$3"
+          local reporter="${4:-github-pr-review}"
+          local filter_mode="${5:-diff_context}"
+          local fail_level="${6:-error}"
+          
+          if [ ! -f "$input_file" ] || [ ! -s "$input_file" ]; then
+            echo "No issues found for $name"
+            return 0
+          fi
+          
+          echo "Running reviewdog for $name..."
+          cat "$input_file" | reviewdog \
+            -efm="$errorformat" \
+            -name="$name" \
+            -reporter="$reporter" \
+            -filter-mode="$filter_mode" \
+            -fail-level="$fail_level"
+        }
+
+        # Function to check if we should use reviewdog
+        should_use_reviewdog() {
+          if [ "${{ steps.verify.outputs.available }}" = "true" ]; then
+            return 0
+          else
+            return 1
+          fi
+        }
+
+        # Function to get default reporter based on event type
+        get_default_reporter() {
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "github-pr-review"
+          else
+            echo "github-check"
+          fi
+        }
+        EOF
+
+        chmod +x reviewdog-utils.sh
+        echo "Created reviewdog utility functions"

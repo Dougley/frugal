@@ -15,27 +15,8 @@ permissions:
 
 jobs:
   biome:
-    name: Biome
+    name: Biome Code Quality
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Biome
-        uses: biomejs/setup-biome@v2
-        with:
-          version: latest
-
-      - name: Run Biome
-        run: biome ci .
-
-  biome-suggest:
-    name: Biome Suggestions
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    permissions:
-      contents: read
-      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,10 +24,11 @@ jobs:
       - name: Setup Node.js and pnpm
         uses: ./.github/actions/setup-node-pnpm
 
-      - name: Run Biome with suggestions
-        uses: mongolyy/reviewdog-action-biome@v1
+      - name: Run Biome with reviewdog
+        uses: ./.github/actions/run-biome
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review
-          filter_mode: diff_context
-          fail_on_error: false
+          setup-node: false  # Already set up above
+          use-reviewdog: ${{ github.event_name == 'pull_request' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          reviewdog-reporter: github-pr-review  # Use PR review for code suggestions
+          reviewdog-filter-mode: diff_context

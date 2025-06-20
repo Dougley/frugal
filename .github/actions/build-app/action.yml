@@ -1,0 +1,33 @@
+name: "Build Application"
+description: "Build a specific app with environment variables and turbo build"
+inputs:
+  app:
+    description: "App to build (discord/web)"
+    required: true
+  environment:
+    description: "Environment name for variable resolution"
+    required: false
+    default: ""
+  working-directory:
+    description: "Working directory for the build"
+    required: false
+    default: ""
+  build-command:
+    description: "Build command to run"
+    required: false
+    default: "pnpm turbo build"
+  additional-env:
+    description: "Additional environment variables as JSON"
+    required: false
+    default: "{}"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js and pnpm
+      uses: ./.github/actions/setup-node-pnpm
+
+    - name: Build application
+      shell: bash
+      run: ${{ inputs.build-command }}
+      working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}

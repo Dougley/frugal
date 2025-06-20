@@ -59,38 +59,27 @@ jobs:
           flags: ${{ matrix.package }}
           fail_ci_if_error: false
 
-  code-quality:
-    name: Code Quality Check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Biome
-        uses: biomejs/setup-biome@v2
-        with:
-          version: latest
-
-      - name: Run Biome
-        run: biome ci .
-
   type-check:
     name: TypeScript Type Check
     runs-on: ubuntu-latest
-    needs: code-quality
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js and pnpm
-        uses: ./.github/actions/setup-node-pnpm
-
       - name: Type check all packages
+        uses: ./.github/actions/typescript-check
+        with:
+          use-reviewdog: ${{ github.event_name == 'pull_request' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          tsconfig-path: "tsconfig.json"
+
+      # Fallback: Still run turbo build for broader checks
+      - name: Build check (fallback)
         run: pnpm turbo build --dry-run
+        continue-on-error: true
 
   build-test:
     name: Build Test
     runs-on: ubuntu-latest
-    needs: code-quality
     strategy:
       matrix:
         app: [web, discord]
@@ -98,15 +87,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js and pnpm
-        uses: ./.github/actions/setup-node-pnpm
-
       - name: Build ${{ matrix.app }}
-        run: pnpm turbo build
-        working-directory: ./apps/${{ matrix.app }}
-        env:
-          # Provide mock env vars for build
-          DISCORD_APP_ID: "mock"
-          DISCORD_PUBLIC_KEY: "mock"
-          DISCORD_SECRET: "mock"
-          DISCORD_BOT_TOKEN: "mock"
+        uses: ./.github/actions/build-app
+        with:
+          app: ${{ matrix.app }}

@@ -25,9 +25,6 @@ on:
       attestation-id:
         description: "Build attestation ID"
         value: ${{ jobs.deploy.outputs.attestation-id }}
-      sbom-attestation-id:
-        description: "SBOM attestation ID"
-        value: ${{ jobs.deploy.outputs.sbom-attestation-id }}
 
 jobs:
   deploy:
@@ -40,43 +37,27 @@ jobs:
       attestations: write
     outputs:
       attestation-id: ${{ steps.attest-build.outputs.attestation-id }}
-      sbom-attestation-id: ${{ steps.attest-sbom.outputs.attestation-id }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js and pnpm
-        uses: ./.github/actions/setup-node-pnpm
-
       - name: Build Discord application
-        run: pnpm turbo build --no-cache
-        working-directory: ./apps/discord
+        uses: ./.github/actions/build-app
+        with:
+          app: discord
+          build-command: pnpm turbo build --no-cache
         env:
           DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
           DISCORD_PUBLIC_KEY: ${{ vars.DISCORD_PUBLIC_KEY }}
           DISCORD_SECRET: ${{ secrets.DISCORD_SECRET }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
 
-      - name: Generate SBOM for Discord application
-        uses: anchore/sbom-action@v0
-        with:
-          path: ./apps/discord
-          format: spdx-json
-          output-file: discord-sbom.spdx.json
-
       - name: Generate build attestation for Discord worker
         id: attest-build
-        uses: actions/attest-build-provenance@v2
+        uses: ./.github/actions/build-attestation
         with:
+          app: discord
           subject-path: "./apps/discord/dist/**"
-        if: inputs.skip_deploy != 'true'
-
-      - name: Generate SBOM attestation for Discord worker
-        id: attest-sbom
-        uses: actions/attest-sbom@v1
-        with:
-          subject-path: "./apps/discord/dist/**"
-          sbom-path: "discord-sbom.spdx.json"
-        if: inputs.skip_deploy != 'true'
+          skip: ${{ inputs.skip_deploy == 'true' }}
 
       - name: Deploy Discord commands
         if: inputs.deploy_commands == 'true'
@@ -88,16 +69,11 @@ jobs:
 
       - name: Deploy to Cloudflare Workers
         if: inputs.skip_deploy != 'true'
-        run: |
-          pnpm wrangler deploy --env ${{ inputs.environment }} \
-            --var DISCORD_BOT_TOKEN:$DISCORD_BOT_TOKEN \
-            DISCORD_APP_ID:$DISCORD_APP_ID \
-            DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
-            SUMMARY_URL:$SUMMARY_SITE \
-            ENVIRONMENT:$ENVIRONMENT \
-            RELEASE:$RELEASE \
-            BRANCH:$BRANCH
-        working-directory: ./apps/discord
+        uses: ./.github/actions/cloudflare-deploy
+        with:
+          app: discord
+          environment: ${{ inputs.environment }}
+          api-token: ${{ secrets.CF_API_TOKEN }}
         env:
           SENTRY_DSN: ${{ vars.SENTRY_DSN_WORKERS }}
           SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT_WORKERS }}
@@ -107,7 +83,3 @@ jobs:
           DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
           DISCORD_PUBLIC_KEY: ${{ vars.DISCORD_PUBLIC_KEY }}
           SUMMARY_SITE: ${{ vars.SUMMARY_SITE }}
-          ENVIRONMENT: ${{ inputs.environment }}
-          RELEASE: ${{ github.sha }}
-          BRANCH: ${{ github.head_ref || github.ref_name }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}

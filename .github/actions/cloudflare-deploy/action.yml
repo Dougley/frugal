@@ -1,0 +1,83 @@
+name: "Deploy to Cloudflare"
+description: "Deploy applications to Cloudflare Workers or Pages"
+inputs:
+  app:
+    description: "App to deploy (discord/web)"
+    required: true
+  environment:
+    description: "Environment to deploy to"
+    required: true
+  api-token:
+    description: "Cloudflare API token"
+    required: true
+  deploy-command:
+    description: "Custom deployment command"
+    required: false
+    default: ""
+  working-directory:
+    description: "Working directory for deployment"
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Deploy Discord to Cloudflare Workers
+      if: inputs.app == 'discord'
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.deploy-command }}" ]; then
+          ${{ inputs.deploy-command }}
+        else
+          pnpm wrangler deploy --env ${{ inputs.environment }} \
+            --var DISCORD_BOT_TOKEN:$DISCORD_BOT_TOKEN \
+            DISCORD_APP_ID:$DISCORD_APP_ID \
+            DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
+            SUMMARY_URL:$SUMMARY_SITE \
+            ENVIRONMENT:$ENVIRONMENT \
+            RELEASE:$RELEASE \
+            BRANCH:$BRANCH
+        fi
+
+    - name: Deploy Web to Cloudflare Pages
+      if: inputs.app == 'web'
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.deploy-command }}" ]; then
+          ${{ inputs.deploy-command }}
+        else
+          pnpm wrangler deploy \
+            --var SENTRY_DSN:$SENTRY_DSN \
+            SESSION_SECRET:$SESSION_SECRET \
+            DISCORD_CLIENT_ID:$DISCORD_CLIENT_ID \
+            DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
+            DISCORD_CLIENT_SECRET:$DISCORD_CLIENT_SECRET \
+            DISCORD_CALLBACK_URL:$DISCORD_CALLBACK_URL \
+            RELEASE:$RELEASE \
+            BRANCH:$BRANCH \
+            ATTESTATION_ID:$ATTESTATION_ID \
+            BUILD_TIME:$BUILD_TIME \
+            REPOSITORY:$REPOSITORY
+        fi
+      working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ inputs.api-token }}
+        CLOUDFLARE_ENV: ${{ inputs.environment }}
+        # Environment variables will be set by the calling workflow
+        SENTRY_DSN: ${{ env.SENTRY_DSN }}
+        SENTRY_PROJECT: ${{ env.SENTRY_PROJECT }}
+        SENTRY_AUTH_TOKEN: ${{ env.SENTRY_AUTH_TOKEN }}
+        SENTRY_ORG: ${{ env.SENTRY_ORG }}
+        DISCORD_BOT_TOKEN: ${{ env.DISCORD_BOT_TOKEN }}
+        DISCORD_APP_ID: ${{ env.DISCORD_APP_ID }}
+        DISCORD_PUBLIC_KEY: ${{ env.DISCORD_PUBLIC_KEY }}
+        SUMMARY_SITE: ${{ env.SUMMARY_SITE }}
+        ENVIRONMENT: ${{ inputs.environment }}
+        RELEASE: ${{ env.RELEASE || github.sha }}
+        BRANCH: ${{ env.BRANCH || github.head_ref || github.ref_name }}
+        SESSION_SECRET: ${{ env.SESSION_SECRET }}
+        DISCORD_CLIENT_SECRET: ${{ env.DISCORD_CLIENT_SECRET }}
+        DISCORD_CALLBACK_URL: ${{ env.DISCORD_CALLBACK_URL }}
+        ATTESTATION_ID: ${{ env.ATTESTATION_ID }}
+        BUILD_TIME: ${{ env.BUILD_TIME }}
+        REPOSITORY: ${{ env.REPOSITORY }}

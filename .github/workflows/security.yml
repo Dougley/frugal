@@ -3,8 +3,23 @@ name: Security
 on:
   pull_request:
     branches: [main, dev]
+    paths:
+      - "**.js"
+      - "**.ts"
+      - "**.jsx"
+      - "**.tsx"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/**"
   push:
     branches: [main, dev]
+    paths:
+      - "**.js"
+      - "**.ts" 
+      - "**.jsx"
+      - "**.tsx"
+      - "package.json"
+      - "pnpm-lock.yaml"
   schedule:
     - cron: "0 2 * * 1" # Weekly on Mondays at 2 AM
 
@@ -12,44 +27,43 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
 jobs:
-  audit:
-    name: Dependency Audit
+  security-check:
+    name: Security Checks
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js and pnpm
-        uses: ./.github/actions/setup-node-pnpm
-
-      - name: Audit dependencies
-        run: pnpm audit --audit-level moderate
-
-  secret-scan:
-    name: Secret Scanning
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        scan-type: [dependencies, secrets]
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: "fs"
-          scan-ref: "."
-          format: "sarif"
-          output: "trivy-results.sarif"
+      - name: Setup Node.js and pnpm
+        if: matrix.scan-type == 'dependencies'
+        uses: ./.github/actions/setup-node-pnpm
 
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
+      - name: Run ${{ matrix.scan-type }} scan
+        uses: ./.github/actions/security-scan
         with:
-          sarif_file: "trivy-results.sarif"
+          scan-type: ${{ matrix.scan-type }}
+          audit-level: high
+          fail-on-error: ${{ github.event_name == 'schedule' }}
+          upload-results: true
+          use-reviewdog: ${{ github.event_name == 'pull_request' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   codeql:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
+    # Only run CodeQL on schedule or when explicitly triggered
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     permissions:
       actions: read
       contents: read
@@ -58,16 +72,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+      - name: Run CodeQL analysis
+        uses: ./.github/actions/security-scan
         with:
-          languages: javascript-typescript
-
-      - name: Setup Node.js and pnpm
-        uses: ./.github/actions/setup-node-pnpm
-
-      - name: Build for analysis
-        run: pnpm turbo build
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+          scan-type: codeql
+          fail-on-error: false
+          upload-results: true
