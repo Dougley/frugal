@@ -31,3 +31,5 @@ runs:
       shell: bash
       run: ${{ inputs.build-command }}
       working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}
+      env:
+        CLOUDFLARE_ENV: ${{ inputs.environment }}

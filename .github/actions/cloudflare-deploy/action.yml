@@ -70,7 +70,8 @@ runs:
             --var BRANCH:$BRANCH \
             --var ATTESTATION_ID:$ATTESTATION_ID \
             --var BUILD_TIME:$BUILD_TIME \
-            --var REPOSITORY:$REPOSITORY
+            --var REPOSITORY:$REPOSITORY \
+            --var ENVIRONMENT:$ENVIRONMENT
         fi
       working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}
       env:
