@@ -11,3 +11,5 @@ node_modules
 .env.sentry-build-plugin
 
 .react-router/
+
+.lighthouseci/

@@ -132,24 +132,8 @@ runs:
       run: |
         echo "🔍 Running Lighthouse analysis..."
 
-        # Create updated lighthouse config
-        cat > lighthouserc.temp.js << 'EOF'
-        module.exports = {
-          ci: {
-            collect: {
-              staticDistDir: './build/client',
-              url: ['http://localhost/'],
-              numberOfRuns: 1
-            },
-            upload: {
-              target: 'temporary-public-storage'
-            }
-          }
-        };
-        EOF
-
         # Check if build directory exists
-        if [ ! -d "build/client" ]; then
+        if [ ! -d "build" ]; then
           echo "❌ Build failed, cannot run Lighthouse analysis"
           echo "## 🔍 Lighthouse Performance Report" > lighthouse-comment.md
           echo "" >> lighthouse-comment.md
@@ -158,9 +142,19 @@ runs:
           exit 0
         fi
 
-        # Run Lighthouse CI with static files
-        echo "Running Lighthouse CI on static build..."
-        npx @lhci/cli@0.13.x autorun --config=lighthouserc.temp.js > lighthouse-output.txt 2>&1 || {
+        # Check if lighthouse config exists
+        if [ ! -f ".lighthouserc.cjs" ]; then
+          echo "❌ Lighthouse configuration file (.lighthouserc.cjs) not found"
+          echo "## 🔍 Lighthouse Performance Report" > lighthouse-comment.md
+          echo "" >> lighthouse-comment.md
+          echo "❌ **Configuration Missing**: Cannot run Lighthouse analysis because .lighthouserc.cjs is missing" >> lighthouse-comment.md
+          echo "*Generated on $(date)*" >> lighthouse-comment.md
+          exit 0
+        fi
+
+        # Run Lighthouse CI with the existing configuration
+        echo "Running Lighthouse CI with existing .lighthouserc.cjs configuration..."
+        npx @lhci/cli@0.15.x autorun > lighthouse-output.txt 2>&1 || {
           LIGHTHOUSE_EXIT_CODE=$?
           echo "Lighthouse CI completed with exit code: $LIGHTHOUSE_EXIT_CODE"
         }
@@ -214,13 +208,26 @@ runs:
             echo "❌ Unable to parse Lighthouse results" >> lighthouse-comment.md
           fi
         else
-          echo "❌ Lighthouse analysis failed or no results available" >> lighthouse-comment.md
+          echo "⚠️ **Lighthouse analysis was unable to complete**" >> lighthouse-comment.md
+          echo "" >> lighthouse-comment.md
+          echo "This can happen when:" >> lighthouse-comment.md
+          echo "- The development server failed to start properly" >> lighthouse-comment.md
+          echo "- Network timeouts during the CI environment" >> lighthouse-comment.md
+          echo "- Chrome/Chromium is not available in the CI environment" >> lighthouse-comment.md
+          echo "" >> lighthouse-comment.md
+          echo "### 🔧 Alternative Performance Testing Options" >> lighthouse-comment.md
+          echo "" >> lighthouse-comment.md
+          echo "- **Local testing**: Run \`pnpx @lhci/cli@0.15.x autorun\` after building" >> lighthouse-comment.md
+          echo "- **Production testing**: Use [PageSpeed Insights](https://pagespeed.web.dev/) on deployed site" >> lighthouse-comment.md
+          echo "- **Bundle analysis**: Check the bundle size analysis in this PR for optimization opportunities" >> lighthouse-comment.md
+          echo "- **Core Web Vitals**: Monitor real user metrics with [web-vitals](https://web.dev/vitals/)" >> lighthouse-comment.md
+          
           if [ -f lighthouse-output.txt ]; then
             echo "" >> lighthouse-comment.md
-            echo "<details><summary>Debug Output</summary>" >> lighthouse-comment.md
+            echo "<details><summary>📋 Debug Output</summary>" >> lighthouse-comment.md
             echo "" >> lighthouse-comment.md
             echo "\`\`\`" >> lighthouse-comment.md
-            tail -20 lighthouse-output.txt >> lighthouse-comment.md
+            tail -30 lighthouse-output.txt >> lighthouse-comment.md
             echo "\`\`\`" >> lighthouse-comment.md
             echo "</details>" >> lighthouse-comment.md
           fi
@@ -228,9 +235,6 @@ runs:
 
         echo "" >> lighthouse-comment.md
         echo "*Generated on $(date)*" >> lighthouse-comment.md
-
-        # Cleanup
-        rm -f lighthouserc.temp.js
       working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}
 
     # Post comprehensive performance comment to PR
