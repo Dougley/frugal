@@ -26,38 +26,51 @@ runs:
       if: inputs.app == 'discord'
       shell: bash
       run: |
-        if [ -n "${{ inputs.deploy-command }}" ]; then
-          ${{ inputs.deploy-command }}
+        CUSTOM_COMMAND="${{ inputs.deploy-command }}"
+        if [ -n "$CUSTOM_COMMAND" ]; then
+          eval "$CUSTOM_COMMAND"
         else
           pnpm wrangler deploy --env ${{ inputs.environment }} \
             --var DISCORD_BOT_TOKEN:$DISCORD_BOT_TOKEN \
-            DISCORD_APP_ID:$DISCORD_APP_ID \
-            DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
-            SUMMARY_URL:$SUMMARY_SITE \
-            ENVIRONMENT:$ENVIRONMENT \
-            RELEASE:$RELEASE \
-            BRANCH:$BRANCH
+            --var DISCORD_APP_ID:$DISCORD_APP_ID \
+            --var DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
+            --var SUMMARY_URL:$SUMMARY_SITE \
+            --var ENVIRONMENT:$ENVIRONMENT \
+            --var RELEASE:$RELEASE \
+            --var BRANCH:$BRANCH
         fi
+      working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ inputs.api-token }}
+        # Environment variables will be set by the calling workflow
+        DISCORD_BOT_TOKEN: ${{ env.DISCORD_BOT_TOKEN }}
+        DISCORD_APP_ID: ${{ env.DISCORD_APP_ID }}
+        DISCORD_PUBLIC_KEY: ${{ env.DISCORD_PUBLIC_KEY }}
+        SUMMARY_SITE: ${{ env.SUMMARY_SITE }}
+        ENVIRONMENT: ${{ inputs.environment }}
+        RELEASE: ${{ env.RELEASE || github.sha }}
+        BRANCH: ${{ env.BRANCH || github.head_ref || github.ref_name }}
 
     - name: Deploy Web to Cloudflare Pages
       if: inputs.app == 'web'
       shell: bash
       run: |
-        if [ -n "${{ inputs.deploy-command }}" ]; then
-          ${{ inputs.deploy-command }}
+        CUSTOM_COMMAND="${{ inputs.deploy-command }}"
+        if [ -n "$CUSTOM_COMMAND" ]; then
+          eval "$CUSTOM_COMMAND"
         else
           pnpm wrangler deploy \
             --var SENTRY_DSN:$SENTRY_DSN \
-            SESSION_SECRET:$SESSION_SECRET \
-            DISCORD_CLIENT_ID:$DISCORD_CLIENT_ID \
-            DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
-            DISCORD_CLIENT_SECRET:$DISCORD_CLIENT_SECRET \
-            DISCORD_CALLBACK_URL:$DISCORD_CALLBACK_URL \
-            RELEASE:$RELEASE \
-            BRANCH:$BRANCH \
-            ATTESTATION_ID:$ATTESTATION_ID \
-            BUILD_TIME:$BUILD_TIME \
-            REPOSITORY:$REPOSITORY
+            --var SESSION_SECRET:$SESSION_SECRET \
+            --var DISCORD_CLIENT_ID:$DISCORD_CLIENT_ID \
+            --var DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
+            --var DISCORD_CLIENT_SECRET:$DISCORD_CLIENT_SECRET \
+            --var DISCORD_CALLBACK_URL:$DISCORD_CALLBACK_URL \
+            --var RELEASE:$RELEASE \
+            --var BRANCH:$BRANCH \
+            --var ATTESTATION_ID:$ATTESTATION_ID \
+            --var BUILD_TIME:$BUILD_TIME \
+            --var REPOSITORY:$REPOSITORY
         fi
       working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}
       env:
