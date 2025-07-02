@@ -40,6 +40,7 @@ jobs:
           app: web
         env:
           VITE_SENTRY_DSN: ${{ vars.SENTRY_DSN_WEB }}
+          CLOUDFLARE_ENV: ${{ inputs.environment }}
 
       - name: Generate build attestation for Web application
         id: attest-build
