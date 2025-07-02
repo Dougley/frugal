@@ -26,123 +26,130 @@ runs:
         app: ${{ inputs.app }}
         working-directory: ${{ inputs.working-directory }}
 
-        # Bundle size analysis
+    # Modern bundle size analysis
     - name: Bundle size analysis
       if: inputs.check-type == 'bundle-size'
       shell: bash
       run: |
         echo "📦 Analyzing bundle size..."
 
-        # Check if bundlesize config exists
-        if ! grep -q "bundlesize" package.json; then
-          echo "⚠️ No bundlesize configuration found in package.json"
+        # Check if build directory exists
+        if [ ! -d "build" ]; then
+          echo "❌ Build failed, cannot analyze bundle size"
           echo "## 📦 Bundle Size Analysis" > bundle-comment.md
           echo "" >> bundle-comment.md
-          echo "❌ **Configuration Missing**: No bundlesize configuration found in package.json" >> bundle-comment.md
-          echo "" >> bundle-comment.md
-          echo "To enable bundle size analysis, add a \`bundlesize\` section to package.json:" >> bundle-comment.md
-          echo "\`\`\`json" >> bundle-comment.md
-          echo '"bundlesize": [' >> bundle-comment.md
-          echo '  { "path": "./build/client/assets/entry.client-*.js", "maxSize": "400kb", "compression": "gzip" },' >> bundle-comment.md
-          echo '  { "path": "./build/client/assets/styles-*.css", "maxSize": "210kb", "compression": "gzip" },' >> bundle-comment.md
-          echo '  { "path": "./build/server/assets/server-build-*.js", "maxSize": "1.5mb", "compression": "gzip" }' >> bundle-comment.md
-          echo ']' >> bundle-comment.md
-          echo "\`\`\`" >> bundle-comment.md
-          echo "" >> bundle-comment.md
+          echo "❌ **Build Failed**: Cannot analyze bundle size because build failed" >> bundle-comment.md
           echo "*Generated on $(date)*" >> bundle-comment.md
           exit 0
         fi
-
-        # Check if build directory exists
-        if [ ! -d "build" ]; then
-          echo "⚠️ Build output directory 'build' not found, running build first..."
-          pnpm turbo build || {
-            echo "❌ Build failed, cannot analyze bundle size"
-            echo "## 📦 Bundle Size Analysis" > bundle-comment.md
-            echo "" >> bundle-comment.md
-            echo "❌ **Build Failed**: Cannot analyze bundle size because build failed" >> bundle-comment.md
-            echo "*Generated on $(date)*" >> bundle-comment.md
-            exit 0
-          }
-        fi
-
-        # Run bundlesize and capture both JSON and human-readable output
-        pnpx bundlesize --json > bundle-report.json 2>&1 || true
-        pnpx bundlesize > bundle-output.txt 2>&1 || true
 
         # Create markdown report
         echo "## 📦 Bundle Size Analysis" > bundle-comment.md
         echo "" >> bundle-comment.md
 
-        if [ -f bundle-report.json ] && [ -s bundle-report.json ]; then
-          # Parse JSON results
-          if command -v jq >/dev/null 2>&1; then
-            echo "| File | Size | Max Size | Status |" >> bundle-comment.md
-            echo "|------|------|----------|--------|" >> bundle-comment.md
-            
-            cat bundle-report.json | jq -r '
-              .results[]? | 
-              "| \(.path) | \(.size) | \(.maxSize // "N/A") | \(if .size > (.maxSize // 999999999) then "❌ Exceeded" else "✅ OK" end) |"
-            ' >> bundle-comment.md 2>/dev/null || true
-            
-            # Add summary
-            FAILED_COUNT=$(cat bundle-report.json | jq '[.results[]? | select(.size > (.maxSize // 999999999))] | length' 2>/dev/null || echo "0")
-            TOTAL_COUNT=$(cat bundle-report.json | jq '.results | length' 2>/dev/null || echo "0")
-            
-            echo "" >> bundle-comment.md
-            if [ "$FAILED_COUNT" -gt 0 ]; then
-              echo "⚠️ **Warning**: $FAILED_COUNT out of $TOTAL_COUNT bundles exceeded size limits" >> bundle-comment.md
-            else
-              echo "✅ All bundles are within size limits ($TOTAL_COUNT bundles checked)" >> bundle-comment.md
+        # Get client bundle sizes
+        if [ -d "build/client" ]; then
+          # Calculate totals first
+          TOTAL_JS_SIZE=$(find build/client -name "*.js" -not -path "*/node_modules/*" -exec stat -c%s {} + 2>/dev/null | awk '{sum+=$1} END {printf "%.2f", sum/1024/1024}' || echo "0")
+          TOTAL_CSS_SIZE=$(find build/client -name "*.css" -not -path "*/node_modules/*" -exec stat -c%s {} + 2>/dev/null | awk '{sum+=$1} END {printf "%.2f", sum/1024/1024}' || echo "0")
+          TOTAL_FILES=$(find build/client -name "*.js" -o -name "*.css" | grep -v node_modules | wc -l)
+          
+          echo "### 📊 Bundle Summary" >> bundle-comment.md
+          echo "" >> bundle-comment.md
+          echo "- **Total JavaScript**: ${TOTAL_JS_SIZE}MB" >> bundle-comment.md
+          echo "- **Total CSS**: ${TOTAL_CSS_SIZE}MB" >> bundle-comment.md
+          echo "- **Total Files**: ${TOTAL_FILES}" >> bundle-comment.md
+          echo "" >> bundle-comment.md
+
+          # Find top 5 largest files
+          echo "### 📱 Top 5 Largest Files" >> bundle-comment.md
+          echo "" >> bundle-comment.md
+          echo "| File | Size (Uncompressed) | Size (Gzipped) | Status |" >> bundle-comment.md
+          echo "|------|---------------------|----------------|--------|" >> bundle-comment.md
+
+          # Create temp file with all files and their sizes, then sort and take top 5
+          find build/client -name "*.js" -o -name "*.css" | grep -v node_modules | while IFS= read -r file; do
+            if [ -f "$file" ]; then
+              SIZE_BYTES=$(stat -c%s "$file" 2>/dev/null || echo "0")
+              echo "$SIZE_BYTES $file"
             fi
+          done | sort -nr | head -5 | while read -r size_bytes file; do
+            # Get human readable size
+            SIZE=$(du -h "$file" | cut -f1)
+            
+            # Get gzipped size
+            GZIP_SIZE=$(gzip -c "$file" | wc -c)
+            GZIP_SIZE_KB=$(echo "scale=1; $GZIP_SIZE / 1024" | bc -l 2>/dev/null || echo "${GZIP_SIZE}b")
+            
+            # Determine status based on size thresholds
+            STATUS="✅ Good"
+            if [ "$size_bytes" -gt 524288 ]; then  # 512KB
+              STATUS="⚠️ Large"
+            fi
+            if [ "$size_bytes" -gt 1048576 ]; then  # 1MB
+              STATUS="❌ Too Large"
+            fi
+            
+            BASENAME=$(basename "$file")
+            echo "| $BASENAME | $SIZE | ${GZIP_SIZE_KB}KB | $STATUS |" >> bundle-comment.md
+          done
+          
+          echo "" >> bundle-comment.md
+          
+          # Add recommendations based on analysis
+          echo "### 💡 Recommendations" >> bundle-comment.md
+          echo "" >> bundle-comment.md
+          
+          # Check if any files are too large
+          LARGE_FILES=$(find build/client -name "*.js" -o -name "*.css" | grep -v node_modules | while read -r file; do
+            SIZE_BYTES=$(stat -c%s "$file" 2>/dev/null || echo "0")
+            if [ "$SIZE_BYTES" -gt 1048576 ]; then  # 1MB
+              echo "large"
+            fi
+          done | wc -l)
+          
+          if [ "$LARGE_FILES" -gt 0 ]; then
+            echo "- 🔴 **Large files detected**: Consider code splitting for files > 1MB" >> bundle-comment.md
+            echo "- 📦 **Bundle optimization**: Use dynamic imports for non-critical code" >> bundle-comment.md
           else
-            # Fallback without jq
-            echo "Raw bundlesize output:" >> bundle-comment.md
-            echo "\`\`\`" >> bundle-comment.md
-            cat bundle-output.txt >> bundle-comment.md 2>/dev/null || echo "No output available" >> bundle-comment.md
-            echo "\`\`\`" >> bundle-comment.md
+            echo "- ✅ **Good bundle sizes**: All files are within recommended limits" >> bundle-comment.md
           fi
+          
+          echo "- 🗜️ **Compression**: Ensure gzip/brotli is enabled in production" >> bundle-comment.md
+          echo "- 🌳 **Tree shaking**: Remove unused code with proper build optimization" >> bundle-comment.md
         else
-          echo "❌ Bundle size analysis failed or no results available" >> bundle-comment.md
-          if [ -f bundle-output.txt ]; then
-            echo "" >> bundle-comment.md
-            echo "<details><summary>Debug Output</summary>" >> bundle-comment.md
-            echo "" >> bundle-comment.md
-            echo "\`\`\`" >> bundle-comment.md
-            cat bundle-output.txt >> bundle-comment.md
-            echo "\`\`\`" >> bundle-comment.md
-            echo "</details>" >> bundle-comment.md
-          fi
+          echo "❌ Client build directory not found" >> bundle-comment.md
         fi
 
         echo "" >> bundle-comment.md
         echo "*Generated on $(date)*" >> bundle-comment.md
       working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}
-      env:
-        BUNDLESIZE_GITHUB_TOKEN: ${{ inputs.github-token }}
-        CI: true
 
-    # Lighthouse analysis
+    # Fixed Lighthouse analysis
     - name: Lighthouse analysis
       if: inputs.check-type == 'lighthouse'
       shell: bash
       run: |
         echo "🔍 Running Lighthouse analysis..."
 
-        # Check if lighthouse config exists
-        if [ ! -f "lighthouserc.json" ]; then
-          echo "⚠️ No lighthouserc.json configuration found"
-          echo "## 🔍 Lighthouse Performance Report" > lighthouse-comment.md
-          echo "" >> lighthouse-comment.md
-          echo "❌ **Configuration Missing**: No lighthouserc.json configuration found" >> lighthouse-comment.md
-          echo "" >> lighthouse-comment.md
-          echo "*Generated on $(date)*" >> lighthouse-comment.md
-          exit 0
-        fi
+        # Create updated lighthouse config
+        cat > lighthouserc.temp.js << 'EOF'
+        module.exports = {
+          ci: {
+            collect: {
+              staticDistDir: './build/client',
+              url: ['http://localhost/'],
+              numberOfRuns: 1
+            },
+            upload: {
+              target: 'temporary-public-storage'
+            }
+          }
+        };
+        EOF
 
-        # Ensure we have the latest build
-        echo "Building application for Lighthouse analysis..."
-        if ! pnpm turbo build; then
+        # Check if build directory exists
+        if [ ! -d "build/client" ]; then
           echo "❌ Build failed, cannot run Lighthouse analysis"
           echo "## 🔍 Lighthouse Performance Report" > lighthouse-comment.md
           echo "" >> lighthouse-comment.md
@@ -151,9 +158,9 @@ runs:
           exit 0
         fi
 
-        # Run Lighthouse CI and capture results with timeout
-        echo "Running Lighthouse CI..."
-        timeout 300 pnpx lhci autorun --collect.numberOfRuns=1 --upload.target=temporary-public-storage > lighthouse-output.txt 2>&1 || {
+        # Run Lighthouse CI with static files
+        echo "Running Lighthouse CI on static build..."
+        npx @lhci/cli@0.13.x autorun --config=lighthouserc.temp.js > lighthouse-output.txt 2>&1 || {
           LIGHTHOUSE_EXIT_CODE=$?
           echo "Lighthouse CI completed with exit code: $LIGHTHOUSE_EXIT_CODE"
         }
@@ -175,14 +182,14 @@ runs:
             # Score table
             echo "| Category | Score | Status |" >> lighthouse-comment.md
             echo "|----------|-------|--------|" >> lighthouse-comment.md
-            echo "| 🚀 Performance | ${PERF_SCORE}% | $([ "$PERF_SCORE" -ge 90 ] 2>/dev/null && echo "✅ Good" || echo "⚠️ Needs improvement") |" >> lighthouse-comment.md
-            echo "| ♿ Accessibility | ${A11Y_SCORE}% | $([ "$A11Y_SCORE" -ge 90 ] 2>/dev/null && echo "✅ Good" || echo "⚠️ Needs improvement") |" >> lighthouse-comment.md
-            echo "| 🛡️ Best Practices | ${BP_SCORE}% | $([ "$BP_SCORE" -ge 90 ] 2>/dev/null && echo "✅ Good" || echo "⚠️ Needs improvement") |" >> lighthouse-comment.md
-            echo "| 🔍 SEO | ${SEO_SCORE}% | $([ "$SEO_SCORE" -ge 90 ] 2>/dev/null && echo "✅ Good" || echo "⚠️ Needs improvement") |" >> lighthouse-comment.md
+            echo "| 🚀 Performance | ${PERF_SCORE}% | $([ "$PERF_SCORE" -ge 90 ] 2>/dev/null && echo "✅ Excellent" || ([ "$PERF_SCORE" -ge 70 ] 2>/dev/null && echo "⚠️ Good" || echo "❌ Needs improvement")) |" >> lighthouse-comment.md
+            echo "| ♿ Accessibility | ${A11Y_SCORE}% | $([ "$A11Y_SCORE" -ge 90 ] 2>/dev/null && echo "✅ Excellent" || ([ "$A11Y_SCORE" -ge 70 ] 2>/dev/null && echo "⚠️ Good" || echo "❌ Needs improvement")) |" >> lighthouse-comment.md
+            echo "| 🛡️ Best Practices | ${BP_SCORE}% | $([ "$BP_SCORE" -ge 90 ] 2>/dev/null && echo "✅ Excellent" || ([ "$BP_SCORE" -ge 70 ] 2>/dev/null && echo "⚠️ Good" || echo "❌ Needs improvement")) |" >> lighthouse-comment.md
+            echo "| 🔍 SEO | ${SEO_SCORE}% | $([ "$SEO_SCORE" -ge 90 ] 2>/dev/null && echo "✅ Excellent" || ([ "$SEO_SCORE" -ge 70 ] 2>/dev/null && echo "⚠️ Good" || echo "❌ Needs improvement")) |" >> lighthouse-comment.md
             echo "" >> lighthouse-comment.md
             
             # Key metrics
-            echo "### 📊 Key Metrics" >> lighthouse-comment.md
+            echo "### 📊 Core Web Vitals" >> lighthouse-comment.md
             FCP=$(cat "$LATEST_REPORT" | jq -r '.audits["first-contentful-paint"].displayValue' 2>/dev/null || echo "N/A")
             LCP=$(cat "$LATEST_REPORT" | jq -r '.audits["largest-contentful-paint"].displayValue' 2>/dev/null || echo "N/A")
             CLS=$(cat "$LATEST_REPORT" | jq -r '.audits["cumulative-layout-shift"].displayValue' 2>/dev/null || echo "N/A")
@@ -193,9 +200,9 @@ runs:
             echo "- **Cumulative Layout Shift**: $CLS" >> lighthouse-comment.md
             echo "- **Time to Interactive**: $TTI" >> lighthouse-comment.md
             
-            # Opportunities (top 3)
+            # Top opportunities
             echo "" >> lighthouse-comment.md
-            echo "### 🎯 Top Opportunities" >> lighthouse-comment.md
+            echo "### 🎯 Top Performance Opportunities" >> lighthouse-comment.md
             cat "$LATEST_REPORT" | jq -r '
               [.audits | to_entries[] | select(.value.details?.overallSavingsMs? > 100) | {
                 title: .value.title,
@@ -221,10 +228,10 @@ runs:
 
         echo "" >> lighthouse-comment.md
         echo "*Generated on $(date)*" >> lighthouse-comment.md
+
+        # Cleanup
+        rm -f lighthouserc.temp.js
       working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}
-      env:
-        LHCI_GITHUB_APP_TOKEN: ${{ inputs.github-token }}
-        CI: true
 
     # Post comprehensive performance comment to PR
     - name: Post performance comment

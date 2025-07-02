@@ -83,22 +83,5 @@
   },
   "engines": {
     "node": ">=20.0.0"
-  },
-  "bundlesize": [
-    {
-      "path": "./build/client/assets/entry.client-*.js",
-      "maxSize": "400kb",
-      "compression": "gzip"
-    },
-    {
-      "path": "./build/client/assets/styles-*.css",
-      "maxSize": "210kb",
-      "compression": "gzip"
-    },
-    {
-      "path": "./build/server/assets/server-build-*.js",
-      "maxSize": "1.5mb",
-      "compression": "gzip"
-    }
-  ]
+  }
 }

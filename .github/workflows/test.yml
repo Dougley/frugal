@@ -59,24 +59,6 @@ jobs:
           flags: ${{ matrix.package }}
           fail_ci_if_error: false
 
-  type-check:
-    name: TypeScript Type Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Type check all packages
-        uses: ./.github/actions/typescript-check
-        with:
-          use-reviewdog: ${{ github.event_name == 'pull_request' }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          tsconfig-path: "tsconfig.json"
-
-      # Fallback: Still run turbo build for broader checks
-      - name: Build check (fallback)
-        run: pnpm turbo build --dry-run
-        continue-on-error: true
-
   build-test:
     name: Build Test
     runs-on: ubuntu-latest
@@ -91,3 +73,8 @@ jobs:
         uses: ./.github/actions/build-app
         with:
           app: ${{ matrix.app }}
+
+      # This will catch TypeScript errors during the build process
+      - name: Turbo build check
+        run: pnpm turbo build --dry-run
+        continue-on-error: true

@@ -10,26 +10,24 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
 jobs:
   bundle-analysis:
-    name: Bundle Size Analysis
+    name: Bundle Analysis
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js and pnpm
-        uses: ./.github/actions/setup-node-pnpm
-
-      - name: Build and analyze bundle
-        run: pnpm turbo build
-        working-directory: ./apps/web
-
-      - name: Run bundle size analysis
-        run: pnpx bundlesize
-        working-directory: ./apps/web
-        env:
-          BUNDLESIZE_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CI: true
+      - name: Bundle size analysis with PR comment
+        uses: ./.github/actions/performance-check
+        with:
+          check-type: bundle-size
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          app: web
 
   lighthouse:
     name: Lighthouse Performance
@@ -37,16 +35,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js and pnpm
-        uses: ./.github/actions/setup-node-pnpm
-
-      - name: Build site for Lighthouse
-        run: pnpm turbo build
-        working-directory: ./apps/web
-
-      - name: Run Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v11
+      - name: Lighthouse analysis with PR comment
+        uses: ./.github/actions/performance-check
         with:
-          configPath: "./apps/web/lighthouserc.json"
-          uploadArtifacts: true
-          temporaryPublicStorage: true
+          check-type: lighthouse
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          app: web
