@@ -39,21 +39,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scan-type: [dependencies, secrets]
+        scan-type: [secrets]  # Removed dependencies since Renovate handles that
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js and pnpm
-        if: matrix.scan-type == 'dependencies'
-        uses: ./.github/actions/setup-node-pnpm
-
       - name: Run ${{ matrix.scan-type }} scan
         uses: ./.github/actions/security-scan
         with:
           scan-type: ${{ matrix.scan-type }}
-          audit-level: high
           fail-on-error: ${{ github.event_name == 'schedule' }}
           upload-results: true
           use-reviewdog: ${{ github.event_name == 'pull_request' }}

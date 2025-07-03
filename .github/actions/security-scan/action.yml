@@ -1,13 +1,9 @@
 name: "Security Scan"
-description: "Run comprehensive security scans with actionable results"
+description: "Run security scans"
 inputs:
   scan-type:
-    description: "Type of scan to run: dependencies, secrets, or codeql"
+    description: "Type of scan to run: secrets (Gitleaks) or codeql"
     required: true
-  audit-level:
-    description: "Audit level for dependency scanning"
-    required: false
-    default: "high"
   fail-on-error:
     description: "Whether to fail the action on security issues"
     required: false
@@ -36,143 +32,42 @@ inputs:
 runs:
   using: "composite"
   steps:
-    # Setup reviewdog if needed
-    - name: Setup reviewdog
-      if: inputs.use-reviewdog == 'true' && inputs.github-token != ''
-      uses: ./.github/actions/setup-reviewdog
-      with:
-        github-token: ${{ inputs.github-token }}
-
-    # Dependency Audit
-    - name: Run dependency audit
-      if: inputs.scan-type == 'dependencies'
-      shell: bash
-      run: |
-        echo "🔍 Running dependency audit..."
-
-        # Run audit and capture output
-        if pnpm audit --audit-level ${{ inputs.audit-level }} --json > audit-results.json 2>&1; then
-          echo "✅ No ${{ inputs.audit-level }}-severity vulnerabilities found"
-          echo "AUDIT_STATUS=success" >> $GITHUB_ENV
-        else
-          echo "⚠️ Security vulnerabilities found:"
-          echo ""
-          
-          # Parse and display actionable information with fix suggestions
-          if command -v jq >/dev/null 2>&1; then
-            echo "📋 **Vulnerability Summary:**"
-            cat audit-results.json | jq -r '
-              .advisories[] | 
-              "### 🚨 \(.title) (\(.severity | ascii_upcase))" +
-              "\n**Package:** \(.module_name)" +
-              "\n**Vulnerable versions:** \(.vulnerable_versions)" + 
-              "\n**Patched versions:** \(.patched_versions // "None available")" +
-              "\n**More info:** \(.url)" +
-              "\n**Recommendation:** \(.recommendation // "Update to a patched version")" +
-              "\n"
-            ' || true
-            
-            echo ""
-            echo "🔧 **Quick Fix Commands:**"
-            cat audit-results.json | jq -r '
-              .advisories[] | 
-              "# Fix \(.title):" +
-              "\npnpm update \(.module_name)" +
-              "\n"
-            ' || true
-            
-            # Generate reviewdog-compatible output for dependency issues
-            if [ "${{ inputs.use-reviewdog }}" = "true" ] && [ -n "${{ inputs.github-token }}" ]; then
-              echo "Creating reviewdog report for dependency issues..."
-              cat audit-results.json | jq -r '
-                .advisories[] | 
-                "package.json:1:1: error: [\(.severity | ascii_upcase)] \(.title) in \(.module_name) - Fix: pnpm update \(.module_name) - More info: \(.url)"
-              ' > reviewdog-audit.txt || true
-            fi
-          else
-            # Fallback if jq is not available
-            echo "Raw audit results:"
-            cat audit-results.json || true
-          fi
-          
-          echo "AUDIT_STATUS=failed" >> $GITHUB_ENV
-          
-          if [ "${{ inputs.fail-on-error }}" = "true" ]; then
-            exit 1
-          fi
-        fi
-
-    # Send dependency audit results to reviewdog
-    - name: Run reviewdog for dependency audit
-      if: inputs.scan-type == 'dependencies' && inputs.use-reviewdog == 'true' && inputs.github-token != ''
-      shell: bash
-      run: |
-        # Source reviewdog utilities
-        if [ -f "reviewdog-utils.sh" ]; then
-          source reviewdog-utils.sh
-          
-          if should_use_reviewdog; then
-            run_reviewdog \
-              "reviewdog-audit.txt" \
-              "%f:%l:%c: %t: %m" \
-              "pnpm-audit" \
-              "${{ inputs.reviewdog-reporter }}" \
-              "${{ inputs.reviewdog-filter-mode }}" \
-              "${{ inputs.fail-on-error == 'true' && 'error' || 'none' }}"
-          else
-            echo "Reviewdog not available, skipping audit feedback"
-          fi
-        else
-          # Fallback to direct reviewdog call
-          if [ -f "reviewdog-audit.txt" ] && [ -s "reviewdog-audit.txt" ]; then
-            echo "Sending dependency audit results to reviewdog..."
-            cat reviewdog-audit.txt | reviewdog \
-              -efm="%f:%l:%c: %t: %m" \
-              -name="pnpm-audit" \
-              -reporter=${{ inputs.reviewdog-reporter }} \
-              -filter-mode=${{ inputs.reviewdog-filter-mode }} \
-              -fail-level=${{ inputs.fail-on-error == 'true' && 'error' || 'none' }}
-          else
-            echo "No dependency audit issues to report"
-          fi
-        fi
-      env:
-        REVIEWDOG_GITHUB_API_TOKEN: ${{ inputs.github-token }}
-
-    # Secret Scanning with Trivy + Reviewdog
-    - name: Run secret scanning with reviewdog
+    # Secret scanning with Gitleaks (industry standard tool)
+    - name: Run secret scanning with Gitleaks
       if: inputs.scan-type == 'secrets' && inputs.use-reviewdog == 'true' && inputs.github-token != ''
-      uses: reviewdog/action-trivy@v1
+      uses: reviewdog/action-gitleaks@v1
       with:
         github_token: ${{ inputs.github-token }}
-        trivy_command: "filesystem"
-        trivy_target: "."
-        trivy_flags: "--severity HIGH,CRITICAL --scanners secret,vuln --ignore-unfixed"
-        level: "error"
+        level: error
         reporter: ${{ inputs.reviewdog-reporter }}
         filter_mode: ${{ inputs.reviewdog-filter-mode }}
         fail_level: ${{ inputs.fail-on-error == 'true' && 'error' || 'none' }}
 
-    # Fallback: Regular Trivy without reviewdog
+    # Fallback: Regular Gitleaks without reviewdog
     - name: Run secret scanning (fallback)
       if: inputs.scan-type == 'secrets' && (inputs.use-reviewdog != 'true' || inputs.github-token == '')
-      uses: aquasecurity/trivy-action@0.24.0
-      with:
-        scan-type: "fs"
-        scan-ref: "."
-        format: "sarif"
-        output: "trivy-results.sarif"
-        severity: "HIGH,CRITICAL"
-        scanners: "secret,vuln"
-        ignore-unfixed: true
-        exit-code: ${{ inputs.fail-on-error == 'true' && '1' || '0' }}
+      shell: bash
+      run: |
+        echo "🔍 Running Gitleaks secret scanning..."
 
-    - name: Upload Trivy scan results
-      if: inputs.scan-type == 'secrets' && inputs.upload-results == 'true' && (inputs.use-reviewdog != 'true' || inputs.github-token == '')
-      uses: github/codeql-action/upload-sarif@v3
-      with:
-        sarif_file: "trivy-results.sarif"
-      continue-on-error: true
+        # Install gitleaks if not already available
+        if ! command -v gitleaks >/dev/null 2>&1; then
+          echo "Installing Gitleaks..."
+          curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/scripts/install.sh | sh -s -- -b /usr/local/bin
+        fi
+
+        # Run gitleaks
+        if gitleaks detect --source=. --verbose; then
+          echo "✅ No secrets found"
+        else
+          echo "⚠️ Secrets found by Gitleaks"
+          if [ "${{ inputs.fail-on-error }}" = "true" ]; then
+            echo "❌ Failing due to fail-on-error setting"
+            exit 1
+          else
+            echo "⚠️ Continuing despite secrets found (fail-on-error is false)"
+          fi
+        fi
 
     # CodeQL Analysis
     - name: Initialize CodeQL
@@ -190,9 +85,14 @@ runs:
       if: inputs.scan-type == 'codeql'
       shell: bash
       run: |
+        echo "🔨 Building project for CodeQL analysis..."
+
         # Try to build, but don't fail if build issues occur
-        if ! pnpm turbo build; then
-          echo "⚠️ Build failed for CodeQL analysis, using autobuild"
+        if pnpm turbo build; then
+          echo "✅ Build completed successfully for CodeQL analysis"
+        else
+          echo "⚠️ Build failed for CodeQL analysis, CodeQL will use autobuild"
+          echo "This is normal for some projects and CodeQL can still analyze the code"
         fi
       continue-on-error: true
 

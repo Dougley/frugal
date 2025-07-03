@@ -2,7 +2,7 @@ name: "Performance Check"
 description: "Run performance analysis and post comprehensive PR comment"
 inputs:
   check-type:
-    description: "Type of performance check: bundle-size, lighthouse"
+    description: "Type of performance check: bundle-size, lighthouse, all"
     required: true
   github-token:
     description: "GitHub token for PR comments"
@@ -20,271 +20,62 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Check if build exists
+      id: check-build
+      shell: bash
+      run: |
+        WORK_DIR="${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}"
+        if [[ -d "$WORK_DIR/build" ]]; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+          echo "✅ Build already exists, skipping build step"
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+          echo "🔧 Build required"
+        fi
+
     - name: Build app for analysis
+      if: steps.check-build.outputs.exists == 'false'
       uses: ./.github/actions/build-app
       with:
         app: ${{ inputs.app }}
         working-directory: ${{ inputs.working-directory }}
 
-    # Modern bundle size analysis
-    - name: Bundle size analysis
-      if: inputs.check-type == 'bundle-size'
+    - name: Run performance analysis
       shell: bash
       run: |
-        echo "📦 Analyzing bundle size..."
+        SCRIPTS_DIR="${{ github.action_path }}/scripts"
 
-        # Check if build directory exists
-        if [ ! -d "build" ]; then
-          echo "❌ Build failed, cannot analyze bundle size"
-          echo "## 📦 Bundle Size Analysis" > bundle-comment.md
-          echo "" >> bundle-comment.md
-          echo "❌ **Build Failed**: Cannot analyze bundle size because build failed" >> bundle-comment.md
-          echo "*Generated on $(date)*" >> bundle-comment.md
-          exit 0
-        fi
-
-        # Create markdown report
-        echo "## 📦 Bundle Size Analysis" > bundle-comment.md
-        echo "" >> bundle-comment.md
-
-        # Get client bundle sizes
-        if [ -d "build/client" ]; then
-          # Calculate totals first
-          TOTAL_JS_SIZE=$(find build/client -name "*.js" -not -path "*/node_modules/*" -exec stat -c%s {} + 2>/dev/null | awk '{sum+=$1} END {printf "%.2f", sum/1024/1024}' || echo "0")
-          TOTAL_CSS_SIZE=$(find build/client -name "*.css" -not -path "*/node_modules/*" -exec stat -c%s {} + 2>/dev/null | awk '{sum+=$1} END {printf "%.2f", sum/1024/1024}' || echo "0")
-          TOTAL_FILES=$(find build/client -name "*.js" -o -name "*.css" | grep -v node_modules | wc -l)
-          
-          echo "### 📊 Bundle Summary" >> bundle-comment.md
-          echo "" >> bundle-comment.md
-          echo "- **Total JavaScript**: ${TOTAL_JS_SIZE}MB" >> bundle-comment.md
-          echo "- **Total CSS**: ${TOTAL_CSS_SIZE}MB" >> bundle-comment.md
-          echo "- **Total Files**: ${TOTAL_FILES}" >> bundle-comment.md
-          echo "" >> bundle-comment.md
-
-          # Find top 5 largest files
-          echo "### 📱 Top 5 Largest Files" >> bundle-comment.md
-          echo "" >> bundle-comment.md
-          echo "| File | Size (Uncompressed) | Size (Gzipped) | Status |" >> bundle-comment.md
-          echo "|------|---------------------|----------------|--------|" >> bundle-comment.md
-
-          # Create temp file with all files and their sizes, then sort and take top 5
-          find build/client -name "*.js" -o -name "*.css" | grep -v node_modules | while IFS= read -r file; do
-            if [ -f "$file" ]; then
-              SIZE_BYTES=$(stat -c%s "$file" 2>/dev/null || echo "0")
-              echo "$SIZE_BYTES $file"
-            fi
-          done | sort -nr | head -5 | while read -r size_bytes file; do
-            # Get human readable size
-            SIZE=$(du -h "$file" | cut -f1)
-            
-            # Get gzipped size
-            GZIP_SIZE=$(gzip -c "$file" | wc -c)
-            GZIP_SIZE_KB=$(echo "scale=1; $GZIP_SIZE / 1024" | bc -l 2>/dev/null || echo "${GZIP_SIZE}b")
-            
-            # Determine status based on size thresholds
-            STATUS="✅ Good"
-            if [ "$size_bytes" -gt 524288 ]; then  # 512KB
-              STATUS="⚠️ Large"
-            fi
-            if [ "$size_bytes" -gt 1048576 ]; then  # 1MB
-              STATUS="❌ Too Large"
-            fi
-            
-            BASENAME=$(basename "$file")
-            echo "| $BASENAME | $SIZE | ${GZIP_SIZE_KB}KB | $STATUS |" >> bundle-comment.md
-          done
-          
-          echo "" >> bundle-comment.md
-          
-          # Add recommendations based on analysis
-          echo "### 💡 Recommendations" >> bundle-comment.md
-          echo "" >> bundle-comment.md
-          
-          # Check if any files are too large
-          LARGE_FILES=$(find build/client -name "*.js" -o -name "*.css" | grep -v node_modules | while read -r file; do
-            SIZE_BYTES=$(stat -c%s "$file" 2>/dev/null || echo "0")
-            if [ "$SIZE_BYTES" -gt 1048576 ]; then  # 1MB
-              echo "large"
-            fi
-          done | wc -l)
-          
-          if [ "$LARGE_FILES" -gt 0 ]; then
-            echo "- 🔴 **Large files detected**: Consider code splitting for files > 1MB" >> bundle-comment.md
-            echo "- 📦 **Bundle optimization**: Use dynamic imports for non-critical code" >> bundle-comment.md
-          else
-            echo "- ✅ **Good bundle sizes**: All files are within recommended limits" >> bundle-comment.md
-          fi
-          
-          echo "- 🗜️ **Compression**: Ensure gzip/brotli is enabled in production" >> bundle-comment.md
-          echo "- 🌳 **Tree shaking**: Remove unused code with proper build optimization" >> bundle-comment.md
-        else
-          echo "❌ Client build directory not found" >> bundle-comment.md
-        fi
-
-        echo "" >> bundle-comment.md
-        echo "*Generated on $(date)*" >> bundle-comment.md
+        case "${{ inputs.check-type }}" in
+          "bundle-size")
+            bash "$SCRIPTS_DIR/bundle-analysis.sh"
+            ;;
+          "lighthouse") 
+            bash "$SCRIPTS_DIR/lighthouse-analysis.sh"
+            ;;
+          "all")
+            echo "🚀 Running both analyses in parallel..."
+            bash "$SCRIPTS_DIR/bundle-analysis.sh" &
+            bash "$SCRIPTS_DIR/lighthouse-analysis.sh" &
+            wait
+            echo "✅ Both analyses completed"
+            ;;
+          *)
+            echo "❌ Invalid check-type: ${{ inputs.check-type }}"
+            exit 1
+            ;;
+        esac
       working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}
 
-    # Fixed Lighthouse analysis
-    - name: Lighthouse analysis
-      if: inputs.check-type == 'lighthouse'
-      shell: bash
-      run: |
-        echo "🔍 Running Lighthouse analysis..."
-
-        # Check if build directory exists
-        if [ ! -d "build" ]; then
-          echo "❌ Build failed, cannot run Lighthouse analysis"
-          echo "## 🔍 Lighthouse Performance Report" > lighthouse-comment.md
-          echo "" >> lighthouse-comment.md
-          echo "❌ **Build Failed**: Cannot run Lighthouse analysis because build failed" >> lighthouse-comment.md
-          echo "*Generated on $(date)*" >> lighthouse-comment.md
-          exit 0
-        fi
-
-        # Check if lighthouse config exists
-        if [ ! -f ".lighthouserc.cjs" ]; then
-          echo "❌ Lighthouse configuration file (.lighthouserc.cjs) not found"
-          echo "## 🔍 Lighthouse Performance Report" > lighthouse-comment.md
-          echo "" >> lighthouse-comment.md
-          echo "❌ **Configuration Missing**: Cannot run Lighthouse analysis because .lighthouserc.cjs is missing" >> lighthouse-comment.md
-          echo "*Generated on $(date)*" >> lighthouse-comment.md
-          exit 0
-        fi
-
-        # Run Lighthouse CI with the existing configuration
-        echo "Running Lighthouse CI with existing .lighthouserc.cjs configuration..."
-        npx @lhci/cli@0.15.x autorun > lighthouse-output.txt 2>&1 || {
-          LIGHTHOUSE_EXIT_CODE=$?
-          echo "Lighthouse CI completed with exit code: $LIGHTHOUSE_EXIT_CODE"
-        }
-
-        # Create markdown report
-        echo "## 🔍 Lighthouse Performance Report" > lighthouse-comment.md
-        echo "" >> lighthouse-comment.md
-
-        if [ -f .lighthouseci/lhr-*.json ]; then
-          LATEST_REPORT=$(ls -t .lighthouseci/lhr-*.json | head -1)
-          
-          if command -v jq >/dev/null 2>&1 && [ -f "$LATEST_REPORT" ]; then
-            # Extract scores
-            PERF_SCORE=$(cat "$LATEST_REPORT" | jq -r '.categories.performance.score * 100 | floor' 2>/dev/null || echo "N/A")
-            A11Y_SCORE=$(cat "$LATEST_REPORT" | jq -r '.categories.accessibility.score * 100 | floor' 2>/dev/null || echo "N/A")
-            BP_SCORE=$(cat "$LATEST_REPORT" | jq -r '.categories["best-practices"].score * 100 | floor' 2>/dev/null || echo "N/A")
-            SEO_SCORE=$(cat "$LATEST_REPORT" | jq -r '.categories.seo.score * 100 | floor' 2>/dev/null || echo "N/A")
-            
-            # Score table
-            echo "| Category | Score | Status |" >> lighthouse-comment.md
-            echo "|----------|-------|--------|" >> lighthouse-comment.md
-            echo "| 🚀 Performance | ${PERF_SCORE}% | $([ "$PERF_SCORE" -ge 90 ] 2>/dev/null && echo "✅ Excellent" || ([ "$PERF_SCORE" -ge 70 ] 2>/dev/null && echo "⚠️ Good" || echo "❌ Needs improvement")) |" >> lighthouse-comment.md
-            echo "| ♿ Accessibility | ${A11Y_SCORE}% | $([ "$A11Y_SCORE" -ge 90 ] 2>/dev/null && echo "✅ Excellent" || ([ "$A11Y_SCORE" -ge 70 ] 2>/dev/null && echo "⚠️ Good" || echo "❌ Needs improvement")) |" >> lighthouse-comment.md
-            echo "| 🛡️ Best Practices | ${BP_SCORE}% | $([ "$BP_SCORE" -ge 90 ] 2>/dev/null && echo "✅ Excellent" || ([ "$BP_SCORE" -ge 70 ] 2>/dev/null && echo "⚠️ Good" || echo "❌ Needs improvement")) |" >> lighthouse-comment.md
-            echo "| 🔍 SEO | ${SEO_SCORE}% | $([ "$SEO_SCORE" -ge 90 ] 2>/dev/null && echo "✅ Excellent" || ([ "$SEO_SCORE" -ge 70 ] 2>/dev/null && echo "⚠️ Good" || echo "❌ Needs improvement")) |" >> lighthouse-comment.md
-            echo "" >> lighthouse-comment.md
-            
-            # Key metrics
-            echo "### 📊 Core Web Vitals" >> lighthouse-comment.md
-            FCP=$(cat "$LATEST_REPORT" | jq -r '.audits["first-contentful-paint"].displayValue' 2>/dev/null || echo "N/A")
-            LCP=$(cat "$LATEST_REPORT" | jq -r '.audits["largest-contentful-paint"].displayValue' 2>/dev/null || echo "N/A")
-            CLS=$(cat "$LATEST_REPORT" | jq -r '.audits["cumulative-layout-shift"].displayValue' 2>/dev/null || echo "N/A")
-            TTI=$(cat "$LATEST_REPORT" | jq -r '.audits["interactive"].displayValue' 2>/dev/null || echo "N/A")
-            
-            echo "- **First Contentful Paint**: $FCP" >> lighthouse-comment.md
-            echo "- **Largest Contentful Paint**: $LCP" >> lighthouse-comment.md
-            echo "- **Cumulative Layout Shift**: $CLS" >> lighthouse-comment.md
-            echo "- **Time to Interactive**: $TTI" >> lighthouse-comment.md
-            
-            # Top opportunities
-            echo "" >> lighthouse-comment.md
-            echo "### 🎯 Top Performance Opportunities" >> lighthouse-comment.md
-            cat "$LATEST_REPORT" | jq -r '
-              [.audits | to_entries[] | select(.value.details?.overallSavingsMs? > 100) | {
-                title: .value.title,
-                savings: .value.details.overallSavingsMs
-              }] | sort_by(-.savings) | .[0:3][] | "- **\(.title)**: \(.savings)ms potential savings"
-            ' >> lighthouse-comment.md 2>/dev/null || echo "- No major optimization opportunities found" >> lighthouse-comment.md
-            
-          else
-            echo "❌ Unable to parse Lighthouse results" >> lighthouse-comment.md
-          fi
-        else
-          echo "⚠️ **Lighthouse analysis was unable to complete**" >> lighthouse-comment.md
-          echo "" >> lighthouse-comment.md
-          echo "This can happen when:" >> lighthouse-comment.md
-          echo "- The development server failed to start properly" >> lighthouse-comment.md
-          echo "- Network timeouts during the CI environment" >> lighthouse-comment.md
-          echo "- Chrome/Chromium is not available in the CI environment" >> lighthouse-comment.md
-          echo "" >> lighthouse-comment.md
-          echo "### 🔧 Alternative Performance Testing Options" >> lighthouse-comment.md
-          echo "" >> lighthouse-comment.md
-          echo "- **Local testing**: Run \`pnpx @lhci/cli@0.15.x autorun\` after building" >> lighthouse-comment.md
-          echo "- **Production testing**: Use [PageSpeed Insights](https://pagespeed.web.dev/) on deployed site" >> lighthouse-comment.md
-          echo "- **Bundle analysis**: Check the bundle size analysis in this PR for optimization opportunities" >> lighthouse-comment.md
-          echo "- **Core Web Vitals**: Monitor real user metrics with [web-vitals](https://web.dev/vitals/)" >> lighthouse-comment.md
-          
-          if [ -f lighthouse-output.txt ]; then
-            echo "" >> lighthouse-comment.md
-            echo "<details><summary>📋 Debug Output</summary>" >> lighthouse-comment.md
-            echo "" >> lighthouse-comment.md
-            echo "\`\`\`" >> lighthouse-comment.md
-            tail -30 lighthouse-output.txt >> lighthouse-comment.md
-            echo "\`\`\`" >> lighthouse-comment.md
-            echo "</details>" >> lighthouse-comment.md
-          fi
-        fi
-
-        echo "" >> lighthouse-comment.md
-        echo "*Generated on $(date)*" >> lighthouse-comment.md
-      working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}
-
-    # Post comprehensive performance comment to PR
     - name: Post performance comment
       if: github.event_name == 'pull_request' && inputs.github-token != ''
       shell: bash
       run: |
-        # Combine all performance reports into one comment
-        COMMENT_FILE="performance-report.md"
-        echo "# 📊 Performance Analysis Report" > "$COMMENT_FILE"
-        echo "" >> "$COMMENT_FILE"
-        echo "*Analysis for app: \`${{ inputs.app }}\` | Check type: \`${{ inputs.check-type }}\`*" >> "$COMMENT_FILE"
-        echo "" >> "$COMMENT_FILE"
-
-        # Add bundle analysis if available
-        if [ -f bundle-comment.md ]; then
-          cat bundle-comment.md >> "$COMMENT_FILE"
-          echo "" >> "$COMMENT_FILE"
-        fi
-
-        # Add lighthouse analysis if available  
-        if [ -f lighthouse-comment.md ]; then
-          cat lighthouse-comment.md >> "$COMMENT_FILE"
-          echo "" >> "$COMMENT_FILE"
-        fi
-
-        # Add footer
-        echo "---" >> "$COMMENT_FILE"
-        echo "*This comment was automatically generated by the performance-check action.*" >> "$COMMENT_FILE"
-
-        # Post comment using GitHub CLI
-        if command -v gh >/dev/null 2>&1; then
-          gh pr comment "${{ github.event.number }}" --body-file "$COMMENT_FILE" || {
-            echo "Failed to post comment with gh CLI, falling back to API"
-            COMMENT_BODY=$(cat "$COMMENT_FILE" | jq -Rs .)
-            curl -s -X POST \
-              -H "Authorization: Bearer ${{ inputs.github-token }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments" \
-              -d "{\"body\": $COMMENT_BODY}" > /dev/null
-          }
-        else
-          # Fallback to direct API call
-          COMMENT_BODY=$(cat "$COMMENT_FILE" | jq -Rs .)
-          curl -s -X POST \
-            -H "Authorization: Bearer ${{ inputs.github-token }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments" \
-            -d "{\"body\": $COMMENT_BODY}" > /dev/null
-        fi
+        bash "${{ github.action_path }}/scripts/post-comment.sh" \
+          "${{ inputs.app }}" \
+          "${{ inputs.check-type }}" \
+          "${{ inputs.github-token }}" \
+          "${{ github.event.number }}" \
+          "${{ github.repository }}"
       working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}
       env:
         GH_TOKEN: ${{ inputs.github-token }}

@@ -16,28 +16,15 @@ permissions:
   checks: write
 
 jobs:
-  bundle-analysis:
-    name: Bundle Analysis
+  performance-analysis:
+    name: Performance Analysis
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Bundle size analysis with PR comment
+      - name: Run performance analysis
         uses: ./.github/actions/performance-check
         with:
-          check-type: bundle-size
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          app: web
-
-  lighthouse:
-    name: Lighthouse Performance
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Lighthouse analysis with PR comment
-        uses: ./.github/actions/performance-check
-        with:
-          check-type: lighthouse
+          check-type: all
           github-token: ${{ secrets.GITHUB_TOKEN }}
           app: web
