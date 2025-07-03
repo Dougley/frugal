@@ -98,7 +98,7 @@ export default class EditButton {
 
     // Validate winners count
     const winners = parseInt(winnersStr, 10);
-    if (isNaN(winners) || winners < 1 || winners > 50) {
+    if (Number.isNaN(winners) || winners < 1 || winners > 50) {
       return ctx.send({
         content: "Winners count must be between 1 and 50.",
         ephemeral: true,

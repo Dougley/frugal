@@ -54,12 +54,12 @@ export async function loader({ params, context, request }: Route.LoaderArgs) {
   );
 
   const headers = new Headers();
-  data!.writeHttpMetadata(headers);
-  headers.set("etag", data!.etag);
+  data?.writeHttpMetadata(headers);
+  headers.set("etag", data?.etag);
   // Cache for 3 months, which is the default expiry for everything
   headers.set("cache-control", "public, max-age=7776000");
 
-  const json = await data!.json();
+  const json = await data?.json();
 
   cache.put(cacheKey, new Response(JSON.stringify(json), { headers }));
 

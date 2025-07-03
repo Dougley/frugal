@@ -20,7 +20,7 @@ const onRequest = async (
     const envelope = new TextDecoder().decode(envelopeBytes);
     const piece = envelope.split("\n")[0];
     const header = JSON.parse(piece);
-    const dsn = new URL(header["dsn"]);
+    const dsn = new URL(header.dsn);
     const project_id = dsn.pathname?.replace("/", "");
 
     if (dsn.hostname !== SENTRY_HOST) {
@@ -38,7 +38,7 @@ const onRequest = async (
       method: "POST",
       headers: {
         "Content-Type": "application/x-sentry-envelope",
-        "X-Sentry-Auth": header["header"],
+        "X-Sentry-Auth": header.header,
       },
       body: envelopeBytes,
     });

@@ -51,7 +51,7 @@ export function NotLoggedIn() {
       />
       <Stack align="center" justify="center">
         <Skeleton height={50} animate={false} mt={12} width="70%" radius="xl" />
-        {[...Array(20)].map((_, i) => {
+        {[...Array(20)].map((_, _i) => {
           // vary the width of the skeleton
           // so it appears as if the page is loading
           // and not just a static page.

@@ -66,7 +66,7 @@ export default class EditCommand extends BaseCommand {
     // No need to defer the response as we're showing a modal immediately
 
     if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      const errorMessage = await EnvContext.i18n!.translate(
+      const errorMessage = await EnvContext.i18n?.translate(
         "common.errors.giveaway_state_unavailable",
         {
           language: ctx.locale,
@@ -88,7 +88,7 @@ export default class EditCommand extends BaseCommand {
     const state = await stub.getState.query();
 
     if (!state) {
-      const errorMessage = await EnvContext.i18n!.translate(
+      const errorMessage = await EnvContext.i18n?.translate(
         "commands.edit.errors.giveaway_not_found",
         {
           language: ctx.locale,

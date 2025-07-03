@@ -10,10 +10,7 @@ export function CodeHighlightBlock({
     const matches = (children.props.className || "").match(
       /language-(?<lang>.*)/
     );
-    const matchedLanguage =
-      matches && matches.groups && matches.groups.lang
-        ? matches.groups.lang
-        : "tsx";
+    const matchedLanguage = matches?.groups?.lang ? matches.groups.lang : "tsx";
 
     if (["js", "jsx", "ts", "tsx"].includes(matchedLanguage)) {
       return "tsx";

@@ -34,16 +34,16 @@
     "@dougley/frugal-i18n": "workspace:^",
     "@dougley/frugal-savestate": "workspace:^",
     "@dougley/frugal-utils": "workspace:^",
-    "@sentry/cloudflare": "^9.30.0",
+    "@sentry/cloudflare": "^9.34.0",
     "slash-create": "^6.4.2"
   },
   "devDependencies": {
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "@types/node": "^24.0.3",
-    "better-sqlite3": "^11.10.0",
-    "discord-api-types": "^0.38.12",
-    "dotenv": "^16.5.0",
+    "@types/node": "^24.0.10",
+    "better-sqlite3": "^12.2.0",
+    "discord-api-types": "catalog:",
+    "dotenv": "^17.0.1",
     "slash-up": "^1.4.2",
     "tsx": "^4.20.3",
     "wrangler": "catalog:"

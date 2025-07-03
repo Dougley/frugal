@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { createI18n } from "@dougley/frugal-i18n";
 import dotenv from "dotenv";
-import { dirname, resolve } from "path";
 import { syncCommand } from "slash-up";
-import { fileURLToPath } from "url";
 import { getPlatformProxy } from "wrangler";
 
 // === CONSTANTS ===
@@ -127,8 +127,8 @@ async function loadSlashUpConfiguration() {
   console.log("📝 Loading slash-up configuration...");
 
   try {
-    const fs = await import("fs/promises");
-    const { createRequire } = await import("module");
+    const fs = await import("node:fs/promises");
+    const { createRequire } = await import("node:module");
 
     // Read the CommonJS config and create temporary file
     const configContent = await fs.readFile(CONFIG_PATHS.slashUp, "utf-8");
@@ -169,7 +169,7 @@ function applyEnvironmentConfiguration(baseConfig, environment) {
  */
 async function cleanupTempFile() {
   try {
-    const fs = await import("fs/promises");
+    const fs = await import("node:fs/promises");
     await fs.unlink(CONFIG_PATHS.tempConfig);
   } catch {
     // Ignore cleanup errors - file might not exist

@@ -69,7 +69,7 @@ export default class RerollCommand extends BaseCommand {
     await ctx.defer();
 
     if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      const errorMessage = await EnvContext.i18n!.translate(
+      const errorMessage = await EnvContext.i18n?.translate(
         "common.errors.giveaway_state_unavailable",
         {
           language: ctx.locale,
@@ -89,7 +89,7 @@ export default class RerollCommand extends BaseCommand {
     const state = await stub.getState.query();
 
     if (!state) {
-      const errorMessage = await EnvContext.i18n!.translate(
+      const errorMessage = await EnvContext.i18n?.translate(
         "commands.reroll.errors.giveaway_not_found",
         {
           language: ctx.locale,
@@ -99,7 +99,7 @@ export default class RerollCommand extends BaseCommand {
     }
 
     if (state.state !== "CLOSED") {
-      const errorMessage = await EnvContext.i18n!.translate(
+      const errorMessage = await EnvContext.i18n?.translate(
         "commands.reroll.errors.giveaway_still_running",
         {
           language: ctx.locale,
@@ -129,7 +129,7 @@ export default class RerollCommand extends BaseCommand {
       const result = await stub.drawWinners.mutate(count);
 
       if (!result.success || !result.winners || result.winners.length === 0) {
-        const errorMessage = await EnvContext.i18n!.translate(
+        const errorMessage = await EnvContext.i18n?.translate(
           "commands.reroll.errors.no_winners_available",
           {
             language: ctx.locale,
@@ -147,7 +147,7 @@ export default class RerollCommand extends BaseCommand {
         .map((w) => w.id)
         .filter((id): id is string => typeof id === "string");
 
-      const successMessage = await EnvContext.i18n!.translate(
+      const successMessage = await EnvContext.i18n?.translate(
         winners.length === 1
           ? "commands.reroll.messages.partial_success_singular"
           : "commands.reroll.messages.partial_success_plural",
@@ -169,7 +169,7 @@ export default class RerollCommand extends BaseCommand {
       const result = await stub.drawWinners.mutate();
 
       if (!result.success || !result.winners || result.winners.length === 0) {
-        const errorMessage = await EnvContext.i18n!.translate(
+        const errorMessage = await EnvContext.i18n?.translate(
           "commands.reroll.errors.no_winners_available",
           {
             language: ctx.locale,
@@ -187,7 +187,7 @@ export default class RerollCommand extends BaseCommand {
         .map((w) => w.id)
         .filter((id): id is string => typeof id === "string");
 
-      const successMessage = await EnvContext.i18n!.translate(
+      const successMessage = await EnvContext.i18n?.translate(
         winners.length === 1
           ? "commands.reroll.messages.success_singular"
           : "commands.reroll.messages.success_plural",

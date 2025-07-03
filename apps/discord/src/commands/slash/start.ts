@@ -74,7 +74,7 @@ export default class StartCommand extends BaseCommand {
 
     const match = durationStr.match(/^(\d+)([smhd])$/);
     if (!match) {
-      const error = await EnvContext.i18n!.translate(
+      const error = await EnvContext.i18n?.translate(
         "commands.start.errors.invalid_duration_format",
         {
           language: locale,
@@ -91,7 +91,7 @@ export default class StartCommand extends BaseCommand {
 
     // Validate the duration limits
     if (duration > MAX_DURATION_MS) {
-      const error = await EnvContext.i18n!.translate(
+      const error = await EnvContext.i18n?.translate(
         "commands.start.errors.duration_too_long",
         { language: locale }
       );
@@ -102,7 +102,7 @@ export default class StartCommand extends BaseCommand {
     }
 
     if (duration < MIN_DURATION_MS) {
-      const error = await EnvContext.i18n!.translate(
+      const error = await EnvContext.i18n?.translate(
         "commands.start.errors.duration_too_short",
         { language: locale }
       );
@@ -121,7 +121,7 @@ export default class StartCommand extends BaseCommand {
 
       // Validate environment
       if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-        const errorMessage = await EnvContext.i18n!.translate(
+        const errorMessage = await EnvContext.i18n?.translate(
           "common.errors.giveaway_state_unavailable",
           {
             language: ctx.locale,
@@ -183,7 +183,7 @@ export default class StartCommand extends BaseCommand {
       const channelID = ctx.channelID ?? "0";
 
       if (!giveawayMessage || !giveawayMessage.id) {
-        const errorMessage = await EnvContext.i18n!.translate(
+        const errorMessage = await EnvContext.i18n?.translate(
           "commands.start.errors.failed_to_create_message",
           {
             language: ctx.locale,
@@ -218,7 +218,7 @@ export default class StartCommand extends BaseCommand {
       await stub.startAlarm.mutate(endTime.toISOString());
     } catch (error) {
       console.error("Error in start command:", error);
-      const errorMessage = await EnvContext.i18n!.translate(
+      const errorMessage = await EnvContext.i18n?.translate(
         "commands.start.errors.failed_to_start",
         {
           language: ctx.locale,

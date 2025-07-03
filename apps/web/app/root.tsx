@@ -40,7 +40,7 @@ export const links: LinksFunction = () => [
 const theme = mergeMantineTheme(
   DEFAULT_THEME,
   createTheme({
-    fontFamily: "Inter, " + DEFAULT_THEME.fontFamily,
+    fontFamily: `Inter, ${DEFAULT_THEME.fontFamily}`,
   })
 );
 

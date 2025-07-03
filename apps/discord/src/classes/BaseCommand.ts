@@ -1,10 +1,6 @@
 import type { I18n } from "@dougley/frugal-i18n";
 import { Locale } from "discord-api-types/v10";
-import {
-  SlashCommand,
-  type SlashCommandOptions,
-  type SlashCreator,
-} from "slash-create/web";
+import { SlashCommand } from "slash-create/web";
 import { EnvContext } from "../env";
 
 // Environment constants for registration mode detection
@@ -19,10 +15,6 @@ const REGISTRATION_I18N_KEY = "__FRUGAL_REGISTRATION_I18N__";
  * - Runtime (using EnvContext.i18n from worker environment)
  */
 export abstract class BaseCommand extends SlashCommand {
-  constructor(creator: SlashCreator, options: SlashCommandOptions) {
-    super(creator, options);
-  }
-
   /**
    * Build a localization map containing only valid Discord locales
    * @param translations - Raw translations object with all locales

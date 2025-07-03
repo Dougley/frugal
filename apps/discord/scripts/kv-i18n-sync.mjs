@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-import { spawn } from "child_process";
-import { existsSync } from "fs";
-import { mkdir, readdir, unlink, writeFile } from "fs/promises";
-import { basename, dirname, extname, join } from "path";
-import { fileURLToPath } from "url";
+import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
+import { mkdir, readdir, unlink, writeFile } from "node:fs/promises";
+import { basename, dirname, extname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -95,7 +95,7 @@ console.log(JSON.stringify(translation));
       // Clean up on error
       try {
         await unlink(loaderPath);
-      } catch (cleanupError) {
+      } catch (_cleanupError) {
         // Ignore cleanup errors
       }
 
@@ -178,7 +178,7 @@ async function uploadTranslation(locale, data, environment = null) {
     // Clean up temp file on error
     try {
       await unlink(valuePath);
-    } catch (cleanupError) {
+    } catch (_cleanupError) {
       // Ignore cleanup errors
     }
 

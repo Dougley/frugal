@@ -29,7 +29,7 @@ export default class ListCommand extends BaseCommand {
     await ctx.defer();
 
     if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      const errorMessage = await EnvContext.i18n!.translate(
+      const errorMessage = await EnvContext.i18n?.translate(
         "common.errors.giveaway_state_unavailable",
         {
           language: ctx.locale,
@@ -48,7 +48,7 @@ export default class ListCommand extends BaseCommand {
       });
 
     if (!currentGiveaways || currentGiveaways.length === 0) {
-      const noGiveawaysMessage = await EnvContext.i18n!.translate(
+      const noGiveawaysMessage = await EnvContext.i18n?.translate(
         "commands.list.messages.no_giveaways",
         {
           language: ctx.locale,
@@ -59,7 +59,7 @@ export default class ListCommand extends BaseCommand {
 
     const description = await Promise.all(
       currentGiveaways.map(async (giveaway: GiveawayState) => {
-        const winnersText = await EnvContext.i18n!.translate(
+        const winnersText = await EnvContext.i18n?.translate(
           giveaway.winners === 1
             ? "common.winner_singular"
             : "common.winners_plural",
@@ -71,14 +71,14 @@ export default class ListCommand extends BaseCommand {
         const timestamp = Math.floor(
           new Date(giveaway.endTime).getTime() / 1000
         );
-        const endsText = await EnvContext.i18n!.translate("common.ends", {
+        const endsText = await EnvContext.i18n?.translate("common.ends", {
           language: ctx.locale,
         });
         return `[**${giveaway.prize}**](https://discord.com/channels/${ctx.guildID}/${giveaway.channelId}/${giveaway.messageId}) - ${winnersText} - ${endsText} <t:${timestamp}:R> (<t:${timestamp}:F>)`;
       })
     );
 
-    const title = await EnvContext.i18n!.translate(
+    const title = await EnvContext.i18n?.translate(
       "commands.list.messages.title",
       { language: ctx.locale }
     );

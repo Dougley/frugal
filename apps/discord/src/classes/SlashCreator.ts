@@ -7,7 +7,6 @@ import {
   ModalInteractionContext,
   type ModalRegisterCallback,
   type RespondFunction,
-  type SlashCreatorOptions,
 } from "slash-create/web";
 
 interface BaseCallback<T> {
@@ -22,9 +21,6 @@ type ModalCallback = BaseCallback<ModalRegisterCallback>;
 export class SlashCreator extends BaseSlashCreator {
   regexComponentHandlers = new Map<RegExp, ComponentCallback>();
   regexModalHandlers = new Map<RegExp, ModalCallback>();
-  constructor(opts: SlashCreatorOptions) {
-    super(opts);
-  }
 
   public addRegexComponentHandler(
     regex: RegExp,

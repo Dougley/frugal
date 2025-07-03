@@ -14,7 +14,7 @@ export default class PingCommand extends BaseCommand {
     await ctx.defer();
 
     // Send initial message
-    const pingingMessage = await EnvContext.i18n!.translate(
+    const pingingMessage = await EnvContext.i18n?.translate(
       "commands.ping.messages.pinging",
       { language: ctx.locale }
     );
@@ -35,7 +35,7 @@ export default class PingCommand extends BaseCommand {
       console.error(
         "Failed to get message object for RTT calculation or timestamp is not a number."
       );
-      const errorMessage = await EnvContext.i18n!.translate(
+      const errorMessage = await EnvContext.i18n?.translate(
         "commands.ping.messages.error",
         { language: ctx.locale }
       );
@@ -43,7 +43,7 @@ export default class PingCommand extends BaseCommand {
     }
 
     // Edit the message with the ping information
-    const successMessage = await EnvContext.i18n!.translate(
+    const successMessage = await EnvContext.i18n?.translate(
       "commands.ping.messages.success",
       {
         language: ctx.locale,

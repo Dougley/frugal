@@ -53,7 +53,7 @@ export default class StopCommand extends BaseCommand {
     await ctx.defer();
 
     if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      const errorMessage = await EnvContext.i18n!.translate(
+      const errorMessage = await EnvContext.i18n?.translate(
         "common.errors.giveaway_state_unavailable",
         {
           language: ctx.locale,
@@ -73,7 +73,7 @@ export default class StopCommand extends BaseCommand {
     const state = await stub.getState.query();
 
     if (!state) {
-      const errorMessage = await EnvContext.i18n!.translate(
+      const errorMessage = await EnvContext.i18n?.translate(
         "commands.stop.errors.giveaway_not_found",
         {
           language: ctx.locale,
@@ -85,7 +85,7 @@ export default class StopCommand extends BaseCommand {
     // Update giveaway state to closed and trigger winner selection
     await stub.startAlarm.mutate(1);
 
-    const successMessage = await EnvContext.i18n!.translate(
+    const successMessage = await EnvContext.i18n?.translate(
       "commands.stop.messages.success",
       { language: ctx.locale }
     );

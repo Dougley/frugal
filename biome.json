@@ -59,6 +59,15 @@
   },
   "overrides": [
     {
+      "includes": ["**/*.d.ts"],
+      "formatter": {
+        "enabled": false
+      },
+      "linter": {
+        "enabled": false
+      }
+    },
+    {
       "includes": ["apps/web/**/*.{ts,tsx,js,jsx}"],
       "linter": {
         "rules": {

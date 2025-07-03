@@ -51,7 +51,7 @@ export default class SaveTestCommand extends BaseCommand {
     await ctx.defer();
 
     if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      const errorMessage = await EnvContext.i18n!.translate(
+      const errorMessage = await EnvContext.i18n?.translate(
         "common.errors.giveaway_state_unavailable",
         {
           language: ctx.locale,
@@ -70,7 +70,7 @@ export default class SaveTestCommand extends BaseCommand {
       case "info":
         return this.handleInfoTest(ctx);
       default: {
-        const errorMessage = await EnvContext.i18n!.translate(
+        const errorMessage = await EnvContext.i18n?.translate(
           "commands.savetest.errors.unknown_test_type",
           {
             language: ctx.locale,
@@ -84,9 +84,9 @@ export default class SaveTestCommand extends BaseCommand {
   private async handleFullTest(ctx: CommandContext) {
     await ctx.defer();
 
-    const id = EnvContext.env!.GIVEAWAY_STATE.newUniqueId();
-    const stub = EnvContext.state!.getInstance(
-      EnvContext.env!.GIVEAWAY_STATE,
+    const id = EnvContext.env?.GIVEAWAY_STATE.newUniqueId();
+    const stub = EnvContext.state?.getInstance(
+      EnvContext.env?.GIVEAWAY_STATE,
       id
     );
     const durationSeconds = parseInt(ctx.options.duration ?? "60", 10);
@@ -211,9 +211,9 @@ export default class SaveTestCommand extends BaseCommand {
   }
 
   private async handleAlarmTest(ctx: CommandContext) {
-    const id = EnvContext.env!.GIVEAWAY_STATE.newUniqueId();
-    const stub = EnvContext.state!.getInstance(
-      EnvContext.env!.GIVEAWAY_STATE,
+    const id = EnvContext.env?.GIVEAWAY_STATE.newUniqueId();
+    const stub = EnvContext.state?.getInstance(
+      EnvContext.env?.GIVEAWAY_STATE,
       id
     );
     const duration = parseInt(ctx.options.duration ?? "60", 10) * 1000;
@@ -234,7 +234,7 @@ export default class SaveTestCommand extends BaseCommand {
     const objectIdStr = ctx.options.id;
 
     if (!objectIdStr) {
-      const errorMessage = await EnvContext.i18n!.translate(
+      const errorMessage = await EnvContext.i18n?.translate(
         "commands.savetest.errors.missing_object_id",
         {
           language: ctx.locale,
@@ -243,9 +243,9 @@ export default class SaveTestCommand extends BaseCommand {
       return ctx.editOriginal(errorMessage!);
     }
 
-    const stub = EnvContext.state!.getInstance(
-      EnvContext.env!.GIVEAWAY_STATE,
-      EnvContext.env!.GIVEAWAY_STATE.idFromString(objectIdStr)
+    const stub = EnvContext.state?.getInstance(
+      EnvContext.env?.GIVEAWAY_STATE,
+      EnvContext.env?.GIVEAWAY_STATE.idFromString(objectIdStr)
     );
 
     const state = await stub.getState.query();

@@ -144,7 +144,7 @@ export default function GuildGiveaways({ loaderData }: Route.ComponentProps) {
           Back
         </Button>
         <Group justify="space-between" align="center">
-          <Title order={1}>{guild!.name} Giveaways</Title>
+          <Title order={1}>{guild?.name} Giveaways</Title>
           <Badge size="lg" variant="light">
             {giveaways.length} Active Giveaways
           </Badge>
