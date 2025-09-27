@@ -151,7 +151,7 @@ export class I18n {
    *
    * @param path - Dot-separated path to the translation (e.g., 'buttons.submit', 'errors.not_found')
    * @param options - Optional translation options including ICU parameters and language
-   * @returns Promise that resolves to the translation string, or null if not found
+   * @returns Promise that resolves to the translation string, or a fallback message if not found
    *
    * @example
    * ```typescript
@@ -183,10 +183,7 @@ export class I18n {
    * // Returns: "5 items"
    * ```
    */
-  async translate(
-    path: string,
-    options?: TranslateOptions
-  ): Promise<string | null> {
+  async translate(path: string, options?: TranslateOptions): Promise<string> {
     const requestedLang = options?.language || this.defaultLanguage;
     const params = options?.params;
 
@@ -208,6 +205,11 @@ export class I18n {
         this.defaultLanguage,
         params
       );
+    }
+
+    // still nothing? return a fallback
+    if (result === null) {
+      return `[[${path}]] (TRANSLATION MISSING)`;
     }
 
     return result;
