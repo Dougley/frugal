@@ -40,7 +40,7 @@
     "discord-api-types": "catalog:",
     "dotenv": "^17.2.2",
     "slash-up": "^1.4.2",
-    "tsx": "^4.20.5",
+    "tsx": "^4.20.6",
     "wrangler": "catalog:"
   }
 }

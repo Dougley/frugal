@@ -9,7 +9,7 @@
     "@changesets/cli": "^2.29.7",
     "lefthook": "^1.13.4",
     "rimraf": "^6.0.1",
-    "turbo": "^2.5.7",
+    "turbo": "^2.5.8",
     "typescript": "^5.9.2"
   },
   "scripts": {

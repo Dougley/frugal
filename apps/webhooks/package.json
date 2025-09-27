@@ -24,8 +24,8 @@
   "dependencies": {
     "@dougley/frugal-drizzle": "workspace:^",
     "@dougley/frugal-utils": "workspace:^",
-    "@sentry/cloudflare": "^10.14.0",
-    "hono": "^4.9.8"
+    "@sentry/cloudflare": "^10.15.0",
+    "hono": "^4.9.9"
   },
   "devDependencies": {
     "@dougley/tsconfig": "workspace:^",

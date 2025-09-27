@@ -3,8 +3,8 @@ packages:
   - apps/*
 
 catalog:
-  wrangler: ^4.39.0
-  '@cloudflare/workers-types': ^4.20250923.0
+  wrangler: ^4.40.2
+  '@cloudflare/workers-types': ^4.20250927.0
   drizzle-orm: ^0.44.5
-  drizzle-kit: ^0.31.4
+  drizzle-kit: ^0.31.5
   discord-api-types: 0.38.26
