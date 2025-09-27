@@ -42,7 +42,7 @@ export class SlashCreator extends BaseSlashCreator {
 
   protected async _onInteraction(
     interaction: AnyRequestData,
-    respond: RespondFunction | null,
+    respond: RespondFunction,
     webserverMode: boolean,
     serverContext: unknown
   ) {
@@ -51,7 +51,7 @@ export class SlashCreator extends BaseSlashCreator {
         const ctx = new ComponentContext(
           this,
           interaction,
-          respond!,
+          respond,
           !this.options.disableTimeouts,
           serverContext
         );
@@ -72,7 +72,7 @@ export class SlashCreator extends BaseSlashCreator {
         const ctx = new ModalInteractionContext(
           this,
           interaction,
-          respond!,
+          respond,
           !this.options.disableTimeouts,
           serverContext
         );

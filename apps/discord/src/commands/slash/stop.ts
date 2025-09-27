@@ -36,6 +36,7 @@ export default class StopCommand extends BaseCommand {
       .from(Schema.giveaways)
       .where(
         and(
+          // biome-ignore lint/style/noNonNullAssertion: the context here forces guild context
           eq(Schema.giveaways.guildId, ctx.guildID!),
           eq(Schema.giveaways.state, "OPEN")
         )

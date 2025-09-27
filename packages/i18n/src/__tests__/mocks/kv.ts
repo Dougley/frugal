@@ -35,7 +35,8 @@ export class MockKVNamespace implements KVNamespace {
   }): Promise<{ keys: { name: string }[] }> {
     const keys = Array.from(this.store.keys());
     const filteredKeys = options?.prefix
-      ? keys.filter((key) => key.startsWith(options.prefix!))
+      ? // biome-ignore lint/style/noNonNullAssertion: mock implementation, dont care about type safety
+        keys.filter((key) => key.startsWith(options.prefix!))
       : keys;
 
     return {

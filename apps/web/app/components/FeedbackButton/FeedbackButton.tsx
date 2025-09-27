@@ -149,7 +149,7 @@ export function FeedbackButton() {
     modals.closeAll();
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: turnstile ref
   const turnstileControl = useRef<any>(null);
 
   return (

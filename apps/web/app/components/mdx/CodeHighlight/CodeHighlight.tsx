@@ -5,7 +5,7 @@ import styles from "./CodeHighlight.module.css";
 export function CodeHighlightBlock({
   children,
 }: ComponentPropsWithoutRef<"pre">) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: children is a ReactNode
   const language = (children: any) => {
     const matches = (children.props.className || "").match(
       /language-(?<lang>.*)/

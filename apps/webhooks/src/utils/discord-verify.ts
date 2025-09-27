@@ -11,7 +11,7 @@ export async function verifyDiscordSignature(
 ): Promise<boolean> {
   try {
     // Check timestamp to prevent replay attacks (within 5 minutes)
-    const timestampMs = parseInt(timestamp) * 1000;
+    const timestampMs = parseInt(timestamp, 10) * 1000;
     const now = Date.now();
     const fiveMinutes = 5 * 60 * 1000;
 

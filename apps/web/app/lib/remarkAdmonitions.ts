@@ -3,7 +3,7 @@ import { visit } from "unist-util-visit";
 
 export const remarkAdmonitions: Plugin = () => {
   return (tree) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: difficult to type, cba right now
     visit(tree, "blockquote", (node: any) => {
       const [firstParagraph] = node.children;
 
@@ -34,7 +34,7 @@ export const remarkAdmonitions: Plugin = () => {
 
           // Remove any empty paragraphs that might follow
           node.children = node.children.filter(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // biome-ignore lint/suspicious/noExplicitAny: difficult to type, cba right now
             (child: any) =>
               !(
                 child.type === "paragraph" &&

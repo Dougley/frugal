@@ -40,6 +40,7 @@ export default class EditCommand extends BaseCommand {
       .from(Schema.giveaways)
       .where(
         and(
+          // biome-ignore lint/style/noNonNullAssertion: the context here forces guild context
           eq(Schema.giveaways.guildId, ctx.guildID!),
           eq(Schema.giveaways.state, "OPEN")
         )
@@ -73,7 +74,7 @@ export default class EditCommand extends BaseCommand {
         }
       );
       return ctx.send({
-        content: errorMessage!,
+        content: errorMessage,
         ephemeral: true,
       });
     }
@@ -95,7 +96,7 @@ export default class EditCommand extends BaseCommand {
         }
       );
       return ctx.send({
-        content: errorMessage!,
+        content: errorMessage,
         ephemeral: true,
       });
     }

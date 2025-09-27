@@ -39,6 +39,7 @@ export const action = async ({
     } catch (error) {
       if (error instanceof Response) {
         // Merge the session cookie with the authentication response
+        // biome-ignore lint/style/noNonNullAssertion: we know this is set, look above
         error.headers.append("Set-Cookie", headers.get("Set-Cookie")!);
         return error;
       }

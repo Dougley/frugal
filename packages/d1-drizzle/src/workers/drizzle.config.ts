@@ -1,4 +1,5 @@
 // eslint-disable-next-line import/no-unresolved
+/** biome-ignore-all lint/style/noNonNullAssertion: configured via env vars */
 import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
 
