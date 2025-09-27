@@ -53,3 +53,60 @@ export const entries = sqliteTable(
     index("idx_entries_giveaway_id").on(table.giveawayId),
   ]
 );
+
+export const entitlements = sqliteTable(
+  "Entitlements",
+  {
+    id: text("id").primaryKey(),
+    applicationId: text("application_id").notNull(),
+    skuId: text("sku_id").notNull(),
+    userId: text("user_id"),
+    guildId: text("guild_id"),
+    type: int("type").notNull(),
+    deleted: int("deleted", { mode: "boolean" }).notNull().default(false),
+    startsAt: text("starts_at").notNull(),
+    endsAt: text("ends_at"),
+    consumed: int("consumed", { mode: "boolean" }),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_entitlements_guild_id").on(table.guildId),
+    index("idx_entitlements_user_id").on(table.userId),
+    index("idx_entitlements_sku_id").on(table.skuId),
+    index("idx_entitlements_type").on(table.type),
+    index("idx_entitlements_deleted").on(table.deleted),
+    index("idx_entitlements_active").on(
+      table.deleted,
+      table.startsAt,
+      table.endsAt
+    ),
+  ]
+);
+
+export const subscriptionEvents = sqliteTable(
+  "SubscriptionEvents",
+  {
+    id: text("id").primaryKey(),
+    entityId: text("entity_id").notNull(),
+    eventType: text("event_type").notNull(),
+    eventData: text("event_data", { mode: "json" }),
+    processed: int("processed", { mode: "boolean" }).notNull().default(false),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    processedAt: text("processed_at"),
+  },
+  (table) => [
+    index("idx_subscription_events_entity").on(table.entityId),
+    index("idx_subscription_events_type").on(table.eventType),
+    index("idx_subscription_events_processed").on(table.processed),
+    index("idx_subscription_events_created").on(table.createdAt),
+    index("idx_subscription_events_unprocessed").on(
+      table.processed,
+      table.createdAt
+    ),
+    index("idx_subscription_events_type_entity").on(
+      table.eventType,
+      table.entityId
+    ),
+  ]
+);

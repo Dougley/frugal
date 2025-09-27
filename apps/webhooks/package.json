@@ -1,0 +1,39 @@
+{
+  "name": "@dougley/frugal-webhooks",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "main": "dist/index.mjs",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "dev": "wrangler dev --persist-to='../../.mf' src/index.ts",
+    "deploy": "wrangler deploy --minify src/index.ts",
+    "lint": "eslint --ext .ts .",
+    "lint:fix": "eslint --ext .ts . --fix",
+    "format": "prettier -w ./src",
+    "typecheck": "wrangler types && tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dougley/frugal.git",
+    "directory": "apps/webhooks"
+  },
+  "dependencies": {
+    "@dougley/frugal-drizzle": "workspace:^",
+    "@dougley/frugal-utils": "workspace:^",
+    "@sentry/cloudflare": "^10.14.0",
+    "hono": "^4.9.8"
+  },
+  "devDependencies": {
+    "@dougley/tsconfig": "workspace:^",
+    "@dougley/types": "workspace:^",
+    "@types/node": "^24.5.2",
+    "better-sqlite3": "^12.4.1",
+    "discord-api-types": "catalog:",
+    "dotenv": "^17.2.2",
+    "wrangler": "catalog:"
+  }
+}
