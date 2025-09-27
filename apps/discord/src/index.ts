@@ -11,7 +11,7 @@ import * as Sentry from "@sentry/cloudflare";
 import { CloudflareWorkerServer } from "slash-create/web";
 import { SlashCreator } from "./classes/SlashCreator";
 import { commands, componentHandlers, modalHandlers } from "./commands";
-import { EnvContext } from "./env";
+import { runWithContext } from "./context";
 
 export const GiveawayStateV3 = Sentry.instrumentDurableObjectWithSentry(
   (env: Env) => ({
@@ -19,6 +19,10 @@ export const GiveawayStateV3 = Sentry.instrumentDurableObjectWithSentry(
     release: env.CF_VERSION_METADATA.id,
     tracesSampleRate: 1.0,
     sendDefaultPii: true,
+    enableLogs: true,
+    integrations: [
+      Sentry.consoleLoggingIntegration({ levels: ["log", "warn", "error"] }),
+    ],
   }),
   // @ts-expect-error - The way we're using the state router is not typed
   createProxy(stateRouter, handleAlarm)
@@ -89,6 +93,10 @@ export default Sentry.withSentry(
       release: versionId,
       tracesSampleRate: 1.0,
       sendDefaultPii: true,
+      enableLogs: true,
+      integrations: [
+        Sentry.consoleLoggingIntegration({ levels: ["log", "warn", "error"] }),
+      ],
     };
   },
   {
@@ -97,22 +105,27 @@ export default Sentry.withSentry(
       env,
       ctx: ExecutionContext
     ): Promise<Response> {
-      // Set the environment context
-      EnvContext.env = env;
-      // @ts-expect-error - The way we're using the state router is not typed
-      EnvContext.state = GiveawayStateV3;
-      EnvContext.drizzle = drizzleD1(env.D1);
-      EnvContext.i18n = createI18n({
-        kv: env.KV_LOCALES,
-        defaultLanguage: "en-pirate",
-      });
+      // Create context for this request
+      const context = {
+        env,
+        // HACK: sentry wrapped durables change the signature of the class
+        state: GiveawayStateV3 as unknown as ReturnType<typeof createProxy>,
+        drizzle: drizzleD1(env.D1),
+        i18n: createI18n({
+          kv: env.KV_LOCALES,
+          defaultLanguage: "en-pirate",
+        }),
+      };
+
       Sentry.instrumentD1WithSentry(env.D1);
 
       // Initialize the creator if it doesn't exist
       if (!creator) makeCreator(env);
 
-      // Use the CloudflareWorkerServer to handle the request
-      return cfServer.fetch(request, env, ctx);
+      // Run request within context
+      return runWithContext(context, async () => {
+        return cfServer.fetch(request, env, ctx);
+      });
     },
   } satisfies ExportedHandler<Cloudflare.Env>
 );

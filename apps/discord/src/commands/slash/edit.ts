@@ -7,7 +7,7 @@ import {
   type SlashCreator,
 } from "slash-create/web";
 import { BaseCommand } from "../../classes/BaseCommand";
-import { EnvContext } from "../../env";
+import { getContext } from "../../context";
 
 export default class EditCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
@@ -29,14 +29,14 @@ export default class EditCommand extends BaseCommand {
   async autocomplete(ctx: AutocompleteContext) {
     console.log("Autocomplete called");
 
-    if (!EnvContext.env?.D1 || !EnvContext.drizzle) {
+    if (!getContext().env?.D1 || !getContext().drizzle) {
       console.error("D1 environment not available");
       return [];
     }
 
     // Get active giveaways for this guild, ordered by end time ascending
-    const activeGiveaways = await EnvContext.drizzle
-      .select()
+    const activeGiveaways = await getContext()
+      .drizzle.select()
       .from(Schema.giveaways)
       .where(
         and(
@@ -57,7 +57,7 @@ export default class EditCommand extends BaseCommand {
       name: `${g.prize.slice(
         0,
         20
-      )} - Ends ${datestr(new Date(g.endTime))} with ${g.winners} winner${g.winners === 1 ? "" : "s"}`,
+      )} - Ends ${datestr(new Date(g.endTime))} with ${g.winners} ${g.winners === 1 ? "winner" : "winners"}`,
       value: g.durableObjectId,
     }));
   }
@@ -65,8 +65,8 @@ export default class EditCommand extends BaseCommand {
   async run(ctx: CommandContext) {
     // No need to defer the response as we're showing a modal immediately
 
-    if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      const errorMessage = await EnvContext.i18n?.translate(
+    if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
+      const errorMessage = await getContext().i18n?.translate(
         "common.errors.giveaway_state_unavailable",
         {
           language: ctx.locale,
@@ -80,15 +80,15 @@ export default class EditCommand extends BaseCommand {
 
     const giveawayId = ctx.options.id;
 
-    const stub = EnvContext.state.getInstance(
-      EnvContext.env.GIVEAWAY_STATE,
-      EnvContext.env.GIVEAWAY_STATE.idFromString(giveawayId)
+    const stub = getContext().state.getInstance(
+      getContext().env.GIVEAWAY_STATE,
+      getContext().env.GIVEAWAY_STATE.idFromString(giveawayId)
     );
 
     const state = await stub.getState.query();
 
     if (!state) {
-      const errorMessage = await EnvContext.i18n?.translate(
+      const errorMessage = await getContext().i18n?.translate(
         "commands.edit.errors.giveaway_not_found",
         {
           language: ctx.locale,

@@ -1,128 +1,176 @@
-import { EditModal as EditModalComponent } from "@dougley/frugal-utils";
+import { EditModal } from "@dougley/frugal-utils";
 import type {
   ComponentContext,
   ModalInteractionContext,
 } from "slash-create/web";
-import { EnvContext } from "../../env";
+import { getContext } from "../../context";
 
-export default class EditButton {
-  // Re-export static properties from the component
-  public static button_id = EditModalComponent.button_id;
-  public static modal_id = EditModalComponent.modal_id;
-  public static button_id_regex = EditModalComponent.button_id_regex;
-  public static modal_id_regex = EditModalComponent.modal_id_regex;
-  public static createActionRow = EditModalComponent.createActionRow;
-  public static createModal = EditModalComponent.createModal;
+// Export the patterns and methods for commands/index.ts
+export const button_id_regex = EditModal.button_id_regex;
+export const modal_id_regex = EditModal.modal_id_regex;
 
-  /**
-   * Handles the button click to open the edit modal
-   * @param ctx The component context
-   */
-  public static async handleButtonInteraction(ctx: ComponentContext) {
-    // Extract giveaway ID from button custom_id
-    const giveawayId = ctx.customID.split(":")[1];
+/**
+ * Handles the button click to open the edit modal
+ * @param ctx The component context
+ */
+export async function handleButtonInteraction(ctx: ComponentContext) {
+  // Extract giveaway ID from button custom_id
+  const giveawayId = ctx.customID.split(":")[1];
 
-    if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      return ctx.send({
-        content: "Giveaway state not available",
-        ephemeral: true,
-      });
-    }
-
-    const stub = EnvContext.state.getInstance(
-      EnvContext.env.GIVEAWAY_STATE,
-      EnvContext.env.GIVEAWAY_STATE.idFromString(giveawayId)
-    );
-
-    const state = await stub.getState.query();
-
-    if (!state) {
-      return ctx.send({
-        content: "That giveaway does not exist or has expired.",
-        ephemeral: true,
-      });
-    }
-
-    // Show the modal with pre-filled current values
-    return ctx.sendModal(EditButton.createModal(giveawayId, state));
+  if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
+    return ctx.send({
+      content: await getContext().i18n.translate(
+        "components.edit_modal.errors.giveaway_state_unavailable",
+        {
+          language: ctx.locale,
+        }
+      ),
+      ephemeral: true,
+    });
   }
 
-  /**
-   * Handles the modal submission
-   * @param ctx The modal response context
-   */
-  public static async handleModalSubmit(ctx: ModalInteractionContext) {
-    // Extract giveaway ID from modal custom_id
-    const match = ctx.customID.match(EditButton.modal_id_regex);
-    if (!match) {
-      return ctx.send({
-        content: "Invalid modal submission",
-        ephemeral: true,
-      });
-    }
+  const stub = getContext().state.getInstance(
+    getContext().env.GIVEAWAY_STATE,
+    getContext().env.GIVEAWAY_STATE.idFromString(giveawayId)
+  );
 
-    const giveawayId = match[1];
+  const state = await stub.getState.query();
 
-    if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      return ctx.send({
-        content: "Giveaway state not available",
-        ephemeral: true,
-      });
-    }
+  if (!state) {
+    return ctx.send({
+      content: await getContext().i18n.translate(
+        "components.edit_modal.errors.giveaway_not_found",
+        {
+          language: ctx.locale,
+        }
+      ),
+      ephemeral: true,
+    });
+  }
 
-    const stub = EnvContext.state.getInstance(
-      EnvContext.env.GIVEAWAY_STATE,
-      EnvContext.env.GIVEAWAY_STATE.idFromString(giveawayId)
-    );
+  // Show the modal with pre-filled current values
+  return ctx.sendModal(EditModal.createModal(giveawayId, state));
+}
 
-    // Get the current state
-    const state = await stub.getState.query();
-    if (!state) {
-      return ctx.send({
-        content: "That giveaway does not exist or has expired.",
-        ephemeral: true,
-      });
-    }
+/**
+ * Handles the modal submission
+ * @param ctx The modal response context
+ */
+export async function handleModalSubmit(ctx: ModalInteractionContext) {
+  // Extract giveaway ID from modal custom_id
+  const match = ctx.customID.match(EditModal.modal_id_regex);
+  if (!match) {
+    return ctx.send({
+      content: await getContext().i18n.translate(
+        "components.edit_modal.errors.invalid_modal_submission",
+        {
+          language: ctx.locale,
+        }
+      ),
+      ephemeral: true,
+    });
+  }
 
-    const prize = ctx.values.prize;
-    const winnersStr = ctx.values.winners;
-    const description = ctx.values.description;
+  const giveawayId = match[1];
 
-    // check for sanity
-    if (!prize || !winnersStr || prize.length < 1 || winnersStr.length < 1) {
-      return ctx.send({
-        content: "Prize and winners are required fields.",
-        ephemeral: true,
-      });
-    }
+  if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
+    return ctx.send({
+      content: await getContext().i18n.translate(
+        "components.edit_modal.errors.giveaway_state_unavailable",
+        {
+          language: ctx.locale,
+        }
+      ),
+      ephemeral: true,
+    });
+  }
 
-    // Validate winners count
-    const winners = parseInt(winnersStr, 10);
-    if (Number.isNaN(winners) || winners < 1 || winners > 50) {
-      return ctx.send({
-        content: "Winners count must be between 1 and 50.",
-        ephemeral: true,
-      });
-    }
+  const stub = getContext().state.getInstance(
+    getContext().env.GIVEAWAY_STATE,
+    getContext().env.GIVEAWAY_STATE.idFromString(giveawayId)
+  );
 
-    // Update the giveaway state
-    try {
-      await stub.updateGiveaway.mutate({
-        prize,
-        winners,
-        description,
-      });
+  // Get the current state
+  const state = await stub.getState.query();
+  if (!state) {
+    return ctx.send({
+      content: await getContext().i18n.translate(
+        "components.edit_modal.errors.giveaway_not_found",
+        {
+          language: ctx.locale,
+        }
+      ),
+      ephemeral: true,
+    });
+  }
 
-      return ctx.send({
-        content: "Giveaway has been updated successfully!",
-        ephemeral: true,
-      });
-    } catch (error) {
-      console.error("Error updating giveaway:", error);
-      return ctx.send({
-        content: `Failed to update giveaway: ${error instanceof Error ? error.message : String(error)}`,
-        ephemeral: true,
-      });
-    }
+  const prize = Array.isArray(ctx.values.prize)
+    ? ctx.values.prize[0]
+    : ctx.values.prize;
+  const winnersStr = Array.isArray(ctx.values.winners)
+    ? ctx.values.winners[0]
+    : ctx.values.winners;
+  const description = Array.isArray(ctx.values.description)
+    ? ctx.values.description[0]
+    : ctx.values.description;
+
+  // check for sanity
+  if (!prize || !winnersStr || prize.length < 1 || winnersStr.length < 1) {
+    return ctx.send({
+      content: await getContext().i18n.translate(
+        "components.edit_modal.errors.required_fields",
+        {
+          language: ctx.locale,
+        }
+      ),
+      ephemeral: true,
+    });
+  }
+
+  // Validate winners count
+  const winners = parseInt(winnersStr, 10);
+  if (Number.isNaN(winners) || winners < 1 || winners > 50) {
+    return ctx.send({
+      content: await getContext().i18n.translate(
+        "components.edit_modal.errors.invalid_winners_count",
+        {
+          language: ctx.locale,
+        }
+      ),
+      ephemeral: true,
+    });
+  }
+
+  // Update the giveaway state
+  try {
+    await stub.updateGiveaway.mutate({
+      prize: prize || "",
+      winners,
+      description: description || undefined,
+    });
+
+    return ctx.send({
+      content: await getContext().i18n.translate(
+        "components.edit_modal.messages.update_success",
+        {
+          language: ctx.locale,
+        }
+      ),
+      ephemeral: true,
+    });
+  } catch (error) {
+    console.error("Error updating giveaway:", error);
+    return ctx.send({
+      content: await getContext().i18n.translate(
+        "components.edit_modal.errors.update_failed",
+        {
+          language: ctx.locale,
+          params: {
+            error: error instanceof Error ? error.message : String(error),
+          },
+        }
+      ),
+      ephemeral: true,
+    });
   }
 }

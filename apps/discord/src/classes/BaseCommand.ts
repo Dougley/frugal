@@ -1,7 +1,7 @@
 import type { I18n } from "@dougley/frugal-i18n";
 import { Locale } from "discord-api-types/v10";
 import { SlashCommand } from "slash-create/web";
-import { EnvContext } from "../env";
+import { tryGetContext } from "../context";
 
 // Environment constants for registration mode detection
 const REGISTRATION_ENV_FLAG = "FRUGAL_REGISTRATION_MODE";
@@ -12,7 +12,7 @@ const REGISTRATION_I18N_KEY = "__FRUGAL_REGISTRATION_I18N__";
  *
  * This class automatically handles command localization during both:
  * - Registration time (using global i18n instance from registration script)
- * - Runtime (using EnvContext.i18n from worker environment)
+ * - Runtime (using context-based i18n from worker environment)
  */
 export abstract class BaseCommand extends SlashCommand {
   /**
@@ -45,8 +45,8 @@ export abstract class BaseCommand extends SlashCommand {
       );
     }
 
-    // During runtime, use EnvContext i18n
-    return EnvContext.i18n;
+    // During runtime, use context-based i18n
+    return tryGetContext()?.i18n || null;
   }
 
   /**
@@ -76,11 +76,11 @@ export abstract class BaseCommand extends SlashCommand {
         BaseCommand.buildLocalizationMap(descriptions);
       this.nameLocalizations = BaseCommand.buildLocalizationMap(names);
 
+      console.log(`✅ Localized ${this.commandName}`);
       // Apply option localizations if command has options
       if (this.options?.length) {
         await this.localizeOptions(i18n, commandKey);
       }
-      console.log(`✅ Localized ${this.commandName}`);
     } catch (error) {
       console.warn(
         `⚠️ Failed to apply localizations for ${this.commandName}:`,
@@ -110,6 +110,7 @@ export abstract class BaseCommand extends SlashCommand {
           BaseCommand.buildLocalizationMap(optionDescriptions);
         option.name_localizations =
           BaseCommand.buildLocalizationMap(optionNames);
+        console.log(`  ✅ Localized option ${option.name}`);
       })
     );
   }

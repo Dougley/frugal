@@ -8,7 +8,7 @@ import {
   type SlashCreator,
 } from "slash-create/web";
 import { BaseCommand } from "../../classes/BaseCommand";
-import { EnvContext } from "../../env";
+import { getContext } from "../../context";
 
 // Constants for duration limits
 const MAX_DURATION_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
@@ -74,7 +74,7 @@ export default class StartCommand extends BaseCommand {
 
     const match = durationStr.match(/^(\d+)([smhd])$/);
     if (!match) {
-      const error = await EnvContext.i18n?.translate(
+      const error = await getContext().i18n?.translate(
         "commands.start.errors.invalid_duration_format",
         {
           language: locale,
@@ -82,7 +82,7 @@ export default class StartCommand extends BaseCommand {
       );
       return {
         valid: false,
-        error: error!,
+        error: error,
       };
     }
 
@@ -91,24 +91,24 @@ export default class StartCommand extends BaseCommand {
 
     // Validate the duration limits
     if (duration > MAX_DURATION_MS) {
-      const error = await EnvContext.i18n?.translate(
+      const error = await getContext().i18n.translate(
         "commands.start.errors.duration_too_long",
         { language: locale }
       );
       return {
         valid: false,
-        error: error!,
+        error: error,
       };
     }
 
     if (duration < MIN_DURATION_MS) {
-      const error = await EnvContext.i18n?.translate(
+      const error = await getContext().i18n?.translate(
         "commands.start.errors.duration_too_short",
         { language: locale }
       );
       return {
         valid: false,
-        error: error!,
+        error: error,
       };
     }
 
@@ -120,14 +120,14 @@ export default class StartCommand extends BaseCommand {
       await ctx.defer();
 
       // Validate environment
-      if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-        const errorMessage = await EnvContext.i18n?.translate(
+      if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
+        const errorMessage = await getContext().i18n?.translate(
           "common.errors.giveaway_state_unavailable",
           {
             language: ctx.locale,
           }
         );
-        return ctx.editOriginal(errorMessage!);
+        return ctx.editOriginal(errorMessage);
       }
 
       // Parse and validate duration
@@ -154,7 +154,7 @@ export default class StartCommand extends BaseCommand {
       };
 
       // Create a new Durable Object ID for this giveaway
-      const id = EnvContext.env.GIVEAWAY_STATE.newUniqueId();
+      const id = getContext().env.GIVEAWAY_STATE.newUniqueId();
 
       const flags = new BitField([
         MessageFlags.IS_COMPONENTS_V2,
@@ -183,18 +183,18 @@ export default class StartCommand extends BaseCommand {
       const channelID = ctx.channelID ?? "0";
 
       if (!giveawayMessage || !giveawayMessage.id) {
-        const errorMessage = await EnvContext.i18n?.translate(
+        const errorMessage = await getContext().i18n?.translate(
           "commands.start.errors.failed_to_create_message",
           {
             language: ctx.locale,
           }
         );
-        return ctx.editOriginal(errorMessage!);
+        return ctx.editOriginal(errorMessage);
       }
 
       // Get the durable object instance
-      const stub = EnvContext.state.getInstance(
-        EnvContext.env.GIVEAWAY_STATE,
+      const stub = getContext().state.getInstance(
+        getContext().env.GIVEAWAY_STATE,
         id
       );
 
@@ -218,7 +218,7 @@ export default class StartCommand extends BaseCommand {
       await stub.startAlarm.mutate(endTime.toISOString());
     } catch (error) {
       console.error("Error in start command:", error);
-      const errorMessage = await EnvContext.i18n?.translate(
+      const errorMessage = await getContext().i18n?.translate(
         "commands.start.errors.failed_to_start",
         {
           language: ctx.locale,
@@ -227,7 +227,7 @@ export default class StartCommand extends BaseCommand {
           },
         }
       );
-      return ctx.editOriginal(errorMessage!);
+      return ctx.editOriginal(errorMessage);
     }
   }
 }

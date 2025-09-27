@@ -108,7 +108,7 @@ export default {
       errors: {
         giveaway_not_found: "That treasure hunt be lost at sea, arrr!",
         giveaway_still_running:
-          "That treasure hunt still be sailin\'! Can't pick new pirates until it docks. Try stoppin\' it first, ye landlubber!",
+          "That treasure hunt still be sailin'! Can't pick new pirates until it docks. Try stoppin' it first, ye landlubber!",
         no_winners_available:
           "No new pirates could be picked, as there be no other crew members aboard!",
       },

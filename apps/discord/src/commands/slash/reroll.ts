@@ -6,7 +6,7 @@ import {
   type SlashCreator,
 } from "slash-create/web";
 import { BaseCommand } from "../../classes/BaseCommand";
-import { EnvContext } from "../../env";
+import { getContext } from "../../context";
 
 interface WinnerInfo {
   id: string | null;
@@ -40,15 +40,15 @@ export default class RerollCommand extends BaseCommand {
   }
 
   async autocomplete(ctx: AutocompleteContext) {
-    if (!EnvContext.env?.D1 || !EnvContext.drizzle) {
+    if (!getContext().env?.D1 || !getContext().drizzle) {
       return [];
     }
 
     if (!ctx.guildID) return [];
 
     // Use string keys to match DB columns
-    const closedGiveaways = await EnvContext.drizzle
-      .select()
+    const closedGiveaways = await getContext()
+      .drizzle.select()
       .from(Schema.giveaways)
       .where(
         and(
@@ -60,7 +60,7 @@ export default class RerollCommand extends BaseCommand {
       .limit(25);
 
     return closedGiveaways.map((g) => ({
-      name: `${g.prize} (${g.winners} winner${g.winners > 1 ? "s" : ""})`,
+      name: `${g.prize} (${g.winners} ${g.winners === 1 ? "winner" : "winners"})`,
       value: g.durableObjectId,
     }));
   }
@@ -68,44 +68,44 @@ export default class RerollCommand extends BaseCommand {
   async run(ctx: CommandContext) {
     await ctx.defer();
 
-    if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      const errorMessage = await EnvContext.i18n?.translate(
+    if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
+      const errorMessage = await getContext().i18n.translate(
         "common.errors.giveaway_state_unavailable",
         {
           language: ctx.locale,
         }
       );
-      return ctx.editOriginal(errorMessage!);
+      return ctx.editOriginal(errorMessage);
     }
 
     const giveawayId = ctx.options.id;
     const count = ctx.options.count;
 
-    const stub = EnvContext.state.getInstance(
-      EnvContext.env.GIVEAWAY_STATE,
-      EnvContext.env.GIVEAWAY_STATE.idFromString(giveawayId)
+    const stub = getContext().state.getInstance(
+      getContext().env.GIVEAWAY_STATE,
+      getContext().env.GIVEAWAY_STATE.idFromString(giveawayId)
     );
 
     const state = await stub.getState.query();
 
     if (!state) {
-      const errorMessage = await EnvContext.i18n?.translate(
+      const errorMessage = await getContext().i18n.translate(
         "commands.reroll.errors.giveaway_not_found",
         {
           language: ctx.locale,
         }
       );
-      return ctx.editOriginal(errorMessage!);
+      return ctx.editOriginal(errorMessage);
     }
 
     if (state.state !== "CLOSED") {
-      const errorMessage = await EnvContext.i18n?.translate(
+      const errorMessage = await getContext().i18n.translate(
         "commands.reroll.errors.giveaway_still_running",
         {
           language: ctx.locale,
         }
       );
-      return ctx.editOriginal(errorMessage!);
+      return ctx.editOriginal(errorMessage);
     }
 
     // Helper to coerce winner fields to string|null
@@ -129,13 +129,13 @@ export default class RerollCommand extends BaseCommand {
       const result = await stub.drawWinners.mutate(count);
 
       if (!result.success || !result.winners || result.winners.length === 0) {
-        const errorMessage = await EnvContext.i18n?.translate(
+        const errorMessage = await getContext().i18n.translate(
           "commands.reroll.errors.no_winners_available",
           {
             language: ctx.locale,
           }
         );
-        return ctx.editOriginal(errorMessage!);
+        return ctx.editOriginal(errorMessage);
       }
 
       const winners = mapWinners(result.winners);
@@ -147,7 +147,7 @@ export default class RerollCommand extends BaseCommand {
         .map((w) => w.id)
         .filter((id): id is string => typeof id === "string");
 
-      const successMessage = await EnvContext.i18n?.translate(
+      const successMessage = await getContext().i18n.translate(
         winners.length === 1
           ? "commands.reroll.messages.partial_success_singular"
           : "commands.reroll.messages.partial_success_plural",
@@ -158,7 +158,7 @@ export default class RerollCommand extends BaseCommand {
       );
 
       return ctx.editOriginal({
-        content: successMessage!,
+        content: successMessage,
         allowedMentions: {
           users: allowedMentionIds,
           everyone: false,
@@ -169,13 +169,13 @@ export default class RerollCommand extends BaseCommand {
       const result = await stub.drawWinners.mutate();
 
       if (!result.success || !result.winners || result.winners.length === 0) {
-        const errorMessage = await EnvContext.i18n?.translate(
+        const errorMessage = await getContext().i18n.translate(
           "commands.reroll.errors.no_winners_available",
           {
             language: ctx.locale,
           }
         );
-        return ctx.editOriginal(errorMessage!);
+        return ctx.editOriginal(errorMessage);
       }
 
       const winners = mapWinners(result.winners);
@@ -187,7 +187,7 @@ export default class RerollCommand extends BaseCommand {
         .map((w) => w.id)
         .filter((id): id is string => typeof id === "string");
 
-      const successMessage = await EnvContext.i18n?.translate(
+      const successMessage = await getContext().i18n.translate(
         winners.length === 1
           ? "commands.reroll.messages.success_singular"
           : "commands.reroll.messages.success_plural",
@@ -198,7 +198,7 @@ export default class RerollCommand extends BaseCommand {
       );
 
       return ctx.editOriginal({
-        content: successMessage!,
+        content: successMessage,
         allowedMentions: {
           users: allowedMentionIds,
           everyone: false,

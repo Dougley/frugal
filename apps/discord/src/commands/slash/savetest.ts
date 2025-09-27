@@ -5,7 +5,7 @@ import {
   type SlashCreator,
 } from "slash-create/web";
 import { BaseCommand } from "../../classes/BaseCommand";
-import { EnvContext } from "../../env";
+import { getContext } from "../../context";
 
 export default class SaveTestCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
@@ -50,14 +50,14 @@ export default class SaveTestCommand extends BaseCommand {
   async run(ctx: CommandContext) {
     await ctx.defer();
 
-    if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      const errorMessage = await EnvContext.i18n?.translate(
+    if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
+      const errorMessage = await getContext().i18n.translate(
         "common.errors.giveaway_state_unavailable",
         {
           language: ctx.locale,
         }
       );
-      return ctx.editOriginal(errorMessage!);
+      return ctx.editOriginal(errorMessage);
     }
 
     const testType = ctx.options.type ?? "full";
@@ -69,24 +69,24 @@ export default class SaveTestCommand extends BaseCommand {
         return this.handleAlarmTest(ctx);
       case "info":
         return this.handleInfoTest(ctx);
-      default: {
-        const errorMessage = await EnvContext.i18n?.translate(
-          "commands.savetest.errors.unknown_test_type",
-          {
-            language: ctx.locale,
-          }
+      default:
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "commands.savetest.errors.unknown_test_type",
+            {
+              language: ctx.locale,
+            }
+          )
         );
-        return ctx.editOriginal(errorMessage!);
-      }
     }
   }
 
   private async handleFullTest(ctx: CommandContext) {
     await ctx.defer();
 
-    const id = EnvContext.env?.GIVEAWAY_STATE.newUniqueId();
-    const stub = EnvContext.state?.getInstance(
-      EnvContext.env?.GIVEAWAY_STATE,
+    const id = getContext().env.GIVEAWAY_STATE.newUniqueId();
+    const stub = getContext().state.getInstance(
+      getContext().env.GIVEAWAY_STATE,
       id
     );
     const durationSeconds = parseInt(ctx.options.duration ?? "60", 10);
@@ -95,7 +95,12 @@ export default class SaveTestCommand extends BaseCommand {
     const winnersCount = ctx.options.winners ?? 1;
 
     const message = (await ctx.send(
-      "Starting full test..."
+      await getContext().i18n.translate(
+        "commands.savetest.messages.starting_full_test",
+        {
+          language: ctx.locale,
+        }
+      )
     )) as unknown as Message;
 
     // Step 1: Begin the giveaway
@@ -197,23 +202,29 @@ export default class SaveTestCommand extends BaseCommand {
     const entries = await stub.getEntries.query();
 
     return ctx.editOriginal({
-      content:
-        `**Full Giveaway Test Started**\n` +
-        `🎁 **Prize:** Test Giveaway Prize\n` +
-        `👥 **Winners:** ${winnersCount}\n` +
-        `⏱️ **Duration:** ${durationSeconds} seconds\n` +
-        `👤 **Entries:** ${entries.length}\n` +
-        `📌 **Status:** ${state.state}\n` +
-        `🆔 **Object ID:** ${id.toString()}\n\n` +
-        `Alarm will trigger at ${endTime.toLocaleString()}`,
+      content: await getContext().i18n.translate(
+        "commands.savetest.messages.full_test_started",
+        {
+          language: ctx.locale,
+          params: {
+            prize: "Test Giveaway Prize",
+            winners: winnersCount.toString(),
+            duration: durationSeconds.toString(),
+            entries: entries.length.toString(),
+            status: state.state,
+            id: id.toString(),
+            endTime: endTime.toLocaleString(),
+          },
+        }
+      ),
       components: [JoinButton.createActionRow(id.toString())],
     });
   }
 
   private async handleAlarmTest(ctx: CommandContext) {
-    const id = EnvContext.env?.GIVEAWAY_STATE.newUniqueId();
-    const stub = EnvContext.state?.getInstance(
-      EnvContext.env?.GIVEAWAY_STATE,
+    const id = getContext().env.GIVEAWAY_STATE.newUniqueId();
+    const stub = getContext().state.getInstance(
+      getContext().env.GIVEAWAY_STATE,
       id
     );
     const duration = parseInt(ctx.options.duration ?? "60", 10) * 1000;
@@ -226,7 +237,16 @@ export default class SaveTestCommand extends BaseCommand {
     );
 
     return ctx.editOriginal(
-      `Started a test alarm that will fire in ${duration / 1000} seconds! (Object ID: ${id.toString()})`
+      await getContext().i18n.translate(
+        "commands.savetest.messages.alarm_started",
+        {
+          language: ctx.locale,
+          params: {
+            duration: (duration / 1000).toString(),
+            id: id.toString(),
+          },
+        }
+      )
     );
   }
 
@@ -234,18 +254,19 @@ export default class SaveTestCommand extends BaseCommand {
     const objectIdStr = ctx.options.id;
 
     if (!objectIdStr) {
-      const errorMessage = await EnvContext.i18n?.translate(
-        "commands.savetest.errors.missing_object_id",
-        {
-          language: ctx.locale,
-        }
+      return ctx.editOriginal(
+        await getContext().i18n.translate(
+          "commands.savetest.errors.missing_object_id",
+          {
+            language: ctx.locale,
+          }
+        )
       );
-      return ctx.editOriginal(errorMessage!);
     }
 
-    const stub = EnvContext.state?.getInstance(
-      EnvContext.env?.GIVEAWAY_STATE,
-      EnvContext.env?.GIVEAWAY_STATE.idFromString(objectIdStr)
+    const stub = getContext().state?.getInstance(
+      getContext().env?.GIVEAWAY_STATE,
+      getContext().env?.GIVEAWAY_STATE.idFromString(objectIdStr)
     );
 
     const state = await stub.getState.query();
@@ -257,25 +278,52 @@ export default class SaveTestCommand extends BaseCommand {
     const remainingMinutes = Math.floor(remaining / 60000);
     const remainingSeconds = Math.floor((remaining % 60000) / 1000);
 
+    const entriesList =
+      entries.length > 0
+        ? (await getContext().i18n.translate(
+            "commands.savetest.messages.entries_header",
+            {
+              language: ctx.locale,
+            }
+          )) +
+          "\n" +
+          entries
+            .slice(0, 5)
+            .map((e) => `- ${e.username}#${e.discriminator}`)
+            .join("\n") +
+          (entries.length > 5
+            ? `\n${await getContext().i18n.translate(
+                "commands.savetest.messages.and_more",
+                {
+                  language: ctx.locale,
+                  params: { count: (entries.length - 5).toString() },
+                }
+              )}`
+            : "")
+        : await getContext().i18n.translate(
+            "commands.savetest.messages.no_entries",
+            {
+              language: ctx.locale,
+            }
+          );
+
     return ctx.editOriginal(
-      `**Giveaway Information**\n` +
-        `🎁 **Prize:** ${state.prize}\n` +
-        `👥 **Winners:** ${state.winners}\n` +
-        `👤 **Entries:** ${entries.length}\n` +
-        `📌 **Status:** ${state.state}\n` +
-        `⏱️ **End Time:** ${endTime.toLocaleString()}\n` +
-        `⌛ **Remaining:** ${remainingMinutes}m ${remainingSeconds}s\n` +
-        `🆔 **Object ID:** ${objectIdStr}\n\n` +
-        `${
-          entries.length > 0
-            ? "**Entries:**\n" +
-              entries
-                .slice(0, 5)
-                .map((e) => `- ${e.username}#${e.discriminator}`)
-                .join("\n")
-            : "No entries yet."
-        }` +
-        `${entries.length > 5 ? `\n...and ${entries.length - 5} more` : ""}`
+      await getContext().i18n.translate(
+        "commands.savetest.messages.giveaway_info",
+        {
+          language: ctx.locale,
+          params: {
+            prize: state.prize,
+            winners: state.winners.toString(),
+            entries: entries.length.toString(),
+            status: state.state,
+            endTime: endTime.toLocaleString(),
+            remaining: `${remainingMinutes}m ${remainingSeconds}s`,
+            id: objectIdStr,
+            entriesList,
+          },
+        }
+      )
     );
   }
 }

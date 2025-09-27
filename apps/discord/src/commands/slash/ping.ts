@@ -1,12 +1,17 @@
-import type { CommandContext, SlashCreator } from "slash-create/web";
+import {
+  type CommandContext,
+  InteractionContextType,
+  type SlashCreator,
+} from "slash-create/web";
 import { BaseCommand } from "../../classes/BaseCommand";
-import { EnvContext } from "../../env";
+import { getContext } from "../../context";
 
 export default class PingCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
     super(creator, {
       name: "ping",
       description: "Test the bot's latency",
+      contexts: [InteractionContextType.BOT_DM, InteractionContextType.GUILD],
     });
   }
 
@@ -14,11 +19,11 @@ export default class PingCommand extends BaseCommand {
     await ctx.defer();
 
     // Send initial message
-    const pingingMessage = await EnvContext.i18n?.translate(
+    const pingingMessage = await getContext().i18n.translate(
       "commands.ping.messages.pinging",
       { language: ctx.locale }
     );
-    const msg = await ctx.send(pingingMessage!);
+    const msg = await ctx.send(pingingMessage);
 
     // Calculate time difference
     let rtt = 0;
@@ -35,21 +40,21 @@ export default class PingCommand extends BaseCommand {
       console.error(
         "Failed to get message object for RTT calculation or timestamp is not a number."
       );
-      const errorMessage = await EnvContext.i18n?.translate(
+      const errorMessage = await getContext().i18n.translate(
         "commands.ping.messages.error",
         { language: ctx.locale }
       );
-      return ctx.editOriginal(errorMessage!);
+      return ctx.editOriginal(errorMessage);
     }
 
     // Edit the message with the ping information
-    const successMessage = await EnvContext.i18n?.translate(
+    const successMessage = await getContext().i18n.translate(
       "commands.ping.messages.success",
       {
         language: ctx.locale,
         params: { rtt: rtt.toString() },
       }
     );
-    return ctx.editOriginal(successMessage!);
+    return ctx.editOriginal(successMessage);
   }
 }
