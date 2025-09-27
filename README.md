@@ -26,3 +26,13 @@ For more detailed instructions on how to deploy each part, see the READMEs in th
 ## License
 
 Frugal is licensed under the MIT license. However, while the source code is licensed under the MIT license, you may not use the source code to compete with an official instance of the bot. You are free to host this bot for your own personal use, but you may not verify your copy of the bot through the Discord Bot Verification Program or submit your copy of the bot to a bot listing service such as Discord's App Directory. See [LICENSE.md](LICENSE.md) for more information.
+
+---
+
+<div>
+  <div style="margin-left:auto;margin-right:auto;">
+    <p align="center" style="margin:0;">
+      <a href="https://workers.cloudflare.com"><img src="https://workers.cloudflare.com/built-with-cloudflare.svg" alt="Built with Cloudflare"/></a>
+    </p>
+  </div>
+</div>

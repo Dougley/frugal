@@ -4,13 +4,13 @@
   "version": "0.0.0",
   "license": "MIT",
   "devDependencies": {
-    "@biomejs/biome": "^2.0.6",
+    "@biomejs/biome": "^2.2.4",
     "@changesets/changelog-github": "^0.5.1",
-    "@changesets/cli": "^2.29.5",
-    "lefthook": "^1.11.16",
+    "@changesets/cli": "^2.29.7",
+    "lefthook": "^1.13.4",
     "rimraf": "^6.0.1",
-    "turbo": "^2.5.4",
-    "typescript": "^5.8.3"
+    "turbo": "^2.5.7",
+    "typescript": "^5.9.2"
   },
   "scripts": {
     "lint:report": "biome lint --reporter=json --log-level=none \"{packages,apps}/**/*.{ts,tsx,cts,mts}\" > biome_report.json",

@@ -11,18 +11,13 @@
     "test:coverage": "vitest run --coverage",
     "dev": "wrangler dev --persist-to='../../.mf' src/index.ts",
     "deploy": "wrangler deploy --minify src/index.ts",
-    "lint": "eslint --ext .ts .",
-    "lint:fix": "eslint --ext .ts . --fix",
-    "format": "prettier -w ./src",
     "db:migrate:dev": "wrangler d1 migrations apply frugal --local --persist-to='../../.mf'",
     "db:migrate": "wrangler d1 migrations apply frugal",
     "register": "tsx scripts/register-commands.mjs",
     "register:dev": "tsx scripts/register-commands.mjs --env development",
     "typecheck": "wrangler types && tsc --noEmit",
     "i18n:sync": "node scripts/kv-i18n-sync.mjs",
-    "i18n:sync:staging": "node scripts/kv-i18n-sync.mjs --env staging",
-    "i18n:sync:production": "node scripts/kv-i18n-sync.mjs --env production",
-    "i18n:sync:dry-run": "node scripts/kv-i18n-sync.mjs --dry-run"
+    "i18n:sync:dev": "node scripts/kv-i18n-sync.mjs"
   },
   "repository": {
     "type": "git",
@@ -34,18 +29,18 @@
     "@dougley/frugal-i18n": "workspace:^",
     "@dougley/frugal-savestate": "workspace:^",
     "@dougley/frugal-utils": "workspace:^",
-    "@sentry/cloudflare": "^9.34.0",
-    "slash-create": "^6.4.2"
+    "@sentry/cloudflare": "^10.15.0",
+    "slash-create": "^6.6.3"
   },
   "devDependencies": {
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "@types/node": "^24.0.10",
-    "better-sqlite3": "^12.2.0",
+    "@types/node": "^24.5.2",
+    "better-sqlite3": "^12.4.1",
     "discord-api-types": "catalog:",
-    "dotenv": "^17.0.1",
+    "dotenv": "^17.2.2",
     "slash-up": "^1.4.2",
-    "tsx": "^4.20.3",
+    "tsx": "^4.20.5",
     "wrangler": "catalog:"
   }
 }
