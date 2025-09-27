@@ -3,21 +3,21 @@ import { ComponentType, TextInputStyle } from "slash-create/web";
 /**
  * Modal component for editing giveaways
  */
-export class EditModal {
+export const EditModal = {
   // Static properties for ID patterns
-  public static button_id = "edit_giveaway_button";
-  public static modal_id = "edit_giveaway";
+  button_id: "edit_giveaway_button",
+  modal_id: "edit_giveaway",
 
   // Regex patterns to match interactions
-  public static button_id_regex = /^edit_giveaway_button:(\w+)$/;
-  public static modal_id_regex = /^edit_giveaway:(\w+)$/;
+  button_id_regex: /^edit_giveaway_button:(\w+)$/,
+  modal_id_regex: /^edit_giveaway:(\w+)$/,
 
   /**
    * Creates a button for editing a giveaway
    * @param giveawayId The ID of the giveaway to edit
    * @returns An action row with the edit button
    */
-  public static createActionRow(giveawayId: string) {
+  createActionRow(giveawayId: string) {
     return {
       type: ComponentType.ACTION_ROW as const,
       components: [
@@ -29,7 +29,7 @@ export class EditModal {
         },
       ],
     };
-  }
+  },
 
   /**
    * Creates the modal configuration for editing a giveaway
@@ -37,7 +37,7 @@ export class EditModal {
    * @param state The current giveaway state
    * @returns Modal configuration
    */
-  public static createModal(
+  createModal(
     giveawayId: string,
     state: { prize: string; winners: number; description?: string | null }
   ) {
@@ -91,5 +91,5 @@ export class EditModal {
         },
       ],
     };
-  }
-}
+  },
+};

@@ -7,7 +7,6 @@ import * as JoinButton from "./components/join-button";
 import EditCommand from "./slash/edit";
 import ListCommand from "./slash/list";
 import PingCommand from "./slash/ping";
-import PremiumCommand from "./slash/premium";
 import RerollCommand from "./slash/reroll";
 import SaveTestCommand from "./slash/savetest";
 import StartCommand from "./slash/start";
@@ -18,7 +17,6 @@ export const commands = [
   EditCommand,
   ListCommand,
   PingCommand,
-  PremiumCommand,
   RerollCommand,
   SaveTestCommand,
   StartCommand,
@@ -58,7 +56,6 @@ export {
   EditCommand,
   ListCommand,
   PingCommand,
-  PremiumCommand,
   RerollCommand,
   SaveTestCommand,
   StartCommand,
