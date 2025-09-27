@@ -7,6 +7,8 @@ const drizzleDurable = (storage: DurableObjectStorage) => {
 
 export * from "drizzle-orm";
 export { migrate } from "drizzle-orm/durable-sqlite/migrator";
+// biome-ignore lint/suspicious/noTsIgnore: migrations are dynamically generated
+// @ts-ignore
 export * as Migrations from "./drizzle/migrations";
 export * as Schema from "./schema";
 export { drizzleDurable };

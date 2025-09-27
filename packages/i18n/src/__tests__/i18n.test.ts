@@ -202,9 +202,9 @@ describe("I18n", () => {
       expect(result).toBe("Hola!");
     });
 
-    it("should return null for non-existent translation", async () => {
+    it("should return fallback string for non-existent translation", async () => {
       const result = await i18n.translate("nonexistent", { language: "en" });
-      expect(result).toBeNull();
+      expect(result).toBe("[[nonexistent]] (TRANSLATION MISSING)");
     });
 
     it("should return null for non-existent language", async () => {
@@ -220,11 +220,11 @@ describe("I18n", () => {
       expect(result).toBe("Deep Value");
     });
 
-    it("should return null for invalid nested path", async () => {
+    it("should return fallback string for invalid nested path", async () => {
       const result = await i18n.translate("nested.invalid.path", {
         language: "en",
       });
-      expect(result).toBeNull();
+      expect(result).toBe("[[nested.invalid.path]] (TRANSLATION MISSING)");
     });
 
     it("should fallback to default language when translation missing in requested language", async () => {
@@ -245,10 +245,10 @@ describe("I18n", () => {
       expect(result).toBe("Hello!");
     });
 
-    it("should return null when neither requested nor default language has the translation", async () => {
+    it("should return fallback string when neither requested nor default language has the translation", async () => {
       // Neither Spanish nor English (default) has this translation
       const result = await i18n.translate("nonexistent", { language: "es" });
-      expect(result).toBeNull();
+      expect(result).toBe("[[nonexistent]] (TRANSLATION MISSING)");
     });
 
     it("should allow disabling fallback to default language", async () => {
@@ -266,7 +266,7 @@ describe("I18n", () => {
       const result = await i18nNoFallback.translate("english_only", {
         language: "es",
       });
-      expect(result).toBeNull();
+      expect(result).toBe("[[english_only]] (TRANSLATION MISSING)");
     });
   });
 
