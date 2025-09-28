@@ -29,7 +29,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/Dougley/frugal.git",
-    "directory": "packages/d1-prisma"
+    "directory": "packages/d1-drizzle"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
