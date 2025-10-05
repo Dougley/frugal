@@ -59,3 +59,16 @@
   width: 28px;
   height: 28px;
 }
+
+.title {
+  font-weight: 600;
+  margin: 0;
+
+  @mixin light {
+    color: var(--mantine-color-black);
+  }
+
+  @mixin dark {
+    color: var(--mantine-color-white);
+  }
+}

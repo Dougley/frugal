@@ -1,0 +1,347 @@
+---
+title: Documentation Components
+description: A comprehensive guide to all available components for building beautiful documentation pages
+showtoc: true
+tags: ["documentation", "components", "guide"]
+lastUpdated: "2025-10-04"
+editUrl: "https://github.com/your-repo/edit/main/apps/web/app/routes/wiki.developer.components.mdx"
+---
+
+This page showcases all the custom components available for use in your documentation. These components are inspired by modern documentation frameworks like MkDocs Material and Starlight.
+
+## Cards
+
+### Basic Card
+
+Use `Card` to highlight important information or features.
+
+<Card title="Getting Started" icon={<DocIcon name="rocket" />}>
+  This is a basic card component that can be used to display important information with an optional icon and title.
+</Card>
+
+### Card Grid
+
+Use `CardGrid` to display multiple cards in a responsive grid layout.
+
+<CardGrid cols={{ base: 1, sm: 2, lg: 3 }}>
+  <Card title="Fast" icon={<DocIcon name="bolt" />}>
+    Lightning-fast performance optimized for modern browsers.
+  </Card>
+  <Card title="Secure" icon={<DocIcon name="lock" />}>
+    Built with security best practices in mind.
+  </Card>
+  <Card title="Scalable" icon={<DocIcon name="trending-up" />}>
+    Designed to grow with your needs.
+  </Card>
+</CardGrid>
+
+### Link Cards
+
+Use `LinkCard` for navigation or external resources.
+
+<CardGrid>
+  <LinkCard
+    href="/wiki/test"
+    title="Internal Documentation"
+    description="Link to other pages in your documentation"
+    icon={<DocIcon name="book" />}
+  />
+  <LinkCard
+    href="https://github.com"
+    title="External Resource"
+    description="Link to external websites with automatic external icon"
+    icon={<DocIcon name="external-link" />}
+    external
+  />
+</CardGrid>
+
+## Steps
+
+Use `Steps` for tutorials and step-by-step guides.
+
+<Steps>
+- **Install the package**: Run `npm install frugal` to get started
+- **Configure your project**: Create a configuration file with your settings
+- **Start building**: Use the CLI to create your first giveaway
+- **Deploy**: Push your changes and watch it work!
+</Steps>
+
+## Tabs
+
+Use `DocTabs` and `TabItem` for organizing content into tabs.
+
+<DocTabs>
+  <TabItem label="npm" icon={<DocIcon name="package" />}>
+    ```bash
+    npm install frugal
+    ```
+  </TabItem>
+  <TabItem label="pnpm" icon={<DocIcon name="package" />}>
+    ```bash
+    pnpm add frugal
+    ```
+  </TabItem>
+  <TabItem label="yarn" icon={<DocIcon name="package" />}>
+    ```bash
+    yarn add frugal
+    ```
+  </TabItem>
+</DocTabs>
+
+## Code Tabs
+
+Use `CodeTabs` for multi-language code examples, with `CodeTab` for each language.
+
+Language icons are automatically added based on the language specified.
+
+<CodeTabs>
+  <CodeTab label="JavaScript" language="javascript">
+    ```js
+    function greet(name) {
+      return `Hello, ${name}!`;
+    }
+    ```
+  </CodeTab>
+  <CodeTab label="TypeScript" language="typescript">
+    ```ts
+    function greet(name: string): string {
+      return `Hello, ${name}!`;
+    }
+    ```
+  </CodeTab>
+  <CodeTab label="Python" language="python">
+    ```bash
+    def greet(name):
+        return f"Hello, {name}!"
+    ```
+  </CodeTab>
+</CodeTabs>
+
+## Badges
+
+Use `DocBadge` to highlight status or categories.
+
+<DocBadge variant="new" /> <DocBadge variant="beta" /> <DocBadge variant="deprecated" /> <DocBadge variant="experimental" /> <DocBadge variant="stable" /> <DocBadge variant="preview" /> <DocBadge variant="updated" />
+
+You can also use custom text:
+
+<DocBadge variant="new" text="v2.0" /> <DocBadge variant="beta" text="Coming Soon" />
+
+## File Tree
+
+Use `FileTree` to visualize project structure with support for highlighting, comments, placeholders, and collapsible folders.
+
+### Basic Usage
+
+<FileTree>
+- src/
+  - components/
+    - Button.tsx
+    - Card.tsx
+  - utils/
+    - helpers.ts
+  - index.ts
+- package.json
+- README.md
+</FileTree>
+
+### Highlighted Files
+
+Use `**bold**` syntax to highlight important files or folders:
+
+<FileTree>
+- src/
+  - **index.ts** // main entry point
+  - components/
+    - Button.tsx
+  - utils/
+- **package.json**
+- README.md
+</FileTree>
+
+### Comments
+
+Add comments after filenames using `//` to provide additional context:
+
+<FileTree>
+- src/
+  - index.ts // the main entry point
+  - components/
+    - Button.tsx // reusable button component
+    - Card.tsx // with fancy styling
+  - config.ts // uses dotenv for environment variables
+- package.json // project dependencies
+</FileTree>
+
+### Placeholders
+
+Use `...` or `…` to indicate additional files:
+
+<FileTree>
+- src/
+  - components/
+    - Button.tsx
+    - Card.tsx
+    - ...
+  - utils/
+- node_modules/
+  - …
+- package.json
+</FileTree>
+
+### Full Example
+
+Combining all features:
+
+<FileTree>
+- **src/** // main source directory
+  - components/
+    - **Header.tsx** // the main header component
+    - Footer.tsx
+    - ...
+  - utils/
+    - helpers.ts // utility functions with important helpers
+    - config.ts // configuration with dotenv
+  - index.ts // application entry point
+- package.json // project dependencies
+- README.md
+- .env // configuration file for environment variables
+- ...
+</FileTree>
+
+### Interactive Folders
+
+Folders are collapsible by default. Click on any folder to expand or collapse its contents.
+
+## Admonitions
+
+Enhanced blockquotes with multiple types and custom titles.
+
+These components can optionally be written with purely markdown syntax:
+
+> [!NOTE] "Custom title" 
+> This is a note admonition. Use it for general information.
+
+> [!TIP] "Helpful Tip"
+> This is a tip admonition. Use it for helpful suggestions.
+
+> [!IMPORTANT] "Important Information"
+> This is important information that users should know.
+
+> [!WARNING] 
+> This is a warning. Use it to alert users about potential issues.
+
+> [!CAUTION]
+> This is a caution. Use it for critical warnings.
+
+Or if you want to use JSX:
+
+<BlockQuote type="note" title="Custom Note">
+  This is a custom note admonition with a personalized title.
+</BlockQuote>
+
+## Grid Layout
+
+Use `DocGrid` for custom grid layouts.
+
+<DocGrid cols={{ base: 1, md: 2 }}>
+  <div>
+    ### Column 1
+    Content in the first column of the grid.
+  </div>
+  <div>
+    ### Column 2
+    Content in the second column of the grid.
+  </div>
+</DocGrid>
+
+## Details / Accordion
+
+Use `Details` for collapsible content sections.
+
+<Details summary="Click to expand advanced configuration">
+  This content is hidden by default and can be expanded when needed.
+
+  ```js
+  const config = {
+    advanced: true,
+    options: ['a', 'b', 'c']
+  };
+  ```
+</Details>
+
+<Details summary="Another collapsible section" defaultOpen>
+  This section is open by default because of the `defaultOpen` prop.
+</Details>
+
+## Icons
+
+Use `DocIcon` to insert icons inline. Icons are from Tabler Icons.
+
+Available examples: <DocIcon name="heart" /> <DocIcon name="star" /> <DocIcon name="check" /> <DocIcon name="x" /> <DocIcon name="alert-triangle" />
+
+You can customize size and color:
+
+<DocIcon name="rocket" size={32} color="blue" /> <DocIcon name="spade" size={24} color="orange" /> <DocIcon name="moon" size={16} color="purple" /> 
+
+## Combining Components
+
+You can combine components to create rich documentation:
+
+<DocGrid cols={{ base: 1, sm: 2 }}>
+  <Card title="Quick Start" icon={<DocIcon name="bolt" />}>
+    <Steps>
+    - Configure your app
+    - Start developing
+    - ???
+    - Profit!
+    </Steps>
+  </Card>
+  <DocGrid cols={{ base: 1 }}>
+    <LinkCard
+      href="https://github.com"
+      title="GitHub"
+      description="Visit our GitHub repository"
+      icon={<DocIcon name="brand-github" />}
+      external
+    />
+    <LinkCard
+      href="/wiki/test"
+      title="Documentation"
+      description="Read the full documentation"
+      icon={<DocIcon name="book" />}
+    />
+    <LinkCard
+      href="https://discord.com"
+      title="Discord"
+      description="Join our Discord community"
+      icon={<DocIcon name="brand-discord" />}
+      external
+    />
+  </DocGrid>
+  <Card title="Code Examples" icon={<DocIcon name="code" />}>
+    Cards are great for showcasing code snippets or simple file structures.
+    <FileTree>
+    - src/
+      - components/
+        - Button.tsx
+        - Card.tsx
+    </FileTree>
+    ```ts
+    function greet(name: string): string {
+      return `Hello, ${name}!`;
+    }
+    ```
+  </Card>
+  <div>
+    ### Get to writing
+    Mix and match JSX and markdown to create stunning documentation pages.
+
+    ![Documentation Example](https://images.unsplash.com/photo-1648726442622-5cd3abeccaa8)
+    *Photo by [Rasmus Gundorff Sæderup](https://unsplash.com/@rasmusgs) on [Unsplash](https://unsplash.com/photos/eE1Q8oqhYRE)*
+  </div>
+</DocGrid>
+
+---
+
+These components make it easy to create professional, interactive documentation. All components are responsive and support both light and dark modes.

@@ -94,7 +94,14 @@
 //   );
 // }
 
-import { Button, Stack, Text, Textarea, TextInput } from "@mantine/core";
+import {
+  Button,
+  type ButtonProps,
+  Stack,
+  Text,
+  Textarea,
+  TextInput,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
@@ -103,7 +110,7 @@ import * as Sentry from "@sentry/react";
 import { IconMessage } from "@tabler/icons-react";
 import { useRef } from "react";
 
-export function FeedbackButton() {
+export function FeedbackButton(props: ButtonProps) {
   const form = useForm({
     mode: "uncontrolled",
     validateInputOnChange: true,
@@ -198,6 +205,7 @@ export function FeedbackButton() {
       }
       variant="light"
       leftSection={<IconMessage size={16} />}
+      {...props}
     >
       Send Feedback
     </Button>

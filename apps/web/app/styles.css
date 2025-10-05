@@ -3,3 +3,8 @@
 @import "@mantine/dropzone/styles.css";
 @import "@mantine/nprogress/styles.css";
 @import "@mantine/code-highlight/styles.css";
+
+/* Smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+}

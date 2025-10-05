@@ -7,6 +7,9 @@ import {
   ScrollArea,
 } from "@mantine/core";
 import {
+  IconBook,
+  IconChartBar,
+  IconCode,
   IconConfetti,
   IconDiamond,
   IconFileDollar,
@@ -15,7 +18,10 @@ import {
   IconHome,
   IconList,
   IconPlus,
+  IconRocket,
   IconSectionSign,
+  IconTerminal,
+  IconUsers,
   IconZoomIn,
 } from "@tabler/icons-react";
 import {
@@ -46,6 +52,38 @@ const data: NavItem[] = [
       { label: "List", link: "/giveaways", icon: IconList },
       { label: "Create", link: "/giveaways/create", icon: IconPlus },
       { label: "Summaries", link: "/giveaways/summaries", icon: IconZoomIn },
+    ],
+  },
+  {
+    label: "Wiki",
+    link: "/wiki",
+    icon: IconBook,
+    children: [
+      {
+        label: "Getting Started",
+        link: "/wiki/getting-started",
+        icon: IconRocket,
+      },
+      {
+        label: "User Guides",
+        link: "/wiki/user-guides",
+        icon: IconUsers,
+      },
+      {
+        label: "Developer Docs",
+        link: "/wiki/developer",
+        icon: IconCode,
+      },
+      {
+        label: "Advanced Topics",
+        link: "/wiki/advanced",
+        icon: IconChartBar,
+      },
+      {
+        label: "Reference",
+        link: "/wiki/reference",
+        icon: IconTerminal,
+      },
     ],
   },
   {

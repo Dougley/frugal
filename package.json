@@ -13,11 +13,11 @@
     "typescript": "^5.9.2"
   },
   "scripts": {
-    "lint:report": "biome lint --reporter=json --log-level=none \"{packages,apps}/**/*.{ts,tsx,cts,mts}\" > biome_report.json",
-    "lint": "biome lint \"{packages,apps}/**/*.{ts,tsx,cts,mts}\"",
-    "lint:fix": "biome lint --write \"{packages,apps}/**/*.{ts,tsx,cts,mts}\"",
-    "format": "biome format --write \"{packages,apps}/**/*.{ts,tsx,cts,mts}\"",
-    "format:check": "biome format \"{packages,apps}/**/*.{ts,tsx,cts,mts}\"",
+    "lint:report": "biome lint --reporter=json --log-level=none > biome_report.json",
+    "lint": "biome lint",
+    "lint:fix": "biome lint --write",
+    "format": "biome format --write",
+    "format:check": "biome format",
     "check": "biome check --write",
     "check:ci": "biome check",
     "ci": "biome ci"

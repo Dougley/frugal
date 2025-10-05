@@ -7,9 +7,15 @@ interface DocumentCardProps {
   title: string;
   description: string;
   path: string;
+  icon?: React.ReactNode;
 }
 
-export function DocumentCard({ title, description, path }: DocumentCardProps) {
+export function DocumentCard({
+  title,
+  description,
+  path,
+  icon,
+}: DocumentCardProps) {
   return (
     <Card
       component={Link}
@@ -20,9 +26,12 @@ export function DocumentCard({ title, description, path }: DocumentCardProps) {
       withBorder
     >
       <Stack gap="sm">
-        <Title order={2} size="h3">
-          {title}
-        </Title>
+        <Group gap="sm">
+          {icon && <div>{icon}</div>}
+          <Title order={2} size="h3">
+            {title}
+          </Title>
+        </Group>
         <Text c="dimmed">{description}</Text>
         <Group gap={4} className={styles.readMore} c="blue">
           <Text>Read more</Text>

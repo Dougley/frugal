@@ -1,39 +1,95 @@
 import { CodeHighlight } from "@mantine/code-highlight";
-import type { ComponentPropsWithoutRef } from "react";
-import styles from "./CodeHighlight.module.css";
+import { Box } from "@mantine/core";
+import type { ComponentPropsWithoutRef, ReactElement } from "react";
+
+// Map of common language aliases to their proper highlight.js language names
+const languageMap: Record<string, string> = {
+  js: "javascript",
+  jsx: "javascript",
+  ts: "typescript",
+  tsx: "typescript",
+  sh: "bash",
+  shell: "bash",
+  zsh: "bash",
+  yml: "yaml",
+  py: "python",
+  rb: "ruby",
+  rs: "rust",
+  go: "go",
+  java: "java",
+  c: "c",
+  cpp: "cpp",
+  cs: "csharp",
+  php: "php",
+  swift: "swift",
+  kt: "kotlin",
+  sql: "sql",
+  md: "markdown",
+  mdx: "markdown",
+  html: "html",
+  xml: "xml",
+  css: "css",
+  scss: "scss",
+  sass: "scss",
+  less: "less",
+  json: "json",
+  yaml: "yaml",
+  toml: "toml",
+  graphql: "graphql",
+  diff: "diff",
+  docker: "dockerfile",
+  dockerfile: "dockerfile",
+};
 
 export function CodeHighlightBlock({
   children,
 }: ComponentPropsWithoutRef<"pre">) {
-  // biome-ignore lint/suspicious/noExplicitAny: children is a ReactNode
-  const language = (children: any) => {
-    const matches = (children.props.className || "").match(
-      /language-(?<lang>.*)/
-    );
-    const matchedLanguage = matches?.groups?.lang ? matches.groups.lang : "tsx";
+  // Extract language from className (e.g., "language-typescript")
+  const childElement = children as ReactElement<{
+    className?: string;
+    children: string;
+  }>;
 
-    if (["js", "jsx", "ts", "tsx"].includes(matchedLanguage)) {
-      return "tsx";
-    }
+  const className = childElement?.props?.className || "";
+  const matches = className.match(/language-(?<lang>[\w-]+)/);
+  const rawLang = matches?.groups?.lang || "typescript";
 
-    if (["css", "scss"].includes(matchedLanguage)) {
-      return "scss";
-    }
+  // Map to proper language name
+  const language = languageMap[rawLang.toLowerCase()] || rawLang;
 
-    if (["html", "bash", "json"].includes(matchedLanguage)) {
-      return matchedLanguage;
-    }
+  // Get the actual code content - handle both string and nested content
+  let code = "";
+  if (childElement?.props?.children) {
+    const childContent = childElement.props.children;
+    code =
+      typeof childContent === "string" ? childContent : String(childContent);
+  }
 
-    throw new Error(`Unknown language: ${matchedLanguage}`);
-  };
+  // Remove leading/trailing newlines but preserve internal formatting
+  code = code.replace(/^\n+/, "").replace(/\n+$/, "");
 
   return (
-    <div className={styles.codeBlock}>
+    <Box
+      style={{
+        border: "1px solid var(--mantine-color-default-border)",
+        overflow: "hidden",
+        margin: 0,
+      }}
+    >
       <CodeHighlight
-        // @ts-expect-error - children is a ReactNode
-        code={children?.props.children}
-        language={language(children)}
+        code={code}
+        language={language}
+        withCopyButton
+        copyLabel="Copy code"
+        copiedLabel="Copied!"
+        styles={{
+          code: {
+            border: "none",
+            margin: 0,
+            borderRadius: 0,
+          },
+        }}
       />
-    </div>
+    </Box>
   );
 }

@@ -5,6 +5,7 @@ import {
   MantineProvider,
   mergeMantineTheme,
 } from "@mantine/core";
+import { CodeHighlightAdapterProvider } from "@mantine/code-highlight";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 import { NavigationProgress } from "@mantine/nprogress";
@@ -18,6 +19,7 @@ import styles from "./styles.css?url";
 import { getLoggedInUser } from "./utils/auth";
 import { getBuildInfo } from "./utils/build-info";
 import { defaultMeta } from "./utils/meta";
+import { shikiAdapter } from "./utils/shiki-adapter";
 
 export const meta = () => {
   return defaultMeta();
@@ -69,13 +71,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <MantineProvider theme={theme} defaultColorScheme="auto">
-          <Notifications />
-          <NavigationProgress />
-          <ModalsProvider>
-            <Contexts>
-              <Skeleton>{children}</Skeleton>
-            </Contexts>
-          </ModalsProvider>
+          <CodeHighlightAdapterProvider adapter={shikiAdapter}>
+            <Notifications />
+            <NavigationProgress />
+            <ModalsProvider>
+              <Contexts>
+                <Skeleton>{children}</Skeleton>
+              </Contexts>
+            </ModalsProvider>
+          </CodeHighlightAdapterProvider>
         </MantineProvider>
         <ScrollRestoration />
         <Scripts />

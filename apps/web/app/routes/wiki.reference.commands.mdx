@@ -1,0 +1,154 @@
+---
+title: Command Reference
+description: Complete list of all GiveawayBot commands and their usage
+showtoc: true
+sidebar:
+  order: 1
+---
+
+# Command Reference
+
+Complete reference for all GiveawayBot slash commands.
+
+## Giveaway Management
+
+### `/start`
+
+Creates a new giveaway with an interactive setup wizard.
+
+**Usage:**
+```
+/start
+```
+
+**Permissions Required:** `Manage Server` or `Giveaway Manager` role
+
+---
+
+### `/stop`
+
+Manually ends a running giveaway and selects winners.
+
+**Usage:**
+```
+/stop giveaway_id:<id>
+```
+
+**Parameters:**
+- `giveaway_id` - The ID of the giveaway to end
+
+---
+
+### `/reroll`
+
+Rerolls the winners for a completed giveaway.
+
+**Usage:**
+```
+/reroll giveaway_id:<id> [winners:<number>]
+```
+
+**Parameters:**
+- `giveaway_id` - The ID of the giveaway to reroll
+- `winners` (optional) - Number of new winners to select
+
+---
+
+### `/list`
+
+Lists all giveaways in the current server.
+
+**Usage:**
+```
+/list [status:<active|ended|all>]
+```
+
+**Parameters:**
+- `status` (optional) - Filter by giveaway status (default: active)
+
+---
+
+## Configuration
+
+### `/settings`
+
+Configure bot settings for your server.
+
+**Usage:**
+```
+/settings
+```
+
+**Permissions Required:** `Manage Server`
+
+---
+
+### `/ping`
+
+Check the bot's latency and status.
+
+**Usage:**
+```
+/ping
+```
+
+## Premium Commands
+
+> [!NOTE]
+> These commands require a Premium subscription
+
+### `/edit`
+
+Edit an active giveaway's settings.
+
+**Usage:**
+```
+/edit giveaway_id:<id>
+```
+
+<DocBadge variant="new" text="Premium" />
+
+---
+
+## Examples
+
+Here are some common usage patterns:
+
+<CodeTabs>
+  <CodeTab label="Quick Giveaway" language="bash">
+    ```bash
+    # Start a simple giveaway
+    /start
+    # Then follow the interactive prompts
+    ```
+  </CodeTab>
+  <CodeTab label="End Early" language="bash">
+    ```bash
+    # End a giveaway before scheduled time
+    /stop giveaway_id:12345
+    ```
+  </CodeTab>
+  <CodeTab label="Reroll Winners" language="bash">
+    ```bash
+    # Pick 3 new winners for a giveaway
+    /reroll giveaway_id:12345 winners:3
+    ```
+  </CodeTab>
+</CodeTabs>
+
+## See Also
+
+<CardGrid cols={{ base: 1, sm: 2 }}>
+  <LinkCard
+    href="/wiki/getting-started/quick-start"
+    title="Quick Start Guide"
+    description="Get started with your first giveaway"
+    icon={<DocIcon name="rocket" />}
+  />
+  <LinkCard
+    href="/wiki/reference/permissions"
+    title="Permissions"
+    description="Learn about permission requirements"
+    icon={<DocIcon name="lock" />}
+  />
+</CardGrid>

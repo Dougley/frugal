@@ -2,16 +2,45 @@ import {
   ActionIcon,
   Box,
   Drawer,
+  Group,
   rem,
+  ScrollArea,
   TableOfContents,
   Text,
   VisuallyHidden,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconList } from "@tabler/icons-react";
-import classes from "./TableOfContents.module.css";
 
-export function TableOfContentsNav() {
+const TOC_SELECTOR = "#mdx :is(h1, h2, h3, h4, h5, h6)";
+
+export function TableOfContentsDesktop() {
+  return (
+    <Box component="nav" pos="sticky" top="var(--mantine-spacing-md)">
+      <Group gap="sm" mb="md">
+        <IconList style={{ width: rem(20), height: rem(20) }} stroke={1.5} />
+        <Text fw={500} size="sm">
+          Table of contents
+        </Text>
+      </Group>
+      <ScrollArea.Autosize mah="calc(100vh - 120px)" type="never">
+        <TableOfContents
+          variant="light"
+          color="blue"
+          radius="sm"
+          scrollSpyOptions={{ selector: TOC_SELECTOR }}
+          getControlProps={({ data }) => ({
+            onClick: () =>
+              data.getNode().scrollIntoView({ behavior: "smooth" }),
+            children: data.value,
+          })}
+        />
+      </ScrollArea.Autosize>
+    </Box>
+  );
+}
+
+export function TableOfContentsMobile() {
   const [opened, { open, close }] = useDisclosure(false);
 
   return (
@@ -25,17 +54,14 @@ export function TableOfContentsNav() {
         position="bottom"
       >
         <TableOfContents
-          classNames={classes}
           variant="light"
           color="blue"
           radius="sm"
-          scrollSpyOptions={{
-            selector: "#mdx :is(h1, h2, h3, h4, h5, h6)",
-          }}
+          scrollSpyOptions={{ selector: TOC_SELECTOR }}
           getControlProps={({ data }) => ({
             onClick: () => {
               close();
-              data.getNode().scrollIntoView();
+              data.getNode().scrollIntoView({ behavior: "smooth" });
             },
             children: data.value,
           })}
@@ -47,31 +73,15 @@ export function TableOfContentsNav() {
         size="xl"
         radius="xl"
         onClick={open}
-        className={classes.mobileFob}
+        hiddenFrom="xl"
+        pos="fixed"
+        bottom={15}
+        left={15}
+        style={{ zIndex: 100 }}
       >
         <VisuallyHidden>Open table of contents</VisuallyHidden>
         <IconList style={{ width: rem(20), height: rem(20) }} stroke={1.5} />
       </ActionIcon>
-
-      <Box component="nav" className={classes.wrapper}>
-        <div className={classes.header}>
-          <IconList style={{ width: rem(20), height: rem(20) }} stroke={1.5} />
-          <Text className={classes.title}>Table of contents</Text>
-        </div>
-        <TableOfContents
-          classNames={classes}
-          variant="light"
-          color="blue"
-          radius="sm"
-          scrollSpyOptions={{
-            selector: "#mdx :is(h1, h2, h3, h4, h5, h6)",
-          }}
-          getControlProps={({ data }) => ({
-            onClick: () => data.getNode().scrollIntoView(),
-            children: data.value,
-          })}
-        />
-      </Box>
     </>
   );
 }
