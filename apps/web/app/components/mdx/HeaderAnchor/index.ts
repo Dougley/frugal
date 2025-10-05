@@ -1,1 +1,1 @@
-export { HeaderAnchor, generateHeadingId } from "./HeaderAnchor";
+export { generateHeadingId, HeaderAnchor } from "./HeaderAnchor";

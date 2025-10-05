@@ -1,4 +1,4 @@
-import { Anchor, Card, Group, Stack, Text, Title, Box } from "@mantine/core";
+import { Anchor, Box, Card, Group, Stack, Text, Title } from "@mantine/core";
 import { IconArrowRight, IconExternalLink } from "@tabler/icons-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router";

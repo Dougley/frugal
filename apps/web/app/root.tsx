@@ -1,3 +1,4 @@
+import { CodeHighlightAdapterProvider } from "@mantine/code-highlight";
 import {
   ColorSchemeScript,
   createTheme,
@@ -5,7 +6,6 @@ import {
   MantineProvider,
   mergeMantineTheme,
 } from "@mantine/core";
-import { CodeHighlightAdapterProvider } from "@mantine/code-highlight";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 import { NavigationProgress } from "@mantine/nprogress";

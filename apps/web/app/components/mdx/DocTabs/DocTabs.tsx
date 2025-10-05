@@ -1,9 +1,9 @@
-import { Tabs, Box } from "@mantine/core";
+import { Box, Tabs } from "@mantine/core";
 import {
   Children,
+  isValidElement,
   type ReactElement,
   type ReactNode,
-  isValidElement,
 } from "react";
 
 interface DocTabsProps {

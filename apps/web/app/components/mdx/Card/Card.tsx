@@ -1,4 +1,4 @@
-import { Card as MantineCard, Group, Stack, Title, Box } from "@mantine/core";
+import { Box, Group, Card as MantineCard, Stack, Title } from "@mantine/core";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 interface CardProps extends ComponentPropsWithoutRef<"div"> {

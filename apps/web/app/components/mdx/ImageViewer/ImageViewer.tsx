@@ -1,5 +1,5 @@
 import { Modal } from "@mantine/core";
-import { useState, type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 
 interface ImageViewerProps {
   opened: boolean;

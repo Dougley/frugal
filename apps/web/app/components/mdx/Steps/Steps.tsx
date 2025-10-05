@@ -1,9 +1,9 @@
-import { Stack, Group, Box, Avatar } from "@mantine/core";
+import { Avatar, Box, Group, Stack } from "@mantine/core";
 import {
   Children,
+  isValidElement,
   type ReactElement,
   type ReactNode,
-  isValidElement,
 } from "react";
 
 interface StepsProps {
