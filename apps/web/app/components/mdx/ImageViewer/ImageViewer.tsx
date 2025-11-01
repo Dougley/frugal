@@ -1,5 +1,6 @@
 import { Modal } from "@mantine/core";
 import { type ReactNode, useState } from "react";
+import styles from "./ImageViewer.module.css";
 
 interface ImageViewerProps {
   opened: boolean;
@@ -32,14 +33,6 @@ function createKeyDownHandler(callback: () => void, allowEscape = false) {
   };
 }
 
-// Shared button wrapper styles
-const buttonStyles = {
-  border: "none",
-  background: "none",
-  padding: 0,
-  display: "block" as const,
-};
-
 export function ImageViewer({ opened, onClose, src, alt }: ImageViewerProps) {
   return (
     <Modal
@@ -67,20 +60,9 @@ export function ImageViewer({ opened, onClose, src, alt }: ImageViewerProps) {
         type="button"
         onClick={onClose}
         onKeyDown={createKeyDownHandler(onClose, true)}
-        style={{
-          ...buttonStyles,
-          cursor: "zoom-out",
-        }}
+        className={`${styles.button} ${styles.zoomOutButton}`}
       >
-        <img
-          src={src}
-          alt={alt}
-          style={{
-            maxWidth: "90vw",
-            maxHeight: "90vh",
-            display: "block",
-          }}
-        />
+        <img src={src} alt={alt} className={styles.modalImage} />
       </button>
     </Modal>
   );
@@ -106,19 +88,14 @@ export function ClickableImage({
         type="button"
         onClick={handleOpen}
         onKeyDown={createKeyDownHandler(handleOpen)}
-        style={{
-          ...buttonStyles,
-          cursor: "zoom-in",
-        }}
+        className={`${styles.button} ${styles.zoomInButton}`}
       >
         <img
           src={src}
           alt={alt}
           {...props}
-          style={{
-            display: "block",
-            ...((props.style as object) || {}),
-          }}
+          className={styles.thumbnailImage}
+          style={props.style as object}
         />
       </button>
       <ImageViewer

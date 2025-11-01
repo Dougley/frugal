@@ -5,6 +5,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
+import styles from "./Steps.module.css";
 
 interface StepsProps {
   children: ReactNode;
@@ -44,11 +45,11 @@ export function Steps({ children }: StepsProps) {
   }
 
   return (
-    <Stack gap="lg" my="xl" style={{ position: "relative" }}>
+    <Stack gap="lg" my="xl" className={styles.container}>
       {steps.map((step, index) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: Steps are sequential and index is semantically correct
         <Group key={`step-${index}`} align="flex-start" wrap="nowrap" gap="md">
-          <Box style={{ position: "relative" }}>
+          <Box className={styles.avatarWrapper}>
             <Avatar
               size="md"
               radius="xl"
@@ -62,21 +63,9 @@ export function Steps({ children }: StepsProps) {
             >
               {index + 1}
             </Avatar>
-            {index < steps.length - 1 && (
-              <Box
-                style={{
-                  position: "absolute",
-                  left: "50%",
-                  top: "100%",
-                  transform: "translateX(-50%)",
-                  width: "2px",
-                  height: "calc(100% + var(--mantine-spacing-lg))",
-                  backgroundColor: "var(--mantine-color-gray-3)",
-                }}
-              />
-            )}
+            {index < steps.length - 1 && <Box className={styles.connector} />}
           </Box>
-          <Box style={{ flex: 1, paddingTop: "6px" }}>{step}</Box>
+          <Box className={styles.stepContent}>{step}</Box>
         </Group>
       ))}
     </Stack>

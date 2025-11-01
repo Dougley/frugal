@@ -1,7 +1,8 @@
 import { NavLink } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
+import { modals } from "@mantine/modals";
 import { IconSettings, IconSpy } from "@tabler/icons-react";
 import { ColorSchemeToggle } from "../ColorSchemeToggle/ColorSchemeToggle";
+import { PrivacySettings } from "../PrivacySettings/PrivacySettings";
 import classes from "./Navbar.module.css";
 
 export const Settings = () => {
@@ -19,9 +20,10 @@ export const Settings = () => {
         label="Privacy"
         leftSection={<IconSpy className={classes.linkIcon} stroke={1.5} />}
         onClick={() => {
-          notifications.show({
-            title: "Coming soon",
-            message: "Privacy settings are not available yet",
+          modals.open({
+            title: "Privacy Settings",
+            children: <PrivacySettings />,
+            size: "md",
           });
         }}
       />

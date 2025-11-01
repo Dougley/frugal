@@ -9,6 +9,7 @@ import {
 } from "@mantine/core";
 import { IconLogin, IconLogout, IconMenu2 } from "@tabler/icons-react";
 import { Form, useLocation } from "react-router";
+import { PremiumBadge } from "~/components/PremiumBadge";
 import type { DiscordUser } from "~/types/DiscordUser";
 import classes from "./Navbar.module.css";
 
@@ -44,9 +45,12 @@ export const UserLoginStateControl = ({
           >
             <Avatar src={user.avatar} alt={user.username} radius="xl" />
             <div style={{ flex: 1, maxWidth: "calc(100% - 125px)" }}>
-              <Text size="sm" fw={500} truncate>
-                {user.displayName}
-              </Text>
+              <Group gap={4}>
+                <Text size="sm" fw={500} truncate>
+                  {user.displayName}
+                </Text>
+                <PremiumBadge showIcon={false} showTooltip size="xs" />
+              </Group>
               <Text size="xs" c="dimmed" truncate>
                 {user.username}
               </Text>

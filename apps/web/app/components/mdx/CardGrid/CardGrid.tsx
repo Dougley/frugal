@@ -1,5 +1,6 @@
 import { SimpleGrid } from "@mantine/core";
 import type { ReactNode } from "react";
+import styles from "./CardGrid.module.css";
 
 interface CardGridProps {
   children: ReactNode;
@@ -22,14 +23,7 @@ export function CardGrid({
   spacing = "lg",
 }: CardGridProps) {
   return (
-    <SimpleGrid
-      cols={cols}
-      spacing={spacing}
-      my="xl"
-      style={{
-        alignItems: "stretch",
-      }}
-    >
+    <SimpleGrid cols={cols} spacing={spacing} my="xl" className={styles.grid}>
       {children}
     </SimpleGrid>
   );

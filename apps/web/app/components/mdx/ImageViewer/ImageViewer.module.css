@@ -1,0 +1,24 @@
+.button {
+  border: none;
+  background: none;
+  padding: 0;
+  display: block;
+}
+
+.zoomOutButton {
+  cursor: zoom-out;
+}
+
+.zoomInButton {
+  cursor: zoom-in;
+}
+
+.modalImage {
+  max-width: 90vw;
+  max-height: 90vh;
+  display: block;
+}
+
+.thumbnailImage {
+  display: block;
+}

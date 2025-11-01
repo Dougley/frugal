@@ -1,0 +1,100 @@
+.iconWrapper {
+  position: relative;
+  flex-shrink: 0;
+  width: 16px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chevron {
+  position: absolute;
+  left: -14px;
+  top: 3px;
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contentRow {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  gap: 8px;
+}
+
+.filenameWrapper {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.filenameWrapperHighlighted {
+  border: 1px solid var(--mantine-color-blue-6);
+  border-radius: var(--mantine-radius-sm);
+  padding: 0px 4px;
+  background-color: var(--mantine-color-blue-light);
+}
+
+.filename {
+  user-select: none;
+}
+
+.comment {
+  user-select: none;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listItem {
+  list-style: none;
+}
+
+.folderButton {
+  text-align: left;
+  border-radius: var(--mantine-radius-sm);
+  padding: 1px 2px;
+  margin-left: -2px;
+  transition: background-color 150ms ease;
+}
+
+.nestedList {
+  list-style: none;
+  margin: 0 !important;
+  padding: 0;
+  padding-left: 20px;
+  border-left: 1px solid var(--mantine-color-default-border);
+  margin-left: 7px;
+}
+
+.fileWrapper {
+  padding-left: 0;
+}
+
+.container {
+  background-color: var(--mantine-color-default);
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  font-family: var(--mantine-font-family-monospace);
+  width: 100%;
+  overflow: hidden;
+}
+
+.rootList {
+  list-style: none;
+  margin: 0 !important;
+  padding: 1rem;
+  width: max-content;
+  min-width: 100%;
+}

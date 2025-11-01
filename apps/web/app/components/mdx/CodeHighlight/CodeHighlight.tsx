@@ -1,6 +1,7 @@
 import { CodeHighlight } from "@mantine/code-highlight";
 import { Box } from "@mantine/core";
 import type { ComponentPropsWithoutRef, ReactElement } from "react";
+import styles from "./CodeHighlight.module.css";
 
 // Map of common language aliases to their proper highlight.js language names
 const languageMap: Record<string, string> = {
@@ -69,13 +70,7 @@ export function CodeHighlightBlock({
   code = code.replace(/^\n+/, "").replace(/\n+$/, "");
 
   return (
-    <Box
-      style={{
-        border: "1px solid var(--mantine-color-default-border)",
-        overflow: "hidden",
-        margin: 0,
-      }}
-    >
+    <Box className={styles.container}>
       <CodeHighlight
         code={code}
         language={language}

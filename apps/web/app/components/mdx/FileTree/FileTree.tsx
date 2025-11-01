@@ -30,6 +30,7 @@ import {
   type ReactNode,
   useState,
 } from "react";
+import styles from "./FileTree.module.css";
 
 interface FileTreeProps {
   children: ReactNode;
@@ -84,31 +85,9 @@ function FileTreeItem({
 
   const renderContent = () => (
     <Group gap={6} wrap="nowrap" align="flex-start">
-      <Box
-        style={{
-          position: "relative",
-          flexShrink: 0,
-          width: 16,
-          height: 18,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
+      <Box className={styles.iconWrapper}>
         {isFolder && hasChildren && (
-          <Box
-            component="span"
-            c="gray.6"
-            style={{
-              position: "absolute",
-              left: -14,
-              top: 3,
-              opacity: 0.6,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+          <Box component="span" c="gray.6" className={styles.chevron}>
             {isOpen ? (
               <IconChevronDown size={12} stroke={2.5} />
             ) : (
@@ -116,14 +95,7 @@ function FileTreeItem({
             )}
           </Box>
         )}
-        <Box
-          c={isFolder ? "blue.6" : "gray.6"}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+        <Box c={isFolder ? "blue.6" : "gray.6"} className={styles.icon}>
           {isFolder ? (
             isOpen && hasChildren ? (
               <IconFolderOpen size={16} />
@@ -136,44 +108,22 @@ function FileTreeItem({
         </Box>
       </Box>
       {/* Render comment if it exists, affix it to the end of the filename, spaced equidistant to each other */}
-      <Box style={{ display: "flex", flex: 1, minWidth: 0, gap: 8 }}>
+      <Box className={styles.contentRow}>
         <Box
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            flexShrink: 0,
-            ...(isHighlighted && {
-              border: "1px solid var(--mantine-color-blue-6)",
-              borderRadius: "var(--mantine-radius-sm)",
-              padding: "0px 4px",
-              backgroundColor: "var(--mantine-color-blue-light)",
-            }),
-          }}
+          className={`${styles.filenameWrapper} ${isHighlighted ? styles.filenameWrapperHighlighted : ""}`}
         >
           <Text
             ff="monospace"
             size="sm"
             m={0}
             c={isPlaceholder ? "dimmed" : undefined}
-            style={{ userSelect: "none" }}
+            className={styles.filename}
           >
             {name}
           </Text>
         </Box>
         {comment && (
-          <Text
-            ff="monospace"
-            size="sm"
-            c="dimmed"
-            style={{
-              userSelect: "none",
-              flex: 1,
-              minWidth: 0,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
+          <Text ff="monospace" size="sm" c="dimmed" className={styles.comment}>
             <Text component="span" c="dimmed" opacity={0.5} mr={4}>
               {"//"}
             </Text>
@@ -185,20 +135,14 @@ function FileTreeItem({
   );
 
   return (
-    <Box component="li" style={{ listStyle: "none" }}>
+    <Box component="li" className={styles.listItem}>
       {isFolder && hasChildren ? (
         <>
           <UnstyledButton
             onClick={() => setIsOpen(!isOpen)}
             mb={2}
             w="100%"
-            style={{
-              textAlign: "left",
-              borderRadius: "var(--mantine-radius-sm)",
-              padding: "1px 2px",
-              marginLeft: -2,
-              transition: "background-color 150ms ease",
-            }}
+            className={styles.folderButton}
             styles={{
               root: {
                 "&:hover": {
@@ -213,14 +157,7 @@ function FileTreeItem({
             <Box
               component="ul"
               data-type="taskList"
-              style={{
-                listStyle: "none",
-                margin: "0 !important",
-                padding: 0,
-                paddingLeft: 20,
-                borderLeft: "1px solid var(--mantine-color-default-border)",
-                marginLeft: 7,
-              }}
+              className={styles.nestedList}
             >
               {Children.map(children, (child) => {
                 if (isValidElement(child)) {
@@ -232,7 +169,7 @@ function FileTreeItem({
           </Collapse>
         </>
       ) : (
-        <Box mb={2} style={{ paddingLeft: 0 }}>
+        <Box mb={2} className={styles.fileWrapper}>
           {renderContent()}
         </Box>
       )}
@@ -369,29 +306,13 @@ export function FileTree({ children }: FileTreeProps) {
   };
 
   return (
-    <Box
-      my="xl"
-      style={{
-        backgroundColor: "var(--mantine-color-default)",
-        border: "1px solid var(--mantine-color-default-border)",
-        borderRadius: "var(--mantine-radius-md)",
-        fontFamily: "var(--mantine-font-family-monospace)",
-        width: "100%",
-        overflow: "hidden",
-      }}
-    >
+    <Box my="xl" className={styles.container}>
       <ScrollArea.Autosize maw="80vw" mx="auto">
         <Box
           p="md"
           component="ul"
           data-type="taskList"
-          style={{
-            listStyle: "none",
-            margin: "0 !important",
-            padding: "1rem",
-            width: "max-content",
-            minWidth: "100%",
-          }}
+          className={styles.rootList}
         >
           {processListItems(children)}
         </Box>

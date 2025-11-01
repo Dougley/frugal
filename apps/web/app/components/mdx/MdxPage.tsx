@@ -16,7 +16,7 @@ import {
 } from "~/components/mdx/TableOfContents/TableOfContents";
 import type { Frontmatter } from "~/utils/mdx";
 import { MdxProvider } from "./MdxProvider";
-import { PageHeader } from "./PageHeader";
+import { PageHeader } from "./PageHeader/PageHeader";
 
 interface MdxPageProps {
   title: string;

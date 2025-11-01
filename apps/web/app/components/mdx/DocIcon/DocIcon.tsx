@@ -1,5 +1,6 @@
 import type { Icon } from "@tabler/icons-react";
 import { type ComponentPropsWithoutRef, lazy, Suspense } from "react";
+import styles from "./DocIcon.module.css";
 
 interface DocIconProps extends ComponentPropsWithoutRef<"span"> {
   name: string;
@@ -52,32 +53,21 @@ export function DocIcon({ name, size = 20, color, ...props }: DocIconProps) {
   if (!IconComponent) {
     console.warn(`Icon "${name}" (${iconName}) not found in Tabler Icons`);
     return (
-      <span
-        {...props}
-        style={{ display: "inline-flex", alignItems: "center", ...props.style }}
-      >
+      <span {...props} className={styles.fallback} style={props.style}>
         [{name}]
       </span>
     );
   }
 
   return (
-    <span
-      {...props}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        verticalAlign: "middle",
-        ...props.style,
-      }}
-    >
+    <span {...props} className={styles.iconWrapper} style={props.style}>
       <Suspense
         fallback={
           <span
+            className={styles.fallbackPlaceholder}
             style={{
               width: size,
               height: size,
-              display: "inline-block",
             }}
           />
         }

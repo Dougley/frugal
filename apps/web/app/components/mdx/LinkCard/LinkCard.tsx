@@ -2,6 +2,7 @@ import { Anchor, Box, Card, Group, Stack, Text, Title } from "@mantine/core";
 import { IconArrowRight, IconExternalLink } from "@tabler/icons-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
+import styles from "./LinkCard.module.css";
 
 interface LinkCardProps {
   href: string;
@@ -26,10 +27,7 @@ export function LinkCard({
       radius="md"
       withBorder
       h="100%"
-      style={{
-        cursor: "pointer",
-        transition: "transform 0.2s ease, box-shadow 0.2s ease",
-      }}
+      className={styles.card}
       __vars={{
         "--card-hover-transform": "translateY(-2px)",
       }}
@@ -44,23 +42,22 @@ export function LinkCard({
     >
       <Stack gap="sm" h="100%">
         <Group justify="space-between" wrap="nowrap" align="flex-start">
-          <Group gap="sm" wrap="nowrap" align="flex-start" style={{ flex: 1 }}>
+          <Group
+            gap="sm"
+            wrap="nowrap"
+            align="flex-start"
+            className={styles.titleWrapper}
+          >
             {icon && (
-              <Box c="blue.6" style={{ flexShrink: 0 }}>
+              <Box c="blue.6" className={styles.iconContainer}>
                 {icon}
               </Box>
             )}
-            <Title order={3} size="h4" style={{ marginTop: 0 }}>
+            <Title order={3} size="h4" className={styles.titleHeading}>
               {title}
             </Title>
           </Group>
-          <Box
-            c="blue.6"
-            style={{
-              flexShrink: 0,
-              transition: "transform 0.2s ease",
-            }}
-          >
+          <Box c="blue.6" className={styles.arrowIcon}>
             {isExternal ? (
               <IconExternalLink size={20} />
             ) : (

@@ -1,0 +1,22 @@
+.container {
+  position: relative;
+}
+
+.avatarWrapper {
+  position: relative;
+}
+
+.connector {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: calc(100% + var(--mantine-spacing-lg));
+  background-color: var(--mantine-color-gray-3);
+}
+
+.stepContent {
+  flex: 1;
+  padding-top: 6px;
+}

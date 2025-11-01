@@ -1,6 +1,7 @@
 import { ActionIcon, Box, Title } from "@mantine/core";
 import { IconLink } from "@tabler/icons-react";
 import { type ReactNode, useState } from "react";
+import styles from "./HeaderAnchor.module.css";
 
 interface HeaderAnchorProps {
   id: string;
@@ -22,7 +23,7 @@ export function HeaderAnchor({ id, children, level }: HeaderAnchorProps) {
   };
 
   return (
-    <Box className="header-anchor-group">
+    <Box className={styles.headerAnchorGroup}>
       <Title
         order={level}
         id={id}
@@ -37,23 +38,12 @@ export function HeaderAnchor({ id, children, level }: HeaderAnchorProps) {
           size="sm"
           onClick={handleCopyLink}
           aria-label={copied ? "Link copied!" : "Copy link to heading"}
-          className="header-anchor-button"
+          className={styles.headerAnchorButton}
           ml={8}
         >
           <IconLink size={16} />
         </ActionIcon>
       </Title>
-      <style>
-        {`
-          .header-anchor-button {
-            opacity: 0;
-            transition: opacity 0.2s ease;
-          }
-          .header-anchor-group:hover .header-anchor-button {
-            opacity: 1;
-          }
-        `}
-      </style>
     </Box>
   );
 }

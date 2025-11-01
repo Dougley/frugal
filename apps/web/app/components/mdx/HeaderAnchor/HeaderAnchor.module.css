@@ -1,0 +1,8 @@
+.headerAnchorButton {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.headerAnchorGroup:hover .headerAnchorButton {
+  opacity: 1;
+}

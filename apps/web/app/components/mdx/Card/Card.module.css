@@ -1,0 +1,11 @@
+.iconWrapper {
+  flex-shrink: 0;
+}
+
+.titleWrapper {
+  margin-top: 0;
+}
+
+.contentWrapper {
+  flex: 1;
+}

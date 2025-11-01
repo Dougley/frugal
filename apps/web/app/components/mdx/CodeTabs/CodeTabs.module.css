@@ -1,0 +1,17 @@
+.container {
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  overflow: hidden;
+}
+
+.tabsList {
+  background-color: var(--mantine-color-default);
+  padding: var(--mantine-spacing-xs);
+  margin: 0;
+  border-bottom: none;
+}
+
+.tabPanel {
+  padding: 0;
+  margin: 0;
+}

@@ -12,7 +12,10 @@ import { DocGrid } from "~/components/mdx/DocGrid/DocGrid";
 import { DocIcon } from "~/components/mdx/DocIcon/DocIcon";
 import { DocTabs, TabItem } from "~/components/mdx/DocTabs/DocTabs";
 import { FileTree } from "~/components/mdx/FileTree/FileTree";
-import { generateHeadingId, HeaderAnchor } from "~/components/mdx/HeaderAnchor";
+import {
+  generateHeadingId,
+  HeaderAnchor,
+} from "~/components/mdx/HeaderAnchor/HeaderAnchor";
 import { ClickableImage } from "~/components/mdx/ImageViewer/ImageViewer";
 import { LinkCard } from "~/components/mdx/LinkCard/LinkCard";
 import { Steps } from "~/components/mdx/Steps/Steps";

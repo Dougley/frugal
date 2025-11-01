@@ -1,8 +1,17 @@
 import { Button, Container, Group, Text } from "@mantine/core";
+import { IconSparkles } from "@tabler/icons-react";
 import { Dots } from "./Dots";
 import classes from "./PremiumHero.module.css";
 
-export function PremiumHero() {
+interface PremiumHeroProps {
+  discordAppId?: string;
+}
+
+export function PremiumHero({ discordAppId }: PremiumHeroProps) {
+  const discordStoreUrl = discordAppId
+    ? `https://discord.com/application-directory/${discordAppId}/store`
+    : "https://discord.com";
+
   return (
     <Container className={classes.wrapper}>
       <Dots className={classes.dots} style={{ left: 30, top: 30 }} />
@@ -27,10 +36,15 @@ export function PremiumHero() {
         </Text>
         <Group className={classes.controls}>
           <Button
+            component="a"
+            href={discordStoreUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             size="xl"
             className={classes.control}
             variant="gradient"
             gradient={{ from: "teal", to: "cyan" }}
+            leftSection={<IconSparkles size={20} />}
           >
             Subscribe via Discord
           </Button>

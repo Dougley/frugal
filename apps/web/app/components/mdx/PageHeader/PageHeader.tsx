@@ -1,9 +1,9 @@
 import { Box, Button, Group, Image, Stack, Text, Title } from "@mantine/core";
 import { Link } from "react-router";
 import type { Frontmatter } from "~/utils/mdx";
-import { Breadcrumbs } from "../Breadcrumbs";
+import { Breadcrumbs } from "../Breadcrumbs/Breadcrumbs";
 import { DocBadge } from "../DocBadge/DocBadge";
-import { PageMeta } from "../PageMeta";
+import { PageMeta } from "../PageMeta/PageMeta";
 
 interface PageHeaderProps {
   /** Page title */

@@ -1,12 +1,64 @@
-import { Stack, Table, Text, Title } from "@mantine/core";
+import {
+  Pagination,
+  Stack,
+  Table,
+  Text,
+  TextInput,
+  Title,
+} from "@mantine/core";
+import { IconSearch } from "@tabler/icons-react";
+import { useMemo, useState } from "react";
 import type { ParticipantsTableProps } from "./types";
+
+const ITEMS_PER_PAGE = 10;
 
 export default function ParticipantsTable({
   participants,
 }: ParticipantsTableProps) {
+  const [activePage, setActivePage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredParticipants = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return participants;
+    }
+
+    const query = searchQuery.toLowerCase();
+    return participants.filter((participant) => {
+      const username = participant.username.toLowerCase();
+      const fullUsername = participant.discriminator
+        ? `${username}#${participant.discriminator}`
+        : username;
+      return fullUsername.includes(query) || participant.id.includes(query);
+    });
+  }, [participants, searchQuery]);
+
+  const totalPages = Math.ceil(filteredParticipants.length / ITEMS_PER_PAGE);
+  const startIndex = (activePage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedParticipants = filteredParticipants.slice(
+    startIndex,
+    endIndex
+  );
+
+  // Reset to page 1 when search query changes
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setActivePage(1);
+  };
+
   return (
     <Stack gap="md">
-      <Title order={2}>Participants</Title>
+      <Title order={2}>
+        Participants (
+        <span aria-live="polite">{filteredParticipants.length}</span>)
+      </Title>
+      <TextInput
+        placeholder="Search by username or ID..."
+        leftSection={<IconSearch size={16} />}
+        value={searchQuery}
+        onChange={(event) => handleSearchChange(event.currentTarget.value)}
+      />
       <Table>
         <Table.Thead>
           <Table.Tr>
@@ -15,7 +67,7 @@ export default function ParticipantsTable({
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {participants.map((participant) => (
+          {paginatedParticipants.map((participant) => (
             <Table.Tr key={participant.id}>
               <Table.Td>
                 <Text>
@@ -32,6 +84,14 @@ export default function ParticipantsTable({
           ))}
         </Table.Tbody>
       </Table>
+      {totalPages > 1 && (
+        <Pagination
+          total={totalPages}
+          value={activePage}
+          onChange={setActivePage}
+          mt="md"
+        />
+      )}
     </Stack>
   );
 }

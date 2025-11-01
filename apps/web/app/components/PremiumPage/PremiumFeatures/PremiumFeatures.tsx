@@ -24,7 +24,7 @@ const spotlight = [
       "Create giveaways that last for days, weeks, or even months. The choice is yours.",
     icon: IconCalendarBolt,
     compare: {
-      free: "7 days",
+      free: "14 days",
       premium: "30 days",
     },
   },
@@ -54,7 +54,7 @@ const spotlight = [
       "Pick more winners for your giveaways. Give more people a chance to win.",
     icon: IconMoodSmile,
     compare: {
-      free: "20 winners",
+      free: "10 winners",
       premium: "50 winners",
     },
   },

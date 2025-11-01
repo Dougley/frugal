@@ -1,7 +1,16 @@
 import { Button, Text, Title } from "@mantine/core";
+import { IconSparkles } from "@tabler/icons-react";
 import styles from "./PremiumCTA.module.css";
 
-export function PremiumCTA() {
+interface PremiumCTAProps {
+  discordAppId?: string;
+}
+
+export function PremiumCTA({ discordAppId }: PremiumCTAProps) {
+  const discordStoreUrl = discordAppId
+    ? `https://discord.com/application-directory/${discordAppId}/store`
+    : "https://discord.com";
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.inner}>
@@ -12,9 +21,14 @@ export function PremiumCTA() {
           Elevate your giveaways with GiveawayBot Premium.
         </Text>
         <Button
+          component="a"
+          href={discordStoreUrl}
+          target="_blank"
+          rel="noopener noreferrer"
           className={styles.button}
           variant="gradient"
           gradient={{ from: "blue", to: "cyan" }}
+          leftSection={<IconSparkles size={16} />}
         >
           Subscribe via Discord
         </Button>

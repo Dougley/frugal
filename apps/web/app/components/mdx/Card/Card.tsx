@@ -1,5 +1,6 @@
 import { Box, Group, Card as MantineCard, Stack, Title } from "@mantine/core";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import styles from "./Card.module.css";
 
 interface CardProps extends ComponentPropsWithoutRef<"div"> {
   title?: string;
@@ -14,18 +15,18 @@ export function Card({ title, icon, children, ...props }: CardProps) {
         {(title || icon) && (
           <Group gap="sm" wrap="nowrap" align="flex-start">
             {icon && (
-              <Box c="blue.6" style={{ flexShrink: 0 }}>
+              <Box c="blue.6" className={styles.iconWrapper}>
                 {icon}
               </Box>
             )}
             {title && (
-              <Title order={3} size="h4" style={{ marginTop: 0 }}>
+              <Title order={3} size="h4" className={styles.titleWrapper}>
                 {title}
               </Title>
             )}
           </Group>
         )}
-        <Box style={{ flex: 1 }}>{children}</Box>
+        <Box className={styles.contentWrapper}>{children}</Box>
       </Stack>
     </MantineCard>
   );

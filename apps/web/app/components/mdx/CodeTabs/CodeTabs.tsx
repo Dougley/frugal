@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import { DocIcon } from "../DocIcon/DocIcon";
+import styles from "./CodeTabs.module.css";
 
 interface CodeTabsProps {
   children: ReactNode;
@@ -40,23 +41,9 @@ export function CodeTabs({ children, defaultValue }: CodeTabsProps) {
   const activeTab = defaultValue || firstValue;
 
   return (
-    <Box
-      my="xl"
-      style={{
-        border: "1px solid var(--mantine-color-default-border)",
-        borderRadius: "var(--mantine-radius-md)",
-        overflow: "hidden",
-      }}
-    >
+    <Box my="xl" className={styles.container}>
       <Tabs defaultValue={activeTab} variant="pills">
-        <Tabs.List
-          style={{
-            backgroundColor: "var(--mantine-color-default)",
-            padding: "var(--mantine-spacing-xs)",
-            margin: 0,
-            borderBottom: "none",
-          }}
-        >
+        <Tabs.List className={styles.tabsList}>
           {tabs.map((tab) => {
             const tabValue = tab.props.value || tab.props.label;
             return (
@@ -84,10 +71,7 @@ export function CodeTabs({ children, defaultValue }: CodeTabsProps) {
             <Tabs.Panel
               key={tabValue}
               value={tabValue}
-              style={{
-                padding: 0,
-                margin: "0",
-              }}
+              className={styles.tabPanel}
             >
               <Box
                 style={{

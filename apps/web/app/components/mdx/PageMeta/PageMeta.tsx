@@ -2,6 +2,7 @@ import { Anchor, Grid, Group, Text, Tooltip } from "@mantine/core";
 import { IconCalendar, IconClock, IconEdit } from "@tabler/icons-react";
 import { formatDate, formatDistanceToNow } from "date-fns";
 import type { ReactNode } from "react";
+import styles from "./PageMeta.module.css";
 
 interface PageMetaProps {
   /** Reading time in minutes */
@@ -38,7 +39,7 @@ export function PageMeta({
       {readingTime && (
         <Grid.Col span={{ base: 12, md: "content" }}>
           <Group gap="xs" wrap="nowrap">
-            <IconClock size={16} style={{ opacity: 0.6 }} />
+            <IconClock size={16} className={styles.icon} />
             <Text size="sm" c="dimmed">
               {readingTime} min read
             </Text>
@@ -50,7 +51,7 @@ export function PageMeta({
         <Grid.Col span={{ base: 12, md: "content" }}>
           <Tooltip label={formatDate(lastUpdated, "PPP")} withArrow>
             <Group gap="xs" wrap="nowrap">
-              <IconCalendar size={16} style={{ opacity: 0.6 }} />
+              <IconCalendar size={16} className={styles.icon} />
               <Text size="sm" c="dimmed">
                 Updated {formatDistanceToNow(lastUpdated, { addSuffix: true })}
               </Text>

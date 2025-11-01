@@ -11,6 +11,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconList } from "@tabler/icons-react";
+import styles from "./TableOfContents.module.css";
 
 const TOC_SELECTOR = "#mdx :is(h1, h2, h3, h4, h5, h6)";
 
@@ -77,7 +78,7 @@ export function TableOfContentsMobile() {
         pos="fixed"
         bottom={15}
         left={15}
-        style={{ zIndex: 100 }}
+        className={styles.fabButton}
       >
         <VisuallyHidden>Open table of contents</VisuallyHidden>
         <IconList style={{ width: rem(20), height: rem(20) }} stroke={1.5} />
