@@ -84,7 +84,7 @@ export function getRouter() {
           messagePlaceholder: "What's on your mind?",
         }),
       ],
-      
+
       tracesSampleRate:
         import.meta.env.VITE_ENVIRONMENT === "production" ? 0.2 : 1.0,
 
