@@ -23,6 +23,7 @@ catalogs:
       version: 4.56.0
 
 overrides:
+  bitflag-js: 1.1.0
   undici@<5.8.0: '>=5.8.0'
   undici@<=5.8.1: '>=5.8.2'
   undici@<5.19.1: '>=5.19.1'
@@ -3091,8 +3092,8 @@ packages:
   bindings@1.5.0:
     resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
 
-  bitflag-js@1.1.1:
-    resolution: {integrity: sha512-UqAT3m+xKuLrYZxInlhG9ilVA6xOfMj1KDYYxdFUqERtmiTh/m7PtuAq+Glj0uFTasYpTHVeVO1zeZYTm2AC1Q==}
+  bitflag-js@1.1.0:
+    resolution: {integrity: sha512-nonVLP3hkGuSOjn2Pry+91xzTpXTUVzOMZ4Q/W3Q0aE69NbIE41G4MT1JqxmHCqG34H1CRsmXxiPJl0Buy1PYA==}
 
   bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
@@ -8291,7 +8292,7 @@ snapshots:
     dependencies:
       file-uri-to-path: 1.0.0
 
-  bitflag-js@1.1.1: {}
+  bitflag-js@1.1.0: {}
 
   bl@4.1.0:
     dependencies:
@@ -8567,7 +8568,7 @@ snapshots:
 
   discord-bitflag@1.0.2:
     dependencies:
-      bitflag-js: 1.1.1
+      bitflag-js: 1.1.0
 
   dom-helpers@5.2.1:
     dependencies:
