@@ -19,16 +19,18 @@ export default defineConfig({
   // Expose build-time environment variables to client code
   define: {
     "import.meta.env.VITE_ENVIRONMENT": JSON.stringify(
-      process.env.CLOUDFLARE_ENV ?? "development"
+      process.env.ENVIRONMENT ?? process.env.VITE_ENVIRONMENT ?? "development"
     ),
     "import.meta.env.VITE_RELEASE": JSON.stringify(
       process.env.RELEASE ?? process.env.CF_PAGES_COMMIT_SHA ?? undefined
     ),
     "import.meta.env.VITE_SITE_URL": JSON.stringify(
-      process.env.SITE_URL ?? "https://giveaway.bot"
+      process.env.SITE_URL ??
+        process.env.VITE_SITE_URL ??
+        "http://localhost:3000"
     ),
     "import.meta.env.VITE_DISCORD_APP_ID": JSON.stringify(
-      process.env.DISCORD_APP_ID ?? ""
+      process.env.DISCORD_APP_ID ?? process.env.VITE_DISCORD_APP_ID ?? ""
     ),
   },
   server: {
