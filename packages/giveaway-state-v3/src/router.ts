@@ -87,6 +87,39 @@ const entriesDb = {
   },
 
   /**
+   * Get paginated entries
+   */
+  getPaginated: (
+    ctx: Context<LegacyEnv>,
+    options: { page: number; limit: number }
+  ) => {
+    const db = drizzleDurable(ctx.state.storage);
+    const offset = (options.page - 1) * options.limit;
+
+    const entries = db
+      .select()
+      .from(DurableSchema.entries)
+      .orderBy(DurableSchema.entries.timestamp)
+      .limit(options.limit)
+      .offset(offset)
+      .all();
+
+    const countResult = db
+      .select({ count: sql<number>`count(*)` })
+      .from(DurableSchema.entries)
+      .get();
+    const total = countResult?.count ?? 0;
+
+    return {
+      entries,
+      total,
+      page: options.page,
+      limit: options.limit,
+      hasMore: offset + entries.length < total,
+    };
+  },
+
+  /**
    * Get a single entry by userId
    */
   getByUserId: (ctx: Context<LegacyEnv>, userId: string) => {
@@ -195,6 +228,17 @@ export const stateRouter = router({
     // Just use the local SQLite storage
     return entriesDb.getAll(ctx);
   }),
+
+  getEntriesPaginated: publicProcedure
+    .input(
+      z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(25),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      return entriesDb.getPaginated(ctx, input);
+    }),
 
   startAlarm: publicProcedure
     .input(
@@ -526,18 +570,12 @@ export const stateRouter = router({
   }),
 
   endGiveaway: publicProcedure.mutation(async ({ ctx }) => {
-    const db = drizzleD1(ctx.env.D1);
     const giveaway = await getGiveaway(ctx);
-    const id = ctx.state.id.toString();
 
     validateGiveawayState(giveaway, ["OPEN"]);
 
-    await db
-      .update(D1Schema.giveaways)
-      .set({ state: "CLOSED" })
-      .where(eq(D1Schema.giveaways.durableObjectId, id))
-      .run();
-
+    // Trigger the alarm immediately - it will handle drawing winners,
+    // announcing results, and setting the CLOSED state
     await ctx.state.storage.setAlarm(1);
     return { success: true };
   }),

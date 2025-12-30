@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare Pages - Staging
+name: Deploy web - Staging
 on:
   workflow_dispatch:
   push:

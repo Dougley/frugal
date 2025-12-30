@@ -1,0 +1,535 @@
+{
+  "common": {
+    "brand": "GiveawayBot",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "retry": "Retry",
+    "tryAgain": "Try Again",
+    "goBack": "Go back",
+    "clear": "Clear",
+    "download": "Download",
+    "submit": "Submit",
+    "close": "Close",
+    "readMore": "Read more",
+    "unknown": "Unknown"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "signIn": "Sign in with Discord",
+    "signOut": "Sign Out",
+    "userMenu": "User menu",
+    "discordId": "Discord ID:",
+    "title": "Authentication",
+    "signInPrompt": "Sign in with Discord to access protected features.",
+    "loggedOut": "You're logged out.",
+    "mustBeLoggedIn": "You must be logged in to do this.",
+    "authFailed": "Authentication Failed",
+    "unknownError": "An unknown error occurred during authentication."
+  },
+  "nav": {
+    "home": "Home",
+    "premium": "Premium",
+    "giveaways": "Giveaways",
+    "list": "List",
+    "summaries": "Summaries",
+    "wiki": "Wiki",
+    "gettingStarted": "Getting Started",
+    "userGuides": "User Guides",
+    "developerDocs": "Developer Docs",
+    "advancedTopics": "Advanced Topics",
+    "reference": "Reference",
+    "legal": "Legal",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "paidServicesAgreement": "Paid Services Agreement",
+    "toggleMenu": "Toggle menu"
+  },
+  "errors": {
+    "401": {
+      "title": "401 Unauthorized",
+      "message": "You're not authorized to view this page. Are you logged in?"
+    },
+    "403": {
+      "title": "403 Forbidden",
+      "message": "You don't have permission to access this page."
+    },
+    "404": {
+      "title": "404 Not Found",
+      "message": "This page doesn't exist. Did you get lost?"
+    },
+    "500": {
+      "title": "500 Internal Server Error",
+      "message": "This error is on our end. Please try again later."
+    },
+    "generic": {
+      "title": "Something went wrong",
+      "message": "This error is on our end. Please try again later."
+    },
+    "reference": "Error reference:",
+    "premiumRequired": {
+      "title": "Premium Required",
+      "message": "This feature requires a premium subscription. Upgrade to unlock all features!",
+      "action": "View Premium"
+    },
+    "accessDenied": {
+      "title": "Access Denied",
+      "message": "You don't have permission to view this guild's giveaways."
+    },
+    "guildNotFound": {
+      "title": "Guild Not Found",
+      "message": "This guild was not found. You might not be a member, or the bot is not in this server."
+    },
+    "summaryNotFound": {
+      "title": "Summary Not Found",
+      "message": "This summary could not be found. It may have expired or the giveaway was deleted."
+    },
+    "giveawayNotFound": {
+      "title": "Giveaway Not Found",
+      "message": "This giveaway could not be found. It may have been deleted or you don't have access to it."
+    },
+    "unexpected": "An unexpected error occurred.",
+    "failedToLoad": "Failed to load {{item}}: {{error}}"
+  },
+  "landing": {
+    "hero": {
+      "heading": "Get the party started with",
+      "body": "Tired of managing giveaways manually? Join millions of Discord communities and automate your giveaways with GiveawayBot!",
+      "cta": "Get started",
+      "addToDiscord": "Add to Discord"
+    },
+    "features": {
+      "title": "Different by design",
+      "description": "GiveawayBot is designed to be easy to use, yet powerful enough to handle pretty much any giveaway you can think of.",
+      "effortless": {
+        "title": "Effortless Giveaways in a Snap",
+        "description": "Create giveaways faster than ever before. No more fumbling with complicated commands."
+      },
+      "seamless": {
+        "title": "Seamless Discord Integration",
+        "description": "Discord is where you are. GiveawayBot is there too. No need to switch between apps."
+      },
+      "secure": {
+        "title": "Secure and Private",
+        "description": "Your data is yours. We don't sell your data to third parties, and we don't store more than we need."
+      },
+      "openSource": {
+        "title": "Open Source",
+        "description": "GiveawayBot is open source. Dive into the code and see how it works. Contribute and make it better."
+      },
+      "free": {
+        "title": "Free Forever",
+        "description": "Premium features are available, but the core functionality is free. No hidden fees, no surprises."
+      },
+      "multilingual": {
+        "title": "Multilingual Support",
+        "description": "GiveawayBot speaks your language. And if it doesn't, you can help us translate it."
+      }
+    },
+    "testimonials": {
+      "title": "Not convinced yet?",
+      "description": "Don't just take our word for it. Here's what our users have to say."
+    },
+    "closing": {
+      "heading": "Ready to get started?",
+      "body": "Focus on your community, not on managing giveaways. GiveawayBot is here to help."
+    }
+  },
+  "premium": {
+    "meta": {
+      "title": "Premium | GiveawayBot",
+      "description": "Upgrade to Premium for exclusive features and benefits."
+    },
+    "hero": {
+      "heading": "Premium",
+      "body": "Go above and beyond with GiveawayBot Premium. Unlock exclusive features and support the bot's development.",
+      "cta": "Subscribe via Discord"
+    },
+    "features": {
+      "title": "Make your giveaways stand out",
+      "description": "GiveawayBot Premium offers exclusive features that take your giveaways to the next level.",
+      "free": "Free:",
+      "premium": "Premium:",
+      "longerGiveaways": {
+        "title": "Longer giveaways",
+        "description": "Create giveaways that last for days, weeks, or even months. The choice is yours.",
+        "freeValue": "14 days",
+        "premiumValue": "30 days"
+      },
+      "moreGiveaways": {
+        "title": "More giveaways",
+        "description": "Why limit yourself? Create more giveaways and engage your community.",
+        "freeValue": "5 giveaways",
+        "premiumValue": "20 giveaways"
+      },
+      "moreCustomization": {
+        "title": "More customization",
+        "description": "Change the color of the embed, add a custom footer, and more.",
+        "freeValue": "Basic",
+        "premiumValue": "Advanced"
+      },
+      "moreWinners": {
+        "title": "More winners",
+        "description": "Pick more winners for your giveaways. Give more people a chance to win.",
+        "freeValue": "10 winners",
+        "premiumValue": "50 winners"
+      },
+      "andMore": {
+        "title": "And more!",
+        "description": "Get access to even more features, including early access to new features as they're developed."
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "whatIsPremium": {
+        "question": "What is Premium?",
+        "answer": "GiveawayBot Premium is a subscription that unlocks the full potential of GiveawayBot. With Premium, you can run longer giveaways, have more winners, and unlock more features to supercharge your giveaways!"
+      },
+      "whatHappensWhenCancel": {
+        "question": "What happens when I cancel?",
+        "answer": "If you cancel your subscription, you will continue to have access to Premium until the end of your billing period. After that, you will lose access to Premium features."
+      },
+      "howManyServers": {
+        "question": "How many servers does my subscription cover?",
+        "answer": "A single Premium subscription will only cover one server. If you want to use Premium on multiple servers, you will need to purchase a subscription for each server."
+      }
+    },
+    "cta": {
+      "title": "What are you waiting for?",
+      "body": "Elevate your giveaways with GiveawayBot Premium."
+    }
+  },
+  "giveaways": {
+    "meta": {
+      "title": "Your Giveaways | GiveawayBot",
+      "description": "Manage giveaways for your Discord servers"
+    },
+    "title": "Your Giveaways",
+    "description": "Manage giveaways for servers where you have the Manage Events permission.",
+    "hostedGiveaways": "Hosted Giveaways",
+    "hostedDescription": "These are giveaways you are hosting across all guilds.",
+    "serversWithGiveaways": "Servers with Giveaways",
+    "noGiveaways": "No giveaways found. Start a giveaway in a server where you have the `Manage Events` permission!",
+    "noGiveawaysInServer": "No giveaways found in this server. Start one with `/start`!",
+    "noMatchingGiveaways": "No giveaways match your current filters. Try adjusting your search or filter settings.",
+    "loadingGiveaways": "Loading giveaways...",
+    "guildDataUnavailable": "Guild data not available",
+    "giveawayDataUnavailable": "Giveaway data not available",
+    "backToGiveaways": "Back to Giveaways",
+    "backToGuild": "Back to {{guildName}}",
+    "winner_one": "{{count}} winner",
+    "winner_other": "{{count}} winners",
+    "participant_one": "{{count}} participant",
+    "participant_other": "{{count}} participants",
+    "entry_one": "{{count}} entry",
+    "entry_other": "{{count}} entries",
+    "giveaway_one": "{{count}} giveaway",
+    "giveaway_other": "{{count}} giveaways",
+    "ended": "Ended {{time}}",
+    "ends": "Ends {{time}}",
+    "viewSummary": "View summary",
+    "viewDetails": "View details",
+    "openInDiscord": "Open in Discord",
+    "copyId": "Copy ID",
+    "menu": {
+      "actions": "Actions",
+      "edit": "Edit",
+      "stopEarly": "Stop Early",
+      "reroll": "Reroll"
+    },
+    "filters": {
+      "all": "All ({{count}})",
+      "active": "Active ({{count}})",
+      "closed": "Closed ({{count}})"
+    },
+    "sort": {
+      "placeholder": "Sort by",
+      "endTime": "End Time",
+      "prizeName": "Prize Name"
+    },
+    "search": {
+      "placeholder": "Search by prize name..."
+    },
+    "status": {
+      "active": "Active",
+      "closed": "Closed",
+      "ending": "Ending..."
+    },
+    "details": {
+      "title": "Giveaway Details",
+      "timeRemaining": "Time remaining",
+      "participants": "Participants",
+      "refresh": "Refresh",
+      "live": "Live",
+      "failedToLoadParticipants": "Failed to load participants. Please try again."
+    },
+    "emptyState": {
+      "title": "No giveaways yet",
+      "description": "Start your first giveaway in Discord using the /start command. It only takes a few seconds!",
+      "openDiscord": "Open Discord",
+      "learnHow": "Learn how"
+    },
+    "modals": {
+      "edit": {
+        "title": "Edit Giveaway",
+        "prizeLabel": "Prize",
+        "prizePlaceholder": "What are you giving away?",
+        "winnersLabel": "Number of Winners",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Optional description for the giveaway...",
+        "validation": {
+          "prizeRequired": "Prize is required",
+          "prizeTooLong": "Prize must be 100 characters or less",
+          "winnersMin": "Must have at least 1 winner",
+          "winnersMax": "Maximum 50 winners allowed",
+          "descriptionTooLong": "Description must be 1000 characters or less"
+        },
+        "success": {
+          "title": "Giveaway Updated",
+          "message": "Your changes have been saved and the Discord message has been updated."
+        },
+        "error": {
+          "title": "Failed to Update",
+          "message": "Could not update the giveaway. Please try again."
+        }
+      },
+      "stop": {
+        "title": "Stop Giveaway Early",
+        "warning": "This action cannot be undone!",
+        "confirmMessage": "Are you sure you want to stop the giveaway \"{{prize}}\" early?",
+        "explanation": "The giveaway will end immediately. Winners will be drawn from current participants and the results will be announced in Discord.",
+        "confirmButton": "Stop Giveaway",
+        "success": {
+          "title": "Giveaway Stopped",
+          "message": "The giveaway has ended and winners have been drawn."
+        },
+        "error": {
+          "title": "Failed to Stop",
+          "message": "Could not stop the giveaway. Please try again."
+        }
+      },
+      "reroll": {
+        "title": "Reroll Winners",
+        "description": "Draw replacement winners for \"{{prize}}\".",
+        "note": "This is a quick draw only - the original giveaway record stays unchanged. Copy the results below to announce them manually.",
+        "countLabel": "Number of new winners",
+        "countDescription": "How many new winners to draw from remaining participants",
+        "confirmButton": "Draw Winners",
+        "newWinners": "New Winners",
+        "copyHint": "Copy these results to announce in Discord",
+        "noEligibleParticipants": "No eligible participants remaining to draw from.",
+        "success": {
+          "title": "Winners Drawn",
+          "message": "{{count}} new winner(s) selected. Copy the results to announce them!"
+        },
+        "error": {
+          "title": "Failed to Draw",
+          "message": "Could not draw winners. Please try again."
+        }
+      }
+    }
+  },
+  "summaries": {
+    "meta": {
+      "title": "Giveaway Summaries | GiveawayBot",
+      "description": "Upload and view giveaway summary files"
+    },
+    "title": "Giveaway Summaries",
+    "description": "Upload a giveaway summary JSON file to view its contents. These files are generated when a giveaway ends and can be downloaded from the giveaway management interface.",
+    "invalidFileType": "Invalid file type. Please upload a JSON file.",
+    "invalidSummaryFile": "Invalid summary file: {{error}}",
+    "giveawaySummary": "Giveaway Summary",
+    "prize": "Prize:",
+    "expiresIn": "Summary expires {{time}}",
+    "ranFrom": "Ran from {{start}} to {{end}}",
+    "dropzoneText": "Drag a summary file here or click to select",
+    "dropzoneHelp": "Files should be JSON format and under 5MB",
+    "uploadAnother": "Upload another",
+    "summaryDataUnavailable": "Summary data not available",
+    "loadingSummary": "Loading summary..."
+  },
+  "tables": {
+    "winners": {
+      "title": "Winners",
+      "searchPlaceholder": "Search by username or ID..."
+    },
+    "participants": {
+      "title": "Participants",
+      "searchPlaceholder": "Search by username or ID..."
+    },
+    "headers": {
+      "user": "User",
+      "id": "ID"
+    }
+  },
+  "wiki": {
+    "meta": {
+      "title": "Wiki | GiveawayBot",
+      "description": "Learn how to use GiveawayBot - guides, reference, and developer documentation"
+    },
+    "title": "GiveawayBot Wiki",
+    "subtitle": "Everything you need to know about running giveaways with GiveawayBot",
+    "notFound": {
+      "title": "Page Not Found",
+      "message": "This wiki page doesn't exist or hasn't been written yet.",
+      "backToWiki": "Back to Wiki"
+    },
+    "categories": {
+      "gettingStarted": {
+        "title": "Getting Started",
+        "description": "Set up GiveawayBot in your server and run your first giveaway"
+      },
+      "userGuides": {
+        "title": "User Guides",
+        "description": "Step-by-step guides for using GiveawayBot features effectively"
+      },
+      "reference": {
+        "title": "Reference",
+        "description": "Complete command reference and configuration options"
+      },
+      "advanced": {
+        "title": "Advanced",
+        "description": "Advanced features and configurations for power users"
+      },
+      "developer": {
+        "title": "Developer",
+        "description": "Technical documentation, API reference, and component guides"
+      }
+    },
+    "noPagesYet": "No pages in this category yet.",
+    "untranslated": "English only",
+    "tableOfContents": "Table of contents",
+    "openTableOfContents": "Open table of contents",
+    "minRead": "{{count}} min read",
+    "updated": "Updated {{time}}",
+    "suggestEdits": "Suggest edits"
+  },
+  "legal": {
+    "meta": {
+      "title": "Legal Documents | GiveawayBot",
+      "description": "Legal documents and policies"
+    },
+    "title": "Legal Documents"
+  },
+  "mdx": {
+    "scrollToTop": "Scroll to top",
+    "readingTime": "{{count}} min read",
+    "lastUpdated": "Last updated: {{date}}",
+    "translationNotAvailable": "This page is not available in your language. Showing the English version."
+  },
+  "feedback": {
+    "button": "Send Feedback",
+    "modalTitle": "Send Feedback",
+    "description": "Found a bug? Have a suggestion? Let us know!",
+    "nameLabel": "Name",
+    "namePlaceholder": "Your name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "your@email.com",
+    "feedbackLabel": "Feedback",
+    "feedbackPlaceholder": "Tell us what you think...",
+    "submitButton": "Submit Feedback",
+    "validation": {
+      "nameRequired": "Name is required",
+      "emailInvalid": "Invalid email address",
+      "feedbackRequired": "Feedback is required"
+    },
+    "success": {
+      "title": "Thank you!",
+      "message": "Your feedback has been submitted."
+    },
+    "enableReporting": {
+      "title": "Enable Error Reporting",
+      "message": "Please enable error reporting in your privacy settings to submit feedback."
+    },
+    "replayNote": "Heads up! Since you have session replay enabled, feedback provided this way will be sent along with a session replay to help us better understand any issues."
+  },
+  "privacy": {
+    "title": "Privacy Settings",
+    "description": "We use Sentry as our telemetry service to collect error reports and performance data. You can customize your preferences below.",
+    "note": "Note",
+    "serverSideNote": "Server-side errors (e.g., API errors) are always reported to Sentry. The settings below only affect client-side telemetry.",
+    "errorReporting": {
+      "label": "Error Reporting",
+      "description": "Send error reports to help us fix bugs. No personal data is collected."
+    },
+    "performanceTracing": {
+      "label": "Performance Tracing",
+      "description": "Track page loads and navigation to help us improve performance. This may include some anonymized user interaction data."
+    },
+    "sessionReplay": {
+      "label": "Session Replay",
+      "description": "Record anonymized session replays to help diagnose issues. Replays will never reveal exact user data, but may include masked inputs."
+    },
+    "updated": {
+      "title": "Privacy settings updated",
+      "message": "Your preferences have been saved. Refresh the page for changes to take effect."
+    }
+  },
+  "settings": {
+    "label": "Settings",
+    "privacy": "Privacy",
+    "language": "Language",
+    "languageSearch": "Search languages...",
+    "noLanguagesFound": "No languages found",
+    "darkMode": "Use Dark mode",
+    "lightMode": "Use Light mode"
+  },
+  "buildInfo": {
+    "title": "Build Information",
+    "commit": "Commit:",
+    "deployment": "Deployment:",
+    "environment": "Environment:",
+    "built": "Built:",
+    "viewWorkflow": "View build workflow"
+  },
+  "footer": {
+    "bluesky": "Bluesky",
+    "github": "GitHub",
+    "copyright": "© {{year}} Dougley"
+  },
+  "index": {
+    "meta": {
+      "title": "GiveawayBot - Discord Giveaway Bot",
+      "description": "Automate your Discord giveaways with GiveawayBot. Easy to use, powerful features, free forever."
+    }
+  },
+  "notifications": {
+    "copied": {
+      "title": "Copied!",
+      "message": "ID copied to clipboard"
+    },
+    "downloadSuccess": {
+      "title": "Download started",
+      "message": "Your summary file is downloading"
+    },
+    "downloadError": {
+      "title": "Download failed",
+      "message": "Could not download the summary. Please try again."
+    }
+  },
+  "added": {
+    "title": "You're all set!",
+    "description": "GiveawayBot has been added to your server and is ready to use. Start your first giveaway in just a few seconds!",
+    "nextSteps": {
+      "title": "Quick start",
+      "step1": "Type this command in any channel:",
+      "step2": "Fill in the prize, duration, and winners",
+      "step3": "Watch the entries roll in!"
+    },
+    "actions": {
+      "readGuide": "Read the guide",
+      "openDiscord": "Open Discord"
+    },
+    "hint": "Want longer giveaways and more features?",
+    "hintLink": "Check out Premium"
+  }
+}

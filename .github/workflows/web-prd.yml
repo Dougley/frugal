@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare Pages - Production
+name: Deploy web - Production
 on: workflow_dispatch
 
 jobs:

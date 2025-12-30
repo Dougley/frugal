@@ -11,14 +11,10 @@ on:
         required: true
       SENTRY_AUTH_TOKEN:
         required: true
-      WEB_SESSION_SECRET:
+      BETTER_AUTH_SECRET:
         required: true
       DISCORD_SECRET:
         required: true
-    outputs:
-      attestation-id:
-        description: "Build attestation ID"
-        value: ${{ jobs.deploy.outputs.attestation-id }}
 
 jobs:
   deploy:
@@ -26,11 +22,7 @@ jobs:
     environment: ${{ inputs.environment }}
     name: Deploy Web Application to ${{ inputs.environment }}
     permissions:
-      id-token: write
       contents: read
-      attestations: write
-    outputs:
-      attestation-id: ${{ steps.attest-build.outputs.attestation-id }}
     steps:
       - uses: actions/checkout@v4
 
@@ -41,33 +33,26 @@ jobs:
         env:
           VITE_SENTRY_DSN: ${{ vars.SENTRY_DSN_WEB }}
           CLOUDFLARE_ENV: ${{ inputs.environment }}
-
-      - name: Generate build attestation for Web application
-        id: attest-build
-        uses: ./.github/actions/build-attestation
-        with:
-          app: web
-          subject-path: "./apps/web/build/**"
+          DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
+          SITE_URL: ${{ vars.SITE_URL }}
 
       - run: echo NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ) >> $GITHUB_ENV
 
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy to Cloudflare Workers
         uses: ./.github/actions/cloudflare-deploy
         with:
           app: web
           environment: ${{ inputs.environment }}
           api-token: ${{ secrets.CF_API_TOKEN }}
+          working-directory: ./apps/web
         env:
           CLOUDFLARE_ENV: ${{ inputs.environment }}
           SENTRY_DSN: ${{ vars.SENTRY_DSN_WEB }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SESSION_SECRET: ${{ secrets.WEB_SESSION_SECRET }}
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_APP_ID }}
-          DISCORD_PUBLIC_KEY: ${{ vars.DISCORD_PUBLIC_KEY }}
           DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_SECRET }}
-          DISCORD_CALLBACK_URL: ${{ vars.DISCORD_CALLBACK_URL }}
           VITE_SENTRY_DSN: ${{ vars.SENTRY_DSN_WEB }}
-          # Build verification variables
-          ATTESTATION_ID: ${{ steps.attest-build.outputs.attestation-id }}
+          # Build metadata (commit SHA passed via RELEASE, deployment ID from CF_VERSION_METADATA)
           BUILD_TIME: ${{ env.NOW }}
           REPOSITORY: dougley/frugal

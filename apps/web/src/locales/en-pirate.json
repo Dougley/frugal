@@ -1,0 +1,535 @@
+{
+  "common": {
+    "brand": "GiveawayBot",
+    "loading": "Swabbin' the poop deck...",
+    "error": "BLIMEY!!!",
+    "success": "YARRR! VICTORY BE OURS!",
+    "confirm": "AYE AYE, CAP'N!",
+    "cancel": "ABANDON SHIP!!!",
+    "back": "Retreat to safer waters!",
+    "next": "FULL SPEED AHEAD!",
+    "save": "Bury the treasure!",
+    "delete": "FEED IT TO THE SHARKS!",
+    "edit": "Scribble on the map",
+    "view": "Squint through me spyglass",
+    "retry": "HAVE ANOTHER GO, YE BARNACLE!",
+    "tryAgain": "Once more into the storm!",
+    "goBack": "Sail back to port!",
+    "clear": "Swab the deck clean!",
+    "download": "PLUNDER THE BOOTY!",
+    "submit": "FIRE THE CANNONS!!!",
+    "close": "Batten down the hatches!",
+    "readMore": "Unroll more of the scroll, ye curious seadog!",
+    "unknown": "Mystery Scallywag"
+  },
+  "auth": {
+    "login": "CLIMB ABOARD!",
+    "logout": "Walk the plank!",
+    "signIn": "Pledge yer allegiance via Discord!",
+    "signOut": "JUMP OVERBOARD!",
+    "userMenu": "Cap'n's quarters",
+    "discordId": "Yer pirate brand:",
+    "title": "AVAST! WHO GOES THERE?!",
+    "signInPrompt": "Sign in with Discord or be fed to the kraken, ye scurvy dog!",
+    "loggedOut": "Ye've abandoned ship, ye cowardly sea cucumber!",
+    "mustBeLoggedIn": "Ye must be part of the crew to do that, ye bilge-drinkin' barnacle!",
+    "authFailed": "THE KRAKEN ATTACKED!!!",
+    "unknownError": "DAVY JONES HIMSELF STOLE OUR AUTHENTICATION! CURSE HIS TENTACLED FACE!"
+  },
+  "nav": {
+    "home": "Home Port",
+    "premium": "Cap'n's Quarters",
+    "giveaways": "TREASURE HUNTS!!!",
+    "list": "Count the Loot",
+    "summaries": "The Ship's Log",
+    "wiki": "Ancient Pirate Scrolls",
+    "gettingStarted": "Learn the Ropes, Landlubber!",
+    "userGuides": "Sailor's Survival Guide",
+    "developerDocs": "Shipwright's Secret Blueprints",
+    "advancedTopics": "DARK ARTS OF THE SEA",
+    "reference": "The Sacred Pirate Code",
+    "legal": "Borin' Maritime Law",
+    "termsOfService": "Articles of the Brethren",
+    "privacyPolicy": "The Sacred Oath of Secrecy",
+    "paidServicesAgreement": "The Doubloon Blood Contract",
+    "toggleMenu": "Hoist the sails!"
+  },
+  "errors": {
+    "401": {
+      "title": "401 - OI! WHO BE YE?!",
+      "message": "Ye ain't got permission to be snoopin' around here, ye sneaky bilge rat! Show us yer papers or WALK THE PLANK!"
+    },
+    "403": {
+      "title": "403 - KEEP OUT, SCALLYWAG!!!",
+      "message": "This part of the ship be OFF LIMITS to the likes of ye! The cap'n will have yer head mounted on the bow!"
+    },
+    "404": {
+      "title": "404 - LOST IN THE BERMUDA TRIANGLE!!!",
+      "message": "This page has been SWALLOWED BY THE DEPTHS! Either the kraken got it, or ye took a wrong turn at Tortuga after too much rum!"
+    },
+    "500": {
+      "title": "500 - THE SHIP BE ON FIRE!!!",
+      "message": "ABANDON ALL HOPE! Our vessel be takin' on water faster than a sieve in a hurricane! The crew be panickin'!"
+    },
+    "generic": {
+      "title": "SHIVER ME TIMBERS AND BLOW ME DOWN!",
+      "message": "Somethin' went CATASTROPHICALLY wrong in the engine room! The parrot be investigatin' but he's not optimistic!"
+    },
+    "reference": "Message in a bottle #",
+    "premiumRequired": {
+      "title": "CAP'N'S QUARTERS ONLY, YE PEASANT!",
+      "message": "ARRR! This treasure be locked behind the captain's golden door! Pay yer dues or forever remain a lowly DECK SWABBER!",
+      "action": "BECOME A CAP'N!"
+    },
+    "accessDenied": {
+      "title": "ACCESS DENIED, LANDLUBBER!",
+      "message": "Ye don't have the rank to peek at this crew's treasure maps! Get yer own ship, ye mooching mollusk!"
+    },
+    "guildNotFound": {
+      "title": "SHIP LOST TO DAVY JONES!",
+      "message": "We've searched ALL SEVEN SEAS but this vessel be nowhere in sight! Perhaps it was claimed by the depths themselves!"
+    },
+    "summaryNotFound": {
+      "title": "THE LOG BE DEVOURED!",
+      "message": "This ship's log entry has been EATEN BY SEA MONSTERS or lost to the inky abyss! The ink has run dry and the pages be soggy!"
+    },
+    "giveawayNotFound": {
+      "title": "THE TREASURE HUNT BE LOST TO THE DEPTHS!",
+      "message": "This treasure hunt has VANISHED like a ghost ship in the fog! Either it be deleted or ye ain't got the clearance, ye snooping barnacle!"
+    },
+    "unexpected": "BLIMEY! We hit an iceberg we didn't see comin'! WHO WAS ON LOOKOUT?!",
+    "failedToLoad": "Failed to haul {{item}} aboard: {{error}} - SOMEONE'S GETTIN' KEELHAULED!"
+  },
+  "landing": {
+    "hero": {
+      "heading": "HOIST THE COLORS WITH",
+      "body": "Tired of managin' treasure hunts like some landlubbin' FOOL?! Join MILLIONS of Discord crews and let this magnificent bot do the heavy liftin' while ye drink RUM!",
+      "cta": "HOIST THE SAILS!!!",
+      "addToDiscord": "RECRUIT TO YER CREW!"
+    },
+    "features": {
+      "title": "Built different, like a LEGENDARY pirate vessel!",
+      "description": "This here bot be crafted by the finest shipwrights in ALL THE SEVEN SEAS! She handles giveaways smoother than rum slides down yer throat after a successful raid!",
+      "effortless": {
+        "title": "FASTER THAN A CANNONBALL!",
+        "description": "Create treasure hunts quicker than ye can say 'SHIVER ME TIMBERS!' No complicated nonsense - even a cabin boy could do it!"
+      },
+      "seamless": {
+        "title": "RIGHT THERE IN DISCORD!",
+        "description": "No need to leave yer ship! The bot works right where ye already be drinkin', gamblin', and causin' mischief!"
+      },
+      "secure": {
+        "title": "LOCKED TIGHTER THAN DAVY JONES' LOCKER!",
+        "description": "Yer secrets be SAFER than a dragon's hoard! We don't sell yer maps to rival pirates, and we don't hoard more than we need!"
+      },
+      "openSource": {
+        "title": "OPEN SOURCE, LIKE A GOOD TAVERN!",
+        "description": "Peek under the hood anytime ye want! The code be open for all to see, modify, and make even MORE GLORIOUS!"
+      },
+      "free": {
+        "title": "FREE AS THE WIND IN YER SAILS!",
+        "description": "The core features cost ye NOTHIN'! Cap'n features exist for the fancy folk, but ye can sail just fine without 'em!"
+      },
+      "multilingual": {
+        "title": "SPEAKS MORE TONGUES THAN A CURSED PARROT!",
+        "description": "Whether ye speak the Queen's English, Pirate, or somethin' else entirely - this bot UNDERSTANDS!"
+      }
+    },
+    "testimonials": {
+      "title": "STILL NOT CONVINCED, YE SKEPTICAL SEADOG?!",
+      "description": "Don't take our word for it! Here be testimonies from REAL pirates who've sailed these glorious waters!"
+    },
+    "closing": {
+      "heading": "WHAT IN DAVY JONES' NAME ARE YE WAITIN' FOR?!",
+      "body": "The tide waits for NO ONE! Set sail NOW and let GiveawayBot handle the boring stuff while ye focus on bein' a LEGENDARY CAPTAIN!"
+    }
+  },
+  "premium": {
+    "meta": {
+      "title": "Cap'n's Quarters | GiveawayBot",
+      "description": "Upgrade to CAP'N STATUS and unlock the REAL treasure, ye ambitious scallywag!"
+    },
+    "hero": {
+      "heading": "THE LEGENDARY CAP'N'S QUARTERS!",
+      "body": "Rise above the common deck swabbers! Unlock EXCLUSIVE features that'll make Blackbeard himself GREEN WITH ENVY!",
+      "cta": "PAY YER DUES VIA DISCORD!"
+    },
+    "features": {
+      "title": "Make yer treasure hunts ABSOLUTELY LEGENDARY!",
+      "description": "Cap'n status comes with perks that'll make even the Flying Dutchman jealous!",
+      "free": "Lowly Deck Swabber:",
+      "premium": "GLORIOUS CAP'N:",
+      "longerGiveaways": {
+        "title": "LONGER VOYAGES!",
+        "description": "Run treasure hunts that last longer than a journey to the edges of the map!",
+        "freeValue": "14 measly sunsets",
+        "premiumValue": "30 GLORIOUS SUNSETS!"
+      },
+      "moreGiveaways": {
+        "title": "MORE TREASURE HUNTS!!!",
+        "description": "Why settle for a few when ye can have a WHOLE ARMADA of giveaways?!",
+        "freeValue": "5 puny hunts",
+        "premiumValue": "20 MAGNIFICENT HUNTS!"
+      },
+      "moreCustomization": {
+        "title": "FANCIER SAILS!",
+        "description": "Customize yer giveaways with colors, fancy footers, and SHINY THINGS!",
+        "freeValue": "Boring plain canvas",
+        "premiumValue": "SILK, GOLD & GLORY!"
+      },
+      "moreWinners": {
+        "title": "MORE LUCKY SCALLYWAGS!",
+        "description": "Pick MORE winners! Share the booty with MORE of yer crew! GENEROSITY BE A VIRTUE!",
+        "freeValue": "10 winners",
+        "premiumValue": "50 WINNERS!!!"
+      },
+      "andMore": {
+        "title": "AND EVEN MORE BOOTY!",
+        "description": "Get EARLY ACCESS to new features before the common sailors even DREAM they exist!"
+      }
+    },
+    "faq": {
+      "title": "Questions from Confused Sailors",
+      "whatIsPremium": {
+        "question": "What in the seven seas is Cap'n status?!",
+        "answer": "It be a GLORIOUS subscription that transforms ye from a lowly deck swabber into a PROPER LEGENDARY CAPTAIN! More giveaways, longer voyages, fancier EVERYTHING! YE'LL BE THE TERROR OF ALL THE SEAS!"
+      },
+      "whatHappensWhenCancel": {
+        "question": "What if I abandon ship like a coward?",
+        "answer": "If ye cancel, ye keep yer cap'n privileges until yer current billing cycle ends. Then ye return to deck swabber status. No hard feelings, but ye'll be MISSIN' THE GOOD LIFE!"
+      },
+      "howManyServers": {
+        "question": "How many ships does me subscription cover?",
+        "answer": "One subscription = ONE ship! If ye want to be cap'n of multiple vessels, ye'll need to pay for each one. Being a FLEET ADMIRAL ain't cheap, but it be WORTH IT!"
+      }
+    },
+    "cta": {
+      "title": "THE MOMENT OF TRUTH BE NOW!!!",
+      "body": "Every moment ye wait, another pirate be claimin' YOUR treasure! SUBSCRIBE NOW or forever live with the regret of a thousand sunken ships!"
+    }
+  },
+  "giveaways": {
+    "meta": {
+      "title": "Yer Treasure Hunts | GiveawayBot",
+      "description": "Manage all yer GLORIOUS plunderin' operations!"
+    },
+    "title": "YER MAGNIFICENT TREASURE HUNTS!",
+    "description": "Here be all the treasure hunts ye can manage. Ye need the 'Manage Events' permission to boss people around like a proper cap'n!",
+    "hostedGiveaways": "Treasure Hunts Ye're Commandin'!",
+    "hostedDescription": "These be the treasure hunts ye're runnin' across ALL yer ships!",
+    "serversWithGiveaways": "Ships with Active Plunder!",
+    "noGiveaways": "NO TREASURE HUNTS?! WHAT KIND OF PIRATE ARE YE?! Start one with `/start` before the crew MUTINIES from boredom!",
+    "noGiveawaysInServer": "This ship has NO treasure hunts! The crew be gettin' restless! START ONE IMMEDIATELY!",
+    "noMatchingGiveaways": "NO TREASURE HUNTS MATCH YER SEARCH, YE PICKY LANDLUBBER! Try adjustin' yer filters!",
+    "loadingGiveaways": "Consultin' the ancient treasure maps...",
+    "guildDataUnavailable": "The ship's records be LOST TO THE DEPTHS!",
+    "giveawayDataUnavailable": "The treasure hunt records be LOST TO DAVY JONES!",
+    "backToGiveaways": "Back to the Treasure Vault!",
+    "backToGuild": "Back to {{guildName}}!",
+    "winner_one": "{{count}} lucky scallywag",
+    "winner_other": "{{count}} lucky scallywags",
+    "participant_one": "{{count}} eager treasure hunter",
+    "participant_other": "{{count}} eager treasure hunters",
+    "entry_one": "{{count}} entry in the log",
+    "entry_other": "{{count}} entries in the log",
+    "giveaway_one": "{{count}} treasure hunt",
+    "giveaway_other": "{{count}} treasure hunts",
+    "ended": "The hunt concluded {{time}} - THE BOOTY HAS BEEN CLAIMED!",
+    "ends": "The hunt ends {{time}} - PREPARE YERSELVES!",
+    "viewSummary": "Inspect the ship's log",
+    "viewDetails": "Peek at the details",
+    "openInDiscord": "Open in Discord",
+    "copyId": "Copy the treasure map coordinates",
+    "menu": {
+      "actions": "Cap'n's Orders",
+      "edit": "Scribble on the map",
+      "stopEarly": "END IT NOW!!!",
+      "reroll": "DRAW AGAIN, YE SCURVY DOG!"
+    },
+    "filters": {
+      "all": "All the Loot ({{count}})",
+      "active": "Active Hunts ({{count}})",
+      "closed": "Finished Raids ({{count}})"
+    },
+    "sort": {
+      "placeholder": "Sort the treasure",
+      "endTime": "When it ends",
+      "prizeName": "The booty name"
+    },
+    "search": {
+      "placeholder": "Search the treasure maps..."
+    },
+    "status": {
+      "active": "STILL HUNTIN'!",
+      "closed": "FINISHED!",
+      "ending": "ALMOST DONE..."
+    },
+    "details": {
+      "title": "Treasure Hunt Details",
+      "timeRemaining": "Time 'til the bell rings",
+      "participants": "Eager Sailors",
+      "refresh": "Check again!",
+      "live": "HAPPENIN' NOW!",
+      "failedToLoadParticipants": "COULDN'T LOAD THE CREW MANIFEST! Try again, ye impatient seadog!"
+    },
+    "emptyState": {
+      "title": "NO TREASURE HUNTS YET, YE LAZY BARNACLE!",
+      "description": "Start yer first treasure hunt in Discord using the /start command. It be faster than swabbin' the deck!",
+      "openDiscord": "SAIL TO DISCORD!",
+      "learnHow": "Learn the ways"
+    },
+    "modals": {
+      "edit": {
+        "title": "MODIFY THE TREASURE HUNT!",
+        "prizeLabel": "THE BOOTY",
+        "prizePlaceholder": "What treasure be ye givin' away?",
+        "winnersLabel": "Number of Lucky Scallywags",
+        "descriptionLabel": "Tale of the Treasure",
+        "descriptionPlaceholder": "Optional tale about this glorious hunt...",
+        "validation": {
+          "prizeRequired": "YE NEED TREASURE TO GIVE AWAY, YE FOOL!",
+          "prizeTooLong": "That treasure name be longer than a sea serpent! Keep it under 100 letters!",
+          "winnersMin": "At least ONE scallywag must win, ye greedy captain!",
+          "winnersMax": "50 winners be the limit! We ain't made of gold!",
+          "descriptionTooLong": "Blimey! That tale be too long! Keep it under 1000 letters!"
+        },
+        "success": {
+          "title": "TREASURE HUNT MODIFIED!",
+          "message": "Yer changes be saved and the Discord message be updated, ARRR!"
+        },
+        "error": {
+          "title": "MODIFICATION FAILED!",
+          "message": "Couldn't update the treasure hunt. The kraken must be interferin'!"
+        }
+      },
+      "stop": {
+        "title": "END THE HUNT EARLY!",
+        "warning": "AVAST! This cannot be undone, ye scurvy dog!",
+        "confirmMessage": "Be ye CERTAIN ye want to end the hunt for \"{{prize}}\" early?",
+        "explanation": "The hunt ends NOW! Winners be drawn from current crew members and announced in Discord immediately!",
+        "confirmButton": "END THE HUNT!",
+        "success": {
+          "title": "HUNT ENDED!",
+          "message": "The treasure hunt be over and winners have been chosen!"
+        },
+        "error": {
+          "title": "COULDN'T END THE HUNT!",
+          "message": "Somethin' went wrong! The kraken must be holdin' things up!"
+        }
+      },
+      "reroll": {
+        "title": "PICK NEW WINNERS!",
+        "description": "Draw replacement scallywags for \"{{prize}}\"!",
+        "note": "HEAR YE! This be just a quick draw - the original ship's log stays untouched! Copy these results and announce 'em yerself!",
+        "countLabel": "How many new winners",
+        "countDescription": "How many fresh scallywags to pick from the remainin' crew",
+        "confirmButton": "DRAW NEW WINNERS!",
+        "newWinners": "THE NEW LUCKY SCALLYWAGS!",
+        "copyHint": "Copy these names and shout 'em out in Discord!",
+        "noEligibleParticipants": "No more crew members to pick from! The barrel be empty!",
+        "success": {
+          "title": "NEW WINNERS DRAWN!",
+          "message": "{{count}} new lucky scallywag(s) picked! Now go announce 'em, ye lazy captain!"
+        },
+        "error": {
+          "title": "DRAW FAILED!",
+          "message": "Couldn't pick new winners. The dice be cursed!"
+        }
+      }
+    }
+  },
+  "summaries": {
+    "meta": {
+      "title": "Ship's Log | GiveawayBot",
+      "description": "Review the sacred records of past plunderin' victories!"
+    },
+    "title": "THE SACRED SHIP'S LOG!",
+    "description": "Upload a treasure hunt log to see who won the GLORIOUS BOOTY! These scrolls be generated when a hunt reaches its epic conclusion!",
+    "invalidFileType": "THAT AIN'T A PROPER SCROLL, YE FOOL! Upload a JSON file or be KEELHAULED!",
+    "invalidSummaryFile": "This scroll be CURSED: {{error}} - THROW IT OVERBOARD!",
+    "giveawaySummary": "Official Treasure Hunt Record",
+    "prize": "THE GLORIOUS BOOTY:",
+    "expiresIn": "This scroll crumbles to dust {{time}} - READ IT WHILE YE CAN!",
+    "ranFrom": "The hunt sailed from {{start}} to {{end}}",
+    "dropzoneText": "THROW YER SCROLL HERE or click to dig it up from the depths!",
+    "dropzoneHelp": "Scrolls must be JSON format and smaller than 5MB (we ain't got room for epic novels!)",
+    "uploadAnother": "UPLOAD ANOTHER SCROLL!",
+    "summaryDataUnavailable": "The log be water-damaged beyond recognition! CURSE THIS HUMIDITY!",
+    "loadingSummary": "Decipherin' the ancient mysterious scroll..."
+  },
+  "tables": {
+    "winners": {
+      "title": "THE GLORIOUS WINNERS!!!",
+      "searchPlaceholder": "Hunt for a specific lucky scallywag..."
+    },
+    "participants": {
+      "title": "ALL THE HOPEFUL SOULS WHO TRIED",
+      "searchPlaceholder": "Search the crew roster..."
+    },
+    "headers": {
+      "user": "Pirate Name",
+      "id": "Official Brand Number"
+    }
+  },
+  "wiki": {
+    "meta": {
+      "title": "Ancient Pirate Scrolls | GiveawayBot",
+      "description": "All the forbidden knowledge ye need to become a MASTER of treasure hunts!"
+    },
+    "title": "THE ANCIENT FORBIDDEN SCROLLS!",
+    "subtitle": "Everything ye need to know about runnin' the most LEGENDARY treasure hunts on ALL the seven seas!",
+    "notFound": {
+      "title": "SCROLL NOT FOUND, MATEY!",
+      "message": "This ancient scroll doesn't exist or the scribe hasn't written it yet! BLIMEY!",
+      "backToWiki": "Return to the Scrolls"
+    },
+    "categories": {
+      "gettingStarted": {
+        "title": "LEARN THE ROPES, LANDLUBBER!",
+        "description": "Fresh off the docks? Start here before ye hurt yerself or embarrass the crew!"
+      },
+      "userGuides": {
+        "title": "THE SAILOR'S HANDBOOK!",
+        "description": "Step-by-step guides for all the fancy features! Even a drunk sailor could follow these!"
+      },
+      "reference": {
+        "title": "THE SACRED PIRATE CODE!",
+        "description": "Every command and option, documented in EXCRUCIATING detail for yer pleasure!"
+      },
+      "advanced": {
+        "title": "DARK ARTS OF THE DEEP!",
+        "description": "For experienced pirates who want to push the BOUNDARIES OF POSSIBILITY!"
+      },
+      "developer": {
+        "title": "SHIPWRIGHT'S FORBIDDEN SECRETS!",
+        "description": "Technical mumbo-jumbo for the code-slingin' wizards among us!"
+      }
+    },
+    "noPagesYet": "This section be emptier than a rum barrel after a LEGENDARY party!",
+    "untranslated": "Landlubber speak only",
+    "tableOfContents": "What secrets lie within this scroll",
+    "openTableOfContents": "Unroll the mysterious contents!",
+    "minRead": "{{count}} minute voyage through knowledge",
+    "updated": "Last scribbled upon {{time}}",
+    "suggestEdits": "Found an error?! TELL US IMMEDIATELY!"
+  },
+  "legal": {
+    "meta": {
+      "title": "Boring Maritime Law | GiveawayBot",
+      "description": "The tedious but necessary legal scrolls that even pirates must follow"
+    },
+    "title": "THE BORING LEGAL NONSENSE (But ye gotta read it!)"
+  },
+  "mdx": {
+    "scrollToTop": "BACK TO THE CROW'S NEST!",
+    "readingTime": "{{count}} minute voyage",
+    "lastUpdated": "Last scribbled: {{date}}",
+    "translationNotAvailable": "ARRR! This scroll hasn't been translated to proper Pirate yet! Showin' the boring landlubber version!"
+  },
+  "feedback": {
+    "button": "SEND A MESSAGE IN A BOTTLE!",
+    "modalTitle": "YER MESSAGE IN A BOTTLE!",
+    "description": "Found a leak in the hull?! Got a BRILLIANT idea?! TELL US EVERYTHING!",
+    "nameLabel": "What do they call ye, sailor?",
+    "namePlaceholder": "Yer legendary pirate name",
+    "emailLabel": "Carrier parrot address",
+    "emailPlaceholder": "parrot@yer-magnificent-ship.sea",
+    "feedbackLabel": "Yer important message",
+    "feedbackPlaceholder": "SPEAK YER MIND, YE SALTY SEA DOG! Hold nothing back!",
+    "submitButton": "THROW IT INTO THE RAGING SEA!",
+    "validation": {
+      "nameRequired": "WE NEED YER NAME, YE ANONYMOUS COWARD! HOW ELSE WILL WE KNOW WHO TO THANK?!",
+      "emailInvalid": "That ain't how parrot addresses work, ye technologically challenged barnacle!",
+      "feedbackRequired": "YE FORGOT TO WRITE ANYTHING, YE EMPTY-HEADED SEA SPONGE!"
+    },
+    "success": {
+      "title": "MESSAGE SUCCESSFULLY LAUNCHED!",
+      "message": "Yer bottle be floatin' towards us on the currents! We'll read it when it washes ashore on our island!"
+    },
+    "enableReporting": {
+      "title": "ENABLE ERROR REPORTING FIRST, YE SCALLYWAG!",
+      "message": "Ye need to enable error reporting in yer secrecy settings before sendin' messages! It's the rules!"
+    },
+    "replayNote": "HEADS UP, MATEY! Since ye enabled session replay, yer feedback comes with a MAGICAL RECORDING of what happened! Helps us see the problem with our own four eyes!"
+  },
+  "privacy": {
+    "title": "SECRECY SETTINGS!",
+    "description": "We use Sentry as our lookout to catch problems before they SINK THE SHIP! Customize what ye share below!",
+    "note": "IMPORTANT NOTICE",
+    "serverSideNote": "Server errors ALWAYS get reported (we need to know when the ship's takin' on water!). These settings only affect what YER browser tells us!",
+    "errorReporting": {
+      "label": "Error Reporting",
+      "description": "Let us know when things go CATASTROPHICALLY WRONG! No personal treasure be collected!"
+    },
+    "performanceTracing": {
+      "label": "Speed Tracking",
+      "description": "Help us make the ship go FASTER! We track page loads and navigation to optimize our sails!"
+    },
+    "sessionReplay": {
+      "label": "Session Recording",
+      "description": "Record what happened so we can see bugs with our OWN EYES! All personal stuff be masked, we promise on our pirate honor!"
+    },
+    "updated": {
+      "title": "SECRECY SETTINGS UPDATED!",
+      "message": "Yer preferences be safely stashed! Refresh the page to make it so, cap'n!"
+    }
+  },
+  "settings": {
+    "label": "Ship Settings",
+    "privacy": "Secrecy Oath",
+    "language": "Tongue",
+    "languageSearch": "Search for a tongue...",
+    "noLanguagesFound": "No tongues found in these waters! HOW STRANGE!",
+    "darkMode": "NIGHT MODE (for sneaky midnight raids!)",
+    "lightMode": "DAY MODE (for honest sailin'!)"
+  },
+  "buildInfo": {
+    "title": "Ship's Construction Papers",
+    "commit": "Blueprint version:",
+    "deployment": "Launch sequence:",
+    "environment": "Current waters:",
+    "built": "Constructed on:",
+    "viewWorkflow": "Inspect the shipyard records!"
+  },
+  "footer": {
+    "bluesky": "Bluesky",
+    "github": "GitHub",
+    "copyright": "This vessel be the property of Dougley © {{year}}, YE BEST BELIEVE IT!"
+  },
+  "index": {
+    "meta": {
+      "title": "GiveawayBot - THE GREATEST TREASURE HUNT BOT ON ALL SEVEN SEAS!",
+      "description": "YARRR! Automate yer Discord treasure hunts with the most LEGENDARY bot ever constructed by mortal hands! Free, powerful, and PIRATE APPROVED!"
+    }
+  },
+  "notifications": {
+    "copied": {
+      "title": "PLUNDERED!",
+      "message": "The treasure map coordinates be on yer clipboard!"
+    },
+    "downloadSuccess": {
+      "title": "BOOTY INCOMING!",
+      "message": "Yer treasure manifest be downloading!"
+    },
+    "downloadError": {
+      "title": "THE KRAKEN ATTACKED!",
+      "message": "Couldn't plunder the summary! Try again, ye unlucky seadog!"
+    }
+  },
+  "added": {
+    "title": "WELCOME ABOARD, MATEY!",
+    "description": "GiveawayBot has joined yer crew and be ready to sail! Start yer first treasure hunt in mere seconds!",
+    "nextSteps": {
+      "title": "SET SAIL IMMEDIATELY!",
+      "step1": "Bark this order in any channel:",
+      "step2": "Declare the treasure, how long the hunt lasts, and count o' plunderers!",
+      "step3": "Watch the scurvy dogs fight to join the hunt! YARRR!"
+    },
+    "actions": {
+      "readGuide": "Study the ancient scrolls",
+      "openDiscord": "BACK TO THE SHIP!"
+    },
+    "hint": "YA NEED MORE GLORIOUS FEATURES?",
+    "hintLink": "BECOME A CAP'N!"
+  }
+}

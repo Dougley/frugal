@@ -1,0 +1,535 @@
+{
+  "common": {
+    "brand": "GiveawayBot",
+    "loading": "Laden...",
+    "error": "Fout",
+    "success": "Gelukt",
+    "confirm": "Bevestigen",
+    "cancel": "Annuleren",
+    "back": "Terug",
+    "next": "Volgende",
+    "save": "Opslaan",
+    "delete": "Verwijderen",
+    "edit": "Bewerken",
+    "view": "Bekijken",
+    "retry": "Opnieuw",
+    "tryAgain": "Probeer opnieuw",
+    "goBack": "Ga terug",
+    "clear": "Wissen",
+    "download": "Downloaden",
+    "submit": "Versturen",
+    "close": "Sluiten",
+    "readMore": "Lees meer",
+    "unknown": "Onbekend"
+  },
+  "auth": {
+    "login": "Inloggen",
+    "logout": "Uitloggen",
+    "signIn": "Inloggen met Discord",
+    "signOut": "Uitloggen",
+    "userMenu": "Gebruikersmenu",
+    "discordId": "Discord ID:",
+    "title": "Authenticatie",
+    "signInPrompt": "Log in met Discord om toegang te krijgen tot beveiligde functies.",
+    "loggedOut": "Je bent uitgelogd.",
+    "mustBeLoggedIn": "Je moet ingelogd zijn om dit te doen.",
+    "authFailed": "Authenticatie Mislukt",
+    "unknownError": "Er is een onbekende fout opgetreden tijdens de authenticatie."
+  },
+  "nav": {
+    "home": "Home",
+    "premium": "Premium",
+    "giveaways": "Weggeefacties",
+    "list": "Lijst",
+    "summaries": "Samenvattingen",
+    "wiki": "Wiki",
+    "gettingStarted": "Aan de slag",
+    "userGuides": "Gebruikershandleidingen",
+    "developerDocs": "Ontwikkelaarsdocumentatie",
+    "advancedTopics": "Geavanceerde Onderwerpen",
+    "reference": "Referentie",
+    "legal": "Juridisch",
+    "termsOfService": "Algemene Voorwaarden",
+    "privacyPolicy": "Privacybeleid",
+    "paidServicesAgreement": "Overeenkomst Betaalde Diensten",
+    "toggleMenu": "Menu wisselen"
+  },
+  "errors": {
+    "401": {
+      "title": "401 Niet Geautoriseerd",
+      "message": "Je bent niet geautoriseerd om deze pagina te bekijken. Ben je ingelogd?"
+    },
+    "403": {
+      "title": "403 Verboden",
+      "message": "Je hebt geen toestemming om deze pagina te bekijken."
+    },
+    "404": {
+      "title": "404 Niet Gevonden",
+      "message": "Deze pagina bestaat niet. Ben je verdwaald?"
+    },
+    "500": {
+      "title": "500 Interne Serverfout",
+      "message": "Deze fout ligt aan onze kant. Probeer het later opnieuw."
+    },
+    "generic": {
+      "title": "Er is iets misgegaan",
+      "message": "Deze fout ligt aan onze kant. Probeer het later opnieuw."
+    },
+    "reference": "Foutreferentie:",
+    "premiumRequired": {
+      "title": "Premium Vereist",
+      "message": "Deze functie vereist een premium-abonnement. Upgrade om alle functies te ontgrendelen!",
+      "action": "Bekijk Premium"
+    },
+    "accessDenied": {
+      "title": "Toegang Geweigerd",
+      "message": "Je hebt geen toestemming om de weggeefacties van deze server te bekijken."
+    },
+    "guildNotFound": {
+      "title": "Server Niet Gevonden",
+      "message": "Deze server is niet gevonden. Je bent misschien geen lid, of de bot is niet op deze server."
+    },
+    "summaryNotFound": {
+      "title": "Samenvatting Niet Gevonden",
+      "message": "Deze samenvatting kon niet worden gevonden. Het is mogelijk verlopen of de weggeefactie is verwijderd."
+    },
+    "giveawayNotFound": {
+      "title": "Weggeefactie Niet Gevonden",
+      "message": "Deze weggeefactie kon niet worden gevonden. Het is mogelijk verwijderd of je hebt geen toegang."
+    },
+    "unexpected": "Er is een onverwachte fout opgetreden.",
+    "failedToLoad": "Laden van {{item}} mislukt: {{error}}"
+  },
+  "landing": {
+    "hero": {
+      "heading": "Start het feest met",
+      "body": "Moe van het handmatig beheren van weggeefacties? Sluit je aan bij miljoenen Discord-communities en automatiseer je weggeefacties met GiveawayBot!",
+      "cta": "Aan de slag",
+      "addToDiscord": "Toevoegen aan Discord"
+    },
+    "features": {
+      "title": "Anders door ontwerp",
+      "description": "GiveawayBot is ontworpen om gemakkelijk te gebruiken, maar krachtig genoeg om vrijwel elke weggeefactie aan te kunnen die je kunt bedenken.",
+      "effortless": {
+        "title": "Moeiteloze Weggeefacties in een Handomdraai",
+        "description": "Maak weggeefacties sneller dan ooit. Geen gedoe meer met ingewikkelde commando's."
+      },
+      "seamless": {
+        "title": "Naadloze Discord-integratie",
+        "description": "Discord is waar jij bent. GiveawayBot ook. Geen noodzaak om tussen apps te wisselen."
+      },
+      "secure": {
+        "title": "Veilig en Privé",
+        "description": "Je gegevens zijn van jou. We verkopen je gegevens niet aan derden en we slaan niet meer op dan nodig."
+      },
+      "openSource": {
+        "title": "Open Source",
+        "description": "GiveawayBot is open source. Duik in de code en zie hoe het werkt. Draag bij en maak het beter."
+      },
+      "free": {
+        "title": "Voor Altijd Gratis",
+        "description": "Premium-functies zijn beschikbaar, maar de kernfunctionaliteit is gratis. Geen verborgen kosten, geen verrassingen."
+      },
+      "multilingual": {
+        "title": "Meertalige Ondersteuning",
+        "description": "GiveawayBot spreekt jouw taal. En als dat niet zo is, kun je ons helpen met vertalen."
+      }
+    },
+    "testimonials": {
+      "title": "Nog niet overtuigd?",
+      "description": "Geloof ons niet zomaar. Dit is wat onze gebruikers zeggen."
+    },
+    "closing": {
+      "heading": "Klaar om te beginnen?",
+      "body": "Focus op je community, niet op het beheren van weggeefacties. GiveawayBot is er om te helpen."
+    }
+  },
+  "premium": {
+    "meta": {
+      "title": "Premium | GiveawayBot",
+      "description": "Upgrade naar Premium voor exclusieve functies en voordelen."
+    },
+    "hero": {
+      "heading": "Premium",
+      "body": "Ga verder met GiveawayBot Premium. Ontgrendel exclusieve functies en ondersteun de ontwikkeling van de bot.",
+      "cta": "Abonneren via Discord"
+    },
+    "features": {
+      "title": "Laat je weggeefacties opvallen",
+      "description": "GiveawayBot Premium biedt exclusieve functies die je weggeefacties naar een hoger niveau tillen.",
+      "free": "Gratis:",
+      "premium": "Premium:",
+      "longerGiveaways": {
+        "title": "Langere weggeefacties",
+        "description": "Maak weggeefacties die dagen, weken of zelfs maanden duren. De keuze is aan jou.",
+        "freeValue": "14 dagen",
+        "premiumValue": "30 dagen"
+      },
+      "moreGiveaways": {
+        "title": "Meer weggeefacties",
+        "description": "Waarom jezelf beperken? Maak meer weggeefacties en betrek je community.",
+        "freeValue": "5 weggeefacties",
+        "premiumValue": "20 weggeefacties"
+      },
+      "moreCustomization": {
+        "title": "Meer aanpassingen",
+        "description": "Verander de kleur van de embed, voeg een aangepaste footer toe, en meer.",
+        "freeValue": "Basis",
+        "premiumValue": "Geavanceerd"
+      },
+      "moreWinners": {
+        "title": "Meer winnaars",
+        "description": "Kies meer winnaars voor je weggeefacties. Geef meer mensen een kans om te winnen.",
+        "freeValue": "10 winnaars",
+        "premiumValue": "50 winnaars"
+      },
+      "andMore": {
+        "title": "En meer!",
+        "description": "Krijg toegang tot nog meer functies, inclusief vroege toegang tot nieuwe functies tijdens de ontwikkeling."
+      }
+    },
+    "faq": {
+      "title": "Veelgestelde Vragen",
+      "whatIsPremium": {
+        "question": "Wat is Premium?",
+        "answer": "GiveawayBot Premium is een abonnement dat het volledige potentieel van GiveawayBot ontgrendelt. Met Premium kun je langere weggeefacties houden, meer winnaars hebben en meer functies ontgrendelen om je weggeefacties te verbeteren!"
+      },
+      "whatHappensWhenCancel": {
+        "question": "Wat gebeurt er als ik opzeg?",
+        "answer": "Als je je abonnement opzegt, behoud je toegang tot Premium tot het einde van je factureringsperiode. Daarna verlies je toegang tot Premium-functies."
+      },
+      "howManyServers": {
+        "question": "Hoeveel servers dekt mijn abonnement?",
+        "answer": "Een enkel Premium-abonnement dekt slechts één server. Als je Premium op meerdere servers wilt gebruiken, moet je een abonnement kopen voor elke server."
+      }
+    },
+    "cta": {
+      "title": "Waar wacht je nog op?",
+      "body": "Verbeter je weggeefacties met GiveawayBot Premium."
+    }
+  },
+  "giveaways": {
+    "meta": {
+      "title": "Jouw Weggeefacties | GiveawayBot",
+      "description": "Beheer weggeefacties voor je Discord-servers"
+    },
+    "title": "Jouw Weggeefacties",
+    "description": "Beheer weggeefacties voor servers waar je de Evenementen Beheren-toestemming hebt.",
+    "hostedGiveaways": "Gehoste Weggeefacties",
+    "hostedDescription": "Dit zijn weggeefacties die je host in alle servers.",
+    "serversWithGiveaways": "Servers met Weggeefacties",
+    "noGiveaways": "Geen weggeefacties gevonden. Start een weggeefactie op een server waar je de `Evenementen Beheren`-toestemming hebt!",
+    "noGiveawaysInServer": "Geen weggeefacties gevonden op deze server. Start er een met `/start`!",
+    "noMatchingGiveaways": "Geen weggeefacties komen overeen met je huidige filters. Probeer je zoek- of filterinstellingen aan te passen.",
+    "loadingGiveaways": "Weggeefacties laden...",
+    "guildDataUnavailable": "Servergegevens niet beschikbaar",
+    "giveawayDataUnavailable": "Weggeefactiegegevens niet beschikbaar",
+    "backToGiveaways": "Terug naar Weggeefacties",
+    "backToGuild": "Terug naar {{guildName}}",
+    "winner_one": "{{count}} winnaar",
+    "winner_other": "{{count}} winnaars",
+    "participant_one": "{{count}} deelnemer",
+    "participant_other": "{{count}} deelnemers",
+    "entry_one": "{{count}} inzending",
+    "entry_other": "{{count}} inzendingen",
+    "giveaway_one": "{{count}} weggeefactie",
+    "giveaway_other": "{{count}} weggeefacties",
+    "ended": "Geëindigd {{time}}",
+    "ends": "Eindigt {{time}}",
+    "viewSummary": "Bekijk samenvatting",
+    "viewDetails": "Bekijk details",
+    "openInDiscord": "Openen in Discord",
+    "copyId": "Kopieer ID",
+    "menu": {
+      "actions": "Acties",
+      "edit": "Bewerken",
+      "stopEarly": "Vroegtijdig stoppen",
+      "reroll": "Opnieuw loten"
+    },
+    "filters": {
+      "all": "Alle ({{count}})",
+      "active": "Actief ({{count}})",
+      "closed": "Gesloten ({{count}})"
+    },
+    "sort": {
+      "placeholder": "Sorteer op",
+      "endTime": "Eindtijd",
+      "prizeName": "Prijsnaam"
+    },
+    "search": {
+      "placeholder": "Zoek op prijsnaam..."
+    },
+    "status": {
+      "active": "Actief",
+      "closed": "Gesloten",
+      "ending": "Bezig met eindigen..."
+    },
+    "details": {
+      "title": "Weggeefactie Details",
+      "timeRemaining": "Resterende tijd",
+      "participants": "Deelnemers",
+      "refresh": "Vernieuwen",
+      "live": "Live",
+      "failedToLoadParticipants": "Deelnemers laden mislukt. Probeer het opnieuw."
+    },
+    "emptyState": {
+      "title": "Nog geen weggeefacties",
+      "description": "Start je eerste weggeefactie in Discord met het /start commando. Het duurt maar een paar seconden!",
+      "openDiscord": "Open Discord",
+      "learnHow": "Leer hoe"
+    },
+    "modals": {
+      "edit": {
+        "title": "Weggeefactie Bewerken",
+        "prizeLabel": "Prijs",
+        "prizePlaceholder": "Wat geef je weg?",
+        "winnersLabel": "Aantal Winnaars",
+        "descriptionLabel": "Beschrijving",
+        "descriptionPlaceholder": "Optionele beschrijving voor de weggeefactie...",
+        "validation": {
+          "prizeRequired": "Prijs is verplicht",
+          "prizeTooLong": "Prijs mag maximaal 100 tekens zijn",
+          "winnersMin": "Er moet minimaal 1 winnaar zijn",
+          "winnersMax": "Maximaal 50 winnaars toegestaan",
+          "descriptionTooLong": "Beschrijving mag maximaal 1000 tekens zijn"
+        },
+        "success": {
+          "title": "Weggeefactie Bijgewerkt",
+          "message": "Je wijzigingen zijn opgeslagen en het Discord-bericht is bijgewerkt."
+        },
+        "error": {
+          "title": "Bijwerken Mislukt",
+          "message": "Kon de weggeefactie niet bijwerken. Probeer het opnieuw."
+        }
+      },
+      "stop": {
+        "title": "Weggeefactie Vroegtijdig Stoppen",
+        "warning": "Deze actie kan niet ongedaan worden gemaakt!",
+        "confirmMessage": "Weet je zeker dat je de weggeefactie \"{{prize}}\" vroegtijdig wilt stoppen?",
+        "explanation": "De weggeefactie eindigt onmiddellijk. Winnaars worden getrokken uit de huidige deelnemers en de resultaten worden aangekondigd in Discord.",
+        "confirmButton": "Weggeefactie Stoppen",
+        "success": {
+          "title": "Weggeefactie Gestopt",
+          "message": "De weggeefactie is beëindigd en winnaars zijn getrokken."
+        },
+        "error": {
+          "title": "Stoppen Mislukt",
+          "message": "Kon de weggeefactie niet stoppen. Probeer het opnieuw."
+        }
+      },
+      "reroll": {
+        "title": "Winnaars Opnieuw Trekken",
+        "description": "Trek vervangende winnaars voor \"{{prize}}\".",
+        "note": "Dit is alleen een snelle trekking - de originele weggeefactie blijft ongewijzigd. Kopieer de resultaten hieronder om ze handmatig aan te kondigen.",
+        "countLabel": "Aantal nieuwe winnaars",
+        "countDescription": "Hoeveel nieuwe winnaars te trekken uit overgebleven deelnemers",
+        "confirmButton": "Winnaars Trekken",
+        "newWinners": "Nieuwe Winnaars",
+        "copyHint": "Kopieer deze resultaten om aan te kondigen in Discord",
+        "noEligibleParticipants": "Geen geschikte deelnemers meer om uit te trekken.",
+        "success": {
+          "title": "Winnaars Getrokken",
+          "message": "{{count}} nieuwe winnaar(s) geselecteerd. Kopieer de resultaten om ze aan te kondigen!"
+        },
+        "error": {
+          "title": "Trekken Mislukt",
+          "message": "Kon winnaars niet trekken. Probeer het opnieuw."
+        }
+      }
+    }
+  },
+  "summaries": {
+    "meta": {
+      "title": "Weggeefactie Samenvattingen | GiveawayBot",
+      "description": "Upload en bekijk weggeefactie-samenvattingsbestanden"
+    },
+    "title": "Weggeefactie Samenvattingen",
+    "description": "Upload een weggeefactie-samenvattings-JSON-bestand om de inhoud te bekijken. Deze bestanden worden gegenereerd wanneer een weggeefactie eindigt en kunnen worden gedownload via de weggeefactiebeheerinterface.",
+    "invalidFileType": "Ongeldig bestandstype. Upload een JSON-bestand.",
+    "invalidSummaryFile": "Ongeldig samenvattingsbestand: {{error}}",
+    "giveawaySummary": "Weggeefactie Samenvatting",
+    "prize": "Prijs:",
+    "expiresIn": "Samenvatting verloopt {{time}}",
+    "ranFrom": "Liep van {{start}} tot {{end}}",
+    "dropzoneText": "Sleep een samenvattingsbestand hierheen of klik om te selecteren",
+    "dropzoneHelp": "Bestanden moeten JSON-formaat zijn en kleiner dan 5MB",
+    "uploadAnother": "Andere uploaden",
+    "summaryDataUnavailable": "Samenvattingsgegevens niet beschikbaar",
+    "loadingSummary": "Samenvatting laden..."
+  },
+  "tables": {
+    "winners": {
+      "title": "Winnaars",
+      "searchPlaceholder": "Zoeken op gebruikersnaam of ID..."
+    },
+    "participants": {
+      "title": "Deelnemers",
+      "searchPlaceholder": "Zoeken op gebruikersnaam of ID..."
+    },
+    "headers": {
+      "user": "Gebruiker",
+      "id": "ID"
+    }
+  },
+  "wiki": {
+    "meta": {
+      "title": "Wiki | GiveawayBot",
+      "description": "Leer hoe je GiveawayBot gebruikt - handleidingen, referentie en ontwikkelaarsdocumentatie"
+    },
+    "title": "GiveawayBot Wiki",
+    "subtitle": "Alles wat je moet weten over het organiseren van weggeefacties met GiveawayBot",
+    "notFound": {
+      "title": "Pagina niet gevonden",
+      "message": "Deze wikipagina bestaat niet of is nog niet geschreven.",
+      "backToWiki": "Terug naar Wiki"
+    },
+    "categories": {
+      "gettingStarted": {
+        "title": "Aan de slag",
+        "description": "Stel GiveawayBot in op je server en organiseer je eerste weggeefactie"
+      },
+      "userGuides": {
+        "title": "Gebruikershandleidingen",
+        "description": "Stapsgewijze handleidingen voor het effectief gebruiken van GiveawayBot-functies"
+      },
+      "reference": {
+        "title": "Referentie",
+        "description": "Volledige commandoreferentie en configuratie-opties"
+      },
+      "advanced": {
+        "title": "Geavanceerd",
+        "description": "Geavanceerde functies en configuraties voor ervaren gebruikers"
+      },
+      "developer": {
+        "title": "Ontwikkelaar",
+        "description": "Technische documentatie, API-referentie en componenthandleidingen"
+      }
+    },
+    "noPagesYet": "Nog geen pagina's in deze categorie.",
+    "untranslated": "Alleen Engels",
+    "tableOfContents": "Inhoudsopgave",
+    "openTableOfContents": "Open inhoudsopgave",
+    "minRead": "{{count}} min lezen",
+    "updated": "Bijgewerkt {{time}}",
+    "suggestEdits": "Stel bewerkingen voor"
+  },
+  "legal": {
+    "meta": {
+      "title": "Juridische Documenten | GiveawayBot",
+      "description": "Juridische documenten en beleid"
+    },
+    "title": "Juridische Documenten"
+  },
+  "mdx": {
+    "scrollToTop": "Naar boven",
+    "readingTime": "{{count}} min lezen",
+    "lastUpdated": "Laatst bijgewerkt: {{date}}",
+    "translationNotAvailable": "Deze pagina is niet beschikbaar in jouw taal. De Engelse versie wordt getoond."
+  },
+  "feedback": {
+    "button": "Feedback Sturen",
+    "modalTitle": "Feedback Sturen",
+    "description": "Bug gevonden? Een suggestie? Laat het ons weten!",
+    "nameLabel": "Naam",
+    "namePlaceholder": "Je naam",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "jouw@email.com",
+    "feedbackLabel": "Feedback",
+    "feedbackPlaceholder": "Vertel ons wat je denkt...",
+    "submitButton": "Feedback Versturen",
+    "validation": {
+      "nameRequired": "Naam is verplicht",
+      "emailInvalid": "Ongeldig e-mailadres",
+      "feedbackRequired": "Feedback is verplicht"
+    },
+    "success": {
+      "title": "Bedankt!",
+      "message": "Je feedback is verzonden."
+    },
+    "enableReporting": {
+      "title": "Foutrapportage Inschakelen",
+      "message": "Schakel foutrapportage in via je privacyinstellingen om feedback te versturen."
+    },
+    "replayNote": "Let op! Omdat je sessieopname hebt ingeschakeld, wordt feedback op deze manier verzonden samen met een sessieopname om ons te helpen problemen beter te begrijpen."
+  },
+  "privacy": {
+    "title": "Privacyinstellingen",
+    "description": "We gebruiken Sentry als onze telemetrieservice om foutrapporten en prestatiegegevens te verzamelen. Je kunt je voorkeuren hieronder aanpassen.",
+    "note": "Opmerking",
+    "serverSideNote": "Server-side fouten (bijv. API-fouten) worden altijd gerapporteerd aan Sentry. De onderstaande instellingen zijn alleen van invloed op client-side telemetrie.",
+    "errorReporting": {
+      "label": "Foutrapportage",
+      "description": "Stuur foutrapporten om ons te helpen bugs op te lossen. Er worden geen persoonlijke gegevens verzameld."
+    },
+    "performanceTracing": {
+      "label": "Prestatie-tracking",
+      "description": "Volg paginaladingen en navigatie om ons te helpen de prestaties te verbeteren. Dit kan enkele geanonimiseerde gebruikersinteractiegegevens bevatten."
+    },
+    "sessionReplay": {
+      "label": "Sessieopname",
+      "description": "Neem geanonimiseerde sessieopnames op om problemen te diagnosticeren. Opnames zullen nooit exacte gebruikersgegevens onthullen, maar kunnen gemaskeerde invoer bevatten."
+    },
+    "updated": {
+      "title": "Privacyinstellingen bijgewerkt",
+      "message": "Je voorkeuren zijn opgeslagen. Ververs de pagina om de wijzigingen toe te passen."
+    }
+  },
+  "settings": {
+    "label": "Instellingen",
+    "privacy": "Privacy",
+    "language": "Taal",
+    "languageSearch": "Zoek talen...",
+    "noLanguagesFound": "Geen talen gevonden",
+    "darkMode": "Gebruik Donkere modus",
+    "lightMode": "Gebruik Lichte modus"
+  },
+  "buildInfo": {
+    "title": "Build Informatie",
+    "commit": "Commit:",
+    "deployment": "Deployment:",
+    "environment": "Omgeving:",
+    "built": "Gebouwd:",
+    "viewWorkflow": "Bekijk build workflow"
+  },
+  "footer": {
+    "bluesky": "Bluesky",
+    "github": "GitHub",
+    "copyright": "© {{year}} Dougley"
+  },
+  "index": {
+    "meta": {
+      "title": "GiveawayBot - Discord Weggeefactie Bot",
+      "description": "Automatiseer je Discord-weggeefacties met GiveawayBot. Makkelijk te gebruiken, krachtige functies, voor altijd gratis."
+    }
+  },
+  "notifications": {
+    "copied": {
+      "title": "Gekopieerd!",
+      "message": "ID gekopieerd naar klembord"
+    },
+    "downloadSuccess": {
+      "title": "Download gestart",
+      "message": "Je samenvattingsbestand wordt gedownload"
+    },
+    "downloadError": {
+      "title": "Download mislukt",
+      "message": "Kon de samenvatting niet downloaden. Probeer het opnieuw."
+    }
+  },
+  "added": {
+    "title": "Je bent helemaal klaar!",
+    "description": "GiveawayBot is toegevoegd aan je server en is klaar voor gebruik. Start je eerste weggeefactie in slechts een paar seconden!",
+    "nextSteps": {
+      "title": "Snel starten",
+      "step1": "Typ dit commando in een kanaal:",
+      "step2": "Vul de prijs, duur en het aantal winnaars in",
+      "step3": "Zie de deelnames binnenstromen!"
+    },
+    "actions": {
+      "readGuide": "Lees de handleiding",
+      "openDiscord": "Open Discord"
+    },
+    "hint": "Wil je langere weggeefacties en meer functies?",
+    "hintLink": "Bekijk Premium"
+  }
+}

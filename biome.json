@@ -7,7 +7,11 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**/*.{js,jsx,ts,tsx,cjs,mjs,cts,mts}"]
+    "includes": [
+      "**/*.{js,jsx,ts,tsx,cjs,mjs,cts,mts}",
+      "!**/*.gen.ts",
+      "!**/worker-configuration.d.ts"
+    ]
   },
   "formatter": {
     "enabled": true,

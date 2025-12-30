@@ -40,8 +40,9 @@ runs:
         ENVIRONMENT: ${{ inputs.environment }}
         RELEASE: ${{ env.RELEASE || github.sha }}
         BRANCH: ${{ env.BRANCH || github.head_ref || github.ref_name }}
+        SENTRY_DSN: ${{ env.SENTRY_DSN }}
 
-    - name: Deploy Web to Cloudflare Pages
+    - name: Deploy Web to Cloudflare Workers
       if: inputs.app == 'web'
       shell: bash
       run: |
@@ -56,16 +57,13 @@ runs:
         SENTRY_PROJECT: ${{ env.SENTRY_PROJECT }}
         SENTRY_AUTH_TOKEN: ${{ env.SENTRY_AUTH_TOKEN }}
         SENTRY_ORG: ${{ env.SENTRY_ORG }}
-        DISCORD_BOT_TOKEN: ${{ env.DISCORD_BOT_TOKEN }}
-        DISCORD_APP_ID: ${{ env.DISCORD_APP_ID }}
-        DISCORD_PUBLIC_KEY: ${{ env.DISCORD_PUBLIC_KEY }}
-        SUMMARY_SITE: ${{ env.SUMMARY_SITE }}
         ENVIRONMENT: ${{ inputs.environment }}
         RELEASE: ${{ env.RELEASE || github.sha }}
         BRANCH: ${{ env.BRANCH || github.head_ref || github.ref_name }}
-        SESSION_SECRET: ${{ env.SESSION_SECRET }}
+        # Better Auth secrets
+        BETTER_AUTH_SECRET: ${{ env.BETTER_AUTH_SECRET }}
+        DISCORD_CLIENT_ID: ${{ env.DISCORD_CLIENT_ID }}
         DISCORD_CLIENT_SECRET: ${{ env.DISCORD_CLIENT_SECRET }}
-        DISCORD_CALLBACK_URL: ${{ env.DISCORD_CALLBACK_URL }}
-        ATTESTATION_ID: ${{ env.ATTESTATION_ID }}
+        # Build metadata (deployment ID comes from CF_VERSION_METADATA binding)
         BUILD_TIME: ${{ env.BUILD_TIME }}
         REPOSITORY: ${{ env.REPOSITORY }}

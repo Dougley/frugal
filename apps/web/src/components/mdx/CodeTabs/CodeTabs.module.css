@@ -1,0 +1,32 @@
+.container {
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  overflow: hidden;
+}
+
+.tabsList {
+  background-color: var(--mantine-color-default);
+  padding: var(--mantine-spacing-xs);
+  margin: 0;
+  border-bottom: none;
+}
+
+.tabPanel {
+  padding: 0;
+  margin: 0;
+}
+
+.tabPanelContent :global(.mantine-CodeHighlight-root) {
+  border: none;
+  border-radius: 0;
+  margin: 0;
+}
+
+.tabPanelContent :global(.mantine-CodeHighlight-code) {
+  border-radius: 0;
+}
+
+.tabPanelContent :global(pre) {
+  margin: 0;
+  border-radius: 0;
+}

@@ -1,0 +1,46 @@
+.languageOption {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-sm);
+  width: 100%;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-sm);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+
+  &:hover {
+    background-color: light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-5));
+  }
+
+  &[data-selected] {
+    background-color: var(--mantine-color-blue-light);
+  }
+}
+
+.langCode {
+  width: 2rem;
+  flex-shrink: 0;
+  color: var(--mantine-color-dimmed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.labelGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+  flex: 1;
+}
+
+.labelGroup > * {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.checkIcon {
+  flex-shrink: 0;
+  color: var(--mantine-color-blue-filled);
+}

@@ -160,18 +160,30 @@ await ctx.send({
 
 ### Web App (`apps/web/`)
 
-**React Router 7 on Cloudflare Pages**
+**TanStack Start (React SSR Framework) on Cloudflare Pages**
 
-- SSR enabled, builds to `build/client` and `build/server`
-- Custom server in `workers/server.ts` wraps React Router with Sentry
-- Function routes pattern: files in `workers/functions/` bypass React Router
-- Load context via `getLoadContext()` provides Cloudflare env/ctx to loaders/actions
+- File-based routing with automatic route tree generation (`routeTree.gen.ts`)
+- SSR enabled, builds with Vite and TanStack Start plugin
+- Custom server in `src/server.ts` wraps TanStack Start with Sentry
+- API routes pattern: files in `src/routes/api/` create API endpoints
+- Request context via `buildRequestContext()` provides Cloudflare env/cf properties to routes
+- Router created in `src/router.tsx` with TRPC and QueryClient integration
+
+**TRPC Integration**
+
+- Full-stack type safety between client and server
+- Router defined in `src/server/trpc/router.ts`
+- Procedures use middleware for auth, timing, and Sentry integration
+- Context includes env, session, and request headers
+- Client uses `createServerFn` for SSR-compatible data fetching
+- SuperJSON transformer for complex types (Dates, Maps, BigInt)
 
 **Styling & UI**
 
-- Mantine UI components with custom theme in `app/root.tsx`
-- Tailwind CSS via PostCSS
+- Mantine UI components with theme configuration in `src/routes/__root.tsx`
+- PostCSS for CSS processing (no Tailwind)
 - Color scheme handling with `ColorSchemeScript` and auto dark mode
+- Navigation progress bar via `@mantine/nprogress`
 
 ## Development Workflows
 
@@ -425,15 +437,28 @@ import { drizzleD1, Schema } from "@dougley/frugal-drizzle/workers";
 import { drizzleDurable, Schema as DurableSchema } from "@dougley/frugal-drizzle/durables";
 ```
 
-### React Router Load Context
+### TanStack Start Route Context
 
 ```typescript
-// In loader/action - access Cloudflare bindings
-export async function loader({ request, context }: Route.LoaderArgs) {
-  const { env, ctx, cf } = context.cloudflare;
-  const db = drizzleD1(env.D1);
-  // ... use Cloudflare resources
-}
+// In route's loader/beforeLoad - access request context
+import { getRequestContext } from "~/server/request-context";
+
+export const Route = createRoute({
+  async loader() {
+    const { env, cf } = getRequestContext();
+    const db = drizzleD1(env.D1);
+    // ... use Cloudflare resources
+  },
+});
+
+// In TRPC procedures - context is auto-injected
+export const myRouter = {
+  getData: publicProcedure.query(async ({ ctx }) => {
+    // ctx.env, ctx.headers available here
+    const db = drizzleD1(ctx.env.D1);
+    return db.query.users.findMany();
+  }),
+};
 ```
 
 ## Deployment
@@ -453,94 +478,86 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 
 ### Authentication (`apps/web/`)
 
-**Session-Based Auth with Discord OAuth2**
+**Stateless Auth with Better Auth**
 
-- KV-backed sessions via `remix-auth` (configured in `workers/load-context.ts`)
-- OAuth2 flow: Discord login → callback → session created with user data
-- Session includes user profile + guilds list (refreshed on login)
-- 1 week session expiry, configurable in load context
+- Better Auth library with Discord OAuth2 provider
+- **Stateless mode**: Session stored in encrypted JWE cookie (no database)
+- Cloudflare KV used for secondary storage (session caching, rate limiting)
+- OAuth scopes: `identify`, `email`, `guilds` (for fetching user's Discord servers)
+- Cookies automatically chunked if > 4KB due to encrypted session data
+- Configuration in `src/server/auth/index.ts`
 
-**Three-Layer Auth Access Pattern**
+**Two-Layer Auth Access Pattern**
 
-Similar to the Discord bot's AsyncContext pattern, the web app provides auth access at multiple levels:
+The web app provides auth access at multiple levels:
 
-1. **Server-Side (Loaders/Actions)** - Use `~/utils/auth` utilities
-2. **Client-Side (Components)** - Use `~/components/contexts/AuthContext` hooks
-3. **Global (Root Loader)** - User fetched once, distributed via React Context
+1. **Server-Side (beforeLoad/TRPC)** - Use `getSessionFn()` or TRPC protected procedures
+2. **Client-Side (Components)** - Use `AuthContext` hooks
 
-**Auth Utilities (Server-Side)**
+**Server-Side Auth**
 
 ```typescript
-import { requireAuth, getOptionalUser } from "~/utils/auth";
+import { getSessionFn } from "~/server/auth/session";
 
-// Protected route - auto-redirects to login with return URL
-export async function loader({ request, context }: Route.LoaderArgs) {
-  const user = await requireAuth(request, context);
-  // user is guaranteed non-null (TypeScript enforced)
-  return { data: await fetchProtectedData(user.id) };
-}
+// In route's beforeLoad (runs during SSR)
+export const Route = createRoute({
+  async beforeLoad() {
+    const session = await getSessionFn();
+    // session is SessionData | null
+    if (!session) {
+      throw redirect({ to: "/auth/login" });
+    }
+    return { session };
+  },
+});
 
-// Optional auth - works for both logged in and logged out
-export async function loader({ request, context }: Route.LoaderArgs) {
-  const user = await getOptionalUser(request, context);
-  return {
-    user,
-    data: user ? await fetchUserData(user.id) : null,
-  };
-}
+// In TRPC protected procedure
+import { protectedProcedure } from "~/server/trpc/instance";
 
-// Custom return URL after login
-export async function loader({ request, context }: Route.LoaderArgs) {
-  const user = await requireAuth(request, context, "/dashboard");
-  return { user };
-}
+export const myRouter = {
+  getData: protectedProcedure.query(async ({ ctx }) => {
+    // ctx.session is guaranteed non-null
+    return fetchUserData(ctx.session.user.id);
+  }),
+};
 ```
 
 **Auth Hooks (Client-Side)**
 
 ```typescript
-import {
-  useAuth,
-  useRequireAuth,
-  useOptionalAuth
-} from "~/components/contexts/AuthContext";
+import { useAuth } from "~/components/AuthContext";
 
 // Get auth state with isAuthenticated flag
 function MyComponent() {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated, user, session } = useAuth();
   if (!isAuthenticated) return <NotLoggedIn />;
-  return <div>Welcome {user.displayName}!</div>;
+  return <div>Welcome {user?.name}!</div>;
 }
 
-// Type-narrowing for protected components (still need loader auth!)
+// Access route context (includes session from beforeLoad)
 function ProtectedComponent() {
-  const { user } = useRequireAuth();
-  // user is non-null (throws if not authenticated)
-  return <UserProfile user={user} />;
-}
-
-// Cleaner API for optional auth
-function OptionalComponent() {
-  const user = useOptionalAuth();
-  return user ? <UserGreeting user={user} /> : <GuestGreeting />;
+  const { session } = Route.useRouteContext();
+  // Type narrowing in beforeLoad ensures session is non-null here
+  return <UserProfile user={session.user} />;
 }
 ```
 
 **Important Auth Concepts**
 
-- **Root loader pattern**: User fetched once in `app/root.tsx` loader, distributed via AuthContext
-- **Client hooks don't enforce auth**: Always use `requireAuth()` in loaders for server-side enforcement
-- **Type safety**: TypeScript ensures `requireAuth()` returns non-null, `getOptionalUser()` returns nullable
-- **Return URLs**: Login flow preserves return URLs for seamless post-auth redirects
-- **Session management**: Sessions stored in KV, accessed via `context.sessions` in load context
+- **Root beforeLoad pattern**: Session fetched once in `__root.tsx` beforeLoad using `getSessionFn()`
+- **AuthProvider distribution**: Session passed to AuthProvider in root component
+- **createServerFn**: Used for session fetching to ensure proper cookie handling during SSR
+- **Protected procedures**: TRPC middleware validates session and populates `ctx.session`
+- **Sentry integration**: User context automatically set in Sentry when authenticated
+- **Type safety**: Protected procedures guarantee non-null session via middleware
 
 **Auth Flow**
 
-1. User clicks login → POST to `/api/auth/login/discord?returnTo=/current-page`
+1. User clicks login → Redirects to `/api/auth/sign-in/social/discord`
 2. OAuth2 redirect to Discord → User authorizes
-3. Callback to `/api/auth/callback/discord` → Creates session with user data
-4. Redirect to return URL → Root loader fetches user from session
-5. AuthContext distributes user to all components
+3. Callback to Better Auth → Creates encrypted session cookie
+4. Redirect to return URL → Root beforeLoad fetches session
+5. AuthProvider distributes session to all components via React Context
 
 ## Key Files to Reference
 
@@ -550,8 +567,11 @@ function OptionalComponent() {
 - `apps/discord/src/classes/BaseCommand.ts` - Command base class with i18n and premium support
 - `packages/giveaway-state-v3/src/router.ts` - TRPC router defining all Durable Object operations
 - `packages/giveaway-state-v3/src/trpc.ts` - TRPC/Durable Object integration layer
-- `apps/web/app/components/contexts/AuthContext.tsx` - React Context for auth state distribution
-- `apps/web/app/utils/auth.ts` - Server-side auth utilities (requireAuth, getOptionalUser)
+- `apps/web/src/components/AuthContext/AuthContext.tsx` - React Context for auth state distribution
+- `apps/web/src/server/auth/index.ts` - Better Auth configuration (stateless mode)
+- `apps/web/src/server/auth/session.ts` - Server-side session utilities (getSessionFn)
+- `apps/web/src/server/trpc/instance.ts` - TRPC initialization with middleware
+- `apps/web/src/server/request-context.ts` - Request context for Cloudflare bindings
 
 ### Configuration
 
@@ -559,9 +579,12 @@ function OptionalComponent() {
 - `biome.json` - Linting and formatting rules
 - `pnpm-workspace.yaml` - Monorepo structure and catalog dependencies
 - `apps/*/wrangler.jsonc` - Worker configuration for each app
+- `apps/web/vite.config.ts` - Vite + TanStack Start + Cloudflare configuration
 
 ### Examples
 
 - `apps/discord/src/commands/slash/start.ts` - Full command with validation, i18n, premium checks
-- `apps/web/workers/server.ts` - React Router + Cloudflare Pages integration
+- `apps/web/src/server.ts` - TanStack Start + Cloudflare Pages integration with Sentry
+- `apps/web/src/routes/__root.tsx` - Root route with beforeLoad, theme, and providers
+- `apps/web/src/server/trpc/routers/auth.ts` - TRPC router for Discord API calls
 - `packages/i18n/src/index.ts` - KV-backed i18n implementation with caching

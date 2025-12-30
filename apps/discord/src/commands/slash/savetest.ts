@@ -43,6 +43,14 @@ export default class SaveTestCommand extends BaseCommand {
           description: "The Durable Object ID of the giveaway",
           required: false,
         },
+        {
+          type: CommandOptionType.INTEGER,
+          name: "entries",
+          description: "Number of test entries to generate (default: 10)",
+          required: false,
+          min_value: 1,
+          max_value: 10000,
+        },
       ],
     });
   }
@@ -119,82 +127,27 @@ export default class SaveTestCommand extends BaseCommand {
 
     console.trace(giveawayResult, alarmResult);
 
-    // Step 3: Add some test entries (10 fake users)
-    const testUsers = [
-      {
-        user_id: "123456789012345678",
-        username: "TestUser1",
-        discriminator: "0001",
-        avatar: null,
-      },
-      {
-        user_id: "223456789012345678",
-        username: "TestUser2",
-        discriminator: "0002",
-        avatar: null,
-      },
-      {
-        user_id: "323456789012345678",
-        username: "TestUser3",
-        discriminator: "0003",
-        avatar: null,
-      },
-      {
-        user_id: "423456789012345678",
-        username: "TestUser4",
-        discriminator: "0004",
-        avatar: null,
-      },
-      {
-        user_id: "523456789012345678",
-        username: "TestUser5",
-        discriminator: "0005",
-        avatar: null,
-      },
-      {
-        user_id: "623456789012345678",
-        username: "TestUser6",
-        discriminator: "0006",
-        avatar: null,
-      },
-      {
-        user_id: "723456789012345678",
-        username: "TestUser7",
-        discriminator: "0007",
-        avatar: null,
-      },
-      {
-        user_id: "823456789012345678",
-        username: "TestUser8",
-        discriminator: "0008",
-        avatar: null,
-      },
-      {
-        user_id: "923456789012345678",
-        username: "TestUser9",
-        discriminator: "0009",
-        avatar: null,
-      },
-      {
-        user_id: "023456789012345678",
-        username: "TestUser10",
-        discriminator: "0010",
-        avatar: null,
-      },
-    ];
+    // Step 3: Generate test entries
+    const entryCount = ctx.options.entries ?? 10;
 
-    // Add the command user as an entry too
+    // Add the command user as an entry
     const commandUser = {
       user_id: ctx.user.id,
       username: ctx.user.username,
       discriminator: ctx.user.discriminator,
-      // Fix: Convert undefined to null to satisfy the type requirements
       avatar: ctx.user.avatar || null,
     };
+    await stub.addEntry.mutate(commandUser);
 
-    // Add all test entries
-    for (const user of [...testUsers, commandUser]) {
-      await stub.addEntry.mutate(user);
+    // Generate fake users for remaining entries
+    for (let i = 1; i < entryCount; i++) {
+      const paddedId = i.toString().padStart(18, "0");
+      await stub.addEntry.mutate({
+        user_id: paddedId,
+        username: `TestUser${i}`,
+        discriminator: i.toString().padStart(4, "0"),
+        avatar: null,
+      });
     }
 
     // Fetch current state

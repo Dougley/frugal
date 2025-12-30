@@ -1,0 +1,115 @@
+.mdxContent {
+  & h1,
+  & h2,
+  & h3,
+  & h4,
+  & h5,
+  & h6 {
+    scroll-margin-top: var(--mantine-spacing-xl);
+  }
+
+  & p {
+    line-height: 1.7;
+    margin-bottom: var(--mantine-spacing-md);
+  }
+
+  & ul,
+  & ol {
+    padding-left: var(--mantine-spacing-xl);
+    margin-bottom: var(--mantine-spacing-md);
+  }
+
+  & li {
+    margin-bottom: var(--mantine-spacing-xs);
+  }
+
+  & a {
+    color: var(--mantine-color-anchor);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  & code {
+    padding: 2px 6px;
+    border-radius: var(--mantine-radius-sm);
+    font-size: 0.9em;
+
+    @mixin light {
+      background-color: var(--mantine-color-gray-1);
+    }
+
+    @mixin dark {
+      background-color: var(--mantine-color-dark-6);
+    }
+  }
+
+  & pre {
+    margin: var(--mantine-spacing-md) 0;
+    padding: var(--mantine-spacing-md);
+    border-radius: var(--mantine-radius-md);
+    overflow-x: auto;
+
+    @mixin light {
+      background-color: var(--mantine-color-gray-1);
+    }
+
+    @mixin dark {
+      background-color: var(--mantine-color-dark-7);
+    }
+
+    & code {
+      padding: 0;
+      background: none;
+    }
+  }
+
+  & table {
+    width: 100%;
+    margin: var(--mantine-spacing-md) 0;
+    border-collapse: collapse;
+
+    & th,
+    & td {
+      padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+      text-align: left;
+      border-bottom: 1px solid;
+
+      @mixin light {
+        border-color: var(--mantine-color-gray-3);
+      }
+
+      @mixin dark {
+        border-color: var(--mantine-color-dark-4);
+      }
+    }
+
+    & th {
+      font-weight: 600;
+
+      @mixin light {
+        background-color: var(--mantine-color-gray-0);
+      }
+
+      @mixin dark {
+        background-color: var(--mantine-color-dark-6);
+      }
+    }
+  }
+
+  & hr {
+    margin: var(--mantine-spacing-xl) 0;
+    border: none;
+    border-top: 1px solid;
+
+    @mixin light {
+      border-color: var(--mantine-color-gray-3);
+    }
+
+    @mixin dark {
+      border-color: var(--mantine-color-dark-4);
+    }
+  }
+}

@@ -19,7 +19,8 @@ else
     --var SUMMARY_URL:$SUMMARY_SITE \
     --var ENVIRONMENT:$ENVIRONMENT \
     --var RELEASE:$RELEASE \
-    --var BRANCH:$BRANCH
+    --var BRANCH:$BRANCH \
+    --var SENTRY_DSN:$SENTRY_DSN \
 fi
 
 echo "✅ Discord bot deployed successfully" 

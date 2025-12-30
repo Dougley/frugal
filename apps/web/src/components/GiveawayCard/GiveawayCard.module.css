@@ -1,0 +1,16 @@
+/**
+ * Stretched link pattern for accessible clickable cards.
+ * The link's ::after pseudo-element covers the entire card,
+ * while interactive elements with higher z-index remain clickable.
+ *
+ * Note: Common styles like .linkText and .aboveStretchedLink are in HoverCard.module.css
+ */
+.stretchedLink::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+}
