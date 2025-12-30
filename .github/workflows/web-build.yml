@@ -35,6 +35,8 @@ jobs:
         with:
           app: web
         env:
+          # Wrangler environment
+          CLOUDFLARE_ENV: ${{ inputs.environment }}
           # Build-time variables for Vite client code (VITE_* prefix auto-exposed)
           VITE_ENVIRONMENT: ${{ inputs.environment }}
           VITE_RELEASE: ${{ github.sha }}
