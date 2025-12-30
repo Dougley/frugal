@@ -1,19 +1,25 @@
 import { ActionIcon, Anchor, Container, Flex, Text } from "@mantine/core";
 import { IconBrandBluesky, IconBrandGithub } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { BuildInfoBadge } from "../BuildInfoBadge/BuildInfoBadge";
 import Logo from "../DougleyLogo/DougleyLogo";
 import { FeedbackButton } from "../FeedbackButton/FeedbackButton";
 import classes from "./Footer.module.css";
 
+// Access router context for tRPC
+const Route = createFileRoute("/")();
+
 export function Footer() {
   const { t } = useTranslation();
+  const { trpc } = Route.useRouteContext();
 
-  // Build info from Vite environment variables (static at build time)
-  const buildInfo = {
-    commitSha: import.meta.env.VITE_RELEASE,
-    environment: import.meta.env.VITE_ENVIRONMENT,
-  };
+  // Use useQuery with infinite staleTime for static build info
+  const { data: buildInfo } = useQuery({
+    ...trpc.app.getBuildInfo.queryOptions(),
+    staleTime: Number.POSITIVE_INFINITY,
+  });
 
   const social = [
     {
@@ -58,7 +64,7 @@ export function Footer() {
           <Text c="dimmed" size="sm">
             {t("footer.copyright", { year: new Date().getFullYear() })}
           </Text>
-          {buildInfo.commitSha && <BuildInfoBadge buildInfo={buildInfo} />}
+          {buildInfo && <BuildInfoBadge buildInfo={buildInfo} />}
           <FeedbackButton />
         </Flex>
         <Flex gap="md" align="center" justify="flex-end">

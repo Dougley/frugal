@@ -1,17 +1,20 @@
+# Cloudflare Worker runtime secrets (used by wrangler/Cloudflare Vite plugin)
+# Copy this to .dev.vars for local development
+# For Vite client-side variables, see .env.example
+
 # Better Auth Configuration
 # Generate a random 32+ character secret: openssl rand -base64 32
 BETTER_AUTH_SECRET=your-secret-here-at-least-32-characters
 
 # Better Auth URL (optional - defaults to request origin)
 # Set this to your deployment URL in production
-# BETTER_AUTH_URL=http://localhost:5173
+# BETTER_AUTH_URL=http://localhost:3000
 
 # Discord OAuth Configuration
 # Create an application at https://discord.com/developers/applications
-# Add redirect URL: http://localhost:5173/api/auth/callback/discord
+# Add redirect URL: http://localhost:3000/api/auth/callback/discord
 DISCORD_CLIENT_ID=your-discord-client-id
 DISCORD_CLIENT_SECRET=your-discord-client-secret
 
-# Sentry DSN (optional)
-# VITE_SENTRY_DSN=your-sentry-dsn
+# Sentry DSN for server-side error reporting (optional)
 # SENTRY_DSN=your-sentry-dsn

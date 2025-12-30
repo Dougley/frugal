@@ -11,6 +11,10 @@ on:
         required: true
       SENTRY_AUTH_TOKEN:
         required: true
+      SENTRY_ORG:
+        required: true
+      SENTRY_PROJECT_WEB:
+        required: true
       BETTER_AUTH_SECRET:
         required: true
       DISCORD_SECRET:
@@ -31,15 +35,16 @@ jobs:
         with:
           app: web
         env:
-          DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
-          CLOUDFLARE_ENV: ${{ inputs.environment }}
-          
-          VITE_SENTRY_DSN: ${{ vars.SENTRY_DSN_WEB }}
-          VITE_DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
-          VITE_SITE_URL: ${{ vars.SITE_URL }}
-          VITE_RELEASE: ${{ github.sha }}
+          # Build-time variables for Vite client code (VITE_* prefix auto-exposed)
           VITE_ENVIRONMENT: ${{ inputs.environment }}
-          VITE_BUILD_TIME: ${{ env.NOW }}
+          VITE_RELEASE: ${{ github.sha }}
+          VITE_SITE_URL: ${{ vars.SITE_URL }}
+          VITE_DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
+          VITE_SENTRY_DSN: ${{ vars.SENTRY_DSN_WEB }}
+          # Sentry Vite plugin configuration
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT_WEB }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Deploy to Cloudflare Workers
         uses: ./.github/actions/cloudflare-deploy
