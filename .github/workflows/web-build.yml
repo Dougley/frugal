@@ -25,18 +25,21 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-
+      - run: echo NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ) >> $GITHUB_ENV
       - name: Build Web application
         uses: ./.github/actions/build-app
         with:
           app: web
         env:
-          VITE_SENTRY_DSN: ${{ vars.SENTRY_DSN_WEB }}
-          CLOUDFLARE_ENV: ${{ inputs.environment }}
           DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
-          SITE_URL: ${{ vars.SITE_URL }}
-
-      - run: echo NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ) >> $GITHUB_ENV
+          CLOUDFLARE_ENV: ${{ inputs.environment }}
+          
+          VITE_SENTRY_DSN: ${{ vars.SENTRY_DSN_WEB }}
+          VITE_DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
+          VITE_SITE_URL: ${{ vars.SITE_URL }}
+          VITE_RELEASE: ${{ github.sha }}
+          VITE_ENVIRONMENT: ${{ inputs.environment }}
+          VITE_BUILD_TIME: ${{ env.NOW }}
 
       - name: Deploy to Cloudflare Workers
         uses: ./.github/actions/cloudflare-deploy
@@ -52,7 +55,6 @@ jobs:
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_APP_ID }}
           DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_SECRET }}
-          VITE_SENTRY_DSN: ${{ vars.SENTRY_DSN_WEB }}
           # Build metadata (commit SHA passed via RELEASE, deployment ID from CF_VERSION_METADATA)
           BUILD_TIME: ${{ env.NOW }}
           REPOSITORY: dougley/frugal
