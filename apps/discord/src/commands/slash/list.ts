@@ -1,20 +1,17 @@
+import {
+  and,
+  asc,
+  eq,
+  type InferSelectModel,
+  inArray,
+  Schema,
+} from "@dougley/frugal-drizzle/workers";
+import * as Sentry from "@sentry/cloudflare";
 import type { CommandContext, SlashCreator } from "slash-create/web";
 import { BaseCommand } from "../../classes/BaseCommand";
 import { getContext } from "../../context";
 
-interface GiveawayState {
-  messageId: string;
-  channelId: string;
-  guildId: string;
-  prize: string;
-  winners: number;
-  endTime: string;
-  state: string;
-  entryCount: number;
-  durableObjectId: string;
-  description: string | null;
-  hostId: string;
-}
+type GiveawayRow = InferSelectModel<typeof Schema.giveaways>;
 
 export default class ListCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
@@ -28,38 +25,89 @@ export default class ListCommand extends BaseCommand {
   async run(ctx: CommandContext) {
     await ctx.defer();
 
-    if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
-      const errorMessage = await getContext().i18n?.translate(
-        "common.errors.giveaway_state_unavailable",
-        {
-          language: ctx.locale,
-        }
+    if (!ctx.guildID) {
+      const errorMessage = await getContext().i18n.translate(
+        "commands.list.errors.guild_only",
+        { language: ctx.locale }
       );
       return ctx.editOriginal(errorMessage);
     }
 
-    const currentGiveaways = await getContext()
-      .state.getInstance(
-        getContext().env.GIVEAWAY_STATE,
-        getContext().env.GIVEAWAY_STATE.newUniqueId()
-      )
-      .getActiveGiveaways.query({
-        guild_id: ctx.guildID ?? "0",
-      });
+    const guildId = ctx.guildID;
 
-    if (!currentGiveaways || currentGiveaways.length === 0) {
-      const noGiveawaysMessage = await getContext().i18n?.translate(
+    if (!getContext().env?.D1 || !getContext().drizzle) {
+      const errorMessage = await getContext().i18n.translate(
+        "common.errors.database_unavailable",
+        { language: ctx.locale }
+      );
+      return ctx.editOriginal(errorMessage);
+    }
+
+    let currentGiveaways: GiveawayRow[] = [];
+
+    try {
+      // Fast path: use the reservation table to find current giveaway IDs.
+      // Fallback to querying Giveaways directly if reservations are missing.
+      const reserved = await getContext()
+        .drizzle.select({
+          durableObjectId: Schema.guildActiveGiveaways.durableObjectId,
+        })
+        .from(Schema.guildActiveGiveaways)
+        .where(eq(Schema.guildActiveGiveaways.guildId, guildId))
+        .all();
+
+      const reservedIds = reserved.map((row) => row.durableObjectId);
+
+      if (reservedIds.length > 0) {
+        currentGiveaways = await getContext()
+          .drizzle.select()
+          .from(Schema.giveaways)
+          .where(
+            and(
+              eq(Schema.giveaways.guildId, guildId),
+              eq(Schema.giveaways.state, "OPEN"),
+              inArray(Schema.giveaways.durableObjectId, reservedIds)
+            )
+          )
+          .orderBy(asc(Schema.giveaways.endTime))
+          .all();
+      }
+
+      if (currentGiveaways.length === 0) {
+        currentGiveaways = await getContext()
+          .drizzle.select()
+          .from(Schema.giveaways)
+          .where(
+            and(
+              eq(Schema.giveaways.guildId, guildId),
+              eq(Schema.giveaways.state, "OPEN")
+            )
+          )
+          .orderBy(asc(Schema.giveaways.endTime))
+          .all();
+      }
+    } catch (error) {
+      console.error("Failed to list giveaways:", error);
+      Sentry.captureException(error);
+
+      const errorMessage = await getContext().i18n.translate(
+        "common.errors.database_unavailable",
+        { language: ctx.locale }
+      );
+      return ctx.editOriginal(errorMessage);
+    }
+
+    if (currentGiveaways.length === 0) {
+      const noGiveawaysMessage = await getContext().i18n.translate(
         "commands.list.messages.no_giveaways",
-        {
-          language: ctx.locale,
-        }
+        { language: ctx.locale }
       );
       return ctx.editOriginal(noGiveawaysMessage);
     }
 
     const description = await Promise.all(
-      currentGiveaways.map(async (giveaway: GiveawayState) => {
-        const winnersText = await getContext().i18n?.translate(
+      currentGiveaways.map(async (giveaway) => {
+        const winnersText = await getContext().i18n.translate(
           giveaway.winners === 1
             ? "common.winner_singular"
             : "common.winners_plural",
@@ -71,21 +119,24 @@ export default class ListCommand extends BaseCommand {
         const timestamp = Math.floor(
           new Date(giveaway.endTime).getTime() / 1000
         );
-        const endsText = await getContext().i18n?.translate("common.ends", {
+        const endsText = await getContext().i18n.translate("common.ends", {
           language: ctx.locale,
         });
-        return `[**${giveaway.prize}**](https://discord.com/channels/${ctx.guildID}/${giveaway.channelId}/${giveaway.messageId}) - ${winnersText} - ${endsText} <t:${timestamp}:R> (<t:${timestamp}:F>)`;
+        return `[**${giveaway.prize}**](https://discord.com/channels/${guildId}/${giveaway.channelId}/${giveaway.messageId}) - ${winnersText} - ${endsText} <t:${timestamp}:R> (<t:${timestamp}:F>)`;
       })
     );
 
-    const title = await getContext().i18n?.translate(
+    const title = await getContext().i18n.translate(
       "commands.list.messages.title",
-      { language: ctx.locale }
+      {
+        language: ctx.locale,
+      }
     );
+
     return ctx.editOriginal({
       embeds: [
         {
-          title: title,
+          title,
           description: description.join("\n"),
           color: 0x00ff00,
         },

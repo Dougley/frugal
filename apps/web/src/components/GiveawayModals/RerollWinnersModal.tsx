@@ -1,5 +1,6 @@
 import {
   Alert,
+  Anchor,
   Avatar,
   Button,
   CopyButton,
@@ -15,12 +16,14 @@ import { notifications } from "@mantine/notifications";
 import {
   IconCheck,
   IconCopy,
+  IconCrown,
   IconInfoCircle,
   IconTrophy,
   IconX,
 } from "@tabler/icons-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTRPC } from "~/server/trpc/client";
 
@@ -54,6 +57,32 @@ export function RerollWinnersModal({
   const [count, setCount] = useState<number>(1);
   const [newWinners, setNewWinners] = useState<Winner[] | null>(null);
 
+  const rerollConfigQuery = useQuery({
+    ...trpc.giveaways.getRerollConfig.queryOptions({
+      giveawayId: giveaway.durableObjectId,
+    }),
+    enabled: opened,
+  });
+
+  const maxRerollCount = rerollConfigQuery.data?.maxRerollCount ?? 1;
+  const isPremium = rerollConfigQuery.data?.isPremium ?? false;
+  const isConfigReady = rerollConfigQuery.isSuccess;
+
+  const [premiumRequired, setPremiumRequired] = useState(false);
+
+  useEffect(() => {
+    if (!opened) return;
+    setPremiumRequired(false);
+  }, [opened]);
+
+  useEffect(() => {
+    if (!opened) return;
+    setCount((current) => Math.min(current, maxRerollCount));
+  }, [opened, maxRerollCount]);
+
+  const showBulkRerollUpsell = isConfigReady && !isPremium;
+  const isCountLocked = !isConfigReady || !isPremium;
+
   const rerollMutation = useMutation(
     trpc.giveaways.rerollWinners.mutationOptions({
       onSuccess: (data) => {
@@ -79,6 +108,17 @@ export function RerollWinnersModal({
         });
       },
       onError: (error) => {
+        const message = error.message;
+        const isPremiumRequiredError =
+          error.data?.code === "FORBIDDEN" &&
+          typeof message === "string" &&
+          message.startsWith("402");
+
+        if (isPremiumRequiredError) {
+          setPremiumRequired(true);
+          return;
+        }
+
         notifications.show({
           title: t("giveaways.modals.reroll.error.title"),
           message: error.message,
@@ -90,13 +130,17 @@ export function RerollWinnersModal({
   );
 
   const handleReroll = () => {
+    setPremiumRequired(false);
+
+    const rerollCount = Math.min(count, maxRerollCount);
     rerollMutation.mutate({
       giveawayId: giveaway.durableObjectId,
-      count,
+      count: rerollCount,
     });
   };
 
   const handleClose = () => {
+    setPremiumRequired(false);
     setNewWinners(null);
     setCount(1);
     onClose();
@@ -126,13 +170,43 @@ export function RerollWinnersModal({
               {t("giveaways.modals.reroll.note")}
             </Alert>
 
+            {showBulkRerollUpsell && (
+              <Alert
+                icon={<IconCrown size={16} aria-hidden="true" />}
+                color="yellow"
+                variant={premiumRequired ? "filled" : "light"}
+              >
+                <Stack gap="xs">
+                  <Text size="sm" fw={500}>
+                    {t("giveaways.modals.reroll.freeLimitTitle")}
+                  </Text>
+                  <Text size="sm">
+                    {t("giveaways.modals.reroll.freeLimitMessage")}
+                  </Text>
+                  <Anchor
+                    component={Link}
+                    to="/premium"
+                    underline="always"
+                    size="sm"
+                  >
+                    {t("giveaways.modals.reroll.freeLimitAction")}
+                  </Anchor>
+                </Stack>
+              </Alert>
+            )}
+
             <NumberInput
               label={t("giveaways.modals.reroll.countLabel")}
               description={t("giveaways.modals.reroll.countDescription")}
               min={1}
-              max={50}
+              max={maxRerollCount}
+              disabled={isCountLocked}
               value={count}
-              onChange={(value) => setCount(Number(value) || 1)}
+              onChange={(value) => {
+                const nextValue = Number(value) || 1;
+                setPremiumRequired(false);
+                setCount(Math.min(nextValue, maxRerollCount));
+              }}
             />
 
             <Group justify="flex-end" mt="md">
@@ -142,6 +216,7 @@ export function RerollWinnersModal({
               <Button
                 onClick={handleReroll}
                 loading={rerollMutation.isPending}
+                disabled={!isConfigReady || rerollConfigQuery.isLoading}
                 leftSection={<IconTrophy size={16} aria-hidden="true" />}
               >
                 {t("giveaways.modals.reroll.confirmButton")}
@@ -155,7 +230,12 @@ export function RerollWinnersModal({
               {newWinners.length > 0 && (
                 <CopyButton
                   value={newWinners
-                    .map((w) => `${w.username} (<@${w.id}>)`)
+                    .map((winner) => {
+                      const displayName =
+                        winner.username ?? t("common.unknown");
+                      const mention = winner.id ? `<@${winner.id}>` : "";
+                      return [displayName, mention].filter(Boolean).join(" ");
+                    })
                     .join("\n")}
                 >
                   {({ copied, copy }) => (
@@ -190,12 +270,16 @@ export function RerollWinnersModal({
             </Group>
 
             <Stack gap="xs">
-              {newWinners.map((winner) => (
-                <Paper key={winner.id} p="sm" withBorder>
+              {newWinners.map((winner, index) => (
+                <Paper
+                  key={winner.id ?? winner.username ?? String(index)}
+                  p="sm"
+                  withBorder
+                >
                   <Group>
                     <Avatar
                       src={
-                        winner.avatar
+                        winner.avatar && winner.id
                           ? `https://cdn.discordapp.com/avatars/${winner.id}/${winner.avatar}.png`
                           : undefined
                       }
@@ -210,7 +294,7 @@ export function RerollWinnersModal({
                         {winner.username ?? t("common.unknown")}
                       </Text>
                       <Text size="xs" c="dimmed">
-                        {winner.id}
+                        {winner.id ?? t("common.unknown")}
                       </Text>
                     </div>
                   </Group>

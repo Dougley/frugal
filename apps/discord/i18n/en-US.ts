@@ -5,6 +5,7 @@ export default {
   common: {
     errors: {
       giveaway_state_unavailable: "Giveaway state not available",
+      database_unavailable: "Database temporarily unavailable",
     },
     winner_singular: "1 winner",
     winners_plural: "{count} winners",
@@ -24,6 +25,9 @@ export default {
       name: "list",
       description:
         "Lists all giveaways in the server that are currently running",
+      errors: {
+        guild_only: "This command can only be used in a server.",
+      },
       messages: {
         no_giveaways: "There are no giveaways running in this server.",
         title: "Giveaways currently running",
@@ -57,8 +61,13 @@ export default {
           "Maximum giveaway duration for premium users is {maxDays} days.",
         duration_too_long: "Giveaways can't be longer than 14 days",
         duration_too_short: "Giveaways can't be shorter than 10 seconds",
+        winners_too_many:
+          "Too many winners. Max is {max} on your plan (premium max: {premiumMax}).",
         failed_to_create_message: "Failed to create giveaway message",
         failed_to_start: "Failed to start giveaway: {error}",
+        concurrent_giveaways_limit_exceeded:
+          "Too many giveaways are already running in this server. Max is {freeMax} (premium max: {premiumMax}).",
+        guild_only: "This command can only be used in a server.",
       },
       messages: {
         success:
@@ -105,7 +114,8 @@ export default {
         },
         count: {
           name: "count",
-          description: "Number of winners to reroll (defaults to all)",
+          description:
+            "Number of winners to reroll (free defaults to 1; premium can reroll more/all)",
         },
       },
       errors: {
@@ -114,6 +124,10 @@ export default {
           "That giveaway is still running. You can't reroll it until it ends. Try stopping it first.",
         no_winners_available:
           "No new winners could be drawn, as there were no (other) entries.",
+        count_limit_free:
+          "Free users can only reroll 1 winner at a time. Upgrade to premium to reroll multiple winners.",
+        count_too_many: "You can only reroll up to {max} winners at a time.",
+        unexpected: "An unexpected error occurred.",
       },
       messages: {
         partial_success_singular:
@@ -126,13 +140,13 @@ export default {
           "🎉 New winners have been drawn!\nCongratulations to {winners}!",
       },
     },
-    savetest: {
-      name: "savetest",
-      description: "Test the savestate system",
+    debug: {
+      name: "debug",
+      description: "Debug and diagnostics",
       options: {
-        type: {
-          name: "type",
-          description: "Type of test to run",
+        action: {
+          name: "action",
+          description: "What debug action to run",
         },
         duration: {
           name: "duration",
@@ -146,14 +160,30 @@ export default {
           name: "id",
           description: "The Durable Object ID of the giveaway",
         },
+        entries: {
+          name: "entries",
+          description: "Number of test entries to generate (default: 10)",
+        },
+        scope: {
+          name: "scope",
+          description: "Entitlement scope (guild/user/both)",
+        },
+        limit: {
+          name: "limit",
+          description: "Max entitlement rows (default: 10)",
+        },
       },
       errors: {
-        unknown_test_type: "Unknown test type",
+        not_allowed: "This command is only available in the development guild.",
+        unknown_action: "Unknown debug action",
         missing_object_id: "Missing object ID",
+        giveaway_not_found: "That giveaway does not exist.",
+        no_entitlement_scope: "No entitlement scope available in this context",
+        unexpected: "An unexpected error occurred.",
       },
       messages: {
-        starting_full_test: "Starting full test...",
-        full_test_started: `**Full Giveaway Test Started**
+        starting_full_test: "Starting savestate full test...",
+        full_test_started: `**Savestate Full Test Started**
 🎁 **Prize:** {prize}
 👥 **Winners:** {winners}
 ⏱️ **Duration:** {duration} seconds
@@ -177,6 +207,17 @@ Alarm will trigger at {endTime}`,
         no_entries: "No entries yet.",
         entries_header: "**Entries:**",
         and_more: "...and {count} more",
+        premium_status: `**Premium Status**
+- hasPremium: {hasPremium}
+- source: {source}
+- isLifetime: {isLifetime}
+- expiresAt: {expiresAt}
+- entitlementType: {entitlementType}
+- entitlementId: {entitlementId}
+- skuId: {skuId}
+- isTest: {isTest}`,
+        entitlements: `**Entitlements ({count})** (scope: {scope})
+{rows}`,
       },
     },
   },

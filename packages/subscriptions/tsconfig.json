@@ -1,0 +1,17 @@
+{
+  "extends": "@dougley/tsconfig/workers",
+  "compilerOptions": {
+    "declaration": true,
+    "outDir": "dist",
+    "skipLibCheck": true,
+    "types": [
+      "@cloudflare/workers-types"
+    ]
+  },
+  "exclude": [
+    "dist"
+  ],
+  "include": [
+    "src/**/*.ts"
+  ]
+}

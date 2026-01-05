@@ -3,9 +3,9 @@ import {
   Schema as D1Schema,
   drizzleD1,
   eq,
-  sql,
 } from "@dougley/frugal-drizzle/workers";
 import { createEndedGiveawayComponents } from "@dougley/frugal-utils";
+import * as Sentry from "@sentry/cloudflare";
 import { Routes } from "discord-api-types/v10";
 import { stateRouter } from "./router";
 import type { Context } from "./trpc";
@@ -16,6 +16,16 @@ export async function handleAlarm(
   ctx: Omit<Context<LegacyEnv>, "req" | "resHeaders">
 ) {
   console.log("Handling alarm");
+
+  const giveawayId = ctx.state.id.toString();
+
+  Sentry.addBreadcrumb({
+    category: "giveaway.alarm",
+    message: "handleAlarm.start",
+    level: "info",
+    data: { giveawayId },
+  });
+
   // Create a full context with dummy req and resHeaders
   const fullContext = {
     ...ctx,
@@ -34,7 +44,7 @@ export async function handleAlarm(
   const giveaway = await db
     .select()
     .from(D1Schema.giveaways)
-    .where(eq(D1Schema.giveaways.durableObjectId, ctx.state.id.toString()))
+    .where(eq(D1Schema.giveaways.durableObjectId, giveawayId))
     .get();
 
   if (!giveaway) {
@@ -50,8 +60,18 @@ export async function handleAlarm(
     };
   }
 
-  // Draw winners using existing procedure
-  const drawResult = await stateRouter.createCaller(fullContext).drawWinners();
+  let drawResult: Awaited<
+    ReturnType<ReturnType<typeof stateRouter.createCaller>["drawWinners"]>
+  >;
+
+  try {
+    // Draw winners using existing procedure
+    drawResult = await stateRouter.createCaller(fullContext).drawWinners();
+  } catch (error) {
+    console.error("Failed to draw winners:", error);
+    Sentry.captureException(error);
+    throw error;
+  }
 
   // First try to edit the original giveaway message to indicate entries are closed
   try {
@@ -65,14 +85,18 @@ export async function handleAlarm(
             prize: giveaway.prize,
             winners: giveaway.winners,
             end_time: new Date(giveaway.endTime),
-            host_username: "", // Set this to the actual username if available
+            host_username: "", // username may not be available here
             host_id: giveaway.hostId,
             description: giveaway.description || undefined,
-            giveaway_id: giveaway.messageId,
-            winners_list:
-              drawResult.winners.length > 0
-                ? drawResult.winners.map((w) => `<@${w.id}>`)
-                : ["Nobody won"],
+            giveaway_id: giveawayId,
+            winners_list: (() => {
+              const mentions = drawResult.winners
+                .map((w) => (w.id ? `<@${w.id}>` : null))
+                .filter(
+                  (mention): mention is string => typeof mention === "string"
+                );
+              return mentions.length > 0 ? mentions : ["Nobody won"];
+            })(),
           }),
         },
       }
@@ -85,11 +109,16 @@ export async function handleAlarm(
 
     // If this is a critical failure that indicates the bot can't access the channel at all,
     // we might want to just clean up immediately
+    const errorWithCode = error as {
+      code?: number;
+      status?: number;
+    };
+
     if (
-      error instanceof Error &&
-      typeof (error as { code?: number }).code !== "undefined" &&
-      ((error as { code?: number }).code === 10008 ||
-        (error as { code?: number }).code === 50001) // 10008 = Unknown Message, 50001 = Missing Access
+      (typeof errorWithCode.code === "number" &&
+        (errorWithCode.code === 10008 || errorWithCode.code === 50001)) ||
+      (typeof errorWithCode.status === "number" &&
+        (errorWithCode.status === 403 || errorWithCode.status === 404))
     ) {
       console.log(
         "Message not accessible (404/403). Proceeding with cleanup immediately."
@@ -97,7 +126,13 @@ export async function handleAlarm(
       await db
         .update(D1Schema.giveaways)
         .set({ state: "CLOSED" })
-        .where(eq(D1Schema.giveaways.durableObjectId, ctx.state.id.toString()))
+        .where(eq(D1Schema.giveaways.durableObjectId, giveawayId))
+        .run();
+
+      // Release concurrent giveaway reservation
+      await db
+        .delete(D1Schema.guildActiveGiveaways)
+        .where(eq(D1Schema.guildActiveGiveaways.durableObjectId, giveawayId))
         .run();
 
       await ctx.state.storage.setAlarm(new Date(Date.now() + CLEANUP_DELAY));
@@ -108,27 +143,22 @@ export async function handleAlarm(
     }
   }
 
-  // Get entry count to distinguish between no entries and no valid winners
-  const entries = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(D1Schema.entries)
-    .where(eq(D1Schema.entries.giveawayId, giveaway.messageId))
-    .get()
-    .then((result) => result?.count ?? 0);
-
   // Close the giveaway
   await db
     .update(D1Schema.giveaways)
     .set({ state: "CLOSED" })
-    .where(eq(D1Schema.giveaways.durableObjectId, ctx.state.id.toString()))
+    .where(eq(D1Schema.giveaways.durableObjectId, giveawayId))
     .run();
 
-  // Handle case where there are no winners
+  // Release concurrent giveaway reservation
+  await db
+    .delete(D1Schema.guildActiveGiveaways)
+    .where(eq(D1Schema.guildActiveGiveaways.durableObjectId, giveawayId))
+    .run();
+
+  // Handle case where there are no winners (either 0 entries or no eligible winners)
   if (!drawResult.winners.length) {
-    const noWinnersMessage =
-      entries === 0
-        ? `😔 The giveaway for **${giveaway.prize}** has ended, but nobody entered.\n\nBetter luck next time!`
-        : `😔 The giveaway for **${giveaway.prize}** has ended, but no valid winners could be drawn.\n\nThank you to everyone who participated!`;
+    const noWinnersMessage = `😔 The giveaway for **${giveaway.prize}** has ended, but no winners could be drawn.\n\nThank you to everyone who participated!`;
 
     await client.post(Routes.channelMessages(giveaway.channelId), {
       body: {
@@ -165,18 +195,30 @@ export async function handleAlarm(
     }))
   );
 
-  const winnerMentions = drawResult.winners.map((w) => `<@${w.id}>`).join(", ");
+  const winnerMentions = drawResult.winners
+    .map((w) => (w.id ? `<@${w.id}>` : null))
+    .filter((mention): mention is string => typeof mention === "string")
+    .join(", ");
+
+  const allowedMentionIds = drawResult.winners
+    .map((w) => w.id)
+    .filter((id): id is string => typeof id === "string" && id.length > 0);
+
+  // Handle edge case where winners exist but none have valid IDs
+  const announcementContent = winnerMentions
+    ? `🎉 The giveaway for **${giveaway.prize}** has ended!\n\nCongratulations to the winners: ${winnerMentions}\n\nThank you to everyone who participated!`
+    : `😔 The giveaway for **${giveaway.prize}** has ended, but no valid winners could be determined.\n\nThank you to everyone who participated!`;
 
   await client.post(Routes.channelMessages(giveaway.channelId), {
     body: {
-      content: `🎉 The giveaway for **${giveaway.prize}** has ended!\n\nCongratulations to the winners: ${winnerMentions}\n\nThank you to everyone who participated!`,
+      content: announcementContent,
       message_reference: {
         message_id: giveaway.messageId,
         channel_id: giveaway.channelId,
         guild_id: giveaway.guildId,
       },
       allowed_mentions: {
-        users: drawResult.winners.map((w) => w.id),
+        users: allowedMentionIds,
         everyone: false,
         roles: [],
       },

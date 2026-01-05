@@ -1,4 +1,11 @@
+import type { SubscriptionStatus } from "@dougley/frugal-subscriptions";
+import {
+  checkFeatureLimit,
+  FEATURE_LIMITS,
+  getPremiumStatus,
+} from "@dougley/frugal-subscriptions";
 import { EditModal } from "@dougley/frugal-utils";
+import * as Sentry from "@sentry/cloudflare";
 import type {
   ComponentContext,
   ModalInteractionContext,
@@ -129,12 +136,74 @@ export async function handleModalSubmit(ctx: ModalInteractionContext) {
 
   // Validate winners count
   const winners = parseInt(winnersStr, 10);
-  if (Number.isNaN(winners) || winners < 1 || winners > 50) {
+  if (
+    Number.isNaN(winners) ||
+    winners < 1 ||
+    winners > FEATURE_LIMITS.MAX_WINNERS.PREMIUM
+  ) {
     return ctx.send({
       content: await getContext().i18n.translate(
         "components.edit_modal.errors.invalid_winners_count",
         {
           language: ctx.locale,
+        }
+      ),
+      ephemeral: true,
+    });
+  }
+
+  let subscription: SubscriptionStatus;
+
+  if (!getContext().drizzle) {
+    return ctx.send({
+      content: await getContext().i18n.translate(
+        "common.errors.database_unavailable",
+        { language: ctx.locale }
+      ),
+      ephemeral: true,
+    });
+  }
+
+  try {
+    subscription = await getPremiumStatus(
+      {
+        userId: ctx.user.id,
+        guildId: ctx.guildID ?? null,
+      },
+      getContext().drizzle
+    );
+  } catch (error) {
+    console.error("Failed to check premium status:", error);
+    Sentry.captureException(error);
+
+    return ctx.send({
+      content: await getContext().i18n.translate(
+        "premium.errors.check_failed",
+        {
+          language: ctx.locale,
+        }
+      ),
+      ephemeral: true,
+    });
+  }
+
+  const winnersLimit = checkFeatureLimit(
+    subscription,
+    winners,
+    FEATURE_LIMITS.MAX_WINNERS.FREE,
+    FEATURE_LIMITS.MAX_WINNERS.PREMIUM
+  );
+
+  if (!winnersLimit.allowed) {
+    return ctx.send({
+      content: await getContext().i18n.translate(
+        "commands.start.errors.winners_too_many",
+        {
+          language: ctx.locale,
+          params: {
+            max: winnersLimit.effectiveLimit.toString(),
+            premiumMax: FEATURE_LIMITS.MAX_WINNERS.PREMIUM.toString(),
+          },
         }
       ),
       ephemeral: true,

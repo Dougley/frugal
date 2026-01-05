@@ -1,14 +1,12 @@
 /// <reference types="../worker-configuration.d.ts" />
 
+import { cleanupOldSubscriptionEvents } from "@dougley/frugal-subscriptions";
 import * as Sentry from "@sentry/cloudflare";
 import { Hono } from "hono";
 import { contextStorage } from "hono/context-storage";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import {
-  cleanupOldEvents,
-  discordMonetizationHandler,
-} from "./handlers/discord-monetization";
+import { discordMonetizationHandler } from "./handlers/discord-monetization";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -16,16 +14,11 @@ app.use("*", logger());
 app.use("*", contextStorage());
 
 app.use(
-  "*",
+  "/health",
   cors({
     origin: "*",
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-Signature-Ed25519",
-      "X-Signature-Timestamp",
-    ],
+    allowMethods: ["GET", "OPTIONS"],
+    allowHeaders: ["Content-Type"],
   })
 );
 
@@ -64,10 +57,12 @@ export default Sentry.withSentry(
       console.log("Running scheduled cleanup of old subscription events");
 
       try {
-        await cleanupOldEvents(env.D1, 30); // Keep 30 days of events
+        await cleanupOldSubscriptionEvents(env.D1, 30); // Keep 30 days of events
         console.log("Scheduled cleanup completed successfully");
       } catch (error) {
         console.error("Scheduled cleanup failed:", error);
+        Sentry.captureException(error);
+        throw error;
       }
     },
   } satisfies ExportedHandler<Env>

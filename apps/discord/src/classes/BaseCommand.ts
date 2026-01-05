@@ -1,7 +1,11 @@
 import type { I18n } from "@dougley/frugal-i18n";
+import type { SubscriptionStatus } from "@dougley/frugal-subscriptions";
+import { getPremiumStatus as getPremiumStatusFromDb } from "@dougley/frugal-subscriptions";
+import * as Sentry from "@sentry/cloudflare";
 import { Locale } from "discord-api-types/v10";
+import type { CommandContext } from "slash-create/web";
 import { SlashCommand } from "slash-create/web";
-import { tryGetContext } from "../context";
+import { getContext, tryGetContext } from "../context";
 
 // Environment constants for registration mode detection
 const REGISTRATION_ENV_FLAG = "FRUGAL_REGISTRATION_MODE";
@@ -113,5 +117,46 @@ export abstract class BaseCommand extends SlashCommand {
         console.log(`  ✅ Localized option ${option.name}`);
       })
     );
+  }
+
+  /**
+   * Get the premium subscription status for the current user/guild context.
+   * Checks user subscription first, then falls back to guild subscription.
+   *
+   * @param ctx - The command context containing user and guild information
+   * @returns Promise<SubscriptionStatus> - The subscription status
+   * @throws Error if database is unavailable or premium check fails
+   */
+  protected async getPremiumStatus(
+    ctx: CommandContext
+  ): Promise<SubscriptionStatus> {
+    const context = getContext();
+
+    if (!context.drizzle) {
+      const errorMessage = await context.i18n.translate(
+        "common.errors.database_unavailable",
+        { language: ctx.locale }
+      );
+      throw new Error(errorMessage);
+    }
+
+    try {
+      return await getPremiumStatusFromDb(
+        {
+          userId: ctx.user.id,
+          guildId: ctx.guildID ?? null,
+        },
+        context.drizzle
+      );
+    } catch (error) {
+      console.error("Failed to check premium status:", error);
+      Sentry.captureException(error);
+
+      const errorMessage = await context.i18n.translate(
+        "premium.errors.check_failed",
+        { language: ctx.locale }
+      );
+      throw new Error(errorMessage);
+    }
   }
 }

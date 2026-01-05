@@ -4,11 +4,11 @@ import type {
 } from "slash-create/web";
 import * as EditButton from "./components/edit-modal";
 import * as JoinButton from "./components/join-button";
+import DebugCommand from "./slash/debug";
 import EditCommand from "./slash/edit";
 import ListCommand from "./slash/list";
 import PingCommand from "./slash/ping";
 import RerollCommand from "./slash/reroll";
-import SaveTestCommand from "./slash/savetest";
 import StartCommand from "./slash/start";
 import StopCommand from "./slash/stop";
 
@@ -18,7 +18,7 @@ export const commands = [
   ListCommand,
   PingCommand,
   RerollCommand,
-  SaveTestCommand,
+  DebugCommand,
   StartCommand,
   StopCommand,
 ];
@@ -57,7 +57,7 @@ export {
   ListCommand,
   PingCommand,
   RerollCommand,
-  SaveTestCommand,
+  DebugCommand,
   StartCommand,
   StopCommand,
 };

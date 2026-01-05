@@ -1,4 +1,11 @@
+import { TRPCClientError } from "@dougley/frugal-savestate";
+import type { SubscriptionStatus } from "@dougley/frugal-subscriptions";
+import {
+  checkFeatureLimit,
+  FEATURE_LIMITS,
+} from "@dougley/frugal-subscriptions";
 import { createGiveawayComponents, JoinButton } from "@dougley/frugal-utils";
+import * as Sentry from "@sentry/cloudflare";
 import {
   BitField,
   type CommandContext,
@@ -11,7 +18,6 @@ import { BaseCommand } from "../../classes/BaseCommand";
 import { getContext } from "../../context";
 
 // Constants for duration limits
-const MAX_DURATION_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
 const MIN_DURATION_MS = 10 * 1000; // 10 seconds
 
 export default class StartCommand extends BaseCommand {
@@ -60,7 +66,8 @@ export default class StartCommand extends BaseCommand {
    */
   private async validateDuration(
     durationStr: string,
-    locale: string
+    locale: string,
+    subscription: SubscriptionStatus
   ): Promise<
     { valid: true; duration: number } | { valid: false; error: string }
   > {
@@ -90,10 +97,22 @@ export default class StartCommand extends BaseCommand {
     const duration = parseInt(value, 10) * units[unit];
 
     // Validate the duration limits
-    if (duration > MAX_DURATION_MS) {
+    const maxDays = subscription.hasPremium
+      ? FEATURE_LIMITS.GIVEAWAY_DURATION_DAYS.PREMIUM
+      : FEATURE_LIMITS.GIVEAWAY_DURATION_DAYS.FREE;
+    const maxDurationMs = maxDays * 24 * 60 * 60 * 1000;
+
+    if (duration > maxDurationMs) {
       const error = await getContext().i18n.translate(
-        "commands.start.errors.duration_too_long",
-        { language: locale }
+        subscription.hasPremium
+          ? "commands.start.errors.duration_too_long_premium"
+          : "commands.start.errors.duration_too_long",
+        {
+          language: locale,
+          params: {
+            maxDays: maxDays.toString(),
+          },
+        }
       );
       return {
         valid: false,
@@ -130,10 +149,13 @@ export default class StartCommand extends BaseCommand {
         return ctx.editOriginal(errorMessage);
       }
 
+      const subscription = await this.getPremiumStatus(ctx);
+
       // Parse and validate duration
       const durationResult = await this.validateDuration(
         ctx.options.duration,
-        ctx.locale ?? "en-US"
+        ctx.locale ?? "en-US",
+        subscription
       );
       if (!durationResult.valid) {
         return ctx.editOriginal(durationResult.error);
@@ -143,6 +165,29 @@ export default class StartCommand extends BaseCommand {
       const duration = durationResult.duration;
       const endTime = new Date(Date.now() + duration);
       const winnersCount = ctx.options.winners;
+
+      const winnersLimit = checkFeatureLimit(
+        subscription,
+        winnersCount,
+        FEATURE_LIMITS.MAX_WINNERS.FREE,
+        FEATURE_LIMITS.MAX_WINNERS.PREMIUM
+      );
+
+      if (!winnersLimit.allowed) {
+        const error = await getContext().i18n.translate(
+          "commands.start.errors.winners_too_many",
+          {
+            language: ctx.locale,
+            params: {
+              max: winnersLimit.effectiveLimit.toString(),
+              premiumMax: FEATURE_LIMITS.MAX_WINNERS.PREMIUM.toString(),
+            },
+          }
+        );
+
+        return ctx.editOriginal(error);
+      }
+
       const prize = ctx.options.prize;
       const description = ctx.options.description || "";
 
@@ -161,36 +206,17 @@ export default class StartCommand extends BaseCommand {
         MessageFlags.SUPPRESS_EMBEDS,
       ]);
 
-      const giveawayMessage = (await ctx.send({
-        flags: flags.bitfield as number,
-        allowedMentions: {
-          parse: [],
-        },
-        components: createGiveawayComponents({
-          prize,
-          winners: winnersCount,
-          end_time: endTime,
-          host_username: host.username,
-          host_id: host.id,
-          description,
-          giveaway_id: id.toString(),
-          join_button: JoinButton.createActionRow(id.toString()),
-        }),
-      })) as Message;
-
-      // Ensure we have valid IDs
-      const guildID = ctx.guildID ?? "0";
-      const channelID = ctx.channelID ?? "0";
-
-      if (!giveawayMessage || !giveawayMessage.id) {
-        const errorMessage = await getContext().i18n?.translate(
-          "commands.start.errors.failed_to_create_message",
-          {
-            language: ctx.locale,
-          }
+      if (!ctx.guildID) {
+        const errorMessage = await getContext().i18n.translate(
+          "commands.start.errors.guild_only",
+          { language: ctx.locale }
         );
         return ctx.editOriginal(errorMessage);
       }
+
+      // Ensure we have valid IDs
+      const guildID = ctx.guildID;
+      const channelID = ctx.channelID ?? "0";
 
       // Get the durable object instance
       const stub = getContext().state.getInstance(
@@ -198,9 +224,78 @@ export default class StartCommand extends BaseCommand {
         id
       );
 
+      const debugContext = {
+        giveawayId: id.toString(),
+        guildId: guildID,
+        channelId: channelID,
+        userId: ctx.user.id,
+      };
+
+      // Reserve a slot before creating the giveaway message.
+      // This prevents orphan messages when the guild is at limit.
+      await stub.reserveSlot.mutate({ guild_id: guildID });
+
+      let giveawayMessageId: string;
+
+      try {
+        const giveawayMessage = (await ctx.send({
+          flags: flags.bitfield as number,
+          allowedMentions: {
+            parse: [],
+          },
+          components: createGiveawayComponents({
+            prize,
+            winners: winnersCount,
+            end_time: endTime,
+            host_username: host.username,
+            host_id: host.id,
+            description,
+            giveaway_id: id.toString(),
+            join_button: JoinButton.createActionRow(id.toString()),
+          }),
+        })) as Message;
+
+        if (!giveawayMessage || !giveawayMessage.id) {
+          const errorMessage = await getContext().i18n?.translate(
+            "commands.start.errors.failed_to_create_message",
+            {
+              language: ctx.locale,
+            }
+          );
+
+          try {
+            await stub.releaseSlot.mutate();
+          } catch (releaseError) {
+            console.warn(
+              "[start] releaseSlot failed after missing message id",
+              {
+                ...debugContext,
+                error:
+                  releaseError instanceof Error
+                    ? releaseError.message
+                    : String(releaseError),
+              }
+            );
+            Sentry.captureException(releaseError);
+          }
+
+          return ctx.editOriginal(errorMessage);
+        }
+
+        giveawayMessageId = giveawayMessage.id;
+      } catch (error) {
+        console.warn("[start] message.create.failed; releasing slot", {
+          ...debugContext,
+          error: error instanceof Error ? error.message : String(error),
+        });
+
+        await stub.releaseSlot.mutate();
+        throw error;
+      }
+
       // Start the giveaway
       const giveawayData = {
-        message_id: giveawayMessage.id,
+        message_id: giveawayMessageId,
         channel_id: channelID,
         guild_id: guildID,
         prize: prize,
@@ -212,13 +307,47 @@ export default class StartCommand extends BaseCommand {
         description: ctx.options.description || undefined,
       };
 
-      await stub.beginGiveaway.mutate(giveawayData);
+      try {
+        await stub.beginGiveaway.mutate(giveawayData);
 
-      // Set up the alarm for when the giveaway ends
-      await stub.startAlarm.mutate(endTime.toISOString());
+        // Set up the alarm for when the giveaway ends
+        await stub.startAlarm.mutate(endTime.toISOString());
+      } catch (error) {
+        console.warn("[start] begin/start failed; releasing slot", {
+          ...debugContext,
+          messageId: giveawayMessageId,
+          error: error instanceof Error ? error.message : String(error),
+        });
+
+        await stub.releaseSlot.mutate();
+        throw error;
+      }
     } catch (error) {
       console.error("Error in start command:", error);
-      const errorMessage = await getContext().i18n?.translate(
+
+      if (
+        error instanceof TRPCClientError &&
+        error.data.code === "PRECONDITION_FAILED" &&
+        error.message === "CONCURRENT_LIMIT_EXCEEDED"
+      ) {
+        const errorMessage = await getContext().i18n.translate(
+          "commands.start.errors.concurrent_giveaways_limit_exceeded",
+          {
+            language: ctx.locale,
+            params: {
+              freeMax: FEATURE_LIMITS.CONCURRENT_GIVEAWAYS.FREE.toString(),
+              premiumMax:
+                FEATURE_LIMITS.CONCURRENT_GIVEAWAYS.PREMIUM.toString(),
+            },
+          }
+        );
+
+        return ctx.editOriginal(errorMessage);
+      }
+
+      Sentry.captureException(error);
+
+      const errorMessage = await getContext().i18n.translate(
         "commands.start.errors.failed_to_start",
         {
           language: ctx.locale,

@@ -100,6 +100,19 @@
     "unexpected": "Er is een onverwachte fout opgetreden.",
     "failedToLoad": "Laden van {{item}} mislukt: {{error}}"
   },
+  "subscription": {
+    "status": {
+      "free": "Gratis",
+      "premium": "Premium",
+      "premium_lifetime": "Premium (levenslang)",
+      "premium_expires": "Premium (verloopt)"
+    },
+    "indicator": {
+      "none": "Geen premium",
+      "premium": "Premium actief",
+      "premium_expires_soon": "Premium verloopt binnenkort"
+    }
+  },
   "landing": {
     "hero": {
       "heading": "Start het feest met",
@@ -323,6 +336,9 @@
         "note": "Dit is alleen een snelle trekking - de originele weggeefactie blijft ongewijzigd. Kopieer de resultaten hieronder om ze handmatig aan te kondigen.",
         "countLabel": "Aantal nieuwe winnaars",
         "countDescription": "Hoeveel nieuwe winnaars te trekken uit overgebleven deelnemers",
+        "freeLimitTitle": "Gratis limiet",
+        "freeLimitMessage": "Gratis accounts kunnen 1 winnaar per keer opnieuw trekken. Upgrade om meerdere winnaars opnieuw te trekken.",
+        "freeLimitAction": "Bekijk Premium",
         "confirmButton": "Winnaars Trekken",
         "newWinners": "Nieuwe Winnaars",
         "copyHint": "Kopieer deze resultaten om aan te kondigen in Discord",

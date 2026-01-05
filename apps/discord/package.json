@@ -28,6 +28,7 @@
     "@dougley/frugal-drizzle": "workspace:^",
     "@dougley/frugal-i18n": "workspace:^",
     "@dougley/frugal-savestate": "workspace:^",
+    "@dougley/frugal-subscriptions": "workspace:^",
     "@dougley/frugal-utils": "workspace:^",
     "@sentry/cloudflare": "^10.15.0",
     "slash-create": "^6.6.3"

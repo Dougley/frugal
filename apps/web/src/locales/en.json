@@ -100,6 +100,19 @@
     "unexpected": "An unexpected error occurred.",
     "failedToLoad": "Failed to load {{item}}: {{error}}"
   },
+  "subscription": {
+    "status": {
+      "free": "Free",
+      "premium": "Premium",
+      "premium_lifetime": "Premium (lifetime)",
+      "premium_expires": "Premium (expires)"
+    },
+    "indicator": {
+      "none": "No premium",
+      "premium": "Premium active",
+      "premium_expires_soon": "Premium expires soon"
+    }
+  },
   "landing": {
     "hero": {
       "heading": "Get the party started with",
@@ -323,6 +336,9 @@
         "note": "This is a quick draw only - the original giveaway record stays unchanged. Copy the results below to announce them manually.",
         "countLabel": "Number of new winners",
         "countDescription": "How many new winners to draw from remaining participants",
+        "freeLimitTitle": "Free limit",
+        "freeLimitMessage": "Free accounts can reroll 1 winner at a time. Upgrade to reroll multiple winners.",
+        "freeLimitAction": "View Premium",
         "confirmButton": "Draw Winners",
         "newWinners": "New Winners",
         "copyHint": "Copy these results to announce in Discord",

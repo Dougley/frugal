@@ -2,6 +2,7 @@
 
 import { count, eq, inArray, sql } from "@dougley/frugal-drizzle/workers";
 import * as Schema from "@dougley/frugal-drizzle/workers/schema.js";
+import { getPremiumStatus } from "@dougley/frugal-subscriptions";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -52,6 +53,23 @@ export const giveawaysRouter = {
         giveaway.guildId,
         "view this giveaway"
       );
+
+      const subscription = await getPremiumStatus(
+        {
+          userId: ctx.user.id,
+          guildId: giveaway.guildId,
+        },
+        ctx.db
+      );
+
+      // Keep non-closed giveaways visible in lists for upsell,
+      // but gate the detail view (and live participant list) behind premium.
+      if (!subscription.hasPremium && giveaway.state !== "CLOSED") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "402 PREMIUM_REQUIRED",
+        });
+      }
 
       return {
         giveaway,
@@ -432,6 +450,44 @@ export const giveawaysRouter = {
    * Validates that the user has ManageEvents permission and the giveaway is CLOSED.
    * Proxies to the Durable Object which selects new random winners.
    */
+  getRerollConfig: protectedProcedure
+    .input(
+      z.object({
+        giveawayId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const giveaway = await ctx.db.query.giveaways.findFirst({
+        where: eq(Schema.giveaways.durableObjectId, input.giveawayId),
+      });
+
+      if (!giveaway) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Giveaway not found",
+        });
+      }
+
+      await validateGuildPermission(
+        ctx,
+        giveaway.guildId,
+        "reroll this giveaway"
+      );
+
+      const subscription = await getPremiumStatus(
+        {
+          userId: ctx.user.id,
+          guildId: giveaway.guildId,
+        },
+        ctx.db
+      );
+
+      return {
+        isPremium: subscription.hasPremium,
+        maxRerollCount: subscription.hasPremium ? 50 : 1,
+      };
+    }),
+
   rerollWinners: protectedProcedure
     .input(
       z.object({
@@ -461,11 +517,32 @@ export const giveawaysRouter = {
         "reroll this giveaway"
       );
 
+      const subscription = await getPremiumStatus(
+        {
+          userId: ctx.user.id,
+          guildId: giveaway.guildId,
+        },
+        ctx.db
+      );
+
+      // Keep parity with Discord:
+      // - free users can only reroll a single winner at a time (and defaults to 1)
+      // - premium users can reroll multiple (and defaults to all giveaway winners)
+      const rerollCount =
+        count ?? (subscription.hasPremium ? giveaway.winners : 1);
+
+      if (!subscription.hasPremium && rerollCount > 1) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "402 PREMIUM_REQUIRED",
+        });
+      }
+
       // Proxy to Durable Object
       const { env } = await import("cloudflare:workers");
       const doClient = createDOClient(env, giveawayId);
 
-      const result = await doClient.drawWinners.mutate(count);
+      const result = await doClient.drawWinners.mutate(rerollCount);
 
       return result;
     }),
@@ -506,6 +583,23 @@ export const giveawaysRouter = {
         giveaway.guildId,
         "view this giveaway"
       );
+
+      const subscription = await getPremiumStatus(
+        {
+          userId: ctx.user.id,
+          guildId: giveaway.guildId,
+        },
+        ctx.db
+      );
+
+      // Keep non-closed giveaways visible in lists for upsell,
+      // but gate live participant fetching behind premium.
+      if (!subscription.hasPremium && giveaway.state !== "CLOSED") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "402 PREMIUM_REQUIRED",
+        });
+      }
 
       // For non-closed giveaways, fetch from Durable Object
       if (giveaway.state !== "CLOSED") {

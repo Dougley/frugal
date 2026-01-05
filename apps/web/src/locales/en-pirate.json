@@ -100,6 +100,19 @@
     "unexpected": "BLIMEY! We hit an iceberg we didn't see comin'! WHO WAS ON LOOKOUT?!",
     "failedToLoad": "Failed to haul {{item}} aboard: {{error}} - SOMEONE'S GETTIN' KEELHAULED!"
   },
+  "subscription": {
+    "status": {
+      "free": "Free as the wind",
+      "premium": "Cap'n tier",
+      "premium_lifetime": "Cap'n tier (forever)",
+      "premium_expires": "Cap'n tier (runs out)"
+    },
+    "indicator": {
+      "none": "No Cap'n coins",
+      "premium": "Cap'n status active",
+      "premium_expires_soon": "Cap'n status runnin' low"
+    }
+  },
   "landing": {
     "hero": {
       "heading": "HOIST THE COLORS WITH",
@@ -323,6 +336,9 @@
         "note": "HEAR YE! This be just a quick draw - the original ship's log stays untouched! Copy these results and announce 'em yerself!",
         "countLabel": "How many new winners",
         "countDescription": "How many fresh scallywags to pick from the remainin' crew",
+        "freeLimitTitle": "Deck swabber limit",
+        "freeLimitMessage": "Free crews can reroll 1 scallywag at a time. Upgrade to reroll a whole bunch of 'em!",
+        "freeLimitAction": "BECOME A CAP'N!",
         "confirmButton": "DRAW NEW WINNERS!",
         "newWinners": "THE NEW LUCKY SCALLYWAGS!",
         "copyHint": "Copy these names and shout 'em out in Discord!",

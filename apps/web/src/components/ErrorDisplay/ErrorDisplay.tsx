@@ -1,6 +1,15 @@
-import { Alert, Button, Container, Stack, Text } from "@mantine/core";
+import {
+  Alert,
+  Button,
+  Container,
+  Group,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
 import {
   IconArrowLeft,
+  IconCrown,
   IconInfoCircle,
   IconRefresh,
 } from "@tabler/icons-react";
@@ -70,9 +79,18 @@ export const ErrorDisplay = memo(function ErrorDisplay({
   let message = t("errors.unexpected");
   let color = "red";
 
+  const isPremiumRequired =
+    error instanceof TRPCClientError &&
+    error.data?.code === "FORBIDDEN" &&
+    error.message.startsWith("402");
+
   if (error instanceof TRPCClientError) {
     message = error.message;
-    if (error.data?.code === "FORBIDDEN") {
+    if (isPremiumRequired) {
+      title = t("errors.premiumRequired.title");
+      message = t("errors.premiumRequired.message");
+      color = "yellow";
+    } else if (error.data?.code === "FORBIDDEN") {
       title = t("errors.accessDenied.title");
       message = t("errors.accessDenied.message");
       color = "orange";
@@ -105,14 +123,31 @@ export const ErrorDisplay = memo(function ErrorDisplay({
         </Button>
 
         <Alert
-          icon={<IconInfoCircle aria-hidden="true" />}
+          icon={
+            isPremiumRequired ? (
+              <IconCrown aria-hidden="true" />
+            ) : (
+              <IconInfoCircle aria-hidden="true" />
+            )
+          }
           color={color}
           variant="light"
           role="alert"
         >
           <Stack gap="xs">
-            <Text fw={500}>{title}</Text>
+            <Title order={3}>{title}</Title>
             <Text size="sm">{message}</Text>
+            {isPremiumRequired && (
+              <Group gap="sm" mt="xs">
+                <Button
+                  component={Link}
+                  to="/premium"
+                  leftSection={<IconCrown size={16} aria-hidden="true" />}
+                >
+                  {t("errors.premiumRequired.action")}
+                </Button>
+              </Group>
+            )}
           </Stack>
         </Alert>
 

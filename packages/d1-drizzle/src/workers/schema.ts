@@ -110,3 +110,13 @@ export const subscriptionEvents = sqliteTable(
     ),
   ]
 );
+
+export const guildActiveGiveaways = sqliteTable(
+  "GuildActiveGiveaways",
+  {
+    guildId: text("guild_id").notNull(),
+    durableObjectId: text("durable_object_id").primaryKey(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [index("idx_guild_active_giveaways_guild_id").on(table.guildId)]
+);

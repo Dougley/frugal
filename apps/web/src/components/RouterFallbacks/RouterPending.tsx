@@ -1,4 +1,4 @@
-import { Loader, VisuallyHidden } from "@mantine/core";
+import { Box, Flex, Loader, VisuallyHidden } from "@mantine/core";
 import styles from "./RouterPending.module.css";
 
 /**
@@ -9,10 +9,12 @@ import styles from "./RouterPending.module.css";
  */
 export function RouterPending() {
   return (
-    <div className={styles.container}>
-      <Loader size="lg" color="teal" />
-      {/* Screen reader only text */}
-      <VisuallyHidden>Loading...</VisuallyHidden>
-    </div>
+    <Box className={styles.container} role="status" aria-live="polite">
+      <Flex justify="center" align="center" h="100vh">
+        <Loader size="lg" color="teal" />
+        {/* Screen reader only text */}
+        <VisuallyHidden>Loading...</VisuallyHidden>
+      </Flex>
+    </Box>
   );
 }

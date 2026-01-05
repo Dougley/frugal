@@ -73,17 +73,20 @@
   "version_metadata": {
     "binding": "CF_VERSION_METADATA"
   },
+  "vars": {
+    "SENTRY_DSN": ""
+  },
   // Environment-specific configurations
   "env": {
     // Production environment bindings
     "production": {
-      "name": "frugal-discord",
+      "name": "frugal-discord-prod",
       "d1_databases": [
         {
           "binding": "D1",
           "database_name": "frugal",
           "database_id": "9d21020092f1485badd0d5efdff2352e",
-          "migrations_dir": "../../packages/d1-drizzle/migrations"
+          "migrations_dir": "../../packages/d1-drizzle/src/workers/drizzle"
         }
       ],
       "kv_namespaces": [
@@ -122,7 +125,7 @@
           "binding": "D1",
           "database_name": "frugal",
           "database_id": "d941c81e-6fc7-4e21-90bc-a1698bf6342e",
-          "migrations_dir": "../../packages/d1-drizzle/migrations"
+          "migrations_dir": "../../packages/d1-drizzle/src/workers/drizzle"
         }
       ],
       "kv_namespaces": [

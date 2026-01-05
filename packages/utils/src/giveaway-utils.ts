@@ -159,7 +159,7 @@ export const createGiveawayComponents = (params: {
     },
     {
       type: ComponentType.TEXT_DISPLAY,
-      content: `-# Hosted by ${host_username} (<@${host_id}>)`,
+      content: `-# Hosted by ${host_username ? `${host_username} ` : ""}(<@${host_id}>)`,
     },
   ];
 
@@ -247,7 +247,7 @@ export const createEndedGiveawayComponents = (params: {
     },
     {
       type: ComponentType.TEXT_DISPLAY,
-      content: `-# Hosted by ${host_username} (<@${host_id}>)`,
+      content: `-# Hosted by ${host_username ? `${host_username} ` : ""}(<@${host_id}>)`,
     },
   ];
 

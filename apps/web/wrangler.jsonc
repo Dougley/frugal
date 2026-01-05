@@ -2,11 +2,29 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "frugal-web-development",
 	"compatibility_date": "2025-11-17",
-	"compatibility_flags": ["nodejs_compat"],
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
 	"main": "@tanstack/react-start/server-entry",
 	"workers_dev": true,
 	"observability": {
-		"enabled": true
+		"logs": {
+			"enabled": true,
+			"head_sampling_rate": 1,
+			"invocation_logs": true,
+			"destinations": [
+				"sentry-frugal-web-logs"
+			],
+			"persist": true
+		},
+		"traces": {
+			"enabled": true,
+			"head_sampling_rate": 1,
+			"destinations": [
+				"sentry-frugal-web-traces"
+			],
+			"persist": true
+		}
 	},
 	// Default D1 database configuration (uses shared Frugal database)
 	"d1_databases": [
@@ -54,14 +72,16 @@
 	},
 	"assets": {
 		"binding": "ASSETS",
-		"run_worker_first": ["/api/*"],
+		"run_worker_first": [
+			"/api/*"
+		],
 		"not_found_handling": "none"
 	},
 	// Environment-specific configurations
 	"env": {
 		// Production environment bindings
 		"production": {
-			"name": "frugal-web",
+			"name": "frugal-web-prod",
 			"version_metadata": {
 				"binding": "CF_VERSION_METADATA"
 			},
@@ -90,7 +110,7 @@
 					{
 						"name": "GIVEAWAY_STATE",
 						"class_name": "GiveawayStateV3",
-						"script_name": "frugal-discord"
+						"script_name": "frugal-discord-prod"
 					}
 				]
 			}

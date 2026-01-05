@@ -14,6 +14,10 @@ import {
   inArray,
   sql,
 } from "@dougley/frugal-drizzle/workers";
+import {
+  FEATURE_LIMITS,
+  getGuildSubscriptionStatus,
+} from "@dougley/frugal-subscriptions";
 import { createGiveawayComponents, JoinButton } from "@dougley/frugal-utils";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { Routes } from "discord-api-types/v10";
@@ -60,6 +64,124 @@ async function getGiveaway(ctx: Context<LegacyEnv>) {
   }
 
   return giveaway;
+}
+
+async function reconcileGuildReservations(
+  db: ReturnType<typeof drizzleD1>,
+  guildId: string
+) {
+  const orphanGraceMinutes = 2;
+
+  await db.run(
+    sql`
+      DELETE FROM ${D1Schema.guildActiveGiveaways}
+      WHERE ${D1Schema.guildActiveGiveaways.guildId} = ${guildId}
+        AND datetime(${D1Schema.guildActiveGiveaways.createdAt}) < datetime('now', '-' || ${orphanGraceMinutes} || ' minutes')
+        AND ${D1Schema.guildActiveGiveaways.durableObjectId} NOT IN (
+          SELECT ${D1Schema.giveaways.durableObjectId}
+          FROM ${D1Schema.giveaways}
+          WHERE ${D1Schema.giveaways.guildId} = ${guildId}
+            AND ${D1Schema.giveaways.state} = 'OPEN'
+        )
+    `
+  );
+}
+
+/**
+ * Cleans up orphaned giveaway records that got stuck in NEW state.
+ * This can happen if beginGiveaway succeeds but startAlarm fails.
+ * A giveaway in NEW state is considered orphaned if its scheduled end_time
+ * has already passed (meaning it never transitioned to OPEN).
+ */
+async function reconcileOrphanedGiveaways(
+  db: ReturnType<typeof drizzleD1>,
+  guildId: string
+) {
+  await db.run(
+    sql`
+      DELETE FROM ${D1Schema.giveaways}
+      WHERE ${D1Schema.giveaways.guildId} = ${guildId}
+        AND ${D1Schema.giveaways.state} = 'NEW'
+        AND datetime(${D1Schema.giveaways.endTime}) < datetime('now')
+    `
+  );
+}
+
+async function ensureGuildConcurrentGiveawaySlotReserved(
+  ctx: Context<LegacyEnv>,
+  db: ReturnType<typeof drizzleD1>,
+  guildId: string
+) {
+  const durableObjectId = ctx.state.id.toString();
+
+  await reconcileGuildReservations(db, guildId);
+  await reconcileOrphanedGiveaways(db, guildId);
+
+  const existing = await db
+    .select({
+      guildId: D1Schema.guildActiveGiveaways.guildId,
+      durableObjectId: D1Schema.guildActiveGiveaways.durableObjectId,
+    })
+    .from(D1Schema.guildActiveGiveaways)
+    .where(eq(D1Schema.guildActiveGiveaways.durableObjectId, durableObjectId))
+    .get();
+
+  if (existing) {
+    if (existing.guildId === guildId) return;
+
+    await db
+      .delete(D1Schema.guildActiveGiveaways)
+      .where(eq(D1Schema.guildActiveGiveaways.durableObjectId, durableObjectId))
+      .run();
+  }
+
+  const subscription = await getGuildSubscriptionStatus(guildId, db);
+  const maxConcurrent = subscription.hasPremium
+    ? FEATURE_LIMITS.CONCURRENT_GIVEAWAYS.PREMIUM
+    : FEATURE_LIMITS.CONCURRENT_GIVEAWAYS.FREE;
+
+  // Atomic reservation, using clerk-style "insert if count < limit".
+  let insertResult: Awaited<ReturnType<typeof db.run>>;
+
+  try {
+    insertResult = await db.run(
+      sql`
+        INSERT INTO ${D1Schema.guildActiveGiveaways}
+          (${sql.raw('"guild_id"')}, ${sql.raw('"durable_object_id"')})
+        SELECT ${guildId}, ${durableObjectId}
+        WHERE (
+          SELECT count(*) FROM ${D1Schema.guildActiveGiveaways}
+          WHERE guild_id = ${guildId}
+        ) < ${maxConcurrent}
+      `
+    );
+  } catch (error) {
+    console.error("[reservations] ensure.insert.failed", {
+      guildId,
+      durableObjectId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "RESERVATION_DB_ERROR",
+    });
+  }
+
+  const changes = insertResult?.meta?.changes ?? 0;
+
+  if (changes === 0) {
+    console.warn("[reservations] ensure.limit_exceeded", {
+      guildId,
+      durableObjectId,
+      maxConcurrent,
+    });
+
+    throw new TRPCError({
+      code: "PRECONDITION_FAILED",
+      message: "CONCURRENT_LIMIT_EXCEEDED",
+    });
+  }
 }
 
 /**
@@ -224,6 +346,26 @@ const validateGiveawayState = (
 };
 
 export const stateRouter = router({
+  reserveSlot: publicProcedure
+    .input(z.object({ guild_id: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const db = drizzleD1(ctx.env.D1);
+      await ensureGuildConcurrentGiveawaySlotReserved(ctx, db, input.guild_id);
+      return { success: true };
+    }),
+
+  releaseSlot: publicProcedure.mutation(async ({ ctx }) => {
+    const db = drizzleD1(ctx.env.D1);
+    const id = ctx.state.id.toString();
+
+    await db
+      .delete(D1Schema.guildActiveGiveaways)
+      .where(eq(D1Schema.guildActiveGiveaways.durableObjectId, id))
+      .run();
+
+    return { success: true };
+  }),
+
   getEntries: publicProcedure.query(async ({ ctx }) => {
     // Just use the local SQLite storage
     return entriesDb.getAll(ctx);
@@ -260,6 +402,16 @@ export const stateRouter = router({
 
       const db = drizzleD1(ctx.env.D1);
       const id = ctx.state.id.toString();
+
+      // Reserve a concurrent giveaway slot before opening.
+      const giveaway = await getGiveaway(ctx);
+      validateGiveawayState(giveaway, ["NEW"]);
+
+      await ensureGuildConcurrentGiveawaySlotReserved(
+        ctx,
+        db,
+        giveaway.guildId
+      );
 
       await db
         .update(D1Schema.giveaways)
@@ -362,6 +514,12 @@ export const stateRouter = router({
     const _giveaway = await getGiveaway(ctx);
     const id = ctx.state.id.toString();
 
+    // Release any reservation (idempotent)
+    await db
+      .delete(D1Schema.guildActiveGiveaways)
+      .where(eq(D1Schema.guildActiveGiveaways.durableObjectId, id))
+      .run();
+
     // Delete from central database
     await db
       .delete(D1Schema.giveaways)
@@ -454,13 +612,6 @@ export const stateRouter = router({
         .returning()
         .get();
 
-      // Get current entries count
-      const _entries = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(D1Schema.entries)
-        .where(eq(D1Schema.entries.giveawayId, updated.messageId))
-        .get();
-
       // Update the Discord message
       try {
         await client.patch(
@@ -474,7 +625,7 @@ export const stateRouter = router({
                 host_username: "",
                 host_id: updated.hostId,
                 description: input.description ?? undefined,
-                giveaway_id: updated.messageId,
+                giveaway_id: updated.durableObjectId,
                 join_button: JoinButton.createActionRow(
                   updated.durableObjectId
                 ),

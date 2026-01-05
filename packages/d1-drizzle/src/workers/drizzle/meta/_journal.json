@@ -15,6 +15,13 @@
       "when": 1758969790615,
       "tag": "0001_puzzling_human_torch",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1767538230867,
+      "tag": "0002_serious_jack_flag",
+      "breakpoints": true
     }
   ]
 }
