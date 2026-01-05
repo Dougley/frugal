@@ -13,8 +13,8 @@
     "deploy": "wrangler deploy --minify src/index.ts",
     "db:migrate:dev": "wrangler d1 migrations apply frugal --local --persist-to='../../.mf'",
     "db:migrate": "wrangler d1 migrations apply frugal",
-    "register": "tsx scripts/register-commands.mjs",
-    "register:dev": "tsx scripts/register-commands.mjs --env development",
+    "register": "node --import ./scripts/sql-loader.mjs --import tsx scripts/register-commands.mjs",
+    "register:dev": "node --import ./scripts/sql-loader.mjs --import tsx scripts/register-commands.mjs --env development",
     "typecheck": "wrangler types && tsc --noEmit",
     "i18n:sync": "node scripts/kv-i18n-sync.mjs",
     "i18n:sync:dev": "node scripts/kv-i18n-sync.mjs"

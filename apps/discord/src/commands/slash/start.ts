@@ -4,7 +4,12 @@ import {
   checkFeatureLimit,
   FEATURE_LIMITS,
 } from "@dougley/frugal-subscriptions";
-import { createGiveawayComponents, JoinButton } from "@dougley/frugal-utils";
+import {
+  createGiveawayComponents,
+  type GiveawayTranslations,
+  JoinButton,
+  type JoinButtonTranslations,
+} from "@dougley/frugal-utils";
 import * as Sentry from "@sentry/cloudflare";
 import {
   BitField,
@@ -19,6 +24,80 @@ import { getContext } from "../../context";
 
 // Constants for duration limits
 const MIN_DURATION_MS = 10 * 1000; // 10 seconds
+
+/**
+ * Helper to get giveaway translations from i18n
+ *
+ * @param locale - The locale to translate to
+ * @param counts - The counts for pluralized strings
+ */
+async function getGiveawayTranslations(
+  locale: string,
+  counts: { participants: number; winners: number }
+): Promise<GiveawayTranslations> {
+  const { i18n } = getContext();
+  const [
+    title,
+    titleEnded,
+    winners,
+    ends,
+    ended,
+    hostedBy,
+    descriptionNote,
+    prize,
+    entries,
+    enterCta,
+    participants,
+    winnerCount,
+  ] = await Promise.all([
+    i18n.translate("utils.giveaway.title", { language: locale }),
+    i18n.translate("utils.giveaway.title_ended", { language: locale }),
+    i18n.translate("utils.giveaway.winners", { language: locale }),
+    i18n.translate("utils.giveaway.ends", { language: locale }),
+    i18n.translate("utils.giveaway.ended", { language: locale }),
+    i18n.translate("utils.giveaway.hosted_by", { language: locale }),
+    i18n.translate("utils.giveaway.description_note", { language: locale }),
+    i18n.translate("utils.giveaway.prize", { language: locale }),
+    i18n.translate("utils.giveaway.entries", { language: locale }),
+    i18n.translate("utils.giveaway.enter_cta", { language: locale }),
+    i18n.translate("utils.giveaway.participants", {
+      language: locale,
+      params: { count: counts.participants },
+    }),
+    i18n.translate("utils.giveaway.winner_count", {
+      language: locale,
+      params: { count: counts.winners },
+    }),
+  ]);
+
+  return {
+    title,
+    titleEnded,
+    winners,
+    ends,
+    ended,
+    hostedBy,
+    descriptionNote,
+    prize,
+    entries,
+    enterCta,
+    participants,
+    winnerCount,
+  };
+}
+
+/**
+ * Helper to get join button translations from i18n
+ */
+async function getJoinButtonTranslations(
+  locale: string
+): Promise<JoinButtonTranslations> {
+  const { i18n } = getContext();
+  const label = await i18n.translate("utils.join_button.label", {
+    language: locale,
+  });
+  return { label };
+}
 
 export default class StartCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
@@ -237,6 +316,16 @@ export default class StartCommand extends BaseCommand {
 
       let giveawayMessageId: string;
 
+      // Get translations for the giveaway components
+      const locale = ctx.locale ?? "en-US";
+      const [giveawayTranslations, joinButtonTranslations] = await Promise.all([
+        getGiveawayTranslations(locale, {
+          participants: 0, // New giveaway starts with 0 participants
+          winners: winnersCount,
+        }),
+        getJoinButtonTranslations(locale),
+      ]);
+
       try {
         const giveawayMessage = (await ctx.send({
           flags: flags.bitfield as number,
@@ -245,13 +334,16 @@ export default class StartCommand extends BaseCommand {
           },
           components: createGiveawayComponents({
             prize,
-            winners: winnersCount,
             end_time: endTime,
             host_username: host.username,
             host_id: host.id,
             description,
             giveaway_id: id.toString(),
-            join_button: JoinButton.createActionRow(id.toString()),
+            join_button: JoinButton.createActionRow(
+              id.toString(),
+              joinButtonTranslations
+            ),
+            translations: giveawayTranslations,
           }),
         })) as Message;
 

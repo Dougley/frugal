@@ -86,7 +86,7 @@ function makeCreator(env: Env) {
 }
 
 export default Sentry.withSentry(
-  (env) => {
+  (env: Env) => {
     const { id: versionId } = env.CF_VERSION_METADATA;
     return {
       dsn: env.SENTRY_DSN,

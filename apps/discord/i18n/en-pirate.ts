@@ -13,9 +13,39 @@ export default {
     ends: "Ends its voyage",
   },
   premium: {
+    upgrade_required:
+      "This command be needin' a premium subscription, ye landlubber. Upgrade to unlock the advanced treasures!",
+    dm_upgrade_required:
+      "This command be needin' premium and can only be used aboard a ship (server), matey!",
+    limit_exceeded:
+      "Ye've reached the {feature} limit ({current}/{maxValue}). Upgrade to premium to raise yer limit to {premiumMaxValue}, ye scallywag!",
+    feature_upgrade_nags: {
+      more_winners: "🥳 Need more lucky pirates?",
+      longer_duration: "⏰ Want longer treasure hunt voyages?",
+      customization: "🎨 Lookin' fer customization options, matey?",
+      more_giveaways: "🎉 Want to run more treasure hunts at once?",
+    },
+    upgrade_button: {
+      label: "Upgrade to Premium",
+      emoji: "⭐",
+    },
+    upgrade_cta: "Upgrade to Premium fer more treasures!",
+    upgrade_link: "https://discord.com/application-directory/YOUR_APP_ID/store",
+    status: {
+      active: "✨ Premium Active, arrr!",
+      lifetime: "lifetime treasure pass",
+      expires: "expires {date}",
+      free: "🆓 Free Tier, ye landlubber",
+    },
     errors: {
       check_failed: "Could not check yer premium papers, matey!",
       database_unavailable: "Premium service be unavailable right now.",
+    },
+    upgrade_messages: {
+      feature_limited:
+        "🔒 **{feature}** be limited on the free tier, matey.\n\n📊 **Current:** {current}\n🎯 **Free Limit:** {freeLimit}\n✨ **Premium Limit:** {premiumLimit}\n\nUpgrade to Premium to unlock higher limits, arrr!",
+      premium_indicator: " ✨ *Premium*",
+      expires_soon: " ✨ *Premium (expires {date})*",
     },
   },
   commands: {
@@ -252,6 +282,34 @@ Alarm be triggerin' at {endTime}`,
         "Treasure hunt must be in one of these states: {states}. Currently {current}",
       reservation_db_error: "Could not reserve yer treasure hunt slot, matey!",
       concurrent_limit_exceeded: "Too many treasure hunts be runnin' at once!",
+    },
+  },
+  utils: {
+    giveaway: {
+      title: "Treasure Hunt!",
+      title_ended: "Treasure Hunt ended!",
+      winners: "Lucky Pirates",
+      ends: "Sets sail until",
+      ended: "Voyage ended",
+      hosted_by: "Hosted by Cap'n",
+      description_note: "Description from the captain",
+      prize: "Treasure",
+      entries: "Crew",
+      enter_cta: "Click the button below to join the crew!",
+      participants:
+        "{count, plural, one {# pirate aboard} other {# pirates aboard}}",
+      winner_count:
+        "{count, plural, one {# lucky pirate} other {# lucky pirates}}",
+    },
+    join_button: {
+      label: "Join the Crew!",
+    },
+    edit_modal: {
+      button_label: "Change Course",
+      modal_title: "Change Treasure Hunt",
+      prize_label: "Treasure",
+      winners_label: "Lucky Pirates (1-50)",
+      description_label: "Description (optional)",
     },
   },
 } satisfies Partial<typeof enUS>;

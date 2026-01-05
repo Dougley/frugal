@@ -7,19 +7,101 @@ import {
   drizzleD1,
   eq,
 } from "@dougley/frugal-drizzle/workers";
-import { createGiveawayComponents, JoinButton } from "@dougley/frugal-utils";
+import {
+  createGiveawayComponents,
+  type GiveawayTranslations,
+  JoinButton,
+  type JoinButtonTranslations,
+} from "@dougley/frugal-utils";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { Routes } from "discord-api-types/v10";
 import { z } from "zod";
 
 import {
   createDiscordRest,
+  createGiveawayI18n,
   entriesDb,
   getGiveaway,
+  type I18n,
   validateGiveawayState,
 } from "../utils";
 import { publicProcedure } from "./instance";
 import { ensureGuildConcurrentGiveawaySlotReserved } from "./slots";
+
+/**
+ * Helper to get giveaway translations from i18n
+ *
+ * @param i18n - The i18n instance
+ * @param locale - The locale to translate to
+ * @param counts - The counts for pluralized strings
+ */
+async function getGiveawayTranslations(
+  i18n: I18n,
+  locale: string,
+  counts: { participants: number; winners: number }
+): Promise<GiveawayTranslations> {
+  const [
+    title,
+    titleEnded,
+    winners,
+    ends,
+    ended,
+    hostedBy,
+    descriptionNote,
+    prize,
+    entries,
+    enterCta,
+    participants,
+    winnerCount,
+  ] = await Promise.all([
+    i18n.translate("utils.giveaway.title", { language: locale }),
+    i18n.translate("utils.giveaway.title_ended", { language: locale }),
+    i18n.translate("utils.giveaway.winners", { language: locale }),
+    i18n.translate("utils.giveaway.ends", { language: locale }),
+    i18n.translate("utils.giveaway.ended", { language: locale }),
+    i18n.translate("utils.giveaway.hosted_by", { language: locale }),
+    i18n.translate("utils.giveaway.description_note", { language: locale }),
+    i18n.translate("utils.giveaway.prize", { language: locale }),
+    i18n.translate("utils.giveaway.entries", { language: locale }),
+    i18n.translate("utils.giveaway.enter_cta", { language: locale }),
+    i18n.translate("utils.giveaway.participants", {
+      language: locale,
+      params: { count: counts.participants },
+    }),
+    i18n.translate("utils.giveaway.winner_count", {
+      language: locale,
+      params: { count: counts.winners },
+    }),
+  ]);
+
+  return {
+    title,
+    titleEnded,
+    winners,
+    ends,
+    ended,
+    hostedBy,
+    descriptionNote,
+    prize,
+    entries,
+    enterCta,
+    participants,
+    winnerCount,
+  };
+}
+
+/**
+ * Helper to get join button translations from i18n
+ */
+async function getJoinButtonTranslations(
+  i18n: I18n,
+  locale: string
+): Promise<JoinButtonTranslations> {
+  const label = await i18n.translate("utils.join_button.label", {
+    language: locale,
+  });
+  return { label };
+}
 
 /**
  * Giveaway router - manages giveaway lifecycle
@@ -198,6 +280,7 @@ export const giveawayRouter = {
     .mutation(async ({ input, ctx }) => {
       const db = drizzleD1(ctx.env.D1);
       const rest = createDiscordRest(ctx.env.DISCORD_BOT_TOKEN);
+      const i18n = createGiveawayI18n(ctx.env.KV_LOCALES);
       const giveaway = await getGiveaway(ctx);
       const id = ctx.state.id.toString();
 
@@ -223,6 +306,17 @@ export const giveawayRouter = {
         .returning()
         .get();
 
+      // Get translations for the Discord message update
+      const locale = updated.locale || "en-US";
+      const participantCount = await entriesDb.count(ctx);
+      const [giveawayTranslations, joinButtonTranslations] = await Promise.all([
+        getGiveawayTranslations(i18n, locale, {
+          participants: participantCount,
+          winners: updated.winners,
+        }),
+        getJoinButtonTranslations(i18n, locale),
+      ]);
+
       // Update the Discord message
       try {
         await rest.patch(
@@ -231,15 +325,16 @@ export const giveawayRouter = {
             body: {
               components: createGiveawayComponents({
                 prize: updated.prize,
-                winners: updated.winners,
                 end_time: new Date(updated.endTime),
                 host_username: "",
                 host_id: updated.hostId,
                 description: input.description ?? undefined,
                 giveaway_id: updated.durableObjectId,
                 join_button: JoinButton.createActionRow(
-                  updated.durableObjectId
+                  updated.durableObjectId,
+                  joinButtonTranslations
                 ),
+                translations: giveawayTranslations,
               }),
             },
           }

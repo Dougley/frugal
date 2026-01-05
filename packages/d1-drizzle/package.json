@@ -33,7 +33,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsc && cp src/durables/drizzle/*.sql dist/durables/drizzle/ && cp -r src/durables/drizzle/meta dist/durables/drizzle/"
   },
   "dependencies": {
     "drizzle-orm": "catalog:"

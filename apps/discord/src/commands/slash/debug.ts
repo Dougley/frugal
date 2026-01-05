@@ -22,9 +22,6 @@ type EntitlementScope = "guild" | "user" | "both";
 export default class DebugCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
     super(creator, {
-      guildIDs: getContext().env?.DEVELOPMENT_GUILD
-        ? [getContext().env.DEVELOPMENT_GUILD]
-        : undefined,
       name: "debug",
       description: "Debug and diagnostics",
       options: [

@@ -3,14 +3,84 @@ import {
   drizzleD1,
   eq,
 } from "@dougley/frugal-drizzle/workers";
-import { createEndedGiveawayComponents } from "@dougley/frugal-utils";
+import {
+  createEndedGiveawayComponents,
+  type GiveawayTranslations,
+} from "@dougley/frugal-utils";
 import * as Sentry from "@sentry/cloudflare";
 import { Routes } from "discord-api-types/v10";
 import { stateRouter } from "./router";
 import type { Context } from "./trpc";
-import { createDiscordRest, createGiveawayI18n } from "./utils";
+import {
+  createDiscordRest,
+  createGiveawayI18n,
+  entriesDb,
+  type I18n,
+} from "./utils";
 
 const CLEANUP_DELAY = 1000 * 60 * 60 * 24 * 14; // 14 days
+
+/**
+ * Helper to get giveaway translations for ended giveaway components
+ *
+ * @param i18n - The i18n instance
+ * @param locale - The locale to translate to
+ * @param counts - The counts for pluralized strings
+ */
+async function getEndedGiveawayTranslations(
+  i18n: I18n,
+  locale: string,
+  counts: { participants: number; winners: number }
+): Promise<GiveawayTranslations> {
+  const [
+    title,
+    titleEnded,
+    winners,
+    ends,
+    ended,
+    hostedBy,
+    descriptionNote,
+    prize,
+    entries,
+    enterCta,
+    participants,
+    winnerCount,
+  ] = await Promise.all([
+    i18n.translate("utils.giveaway.title", { language: locale }),
+    i18n.translate("utils.giveaway.title_ended", { language: locale }),
+    i18n.translate("utils.giveaway.winners", { language: locale }),
+    i18n.translate("utils.giveaway.ends", { language: locale }),
+    i18n.translate("utils.giveaway.ended", { language: locale }),
+    i18n.translate("utils.giveaway.hosted_by", { language: locale }),
+    i18n.translate("utils.giveaway.description_note", { language: locale }),
+    i18n.translate("utils.giveaway.prize", { language: locale }),
+    i18n.translate("utils.giveaway.entries", { language: locale }),
+    i18n.translate("utils.giveaway.enter_cta", { language: locale }),
+    i18n.translate("utils.giveaway.participants", {
+      language: locale,
+      params: { count: counts.participants },
+    }),
+    i18n.translate("utils.giveaway.winner_count", {
+      language: locale,
+      params: { count: counts.winners },
+    }),
+  ]);
+
+  return {
+    title,
+    titleEnded,
+    winners,
+    ends,
+    ended,
+    hostedBy,
+    descriptionNote,
+    prize,
+    entries,
+    enterCta,
+    participants,
+    winnerCount,
+  };
+}
 
 export async function handleAlarm(
   ctx: Omit<Context<LegacyEnv>, "req" | "resHeaders">
@@ -82,6 +152,19 @@ export async function handleAlarm(
     language: locale,
   });
 
+  // Get entry count for translations
+  const participantCount = await entriesDb.count(fullContext);
+
+  // Get translations for the ended giveaway components
+  const giveawayTranslations = await getEndedGiveawayTranslations(
+    i18n,
+    locale,
+    {
+      participants: participantCount,
+      winners: giveaway.winners,
+    }
+  );
+
   // First try to edit the original giveaway message to indicate entries are closed
   try {
     // Use the helper function to create the embed
@@ -106,6 +189,7 @@ export async function handleAlarm(
                 );
               return mentions.length > 0 ? mentions : [nobodyWonText];
             })(),
+            translations: giveawayTranslations,
           }),
         },
       }

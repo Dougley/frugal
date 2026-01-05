@@ -1,5 +1,15 @@
 import { ComponentType, TextInputStyle } from "slash-create/web";
 
+const DEFAULT_TRANSLATIONS = {
+  buttonLabel: "UNTRANSLATED [Edit Giveaway]",
+  modalTitle: "UNTRANSLATED [Edit Giveaway]",
+  prizeLabel: "UNTRANSLATED [Prize]",
+  winnersLabel: "UNTRANSLATED [Winners (1-50)]",
+  descriptionLabel: "UNTRANSLATED [Description (optional)]",
+};
+
+export type EditModalTranslations = Partial<typeof DEFAULT_TRANSLATIONS>;
+
 /**
  * Modal component for editing giveaways
  */
@@ -15,16 +25,18 @@ export const EditModal = {
   /**
    * Creates a button for editing a giveaway
    * @param giveawayId The ID of the giveaway to edit
+   * @param translations Optional pre-translated strings
    * @returns An action row with the edit button
    */
-  createActionRow(giveawayId: string) {
+  createActionRow(giveawayId: string, translations?: EditModalTranslations) {
+    const t = { ...DEFAULT_TRANSLATIONS, ...translations };
     return {
       type: ComponentType.ACTION_ROW as const,
       components: [
         {
           type: ComponentType.BUTTON as const,
           style: 5, // Primary style
-          label: "Edit Giveaway",
+          label: t.buttonLabel,
           custom_id: `${EditModal.button_id}:${giveawayId}`,
         },
       ],
@@ -35,14 +47,17 @@ export const EditModal = {
    * Creates the modal configuration for editing a giveaway
    * @param giveawayId The ID of the giveaway
    * @param state The current giveaway state
+   * @param translations Optional pre-translated strings
    * @returns Modal configuration
    */
   createModal(
     giveawayId: string,
-    state: { prize: string; winners: number; description?: string | null }
+    state: { prize: string; winners: number; description?: string | null },
+    translations?: EditModalTranslations
   ) {
+    const t = { ...DEFAULT_TRANSLATIONS, ...translations };
     return {
-      title: "Edit Giveaway",
+      title: t.modalTitle,
       custom_id: `${EditModal.modal_id}:${giveawayId}`,
       components: [
         {
@@ -50,7 +65,7 @@ export const EditModal = {
           components: [
             {
               type: ComponentType.TEXT_INPUT as const,
-              label: "Prize",
+              label: t.prizeLabel,
               custom_id: "prize",
               style: TextInputStyle.SHORT,
               value: state.prize,
@@ -65,7 +80,7 @@ export const EditModal = {
           components: [
             {
               type: ComponentType.TEXT_INPUT as const,
-              label: "Winners (1-50)",
+              label: t.winnersLabel,
               custom_id: "winners",
               style: TextInputStyle.SHORT,
               value: state.winners.toString(),
@@ -80,7 +95,7 @@ export const EditModal = {
           components: [
             {
               type: ComponentType.TEXT_INPUT as const,
-              label: "Description (optional)",
+              label: t.descriptionLabel,
               custom_id: "description",
               style: TextInputStyle.PARAGRAPH,
               value: state.description || "",

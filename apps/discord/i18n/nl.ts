@@ -12,9 +12,39 @@ export default {
     ends: "Eindigt",
   },
   premium: {
+    upgrade_required:
+      "Dit command vereist een premium-abonnement. Upgrade om geavanceerde functies te ontgrendelen!",
+    dm_upgrade_required:
+      "Dit command vereist premium en kan alleen in servers worden gebruikt.",
+    limit_exceeded:
+      "Je hebt de {feature}-limiet bereikt ({current}/{maxValue}). Upgrade naar premium om je limiet te verhogen naar {premiumMaxValue}!",
+    feature_upgrade_nags: {
+      more_winners: "🥳 Meer winnaars nodig?",
+      longer_duration: "⏰ Langere giveaway-duur gewenst?",
+      customization: "🎨 Op zoek naar aanpassingsopties?",
+      more_giveaways: "🎉 Meer giveaways tegelijk draaien?",
+    },
+    upgrade_button: {
+      label: "Upgrade naar Premium",
+      emoji: "⭐",
+    },
+    upgrade_cta: "Upgrade naar Premium voor meer functies!",
+    upgrade_link: "https://discord.com/application-directory/YOUR_APP_ID/store",
+    status: {
+      active: "✨ Premium Actief",
+      lifetime: "levenslang abonnement",
+      expires: "verloopt {date}",
+      free: "🆓 Gratis",
+    },
     errors: {
       check_failed: "Kon premiumstatus niet controleren",
       database_unavailable: "Premiumservice tijdelijk niet beschikbaar",
+    },
+    upgrade_messages: {
+      feature_limited:
+        "🔒 **{feature}** is beperkt in de gratis versie.\n\n📊 **Huidig:** {current}\n🎯 **Gratis limiet:** {freeLimit}\n✨ **Premium limiet:** {premiumLimit}\n\nUpgrade naar Premium om hogere limieten te ontgrendelen!",
+      premium_indicator: " ✨ *Premium*",
+      expires_soon: " ✨ *Premium (verloopt {date})*",
     },
   },
   commands: {
@@ -229,6 +259,60 @@ Alarm gaat af om {endTime}`,
       },
     },
   },
+  components: {
+    join_button: {
+      errors: {
+        invalid_giveaway_id: "Ongeldige giveaway-ID",
+        giveaway_state_unavailable:
+          "Giveawayservice is momenteel niet beschikbaar.",
+        giveaway_not_found: "Giveaway niet gevonden",
+        giveaway_not_open: "Deze giveaway accepteert geen inzendingen meer.",
+        already_entered: "Je doet al mee aan deze giveaway.",
+        not_entered: "Je doet niet mee aan deze giveaway.",
+        giveaway_ended: "Deze giveaway is al geëindigd.",
+        rate_limited: "Je wordt rate limited. Probeer het later opnieuw.",
+        unexpected_error:
+          "Er is een onverwachte fout opgetreden. Probeer het opnieuw.",
+      },
+      messages: {
+        successfully_entered:
+          "Je doet nu mee aan de giveaway voor **{prize}**!",
+        successfully_left:
+          "Je hebt de giveaway voor **{prize}** succesvol verlaten!",
+        already_entered_leave:
+          "Je doet al mee aan deze giveaway. In plaats daarvan verlaten?",
+        leave_button: "Verlaat Giveaway",
+      },
+    },
+    edit_modal: {
+      errors: {
+        giveaway_state_unavailable:
+          "Giveawayservice is momenteel niet beschikbaar.",
+        giveaway_not_found: "Die giveaway bestaat niet of is verlopen.",
+        invalid_modal_submission: "Ongeldige modal-inzending.",
+        required_fields: "Prijs en winnaars zijn verplichte velden.",
+        invalid_winners_count: "Aantal winnaars moet tussen 1 en 50 zijn.",
+        update_failed: "Kon giveaway niet bijwerken: {error}",
+      },
+      messages: {
+        update_success: "Giveaway is succesvol bijgewerkt!",
+      },
+    },
+  },
+  autocomplete: {
+    stop: {
+      winners_singular: "{winners} winnaar",
+      winners_plural: "{winners} winnaars",
+    },
+    edit: {
+      ends_text: "Eindigt {date} met {winners} winnaar",
+      ends_text_plural: "Eindigt {date} met {winners} winnaars",
+    },
+    reroll: {
+      winners_singular: "{winners} winnaar",
+      winners_plural: "{winners} winnaars",
+    },
+  },
   giveaway: {
     ended: {
       no_winners:
@@ -251,6 +335,32 @@ Alarm gaat af om {endTime}`,
         "Giveaway moet in een van de volgende statussen zijn: {states}. Momenteel {current}",
       reservation_db_error: "Kon giveawayslot niet reserveren",
       concurrent_limit_exceeded: "Te veel gelijktijdige giveaways",
+    },
+  },
+  utils: {
+    giveaway: {
+      title: "Giveaway!",
+      title_ended: "Giveaway geëindigd!",
+      winners: "Winnaars",
+      ends: "Eindigt",
+      ended: "Geëindigd",
+      hosted_by: "Gehost door",
+      description_note: "Beschrijving van de host",
+      prize: "Prijs",
+      entries: "Deelnemers",
+      enter_cta: "Klik op de knop hieronder om mee te doen!",
+      participants: "{count, plural, one {# deelnemer} other {# deelnemers}}",
+      winner_count: "{count, plural, one {# winnaar} other {# winnaars}}",
+    },
+    join_button: {
+      label: "Doe mee aan giveaway",
+    },
+    edit_modal: {
+      button_label: "Bewerk giveaway",
+      modal_title: "Bewerk giveaway",
+      prize_label: "Prijs",
+      winners_label: "Winnaars (1-50)",
+      description_label: "Beschrijving (optioneel)",
     },
   },
 } satisfies Partial<typeof enUS>;

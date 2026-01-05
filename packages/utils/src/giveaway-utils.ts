@@ -10,66 +10,106 @@ export const GIFT_EMOJI = "🎁";
 export const TROPHY_EMOJI = "🏆";
 export const GIVEAWAY_COLOR = 0x00bfff;
 
+const DEFAULT_TRANSLATIONS = {
+  title: "UNTRANSLATED [Giveaway]",
+  titleEnded: "UNTRANSLATED [Giveaway ended!]",
+  winners: "UNTRANSLATED [Winners]",
+  ends: "UNTRANSLATED [Ends]",
+  ended: "UNTRANSLATED [Ended]",
+  hostedBy: "UNTRANSLATED [Hosted by]",
+  descriptionNote: "UNTRANSLATED [Description provided by the host]",
+  prize: "UNTRANSLATED [Prize]",
+  entries: "UNTRANSLATED [Entries]",
+  enterCta: "UNTRANSLATED [Click the button below to enter!]",
+  participants: "UNTRANSLATED [participants]",
+  winnerCount: "UNTRANSLATED [winners]",
+};
+
+/**
+ * Translation strings for giveaway embeds and components.
+ *
+ * All strings should be fully-formatted and ready for display.
+ * Use your i18n system to apply proper pluralization before passing.
+ */
+export type GiveawayTranslations = Partial<typeof DEFAULT_TRANSLATIONS>;
+
+/**
+ * Merges provided translations with defaults
+ */
+function getTranslations(
+  translations?: GiveawayTranslations
+): Required<GiveawayTranslations> {
+  if (!translations) return DEFAULT_TRANSLATIONS;
+  return { ...DEFAULT_TRANSLATIONS, ...translations };
+}
+
 /**
  * Creates a Discord message embed for a giveaway
+ *
+ * @param giveaway - Giveaway data for the embed
+ * @param entriesCount - Number of entries (default: 0)
+ * @param isOpen - Whether the giveaway is still open (default: true)
+ * @param translations - Optional i18n translations. For count-based strings
+ *   (`participants`, `winnerCount`), pass fully-formatted strings with
+ *   pluralization already applied by your i18n system.
  */
 export const createGiveawayEmbed = (
   giveaway: {
     prize: string;
-    winners: number;
     description?: string | null;
     end_time: Date;
     host_username: string;
     host_id: string;
     host_avatar?: string | null;
   },
-  entriesCount = 0,
-  isOpen = true
+  isOpen = true,
+  translations?: GiveawayTranslations
 ) => {
   const timestamp = Math.floor(giveaway.end_time.getTime() / 1000);
+  const t = getTranslations(translations);
 
   return {
     color: isOpen ? GIVEAWAY_COLOR : 0x99aab5,
     description: isOpen
-      ? `${PARTY_POPPER_EMOJI} **GIVEAWAY!** ${PARTY_POPPER_EMOJI}\n${GIFT_EMOJI} **Prize:** ${giveaway.prize}${giveaway.description ? `\n\n${giveaway.description}\n\n` : "\n\n"}*Click the button below to enter!*\n\n`
-      : `🎉 **Giveaway ended** 🎉\n\n${giveaway.description || ""}`,
+      ? `${PARTY_POPPER_EMOJI} **${t.title.toUpperCase()}** ${PARTY_POPPER_EMOJI}\n${GIFT_EMOJI} **${t.prize}:** ${giveaway.prize}${giveaway.description ? `\n\n${giveaway.description}\n\n` : "\n\n"}*${t.enterCta}*\n\n`
+      : `🎉 **${t.titleEnded}** 🎉\n\n${giveaway.description || ""}`,
     fields: isOpen
       ? [
           {
-            name: `${TROPHY_EMOJI} Winners`,
-            value: `**${giveaway.winners}** winner${giveaway.winners > 1 ? "s" : ""}`,
+            name: `${TROPHY_EMOJI} ${t.winners}`,
+            value: t.winnerCount,
             inline: true,
           },
           {
-            name: "⏱️ Ends",
+            name: `⏱️ ${t.ends}`,
             value: `<t:${timestamp}:R>\n<t:${timestamp}:F>`,
             inline: true,
           },
           {
-            name: "👥 Entries",
-            value: `**${entriesCount}** participant${entriesCount !== 1 ? "s" : ""}`,
+            name: `👥 ${t.entries}`,
+            value: t.participants,
             inline: true,
           },
         ]
       : [
           {
-            name: "🎁 Prize",
+            name: `🎁 ${t.prize}`,
             value: giveaway.prize,
             inline: true,
           },
           {
-            name: "🏆 Winners",
-            value: `**${giveaway.winners}** winner${giveaway.winners > 1 ? "s" : ""}`,
+            name: `🏆 ${t.winners}`,
+            value: t.winnerCount,
             inline: true,
           },
           {
-            name: "⏱️ Ended",
+            name: `⏱️ ${t.ended}`,
             value: `<t:${timestamp}:R>\n<t:${timestamp}:F>`,
             inline: true,
           },
         ],
     footer: {
-      text: `Hosted by ${giveaway.host_username}`,
+      text: `${t.hostedBy} ${giveaway.host_username}`,
       icon_url: giveaway.host_avatar
         ? `https://cdn.discordapp.com/avatars/${giveaway.host_id}/${giveaway.host_avatar}.png`
         : undefined,
@@ -80,27 +120,33 @@ export const createGiveawayEmbed = (
 
 /**
  * Creates the component structure for a giveaway message
+ *
+ * @param params - Giveaway display parameters
+ * @param params.translations - Optional i18n translations. For count-based strings,
+ *   pass fully-formatted strings with pluralization already applied.
  */
 export const createGiveawayComponents = (params: {
   prize: string;
-  winners: number;
   end_time: Date;
   host_username: string;
   host_id: string;
   description?: string;
   giveaway_id: string;
   join_button: ComponentActionRow;
+  translations?: GiveawayTranslations;
 }): AnyComponent[] => {
   const {
     prize,
-    winners,
     end_time,
     host_username,
     host_id,
     description,
     giveaway_id: _giveaway_id,
     join_button,
+    translations: providedTranslations,
   } = params;
+
+  const t = getTranslations(providedTranslations);
 
   const components = [
     {
@@ -114,7 +160,7 @@ export const createGiveawayComponents = (params: {
       components: [
         {
           type: ComponentType.TEXT_DISPLAY,
-          content: `# ${PARTY_POPPER_EMOJI} Giveaway! ${PARTY_POPPER_EMOJI}`,
+          content: `# ${PARTY_POPPER_EMOJI} ${t.title} ${PARTY_POPPER_EMOJI}`,
         },
         {
           type: ComponentType.TEXT_DISPLAY,
@@ -134,7 +180,7 @@ export const createGiveawayComponents = (params: {
               },
               {
                 type: ComponentType.TEXT_DISPLAY,
-                content: `-# Description provided by the host`,
+                content: `-# ${t.descriptionNote}`,
               },
             ],
           },
@@ -145,11 +191,11 @@ export const createGiveawayComponents = (params: {
       components: [
         {
           type: ComponentType.TEXT_DISPLAY,
-          content: `### 🏆 **${winners}** Winner${winners > 1 ? "s" : ""}`,
+          content: `### 🏆 ${t.winners}`,
         },
         {
           type: ComponentType.TEXT_DISPLAY,
-          content: `### ⏱️ **Ends** <t:${Math.floor(end_time.getTime() / 1000)}:R>`,
+          content: `### ⏱️ **${t.ends}** <t:${Math.floor(end_time.getTime() / 1000)}:R>`,
         },
       ],
     },
@@ -159,13 +205,20 @@ export const createGiveawayComponents = (params: {
     },
     {
       type: ComponentType.TEXT_DISPLAY,
-      content: `-# Hosted by ${host_username ? `${host_username} ` : ""}(<@${host_id}>)`,
+      content: `-# ${t.hostedBy} ${host_username ? `${host_username} ` : ""}(<@${host_id}>)`,
     },
   ];
 
   return components as AnyComponent[];
 };
 
+/**
+ * Creates the component structure for an ended giveaway message
+ *
+ * @param params - Ended giveaway display parameters
+ * @param params.translations - Optional i18n translations. For count-based strings,
+ *   pass fully-formatted strings with pluralization already applied.
+ */
 export const createEndedGiveawayComponents = (params: {
   prize: string;
   winners: number;
@@ -175,17 +228,20 @@ export const createEndedGiveawayComponents = (params: {
   description?: string;
   giveaway_id: string;
   winners_list: string[];
+  translations?: GiveawayTranslations;
 }): unknown[] => {
   const {
     prize,
-    winners,
     end_time,
     host_username,
     host_id,
     description,
     giveaway_id: _giveaway_id,
     winners_list,
+    translations: providedTranslations,
   } = params;
+
+  const t = getTranslations(providedTranslations);
 
   const components = [
     {
@@ -199,7 +255,7 @@ export const createEndedGiveawayComponents = (params: {
       components: [
         {
           type: ComponentType.TEXT_DISPLAY,
-          content: `# ${PARTY_POPPER_EMOJI} Giveaway ended! ${PARTY_POPPER_EMOJI}`,
+          content: `# ${PARTY_POPPER_EMOJI} ${t.titleEnded} ${PARTY_POPPER_EMOJI}`,
         },
         {
           type: ComponentType.TEXT_DISPLAY,
@@ -219,7 +275,7 @@ export const createEndedGiveawayComponents = (params: {
               },
               {
                 type: ComponentType.TEXT_DISPLAY,
-                content: `-# Description provided by the host`,
+                content: `-# ${t.descriptionNote}`,
               },
             ],
           },
@@ -230,7 +286,7 @@ export const createEndedGiveawayComponents = (params: {
       components: [
         {
           type: ComponentType.TEXT_DISPLAY,
-          content: `### 🏆 **${winners}** Winner${winners > 1 ? "s" : ""}`,
+          content: `### 🏆 ${t.winners}`,
         },
         {
           type: ComponentType.TEXT_DISPLAY,
@@ -238,7 +294,7 @@ export const createEndedGiveawayComponents = (params: {
         },
         {
           type: ComponentType.TEXT_DISPLAY,
-          content: `### ⏱️ **Ended** <t:${Math.floor(end_time.getTime() / 1000)}:R>`,
+          content: `### ⏱️ **${t.ended}** <t:${Math.floor(end_time.getTime() / 1000)}:R>`,
         },
       ],
     },
@@ -247,7 +303,7 @@ export const createEndedGiveawayComponents = (params: {
     },
     {
       type: ComponentType.TEXT_DISPLAY,
-      content: `-# Hosted by ${host_username ? `${host_username} ` : ""}(<@${host_id}>)`,
+      content: `-# ${t.hostedBy} ${host_username ? `${host_username} ` : ""}(<@${host_id}>)`,
     },
   ];
 

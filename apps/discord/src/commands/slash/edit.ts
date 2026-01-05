@@ -1,5 +1,5 @@
 import { and, asc, eq, Schema } from "@dougley/frugal-drizzle/workers";
-import { EditModal } from "@dougley/frugal-utils";
+import { EditModal, type EditModalTranslations } from "@dougley/frugal-utils";
 import {
   type AutocompleteContext,
   type CommandContext,
@@ -8,6 +8,33 @@ import {
 } from "slash-create/web";
 import { BaseCommand } from "../../classes/BaseCommand";
 import { getContext } from "../../context";
+
+/**
+ * Helper to get edit modal translations from i18n
+ */
+async function getEditModalTranslations(
+  locale: string
+): Promise<EditModalTranslations> {
+  const { i18n } = getContext();
+  const [buttonLabel, modalTitle, prizeLabel, winnersLabel, descriptionLabel] =
+    await Promise.all([
+      i18n.translate("utils.edit_modal.button_label", { language: locale }),
+      i18n.translate("utils.edit_modal.modal_title", { language: locale }),
+      i18n.translate("utils.edit_modal.prize_label", { language: locale }),
+      i18n.translate("utils.edit_modal.winners_label", { language: locale }),
+      i18n.translate("utils.edit_modal.description_label", {
+        language: locale,
+      }),
+    ]);
+
+  return {
+    buttonLabel,
+    modalTitle,
+    prizeLabel,
+    winnersLabel,
+    descriptionLabel,
+  };
+}
 
 export default class EditCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
@@ -102,6 +129,9 @@ export default class EditCommand extends BaseCommand {
     }
 
     // Show the modal immediately using the component's createModal method
-    return ctx.sendModal(EditModal.createModal(giveawayId, state));
+    const translations = await getEditModalTranslations(ctx.locale ?? "en-US");
+    return ctx.sendModal(
+      EditModal.createModal(giveawayId, state, translations)
+    );
   }
 }

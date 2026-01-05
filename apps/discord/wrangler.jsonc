@@ -3,7 +3,7 @@
   // Basic worker configuration
   "name": "frugal-discord-development",
   "main": "src/index.ts",
-  "compatibility_date": "2025-02-24",
+	"compatibility_date": "2025-11-17",
   "workers_dev": true,
   "compatibility_flags": [
     "nodejs_compat"

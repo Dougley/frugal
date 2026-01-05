@@ -4,6 +4,12 @@ import {
   ComponentType,
 } from "slash-create/web";
 
+const DEFAULT_TRANSLATIONS = {
+  label: "UNTRANSLATED [Join Giveaway]",
+};
+
+export type JoinButtonTranslations = Partial<typeof DEFAULT_TRANSLATIONS>;
+
 /**
  * A button component for joining or leaving giveaways.
  */
@@ -15,16 +21,21 @@ export const JoinButton = {
   /**
    * Creates a join button for a giveaway
    * @param giveawayId The ID of the giveaway to join
+   * @param translations Optional pre-translated strings
    * @returns The button component
    */
-  createButton(giveawayId: string): ComponentButton {
+  createButton(
+    giveawayId: string,
+    translations?: JoinButtonTranslations
+  ): ComponentButton {
+    const t = { ...DEFAULT_TRANSLATIONS, ...translations };
     return {
       type: ComponentType.BUTTON as const,
       style: ButtonStyle.PRIMARY,
       emoji: {
         name: "🎉",
       },
-      label: "Enter Giveaway",
+      label: t.label,
       custom_id: `${JoinButton.custom_id}:${giveawayId}`,
     };
   },
@@ -32,12 +43,13 @@ export const JoinButton = {
   /**
    * Creates a row containing the join button
    * @param giveawayId The ID of the giveaway to join
+   * @param translations Optional pre-translated strings
    * @returns An action row with the join button
    */
-  createActionRow(giveawayId: string) {
+  createActionRow(giveawayId: string, translations?: JoinButtonTranslations) {
     return {
       type: ComponentType.ACTION_ROW as const,
-      components: [JoinButton.createButton(giveawayId)],
+      components: [JoinButton.createButton(giveawayId, translations)],
     };
   },
 };
