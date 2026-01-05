@@ -229,4 +229,28 @@ Alarm gaat af om {endTime}`,
       },
     },
   },
+  giveaway: {
+    ended: {
+      no_winners:
+        "😔 De giveaway voor **{prize}** is geëindigd, maar er konden geen winnaars worden getrokken.\n\nBedankt aan iedereen die heeft meegedaan!",
+      no_valid_winners:
+        "😔 De giveaway voor **{prize}** is geëindigd, maar er konden geen geldige winnaars worden vastgesteld.\n\nBedankt aan iedereen die heeft meegedaan!",
+      with_winners:
+        "🎉 De giveaway voor **{prize}** is geëindigd!\n\nGefeliciteerd aan de winnaars: {winners}\n\nBedankt aan iedereen die heeft meegedaan!",
+      nobody_won: "Niemand heeft gewonnen",
+    },
+    errors: {
+      not_found: "Giveaway niet gevonden",
+      already_entered: "Gebruiker heeft al meegedaan aan deze giveaway",
+      not_entered: "Gebruiker doet niet mee aan deze giveaway",
+      rate_limited:
+        "Rate limited. Probeer het opnieuw over {seconds} seconden.",
+      invalid_state_single:
+        "Giveaway moet in {state} status zijn, maar is momenteel {current}",
+      invalid_state_multiple:
+        "Giveaway moet in een van de volgende statussen zijn: {states}. Momenteel {current}",
+      reservation_db_error: "Kon giveawayslot niet reserveren",
+      concurrent_limit_exceeded: "Te veel gelijktijdige giveaways",
+    },
+  },
 } satisfies Partial<typeof enUS>;

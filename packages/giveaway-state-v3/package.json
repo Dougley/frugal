@@ -25,8 +25,9 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@discord-interactions/api": "^0.3.21",
+    "@discordjs/rest": "^2.4.3",
     "@dougley/frugal-drizzle": "workspace:^",
+    "@dougley/frugal-i18n": "workspace:^",
     "@dougley/frugal-utils": "workspace:^",
     "@dougley/frugal-subscriptions": "workspace:^",
     "@sentry/cloudflare": "^10.15.0",

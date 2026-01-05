@@ -1,4 +1,3 @@
-import { DiscordApiClient } from "@discord-interactions/api";
 import {
   Schema as D1Schema,
   drizzleD1,
@@ -9,15 +8,16 @@ import * as Sentry from "@sentry/cloudflare";
 import { Routes } from "discord-api-types/v10";
 import { stateRouter } from "./router";
 import type { Context } from "./trpc";
+import { createDiscordRest, createGiveawayI18n } from "./utils";
 
 const CLEANUP_DELAY = 1000 * 60 * 60 * 24 * 14; // 14 days
 
 export async function handleAlarm(
   ctx: Omit<Context<LegacyEnv>, "req" | "resHeaders">
 ) {
-  console.log("Handling alarm");
-
   const giveawayId = ctx.state.id.toString();
+
+  console.log("[alarm] start", { giveawayId });
 
   Sentry.addBreadcrumb({
     category: "giveaway.alarm",
@@ -34,12 +34,8 @@ export async function handleAlarm(
   };
 
   const db = drizzleD1(ctx.env.D1);
-  const client = new DiscordApiClient({
-    userAgent:
-      "DiscordBot (@giveawaybot/timer, v1; +https://github.com/dougley/frugal)",
-  });
-
-  client.setToken(ctx.env.DISCORD_BOT_TOKEN);
+  const rest = createDiscordRest(ctx.env.DISCORD_BOT_TOKEN);
+  const i18n = createGiveawayI18n(ctx.env.KV_LOCALES);
 
   const giveaway = await db
     .select()
@@ -48,11 +44,16 @@ export async function handleAlarm(
     .get();
 
   if (!giveaway) {
+    console.warn("[alarm] giveaway_not_found", { giveawayId });
     return;
   }
 
+  // Get the locale for this giveaway (defaults to en-US)
+  const locale = giveaway.locale || "en-US";
+
   // If state is already CLOSED, run cleanup
   if (giveaway.state === "CLOSED") {
+    console.log("[alarm] cleanup.already_closed", { giveawayId });
     await stateRouter.createCaller(fullContext).cleanup();
     return {
       success: true,
@@ -68,15 +69,23 @@ export async function handleAlarm(
     // Draw winners using existing procedure
     drawResult = await stateRouter.createCaller(fullContext).drawWinners();
   } catch (error) {
-    console.error("Failed to draw winners:", error);
+    console.error("[alarm] draw_winners.failed", {
+      giveawayId,
+      error: error instanceof Error ? error.message : String(error),
+    });
     Sentry.captureException(error);
     throw error;
   }
 
+  // Get translated "Nobody won" text for the embed
+  const nobodyWonText = await i18n.translate("giveaway.ended.nobody_won", {
+    language: locale,
+  });
+
   // First try to edit the original giveaway message to indicate entries are closed
   try {
     // Use the helper function to create the embed
-    const resp = await client.patch(
+    await rest.patch(
       Routes.channelMessage(giveaway.channelId, giveaway.messageId),
       {
         body: {
@@ -95,17 +104,20 @@ export async function handleAlarm(
                 .filter(
                   (mention): mention is string => typeof mention === "string"
                 );
-              return mentions.length > 0 ? mentions : ["Nobody won"];
+              return mentions.length > 0 ? mentions : [nobodyWonText];
             })(),
           }),
         },
       }
     );
-    console.log("Successfully updated giveaway message to closed state", resp);
+    console.log("[alarm] discord_message.updated", { giveawayId });
   } catch (error) {
     // If we encounter a 404 (message not found) or 403 (missing permissions),
     // log and continue with the giveaway ending process
-    console.error("Error updating giveaway message:", error);
+    console.error("[alarm] discord_message.update_failed", {
+      giveawayId,
+      error: error instanceof Error ? error.message : String(error),
+    });
 
     // If this is a critical failure that indicates the bot can't access the channel at all,
     // we might want to just clean up immediately
@@ -120,9 +132,11 @@ export async function handleAlarm(
       (typeof errorWithCode.status === "number" &&
         (errorWithCode.status === 403 || errorWithCode.status === 404))
     ) {
-      console.log(
-        "Message not accessible (404/403). Proceeding with cleanup immediately."
-      );
+      console.log("[alarm] message_inaccessible.cleanup_immediate", {
+        giveawayId,
+        errorCode: errorWithCode.code,
+        errorStatus: errorWithCode.status,
+      });
       await db
         .update(D1Schema.giveaways)
         .set({ state: "CLOSED" })
@@ -158,9 +172,17 @@ export async function handleAlarm(
 
   // Handle case where there are no winners (either 0 entries or no eligible winners)
   if (!drawResult.winners.length) {
-    const noWinnersMessage = `😔 The giveaway for **${giveaway.prize}** has ended, but no winners could be drawn.\n\nThank you to everyone who participated!`;
+    console.log("[alarm] end.no_winners", {
+      giveawayId,
+      guildId: giveaway.guildId,
+    });
 
-    await client.post(Routes.channelMessages(giveaway.channelId), {
+    const noWinnersMessage = await i18n.translate("giveaway.ended.no_winners", {
+      language: locale,
+      params: { prize: giveaway.prize },
+    });
+
+    await rest.post(Routes.channelMessages(giveaway.channelId), {
       body: {
         content: noWinnersMessage,
         message_reference: {
@@ -206,10 +228,16 @@ export async function handleAlarm(
 
   // Handle edge case where winners exist but none have valid IDs
   const announcementContent = winnerMentions
-    ? `🎉 The giveaway for **${giveaway.prize}** has ended!\n\nCongratulations to the winners: ${winnerMentions}\n\nThank you to everyone who participated!`
-    : `😔 The giveaway for **${giveaway.prize}** has ended, but no valid winners could be determined.\n\nThank you to everyone who participated!`;
+    ? await i18n.translate("giveaway.ended.with_winners", {
+        language: locale,
+        params: { prize: giveaway.prize, winners: winnerMentions },
+      })
+    : await i18n.translate("giveaway.ended.no_valid_winners", {
+        language: locale,
+        params: { prize: giveaway.prize },
+      });
 
-  await client.post(Routes.channelMessages(giveaway.channelId), {
+  await rest.post(Routes.channelMessages(giveaway.channelId), {
     body: {
       content: announcementContent,
       message_reference: {
@@ -227,6 +255,13 @@ export async function handleAlarm(
 
   // Set cleanup alarm
   await ctx.state.storage.setAlarm(new Date(Date.now() + CLEANUP_DELAY));
+
+  console.log("[alarm] end.success", {
+    giveawayId,
+    guildId: giveaway.guildId,
+    winnersCount: drawResult.winners.length,
+    r2Key: flushResult.object,
+  });
 
   return {
     success: true,

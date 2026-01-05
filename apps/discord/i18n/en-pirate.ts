@@ -231,4 +231,27 @@ Alarm be triggerin' at {endTime}`,
       },
     },
   },
+  giveaway: {
+    ended: {
+      no_winners:
+        "😔 The treasure hunt for **{prize}** has ended, but no lucky pirates could be chosen.\n\nThank ye to all who sailed with us!",
+      no_valid_winners:
+        "😔 The treasure hunt for **{prize}** has ended, but no worthy pirates could be found.\n\nThank ye to all who sailed with us!",
+      with_winners:
+        "🎉 The treasure hunt for **{prize}** has ended!\n\nCongratulations to the lucky pirates: {winners}\n\nThank ye to all who sailed with us!",
+      nobody_won: "Nobody found the treasure",
+    },
+    errors: {
+      not_found: "Treasure hunt not found, arrr!",
+      already_entered: "This pirate already be aboard this treasure hunt",
+      not_entered: "This pirate be not aboard this treasure hunt",
+      rate_limited: "Slow down, ye scallywag! Try again in {seconds} seconds.",
+      invalid_state_single:
+        "Treasure hunt must be in {state} state, but be currently {current}",
+      invalid_state_multiple:
+        "Treasure hunt must be in one of these states: {states}. Currently {current}",
+      reservation_db_error: "Could not reserve yer treasure hunt slot, matey!",
+      concurrent_limit_exceeded: "Too many treasure hunts be runnin' at once!",
+    },
+  },
 } satisfies Partial<typeof enUS>;

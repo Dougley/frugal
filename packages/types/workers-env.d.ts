@@ -1,5 +1,6 @@
 declare type LegacyEnv = {
   KV: KVNamespace;
+  KV_LOCALES: KVNamespace;
   D1: D1Database;
   GIVEAWAY_STATE: DurableObjectNamespace;
   STORAGE: R2Bucket;
@@ -9,6 +10,7 @@ declare type LegacyEnv = {
   SUMMARY_URL: string;
   SENTRY_DSN: string | undefined;
   DEVELOPMENT_GUILD?: string;
+  CF_VERSION_METADATA: { id: string };
 };
 
 declare type WebEnv = LegacyEnv & {

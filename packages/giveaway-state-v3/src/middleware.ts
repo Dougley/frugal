@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import type { t } from "./router";
+import type { t as TRPCInstance } from "./router";
 
 const DEFAULT_RATE_LIMIT_COOLDOWN = 5000; // 5 seconds
 
@@ -32,7 +32,10 @@ export type RateLimitOptions = {
 /**
  * Creates a rate limiting middleware with the specified options
  */
-const createRateLimitMiddleware = (t: t, options: RateLimitOptions = {}) => {
+const createRateLimitMiddleware = (
+  t: TRPCInstance,
+  options: RateLimitOptions = {}
+) => {
   const {
     identifierKey = "user_id",
     cooldown = DEFAULT_RATE_LIMIT_COOLDOWN,
@@ -55,10 +58,10 @@ const createRateLimitMiddleware = (t: t, options: RateLimitOptions = {}) => {
 
     if (!identifier) {
       // Skip rate limiting if we can't determine the identifier
-      console.warn(
-        `Rate limiting skipped for ${path}: identifier not found in input`,
-        input
-      );
+      console.warn("[ratelimit] skipped.no_identifier", {
+        path,
+        input,
+      });
       return next();
     }
 
@@ -117,20 +120,24 @@ const createRateLimitMiddleware = (t: t, options: RateLimitOptions = {}) => {
     // Get the result (or default if no row was returned)
     const { success = 1, retry_after = null } = result[0] || {};
 
-    console.log(
-      `Rate limit check for ${action} by ${identifier}: success=${success}, retry_after=${retry_after}`,
-      result
-    );
-
     // Check if rate limited
     if (!success) {
+      const retryAfterSeconds = Math.ceil((retry_after as number) / 1000);
+      console.warn("[ratelimit] limited", {
+        action,
+        identifier,
+        retryAfterSeconds,
+      });
       throw new TRPCError({
         code: "TOO_MANY_REQUESTS",
-        message: `Rate limited. Try again in ${Math.ceil(
-          (retry_after as number) / 1000
-        )} seconds.`,
+        message: `Rate limited. Try again in ${retryAfterSeconds} seconds.`,
       });
     }
+
+    console.log("[ratelimit] allowed", {
+      action,
+      identifier,
+    });
 
     // Update the rate limit timestamp
     ctx.state.storage.sql.exec(

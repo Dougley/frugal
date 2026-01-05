@@ -306,4 +306,27 @@ Alarm will trigger at {endTime}`,
       winners_plural: "{winners} winners",
     },
   },
+  giveaway: {
+    ended: {
+      no_winners:
+        "😔 The giveaway for **{prize}** has ended, but no winners could be drawn.\n\nThank you to everyone who participated!",
+      no_valid_winners:
+        "😔 The giveaway for **{prize}** has ended, but no valid winners could be determined.\n\nThank you to everyone who participated!",
+      with_winners:
+        "🎉 The giveaway for **{prize}** has ended!\n\nCongratulations to the winners: {winners}\n\nThank you to everyone who participated!",
+      nobody_won: "Nobody won",
+    },
+    errors: {
+      not_found: "Giveaway not found",
+      already_entered: "User has already entered this giveaway",
+      not_entered: "User has not entered this giveaway",
+      rate_limited: "Rate limited. Try again in {seconds} seconds.",
+      invalid_state_single:
+        "Giveaway must be in {state} state, but is currently {current}",
+      invalid_state_multiple:
+        "Giveaway must be in one of the following states: {states}. Currently {current}",
+      reservation_db_error: "Failed to reserve giveaway slot",
+      concurrent_limit_exceeded: "Too many concurrent giveaways",
+    },
+  },
 } satisfies Translation;

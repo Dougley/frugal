@@ -21,6 +21,7 @@ export const giveaways = sqliteTable(
     description: text("description"),
     hostId: text("host_id").notNull(),
     state: text("state").notNull().default("NEW"),
+    locale: text("locale").notNull().default("en-US"),
   },
   (table) => [
     index("idx_giveaways_state").on(table.state),
