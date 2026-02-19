@@ -25,7 +25,7 @@ catalogs:
 overrides:
   bitflag-js: 1.1.0
   undici@<5.8.0: '>=5.8.0'
-  undici@<=5.8.1: '>=5.8.2'
+  undici@<=5.8.1: '>=6.23.0'
   undici@<5.19.1: '>=5.19.1'
   undici@>=2.0.0 <5.19.1: '>=5.19.1'
   undici@<5.26.2: '>=5.26.2'
@@ -3563,6 +3563,7 @@ packages:
 
   glob@10.5.0:
     resolution: {integrity: sha512-DfXN8DfhJ7NH3Oe7cFmu3NCu1wKbkReJ8TorzSAFbSKrlNaQSKfIzqYqVY8zlbs2NLBbWpRiU52GX2PbaBVNkg==}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   glob@13.0.0:
@@ -5858,7 +5859,7 @@ snapshots:
 
   '@esbuild-kit/core-utils@3.3.2':
     dependencies:
-      esbuild: 0.25.12
+      esbuild: 0.27.2
       source-map-support: 0.5.21
 
   '@esbuild-kit/esm-loader@2.6.5':
