@@ -60,12 +60,10 @@ export class SlashCreator extends BaseSlashCreator {
         // Process with our custom handlers first
         for (const [regex, { callback }] of this.regexComponentHandlers) {
           if (regex.test(ctx.customID)) {
-            callback(ctx);
-            // Note: We don't return here to allow multiple handlers to process the same interaction
+            await Promise.resolve(callback(ctx));
+            return;
           }
         }
-
-        // Always pass to original handler after our custom handlers
         break;
       }
       case InteractionType.MODAL_SUBMIT: {
@@ -81,12 +79,10 @@ export class SlashCreator extends BaseSlashCreator {
         // Process with our custom handlers first
         for (const [regex, { callback }] of this.regexModalHandlers) {
           if (regex.test(ctx.customID)) {
-            callback(ctx);
-            // Note: We don't return here to allow multiple handlers to process the same interaction
+            await Promise.resolve(callback(ctx));
+            return;
           }
         }
-
-        // Always pass to original handler after our custom handlers
         break;
       }
     }
