@@ -4,6 +4,9 @@ import type {
 } from "slash-create/web";
 import * as EditButton from "./components/edit-modal";
 import * as JoinButton from "./components/join-button";
+import CheckEntriesCommand from "./message/check-entries";
+import CopyGiveawayIdCommand from "./message/copy-giveaway-id";
+import GiveawayStatusCommand from "./message/giveaway-status";
 import DebugCommand from "./slash/debug";
 import EditCommand from "./slash/edit";
 import ListCommand from "./slash/list";
@@ -16,6 +19,9 @@ import StopCommand from "./slash/stop";
 export const commands = [
   EditCommand,
   ListCommand,
+  CheckEntriesCommand,
+  CopyGiveawayIdCommand,
+  GiveawayStatusCommand,
   PingCommand,
   RerollCommand,
   DebugCommand,
@@ -54,6 +60,9 @@ export const modalHandlers: {
 // Also export individual commands for reference if needed
 export {
   EditCommand,
+  CheckEntriesCommand,
+  CopyGiveawayIdCommand,
+  GiveawayStatusCommand,
   ListCommand,
   PingCommand,
   RerollCommand,
