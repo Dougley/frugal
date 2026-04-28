@@ -107,7 +107,7 @@ importers:
         specifier: ^1.4.2
         version: 1.4.2
       tsx:
-        specifier: ^4.20.6
+        specifier: ^4.21.0
         version: 4.21.0
       wrangler:
         specifier: 'catalog:'

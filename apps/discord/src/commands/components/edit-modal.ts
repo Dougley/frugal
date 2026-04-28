@@ -25,11 +25,17 @@ async function getEditModalTranslations(
   const { i18n } = getContext();
   const [buttonLabel, modalTitle, prizeLabel, winnersLabel, descriptionLabel] =
     await Promise.all([
-      i18n.translate("utils.edit_modal.button_label", { language: locale }),
-      i18n.translate("utils.edit_modal.modal_title", { language: locale }),
-      i18n.translate("utils.edit_modal.prize_label", { language: locale }),
-      i18n.translate("utils.edit_modal.winners_label", { language: locale }),
-      i18n.translate("utils.edit_modal.description_label", {
+      i18n.translate("components.edit_modal.button_label", {
+        language: locale,
+      }),
+      i18n.translate("components.edit_modal.title", { language: locale }),
+      i18n.translate("components.edit_modal.fields.prize", {
+        language: locale,
+      }),
+      i18n.translate("components.edit_modal.fields.winners", {
+        language: locale,
+      }),
+      i18n.translate("components.edit_modal.fields.description", {
         language: locale,
       }),
     ]);
@@ -54,7 +60,7 @@ export async function handleButtonInteraction(ctx: ComponentContext) {
   if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
     return ctx.send({
       content: await getContext().i18n.translate(
-        "components.edit_modal.errors.giveaway_state_unavailable",
+        "common.errors.giveaway_state_unavailable",
         {
           language: ctx.locale,
         }
@@ -73,7 +79,7 @@ export async function handleButtonInteraction(ctx: ComponentContext) {
   if (!state) {
     return ctx.send({
       content: await getContext().i18n.translate(
-        "components.edit_modal.errors.giveaway_not_found",
+        "common.errors.giveaway_not_found",
         {
           language: ctx.locale,
         }
@@ -97,7 +103,7 @@ export async function handleModalSubmit(ctx: ModalInteractionContext) {
   if (!match) {
     return ctx.send({
       content: await getContext().i18n.translate(
-        "components.edit_modal.errors.invalid_modal_submission",
+        "components.edit_modal.errors.invalid_submission",
         {
           language: ctx.locale,
         }
@@ -111,7 +117,7 @@ export async function handleModalSubmit(ctx: ModalInteractionContext) {
   if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
     return ctx.send({
       content: await getContext().i18n.translate(
-        "components.edit_modal.errors.giveaway_state_unavailable",
+        "common.errors.giveaway_state_unavailable",
         {
           language: ctx.locale,
         }
@@ -130,7 +136,7 @@ export async function handleModalSubmit(ctx: ModalInteractionContext) {
   if (!state) {
     return ctx.send({
       content: await getContext().i18n.translate(
-        "components.edit_modal.errors.giveaway_not_found",
+        "common.errors.giveaway_not_found",
         {
           language: ctx.locale,
         }
@@ -171,7 +177,7 @@ export async function handleModalSubmit(ctx: ModalInteractionContext) {
   ) {
     return ctx.send({
       content: await getContext().i18n.translate(
-        "components.edit_modal.errors.invalid_winners_count",
+        "components.edit_modal.errors.invalid_winners",
         {
           language: ctx.locale,
         }
@@ -248,7 +254,7 @@ export async function handleModalSubmit(ctx: ModalInteractionContext) {
 
     return ctx.send({
       content: await getContext().i18n.translate(
-        "components.edit_modal.messages.update_success",
+        "components.edit_modal.messages.success",
         {
           language: ctx.locale,
         }

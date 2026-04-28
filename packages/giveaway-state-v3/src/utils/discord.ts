@@ -18,8 +18,7 @@ export function createDiscordRest(token: string): REST {
   return new REST({
     version: "10",
     userAgentAppendix: USER_AGENT,
-    // Use native fetch for edge environment compatibility
-    // biome-ignore lint/suspicious/noExplicitAny: Cloudflare Workers fetch has different types than Node's fetch
-    makeRequest: fetch as any,
+    // @ts-expect-error - some esoteric typing issue with headers, cant be bothered to debug
+    makeRequest: (url: string, init: RequestInit) => fetch(url, init),
   }).setToken(token);
 }

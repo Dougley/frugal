@@ -153,7 +153,7 @@ export default class DebugCommand extends BaseCommand {
       console.error("Debug command failed:", error);
 
       return ctx.editOriginal(
-        await getContext().i18n.translate("commands.debug.errors.unexpected", {
+        await getContext().i18n.translate("common.errors.unexpected", {
           language: ctx.locale,
         })
       );
@@ -343,12 +343,9 @@ export default class DebugCommand extends BaseCommand {
 
     if (!state) {
       return ctx.editOriginal(
-        await getContext().i18n.translate(
-          "commands.debug.errors.giveaway_not_found",
-          {
-            language: ctx.locale,
-          }
-        )
+        await getContext().i18n.translate("common.errors.giveaway_not_found", {
+          language: ctx.locale,
+        })
       );
     }
 

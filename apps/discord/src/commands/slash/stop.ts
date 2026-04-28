@@ -44,10 +44,35 @@ export default class StopCommand extends BaseCommand {
       .orderBy(asc(Schema.giveaways.endTime))
       .limit(25); // Limit to 25 choices as per Discord's limits
 
-    return activeGiveaways.map((g) => ({
-      name: `${g.prize} (${g.winners} ${g.winners === 1 ? "winner" : "winners"})`,
-      value: g.durableObjectId,
-    }));
+    const { i18n } = getContext();
+    const locale = ctx.locale ?? "en-US";
+
+    // dd-mm-yyyy hh:mm:ss
+    const datestr = (date: Date) => {
+      return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+    };
+
+    const choices = await Promise.all(
+      activeGiveaways.map(async (g) => {
+        const formattedText = await i18n.translate(
+          "autocomplete.giveaway.format",
+          {
+            language: locale,
+            params: {
+              prize: g.prize.slice(0, 20),
+              winners: g.winners,
+              date: datestr(new Date(g.endTime)),
+            },
+          }
+        );
+        return {
+          name: formattedText.slice(0, 100), // Discord limits choice names to 100 chars
+          value: g.durableObjectId,
+        };
+      })
+    );
+
+    return choices;
   }
 
   async run(ctx: CommandContext) {
@@ -75,7 +100,7 @@ export default class StopCommand extends BaseCommand {
 
     if (!state) {
       const errorMessage = await getContext().i18n.translate(
-        "commands.stop.errors.giveaway_not_found",
+        "common.errors.giveaway_not_found",
         {
           language: ctx.locale,
         }

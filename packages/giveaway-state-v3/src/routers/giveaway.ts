@@ -21,8 +21,8 @@ import {
   createDiscordRest,
   createGiveawayI18n,
   entriesDb,
+  type GiveawayI18n,
   getGiveaway,
-  type I18n,
   validateGiveawayState,
 } from "../utils";
 import { publicProcedure } from "./instance";
@@ -36,7 +36,7 @@ import { ensureGuildConcurrentGiveawaySlotReserved } from "./slots";
  * @param counts - The counts for pluralized strings
  */
 async function getGiveawayTranslations(
-  i18n: I18n,
+  i18n: GiveawayI18n,
   locale: string,
   counts: { participants: number; winners: number }
 ): Promise<GiveawayTranslations> {
@@ -54,21 +54,21 @@ async function getGiveawayTranslations(
     participants,
     winnerCount,
   ] = await Promise.all([
-    i18n.translate("utils.giveaway.title", { language: locale }),
-    i18n.translate("utils.giveaway.title_ended", { language: locale }),
-    i18n.translate("utils.giveaway.winners", { language: locale }),
-    i18n.translate("utils.giveaway.ends", { language: locale }),
-    i18n.translate("utils.giveaway.ended", { language: locale }),
-    i18n.translate("utils.giveaway.hosted_by", { language: locale }),
-    i18n.translate("utils.giveaway.description_note", { language: locale }),
-    i18n.translate("utils.giveaway.prize", { language: locale }),
-    i18n.translate("utils.giveaway.entries", { language: locale }),
-    i18n.translate("utils.giveaway.enter_cta", { language: locale }),
-    i18n.translate("utils.giveaway.participants", {
+    i18n.translate("giveaway.embed.title", { language: locale }),
+    i18n.translate("giveaway.embed.title_ended", { language: locale }),
+    i18n.translate("giveaway.embed.winners", { language: locale }),
+    i18n.translate("common.labels.ends", { language: locale }),
+    i18n.translate("common.labels.ended", { language: locale }),
+    i18n.translate("giveaway.embed.hosted_by", { language: locale }),
+    i18n.translate("giveaway.embed.description_note", { language: locale }),
+    i18n.translate("giveaway.embed.prize", { language: locale }),
+    i18n.translate("giveaway.embed.entries", { language: locale }),
+    i18n.translate("giveaway.embed.enter_cta", { language: locale }),
+    i18n.translate("common.labels.participants", {
       language: locale,
       params: { count: counts.participants },
     }),
-    i18n.translate("utils.giveaway.winner_count", {
+    i18n.translate("common.labels.winners", {
       language: locale,
       params: { count: counts.winners },
     }),
@@ -94,10 +94,10 @@ async function getGiveawayTranslations(
  * Helper to get join button translations from i18n
  */
 async function getJoinButtonTranslations(
-  i18n: I18n,
+  i18n: GiveawayI18n,
   locale: string
 ): Promise<JoinButtonTranslations> {
-  const label = await i18n.translate("utils.join_button.label", {
+  const label = await i18n.translate("components.join_button.label", {
     language: locale,
   });
   return { label };
@@ -345,7 +345,7 @@ export const giveawayRouter = {
       } catch (error) {
         console.error("[giveaway] update.discord_message_failed", {
           giveawayId: id,
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? error : String(error),
         });
         // Don't throw here, as the database update was successful
       }

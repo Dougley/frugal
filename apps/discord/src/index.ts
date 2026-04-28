@@ -11,6 +11,7 @@ import * as Sentry from "@sentry/cloudflare";
 import { CloudflareWorkerServer } from "slash-create/web";
 import { SlashCreator } from "./classes/SlashCreator";
 import { commands, componentHandlers, modalHandlers } from "./commands";
+import type { AppTranslations } from "./context";
 import { runWithContext } from "./context";
 
 export const GiveawayStateV3 = Sentry.instrumentDurableObjectWithSentry(
@@ -111,9 +112,9 @@ export default Sentry.withSentry(
         // HACK: sentry wrapped durables change the signature of the class
         state: GiveawayStateV3 as unknown as ReturnType<typeof createProxy>,
         drizzle: drizzleD1(env.D1),
-        i18n: createI18n({
+        i18n: createI18n<AppTranslations>({
           kv: env.KV_LOCALES,
-          defaultLanguage: "en-pirate",
+          defaultLanguage: "en-US",
         }),
       };
 

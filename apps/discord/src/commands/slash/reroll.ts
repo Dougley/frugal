@@ -63,10 +63,30 @@ export default class RerollCommand extends BaseCommand {
       .orderBy(Schema.giveaways.endTime)
       .limit(25);
 
-    return closedGiveaways.map((g) => ({
-      name: `${g.prize} (${g.winners} ${g.winners === 1 ? "winner" : "winners"})`,
-      value: g.durableObjectId,
-    }));
+    const { i18n } = getContext();
+    const locale = ctx.locale ?? "en-US";
+
+    const choices = await Promise.all(
+      closedGiveaways.map(async (g) => {
+        const formattedText = await i18n.translate(
+          "autocomplete.giveaway.format",
+          {
+            language: locale,
+            params: {
+              prize: g.prize,
+              winners: g.winners.toString(),
+              date: new Date(g.endTime).toLocaleDateString(locale),
+            },
+          }
+        );
+        return {
+          name: formattedText.slice(0, 100),
+          value: g.durableObjectId,
+        };
+      })
+    );
+
+    return choices;
   }
 
   async run(ctx: CommandContext) {
@@ -121,7 +141,7 @@ export default class RerollCommand extends BaseCommand {
 
       if (!state) {
         const errorMessage = await getContext().i18n.translate(
-          "commands.reroll.errors.giveaway_not_found",
+          "common.errors.giveaway_not_found",
           {
             language: ctx.locale,
           }
@@ -146,7 +166,7 @@ export default class RerollCommand extends BaseCommand {
 
       if (state.state !== "CLOSED") {
         const errorMessage = await getContext().i18n.translate(
-          "commands.reroll.errors.giveaway_still_running",
+          "commands.reroll.errors.still_running",
           {
             language: ctx.locale,
           }
@@ -177,7 +197,7 @@ export default class RerollCommand extends BaseCommand {
 
         if (!result.success || !result.winners || result.winners.length === 0) {
           const errorMessage = await getContext().i18n.translate(
-            "commands.reroll.errors.no_winners_available",
+            "commands.reroll.errors.no_entries",
             {
               language: ctx.locale,
             }
@@ -195,13 +215,11 @@ export default class RerollCommand extends BaseCommand {
           .filter((id): id is string => typeof id === "string");
 
         const successMessage = await getContext().i18n.translate(
-          winners.length === 1
-            ? "commands.reroll.messages.partial_success_singular"
-            : "commands.reroll.messages.partial_success_plural",
+          "commands.reroll.messages.success",
           {
             language: ctx.locale,
             params: {
-              count: winners.length.toString(),
+              count: winners.length,
               winners: winnerMentions,
             },
           }
@@ -223,7 +241,7 @@ export default class RerollCommand extends BaseCommand {
 
         if (!result.success || !result.winners || result.winners.length === 0) {
           const errorMessage = await getContext().i18n.translate(
-            "commands.reroll.errors.no_winners_available",
+            "commands.reroll.errors.no_entries",
             {
               language: ctx.locale,
             }
@@ -241,13 +259,11 @@ export default class RerollCommand extends BaseCommand {
           .filter((id): id is string => typeof id === "string");
 
         const successMessage = await getContext().i18n.translate(
-          winners.length === 1
-            ? "commands.reroll.messages.partial_success_singular"
-            : "commands.reroll.messages.partial_success_plural",
+          "commands.reroll.messages.success",
           {
             language: ctx.locale,
             params: {
-              count: winners.length.toString(),
+              count: winners.length,
               winners: winnerMentions,
             },
           }
@@ -267,7 +283,7 @@ export default class RerollCommand extends BaseCommand {
 
       if (!result.success || !result.winners || result.winners.length === 0) {
         const errorMessage = await getContext().i18n.translate(
-          "commands.reroll.errors.no_winners_available",
+          "commands.reroll.errors.no_entries",
           {
             language: ctx.locale,
           }
@@ -285,12 +301,13 @@ export default class RerollCommand extends BaseCommand {
         .filter((id): id is string => typeof id === "string");
 
       const successMessage = await getContext().i18n.translate(
-        winners.length === 1
-          ? "commands.reroll.messages.success_singular"
-          : "commands.reroll.messages.success_plural",
+        "commands.reroll.messages.success",
         {
           language: ctx.locale,
-          params: { winners: winnerMentions },
+          params: {
+            count: winners.length,
+            winners: winnerMentions,
+          },
         }
       );
 
@@ -307,7 +324,7 @@ export default class RerollCommand extends BaseCommand {
       Sentry.captureException(error);
 
       return ctx.editOriginal(
-        await getContext().i18n.translate("commands.reroll.errors.unexpected", {
+        await getContext().i18n.translate("common.errors.unexpected", {
           language: ctx.locale,
         })
       );

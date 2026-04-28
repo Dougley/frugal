@@ -15,7 +15,7 @@ import {
   createDiscordRest,
   createGiveawayI18n,
   entriesDb,
-  type I18n,
+  type GiveawayI18n,
 } from "./utils";
 
 const CLEANUP_DELAY = 1000 * 60 * 60 * 24 * 14; // 14 days
@@ -28,7 +28,7 @@ const CLEANUP_DELAY = 1000 * 60 * 60 * 24 * 14; // 14 days
  * @param counts - The counts for pluralized strings
  */
 async function getEndedGiveawayTranslations(
-  i18n: I18n,
+  i18n: GiveawayI18n,
   locale: string,
   counts: { participants: number; winners: number }
 ): Promise<GiveawayTranslations> {
@@ -46,21 +46,21 @@ async function getEndedGiveawayTranslations(
     participants,
     winnerCount,
   ] = await Promise.all([
-    i18n.translate("utils.giveaway.title", { language: locale }),
-    i18n.translate("utils.giveaway.title_ended", { language: locale }),
-    i18n.translate("utils.giveaway.winners", { language: locale }),
-    i18n.translate("utils.giveaway.ends", { language: locale }),
-    i18n.translate("utils.giveaway.ended", { language: locale }),
-    i18n.translate("utils.giveaway.hosted_by", { language: locale }),
-    i18n.translate("utils.giveaway.description_note", { language: locale }),
-    i18n.translate("utils.giveaway.prize", { language: locale }),
-    i18n.translate("utils.giveaway.entries", { language: locale }),
-    i18n.translate("utils.giveaway.enter_cta", { language: locale }),
-    i18n.translate("utils.giveaway.participants", {
+    i18n.translate("giveaway.embed.title", { language: locale }),
+    i18n.translate("giveaway.embed.title_ended", { language: locale }),
+    i18n.translate("giveaway.embed.winners", { language: locale }),
+    i18n.translate("common.labels.ends", { language: locale }),
+    i18n.translate("common.labels.ended", { language: locale }),
+    i18n.translate("giveaway.embed.hosted_by", { language: locale }),
+    i18n.translate("giveaway.embed.description_note", { language: locale }),
+    i18n.translate("giveaway.embed.prize", { language: locale }),
+    i18n.translate("giveaway.embed.entries", { language: locale }),
+    i18n.translate("giveaway.embed.enter_cta", { language: locale }),
+    i18n.translate("common.labels.participants", {
       language: locale,
       params: { count: counts.participants },
     }),
-    i18n.translate("utils.giveaway.winner_count", {
+    i18n.translate("common.labels.winners", {
       language: locale,
       params: { count: counts.winners },
     }),
@@ -261,7 +261,7 @@ export async function handleAlarm(
       guildId: giveaway.guildId,
     });
 
-    const noWinnersMessage = await i18n.translate("giveaway.ended.no_winners", {
+    const noWinnersMessage = await i18n.translate("giveaway.ended.no_entries", {
       language: locale,
       params: { prize: giveaway.prize },
     });

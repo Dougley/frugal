@@ -18,11 +18,17 @@ async function getEditModalTranslations(
   const { i18n } = getContext();
   const [buttonLabel, modalTitle, prizeLabel, winnersLabel, descriptionLabel] =
     await Promise.all([
-      i18n.translate("utils.edit_modal.button_label", { language: locale }),
-      i18n.translate("utils.edit_modal.modal_title", { language: locale }),
-      i18n.translate("utils.edit_modal.prize_label", { language: locale }),
-      i18n.translate("utils.edit_modal.winners_label", { language: locale }),
-      i18n.translate("utils.edit_modal.description_label", {
+      i18n.translate("components.edit_modal.button_label", {
+        language: locale,
+      }),
+      i18n.translate("components.edit_modal.title", { language: locale }),
+      i18n.translate("components.edit_modal.fields.prize", {
+        language: locale,
+      }),
+      i18n.translate("components.edit_modal.fields.winners", {
+        language: locale,
+      }),
+      i18n.translate("components.edit_modal.fields.description", {
         language: locale,
       }),
     ]);
@@ -76,18 +82,36 @@ export default class EditCommand extends BaseCommand {
       .limit(25); // Limit to 25 choices as per Discord's limits
 
     console.log("Giveaways:", activeGiveaways);
+
+    const { i18n } = getContext();
+    const locale = ctx.locale ?? "en-US";
+
     // dd-mm-yyyy hh:mm:ss
     const datestr = (date: Date) => {
       return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
     };
 
-    return activeGiveaways.map((g) => ({
-      name: `${g.prize.slice(
-        0,
-        20
-      )} - Ends ${datestr(new Date(g.endTime))} with ${g.winners} ${g.winners === 1 ? "winner" : "winners"}`,
-      value: g.durableObjectId,
-    }));
+    const choices = await Promise.all(
+      activeGiveaways.map(async (g) => {
+        const formattedText = await i18n.translate(
+          "autocomplete.giveaway.format",
+          {
+            language: locale,
+            params: {
+              prize: g.prize.slice(0, 20),
+              winners: g.winners,
+              date: datestr(new Date(g.endTime)),
+            },
+          }
+        );
+        return {
+          name: formattedText.slice(0, 100), // Discord limits choice names to 100 chars
+          value: g.durableObjectId,
+        };
+      })
+    );
+
+    return choices;
   }
 
   async run(ctx: CommandContext) {
@@ -117,7 +141,7 @@ export default class EditCommand extends BaseCommand {
 
     if (!state) {
       const errorMessage = await getContext().i18n?.translate(
-        "commands.edit.errors.giveaway_not_found",
+        "common.errors.giveaway_not_found",
         {
           language: ctx.locale,
         }

@@ -27,7 +27,7 @@ export default class ListCommand extends BaseCommand {
 
     if (!ctx.guildID) {
       const errorMessage = await getContext().i18n.translate(
-        "commands.list.errors.guild_only",
+        "common.errors.guild_only",
         { language: ctx.locale }
       );
       return ctx.editOriginal(errorMessage);
@@ -108,20 +108,21 @@ export default class ListCommand extends BaseCommand {
     const description = await Promise.all(
       currentGiveaways.map(async (giveaway) => {
         const winnersText = await getContext().i18n.translate(
-          giveaway.winners === 1
-            ? "common.winner_singular"
-            : "common.winners_plural",
+          "common.labels.winners",
           {
             language: ctx.locale,
-            params: { count: giveaway.winners.toString() },
+            params: { count: giveaway.winners },
           }
         );
         const timestamp = Math.floor(
           new Date(giveaway.endTime).getTime() / 1000
         );
-        const endsText = await getContext().i18n.translate("common.ends", {
-          language: ctx.locale,
-        });
+        const endsText = await getContext().i18n.translate(
+          "common.labels.ends",
+          {
+            language: ctx.locale,
+          }
+        );
         return `[**${giveaway.prize}**](https://discord.com/channels/${guildId}/${giveaway.channelId}/${giveaway.messageId}) - ${winnersText} - ${endsText} <t:${timestamp}:R> (<t:${timestamp}:F>)`;
       })
     );

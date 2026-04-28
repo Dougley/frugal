@@ -23,7 +23,7 @@ export async function handleInteraction(ctx: ComponentContext) {
   if (!giveawayId) {
     return await ctx.send({
       content: await getContext().i18n.translate(
-        "components.join_button.errors.invalid_giveaway_id",
+        "components.join_button.errors.invalid_id",
         {
           language: ctx.locale,
         }
@@ -35,7 +35,7 @@ export async function handleInteraction(ctx: ComponentContext) {
   if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
     return await ctx.send({
       content: await getContext().i18n.translate(
-        "components.join_button.errors.giveaway_state_unavailable",
+        "common.errors.giveaway_state_unavailable",
         {
           language: ctx.locale,
         }
@@ -57,7 +57,7 @@ export async function handleInteraction(ctx: ComponentContext) {
   if (!state) {
     return await ctx.send({
       content: await getContext().i18n.translate(
-        "components.join_button.errors.giveaway_not_found",
+        "common.errors.giveaway_not_found",
         {
           language: ctx.locale,
         }
@@ -69,7 +69,7 @@ export async function handleInteraction(ctx: ComponentContext) {
   if (state.state !== "OPEN") {
     return await ctx.send({
       content: await getContext().i18n.translate(
-        "components.join_button.errors.giveaway_not_open",
+        "components.join_button.errors.not_open",
         {
           language: ctx.locale,
         }
@@ -89,7 +89,7 @@ export async function handleInteraction(ctx: ComponentContext) {
       });
       return await ctx.send({
         content: await getContext().i18n.translate(
-          "components.join_button.messages.successfully_entered",
+          "components.join_button.messages.entered",
           {
             language: ctx.locale,
             params: { prize: state.prize },
@@ -103,7 +103,7 @@ export async function handleInteraction(ctx: ComponentContext) {
       });
       return await ctx.send({
         content: await getContext().i18n.translate(
-          "components.join_button.messages.successfully_left",
+          "components.join_button.messages.left",
           {
             language: ctx.locale,
             params: { prize: state.prize },
@@ -118,7 +118,7 @@ export async function handleInteraction(ctx: ComponentContext) {
         case "CONFLICT":
           return await ctx.send({
             content: await getContext().i18n.translate(
-              "components.join_button.messages.already_entered_leave",
+              "components.join_button.messages.already_entered_prompt",
               {
                 language: ctx.locale,
               }
@@ -132,7 +132,7 @@ export async function handleInteraction(ctx: ComponentContext) {
                     type: ComponentType.BUTTON,
                     style: ButtonStyle.DANGER,
                     label: await getContext().i18n.translate(
-                      "components.join_button.messages.leave_button",
+                      "components.join_button.leave_label",
                       {
                         language: ctx.locale,
                       }
@@ -156,7 +156,7 @@ export async function handleInteraction(ctx: ComponentContext) {
         case "PRECONDITION_FAILED":
           return await ctx.send({
             content: await getContext().i18n.translate(
-              "components.join_button.errors.giveaway_ended",
+              "components.join_button.errors.ended",
               {
                 language: ctx.locale,
               }
@@ -166,7 +166,7 @@ export async function handleInteraction(ctx: ComponentContext) {
         case "TOO_MANY_REQUESTS":
           return await ctx.send({
             content: await getContext().i18n.translate(
-              "components.join_button.errors.rate_limited",
+              "common.errors.rate_limited",
               {
                 language: ctx.locale,
               }
@@ -177,7 +177,7 @@ export async function handleInteraction(ctx: ComponentContext) {
           console.error("Unexpected error:", error);
           return await ctx.send({
             content: await getContext().i18n.translate(
-              "components.join_button.errors.unexpected_error",
+              "common.errors.unexpected",
               {
                 language: ctx.locale,
               }
@@ -188,12 +188,9 @@ export async function handleInteraction(ctx: ComponentContext) {
     } else {
       console.error("Unexpected error:", error);
       return await ctx.send({
-        content: await getContext().i18n.translate(
-          "components.join_button.errors.unexpected_error",
-          {
-            language: ctx.locale,
-          }
-        ),
+        content: await getContext().i18n.translate("common.errors.unexpected", {
+          language: ctx.locale,
+        }),
         ephemeral: true,
       });
     }

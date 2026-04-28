@@ -1,10 +1,43 @@
 import { createI18n } from "./index";
 
+/**
+ * Example translations type for type-safe i18n usage.
+ * In production, this would be imported from your translation files:
+ *
+ * ```typescript
+ * import type translations from './i18n/en-US';
+ * type AppTranslations = typeof translations;
+ * ```
+ *
+ * Note: Use `typeof` on an actual translation object, not an interface.
+ * This ensures proper type inference for TranslationKeys.
+ */
+const exampleTranslationsShape = {
+  hello: {
+    world: "Hello, World!",
+    user: "Hello, {name}!",
+  },
+  buttons: {
+    submit: "Submit",
+    cancel: "Cancel",
+  },
+  errors: {
+    not_found: "Page not found",
+  },
+  items: {
+    count: "{count, plural, =0 {no items} one {# item} other {# items}}",
+  },
+  welcome:
+    "Welcome, {name}! You have {count, plural, =0 {no messages} one {# message} other {# messages}}.",
+} as const;
+
+type ExampleTranslations = typeof exampleTranslationsShape;
+
 // Example usage in a Cloudflare Worker
 export default {
   async fetch(request: Request, env: { KV: KVNamespace }): Promise<Response> {
-    // Initialize the i18n instance
-    const i18n = createI18n({
+    // Initialize the i18n instance with type parameter for compile-time key validation
+    const i18n = createI18n<ExampleTranslations>({
       kv: env.KV,
       defaultLanguage: "en",
       cacheSize: 100,
@@ -56,11 +89,11 @@ export default {
     const acceptLanguage = request.headers.get("Accept-Language") || "en";
     const language = acceptLanguage.split(",")[0].split("-")[0]; // Get primary language code
 
-    // Translate specific keys
+    // Type-safe translations - these keys are validated at compile time
     const greeting = await i18n.translate("hello.world", { language });
     const submitButton = await i18n.translate("buttons.submit", { language });
 
-    // ICU message examples
+    // ICU message examples with type-safe keys
     const personalGreeting = await i18n.translate("hello.user", {
       params: { name: "John" },
       language,

@@ -50,21 +50,21 @@ async function getGiveawayTranslations(
     participants,
     winnerCount,
   ] = await Promise.all([
-    i18n.translate("utils.giveaway.title", { language: locale }),
-    i18n.translate("utils.giveaway.title_ended", { language: locale }),
-    i18n.translate("utils.giveaway.winners", { language: locale }),
-    i18n.translate("utils.giveaway.ends", { language: locale }),
-    i18n.translate("utils.giveaway.ended", { language: locale }),
-    i18n.translate("utils.giveaway.hosted_by", { language: locale }),
-    i18n.translate("utils.giveaway.description_note", { language: locale }),
-    i18n.translate("utils.giveaway.prize", { language: locale }),
-    i18n.translate("utils.giveaway.entries", { language: locale }),
-    i18n.translate("utils.giveaway.enter_cta", { language: locale }),
-    i18n.translate("utils.giveaway.participants", {
+    i18n.translate("giveaway.embed.title", { language: locale }),
+    i18n.translate("giveaway.embed.title_ended", { language: locale }),
+    i18n.translate("giveaway.embed.winners", { language: locale }),
+    i18n.translate("common.labels.ends", { language: locale }),
+    i18n.translate("common.labels.ended", { language: locale }),
+    i18n.translate("giveaway.embed.hosted_by", { language: locale }),
+    i18n.translate("giveaway.embed.description_note", { language: locale }),
+    i18n.translate("giveaway.embed.prize", { language: locale }),
+    i18n.translate("giveaway.embed.entries", { language: locale }),
+    i18n.translate("giveaway.embed.enter_cta", { language: locale }),
+    i18n.translate("common.labels.participants", {
       language: locale,
       params: { count: counts.participants },
     }),
-    i18n.translate("utils.giveaway.winner_count", {
+    i18n.translate("common.labels.winners", {
       language: locale,
       params: { count: counts.winners },
     }),
@@ -93,7 +93,7 @@ async function getJoinButtonTranslations(
   locale: string
 ): Promise<JoinButtonTranslations> {
   const { i18n } = getContext();
-  const label = await i18n.translate("utils.join_button.label", {
+  const label = await i18n.translate("components.join_button.label", {
     language: locale,
   });
   return { label };
@@ -183,9 +183,7 @@ export default class StartCommand extends BaseCommand {
 
     if (duration > maxDurationMs) {
       const error = await getContext().i18n.translate(
-        subscription.hasPremium
-          ? "commands.start.errors.duration_too_long_premium"
-          : "commands.start.errors.duration_too_long",
+        "commands.start.errors.duration_too_long",
         {
           language: locale,
           params: {
@@ -287,7 +285,7 @@ export default class StartCommand extends BaseCommand {
 
       if (!ctx.guildID) {
         const errorMessage = await getContext().i18n.translate(
-          "commands.start.errors.guild_only",
+          "common.errors.guild_only",
           { language: ctx.locale }
         );
         return ctx.editOriginal(errorMessage);
@@ -349,7 +347,7 @@ export default class StartCommand extends BaseCommand {
 
         if (!giveawayMessage || !giveawayMessage.id) {
           const errorMessage = await getContext().i18n?.translate(
-            "commands.start.errors.failed_to_create_message",
+            "commands.start.errors.failed_to_create",
             {
               language: ctx.locale,
             }
@@ -423,11 +421,11 @@ export default class StartCommand extends BaseCommand {
         error.message === "CONCURRENT_LIMIT_EXCEEDED"
       ) {
         const errorMessage = await getContext().i18n.translate(
-          "commands.start.errors.concurrent_giveaways_limit_exceeded",
+          "commands.start.errors.concurrent_limit",
           {
             language: ctx.locale,
             params: {
-              freeMax: FEATURE_LIMITS.CONCURRENT_GIVEAWAYS.FREE.toString(),
+              max: FEATURE_LIMITS.CONCURRENT_GIVEAWAYS.FREE.toString(),
               premiumMax:
                 FEATURE_LIMITS.CONCURRENT_GIVEAWAYS.PREMIUM.toString(),
             },

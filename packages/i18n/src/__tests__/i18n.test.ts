@@ -1,10 +1,28 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createI18n, I18n } from "../index.js";
+import { createI18n, I18n, type Translation } from "../index.js";
 import { MockKVNamespace } from "./mocks/kv.js";
+
+/**
+ * For testing purposes, we use the untyped I18n class since tests
+ * dynamically create translations at runtime. Production code should
+ * use typed I18n instances with proper translation type parameters.
+ *
+ * We cast to `I18n<Translation>` which allows any string keys.
+ */
+type UntypedI18n = I18n<Translation> & {
+  translate(
+    key: string,
+    options?: { params?: Record<string, unknown>; language?: string }
+  ): Promise<string>;
+  translateAll(
+    key: string,
+    params?: Record<string, unknown>
+  ): Promise<Record<string, string>>;
+};
 
 describe("I18n", () => {
   let mockKV: MockKVNamespace;
-  let i18n: I18n;
+  let i18n: UntypedI18n;
 
   beforeEach(() => {
     mockKV = new MockKVNamespace();
@@ -13,7 +31,7 @@ describe("I18n", () => {
       defaultLanguage: "en",
       cacheSize: 10,
       cacheTtl: 300,
-    });
+    }) as UntypedI18n;
   });
 
   describe("Constructor and Factory", () => {
@@ -257,7 +275,7 @@ describe("I18n", () => {
         kv: mockKV as unknown as KVNamespace,
         defaultLanguage: "en",
         fallbackToDefault: false,
-      });
+      }) as UntypedI18n;
 
       // Set up: English has the translation
       await i18nNoFallback.setTranslation("english_only", "English Only", "en");
