@@ -38,10 +38,10 @@
 }
 
 .filenameWrapperHighlighted {
-  border: 1px solid var(--mantine-color-blue-6);
+  border: 1px solid var(--mantine-primary-color-6);
   border-radius: var(--mantine-radius-sm);
   padding: 0px 4px;
-  background-color: var(--mantine-color-blue-light);
+  background-color: var(--mantine-primary-color-light);
 }
 
 .filename {

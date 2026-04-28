@@ -72,7 +72,7 @@
 .stepNumber {
   font-weight: 700;
   font-size: rem(12px);
-  color: light-dark(var(--mantine-color-teal-6), var(--mantine-color-teal-4));
+  color: light-dark(var(--mantine-color-indigo-6), var(--mantine-color-indigo-4));
 }
 
 .controls {

@@ -322,7 +322,7 @@ function GuildGiveawaysRoute() {
           ) : (
             <Paper p="xl" radius="md" withBorder>
               <Stack align="center" gap="md" py="xl">
-                <ThemeIcon size={64} radius="xl" variant="light" color="blue">
+                <ThemeIcon size={64} radius="xl" variant="light" color="indigo">
                   <IconGift size={32} aria-hidden="true" />
                 </ThemeIcon>
                 <Title order={3} ta="center">

@@ -1,3 +1,26 @@
+.card {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.card[data-closed="true"] {
+  opacity: 0.75;
+}
+
+.card[data-closed="false"] {
+  border: 2px solid
+    light-dark(var(--mantine-color-pink-5), rgba(236, 72, 153, 0.4));
+}
+
+.card[data-closed="false"][data-hovered="true"] {
+  border-color: light-dark(
+    var(--mantine-color-pink-6),
+    var(--mantine-color-pink-5)
+  );
+  box-shadow: 0 8px 24px
+    light-dark(rgba(236, 72, 153, 0.15), rgba(236, 72, 153, 0.1));
+}
+
 /**
  * Stretched link pattern for accessible clickable cards.
  * The link's ::after pseudo-element covers the entire card,

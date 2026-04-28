@@ -18,11 +18,11 @@ interface DocBadgeProps
 }
 
 const variantConfig: Record<BadgeVariant, { color: string; label: string }> = {
-  new: { color: "green", label: "New" },
-  beta: { color: "blue", label: "Beta" },
+  new: { color: "lime", label: "New" },
+  beta: { color: "cyan", label: "Beta" },
   deprecated: { color: "red", label: "Deprecated" },
   experimental: { color: "orange", label: "Experimental" },
-  stable: { color: "teal", label: "Stable" },
+  stable: { color: "indigo", label: "Stable" },
   preview: { color: "violet", label: "Preview" },
   updated: { color: "cyan", label: "Updated" },
   default: { color: "gray", label: "" },

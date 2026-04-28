@@ -6,7 +6,6 @@ import {
   Skeleton,
   Stack,
   Text,
-  useMantineTheme,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import {
@@ -82,7 +81,6 @@ export const GiveawayCard = memo(function GiveawayCard({
   onReroll,
 }: GiveawayCardProps) {
   const { t } = useTranslation();
-  const theme = useMantineTheme();
   const dayjs = useLocalizedDayjs();
   const isClosed = giveaway.state === "CLOSED";
 
@@ -91,14 +89,7 @@ export const GiveawayCard = memo(function GiveawayCard({
   const detailsUrl = `/giveaways/details/${giveaway.durableObjectId}`;
 
   return (
-    <HoverCard
-      style={{
-        position: "relative",
-        opacity: isClosed ? 0.75 : 1,
-        borderColor: isClosed ? undefined : theme.colors.green[6],
-        borderWidth: isClosed ? 1 : 2,
-      }}
-    >
+    <HoverCard className={styles.card} data-closed={isClosed}>
       <Stack gap="xs">
         <Group justify="space-between" align="flex-start" wrap="nowrap">
           <Text
@@ -172,7 +163,7 @@ export const GiveawayCard = memo(function GiveawayCard({
                       title: t("notifications.copied.title"),
                       message: t("notifications.copied.message"),
                       icon: <IconCheck size={16} aria-hidden="true" />,
-                      color: "green",
+                      color: "indigo",
                       autoClose: 2000,
                     });
                   }}
@@ -216,7 +207,7 @@ export const GiveawayCard = memo(function GiveawayCard({
 
 export function GiveawayCardSkeleton() {
   return (
-    <HoverCard>
+    <HoverCard className={styles.card}>
       <Stack gap="xs">
         <Group justify="space-between" align="flex-start">
           <Skeleton height={24} width="70%" />

@@ -38,7 +38,7 @@ export function PrivacySettings() {
       notifications.show({
         title: t("privacy.updated.title"),
         message: t("privacy.updated.message"),
-        color: "blue",
+        color: "indigo",
       });
     };
 

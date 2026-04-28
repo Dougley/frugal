@@ -25,7 +25,7 @@ export function PremiumHero({ discordAppId }: PremiumHeroProps) {
         <h1 className={classes.title}>
           {t("common.brand")}{" "}
           <Text
-            gradient={{ from: "blue", to: "green" }}
+            gradient={{ from: "amber.4", to: "amber.6" }}
             variant="gradient"
             inherit
           >
@@ -42,7 +42,7 @@ export function PremiumHero({ discordAppId }: PremiumHeroProps) {
             size="xl"
             className={classes.control}
             variant="gradient"
-            gradient={{ from: "teal", to: "cyan" }}
+            gradient={{ from: "amber.4", to: "amber.6" }}
             leftSection={<IconSparkles size={20} aria-hidden="true" />}
           >
             {t("premium.hero.cta")}

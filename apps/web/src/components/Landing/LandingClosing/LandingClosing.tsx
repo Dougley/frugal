@@ -27,7 +27,7 @@ export function LandingClosing({ discordAppId }: LandingClosingProps) {
             to="/wiki/getting-started/quick-start"
             className={styles.button}
             variant="gradient"
-            gradient={{ from: "blue", to: "cyan" }}
+            gradient={{ from: "indigo.5", to: "indigo.7" }}
           >
             {t("landing.hero.cta")}
           </Button>

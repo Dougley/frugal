@@ -27,7 +27,7 @@ export function PremiumCTA({ discordAppId }: PremiumCTAProps) {
           rel="noopener noreferrer"
           className={styles.button}
           variant="gradient"
-          gradient={{ from: "blue", to: "cyan" }}
+          gradient={{ from: "amber.4", to: "amber.6" }}
           leftSection={<IconSparkles size={16} aria-hidden="true" />}
         >
           {t("premium.hero.cta")}

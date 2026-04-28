@@ -286,7 +286,7 @@ function GiveawayDetailRoute() {
                     title: t("notifications.copied.title"),
                     message: t("notifications.copied.message"),
                     icon: <IconCheck size={16} aria-hidden="true" />,
-                    color: "green",
+                    color: "lime",
                     autoClose: 2000,
                   });
                 }}
@@ -313,7 +313,7 @@ function GiveawayDetailRoute() {
               <Badge
                 size="lg"
                 variant="light"
-                color={isClosed ? "gray" : isEnded ? "orange" : "green"}
+                color={isClosed ? "gray" : isEnded ? "orange" : "pink"}
               >
                 {isClosed
                   ? t("giveaways.status.closed")
@@ -347,7 +347,7 @@ function GiveawayDetailRoute() {
                   value={progressPercent}
                   size="sm"
                   radius="xl"
-                  color="green"
+                  color="pink"
                 />
               </Box>
             )}
@@ -397,7 +397,7 @@ function GiveawayDetailRoute() {
           ) : null}
 
           {participantsQuery.data?.message && (
-            <Alert color="blue" variant="light" mt="md">
+            <Alert color="indigo" variant="light" mt="md">
               {participantsQuery.data.message}
             </Alert>
           )}

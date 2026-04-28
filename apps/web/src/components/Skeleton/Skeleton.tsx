@@ -1,5 +1,5 @@
 import { AppShell, rem, useMantineColorScheme } from "@mantine/core";
-import { useHeadroom, useHotkeys } from "@mantine/hooks";
+import { useHeadroom, useHotkeys, useMediaQuery } from "@mantine/hooks";
 import { useDrawer } from "../contexts/DrawerContext";
 import { Footer } from "../Footer/Footer";
 import { GlobalLoading } from "../GlobalLoading/GlobalLoading";
@@ -17,14 +17,15 @@ export function Skeleton({ children }: { children: React.ReactNode }) {
   ]);
 
   const pinned = useHeadroom({ fixedAt: 120 });
+  const isMobile = useMediaQuery("(max-width: 48em)") ?? false;
 
   return (
     <AppShell
       layout="alt"
-      withBorder
+      withBorder={false}
       header={{
         height: 60,
-        collapsed: !pinned,
+        collapsed: isMobile ? !pinned : true,
         offset: false,
       }}
       navbar={{
@@ -43,7 +44,11 @@ export function Skeleton({ children }: { children: React.ReactNode }) {
         </AppShell.Navbar>
         <AppShell.Main
           className={styles.main}
-          pt={`calc(${rem(60)} + var(--mantine-spacing-md))`}
+          pt={
+            isMobile
+              ? `calc(${rem(60)} + var(--mantine-spacing-md))`
+              : undefined
+          }
         >
           <div
             style={{

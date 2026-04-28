@@ -42,12 +42,12 @@ const iconMap = {
 };
 
 const colorMap = {
-  note: "blue",
-  tip: "green",
-  important: "yellow",
+  note: "indigo",
+  tip: "lime",
+  important: "amber",
   warning: "orange",
   caution: "red",
-  success: "teal",
+  success: "lime",
   info: "cyan",
   danger: "red",
   question: "violet",

@@ -61,7 +61,10 @@ function CategoryCard({
         root: {
           "&:hover": {
             transform: "translateY(-2px)",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+            boxShadow:
+              "0 8px 24px light-dark(rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.1))",
+            borderColor:
+              "light-dark(var(--mantine-primary-color-4), var(--mantine-primary-color-8))",
           },
         },
       }}
@@ -92,14 +95,14 @@ function WikiIndexPage() {
       descriptionKey: "wiki.categories.gettingStarted.description" as const,
       icon: <IconRocket size={24} />,
       href: "/wiki/getting-started",
-      color: "green",
+      color: "indigo",
     },
     {
       titleKey: "wiki.categories.userGuides.title" as const,
       descriptionKey: "wiki.categories.userGuides.description" as const,
       icon: <IconUsers size={24} />,
       href: "/wiki/user-guides",
-      color: "blue",
+      color: "cyan",
     },
     {
       titleKey: "wiki.categories.reference.title" as const,

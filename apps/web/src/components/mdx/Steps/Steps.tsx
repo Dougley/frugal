@@ -53,7 +53,7 @@ export function Steps({ children }: StepsProps) {
             <Avatar
               size="md"
               radius="xl"
-              color="blue"
+              color="indigo"
               variant="filled"
               styles={{
                 root: {

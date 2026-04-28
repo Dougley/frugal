@@ -28,6 +28,7 @@ import { getSessionFn, type SessionData } from "~/server/auth/session";
 import { getLanguageFn } from "~/server/i18n/language";
 import type { AppRouter } from "~/server/trpc/router";
 import appCss from "~/styles/app.css?url";
+import { theme } from "~/theme";
 
 export interface RouterAppContext {
   trpc: TRPCOptionsProxy<AppRouter>;
@@ -67,7 +68,7 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         content: `${import.meta.env.VITE_SITE_URL}/og-default.png`,
       },
       // Theme color for browser UI
-      { name: "theme-color", content: "#12b886" },
+      { name: "theme-color", content: "#2bd9af" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -145,12 +146,12 @@ function Providers({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
 
   return (
-    <MantineProvider defaultColorScheme="dark">
+    <MantineProvider theme={theme} defaultColorScheme="dark">
       <ModalsProvider
         labels={{ confirm: t("common.confirm"), cancel: t("common.cancel") }}
       >
         <Notifications position="top-right" limit={3} zIndex={2000} />
-        <NavigationProgress size={2} color="teal" />
+        <NavigationProgress size={2} color="indigo" />
         <AuthProvider session={session}>
           <DrawerProvider>
             <Skeleton>{children}</Skeleton>

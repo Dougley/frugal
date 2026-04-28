@@ -18,6 +18,8 @@ export interface HoverCardProps {
   shadow?: string;
   /** Card radius */
   radius?: string | number;
+  /** Any other props */
+  [key: string]: any;
 }
 
 export function HoverCard({
@@ -28,6 +30,7 @@ export function HoverCard({
   withBorder = true,
   shadow = "sm",
   radius = "md",
+  ...others
 }: HoverCardProps) {
   const { hovered, ref } = useHover();
 
@@ -41,6 +44,7 @@ export function HoverCard({
       className={`${styles.card} ${className || ""}`}
       data-hovered={hovered}
       style={style}
+      {...others}
     >
       {children}
     </Card>

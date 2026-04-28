@@ -52,7 +52,7 @@ export function DocumentCard({
           )}
         </Group>
         <Text c="dimmed">{description}</Text>
-        <Group gap={4} className={styles.readMore} c="blue">
+        <Group gap={4} className={styles.readMore} c="indigo">
           <Text>Read more</Text>
           <IconArrowRight size={16} aria-hidden="true" />
         </Group>

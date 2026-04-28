@@ -74,7 +74,7 @@ export function PremiumFeatures() {
               <ThemeIcon
                 style={{ width: "50px", height: "50px" }}
                 variant="light"
-                color="teal"
+                color="amber"
               >
                 <feature.icon
                   style={{ width: "50px", height: "50px" }}
@@ -113,7 +113,7 @@ export function PremiumFeatures() {
           <ThemeIcon
             style={{ width: "50px", height: "50px" }}
             variant="light"
-            color="teal"
+            color="amber"
           >
             <IconCode
               style={{ width: "50px", height: "50px" }}

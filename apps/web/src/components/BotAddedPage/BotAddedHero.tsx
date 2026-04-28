@@ -35,8 +35,8 @@ export function BotAddedHero() {
           <ThemeIcon
             size={72}
             radius="xl"
-            variant="gradient"
-            gradient={{ from: "teal", to: "lime" }}
+            variant="light"
+            color="lime"
             className={classes.icon}
           >
             <IconCircleCheck size={48} aria-hidden="true" />
@@ -48,7 +48,7 @@ export function BotAddedHero() {
 
           <SimpleGrid cols={{ base: 1, sm: 3 }} className={classes.steps}>
             <Stack gap={4} align="center">
-              <ThemeIcon size={36} radius="md" variant="light" color="teal">
+              <ThemeIcon size={36} radius="md" variant="light" color="indigo">
                 <IconCode size={20} aria-hidden="true" />
               </ThemeIcon>
               <Text size="xs" className={classes.stepNumber}>
@@ -68,7 +68,7 @@ export function BotAddedHero() {
             </Stack>
 
             <Stack gap={4} align="center">
-              <ThemeIcon size={36} radius="md" variant="light" color="teal">
+              <ThemeIcon size={36} radius="md" variant="light" color="indigo">
                 <IconCalendar size={20} aria-hidden="true" />
               </ThemeIcon>
               <Text size="xs" className={classes.stepNumber}>
@@ -80,7 +80,7 @@ export function BotAddedHero() {
             </Stack>
 
             <Stack gap={4} align="center">
-              <ThemeIcon size={36} radius="md" variant="light" color="teal">
+              <ThemeIcon size={36} radius="md" variant="light" color="indigo">
                 <IconBrandDiscord size={20} aria-hidden="true" />
               </ThemeIcon>
               <Text size="xs" className={classes.stepNumber}>
@@ -109,7 +109,7 @@ export function BotAddedHero() {
               size="md"
               className={classes.control}
               variant="gradient"
-              gradient={{ from: "blue", to: "cyan" }}
+              gradient={{ from: "indigo.5", to: "indigo.7" }}
               leftSection={<IconBrandDiscord size={18} aria-hidden="true" />}
             >
               {t("added.actions.openDiscord")}

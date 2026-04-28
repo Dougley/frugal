@@ -13,7 +13,7 @@
   }
 
   &[data-selected] {
-    background-color: var(--mantine-color-blue-light);
+    background-color: var(--mantine-primary-color-light);
   }
 }
 
@@ -42,5 +42,5 @@
 
 .checkIcon {
   flex-shrink: 0;
-  color: var(--mantine-color-blue-filled);
+  color: var(--mantine-primary-color-filled);
 }

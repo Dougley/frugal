@@ -44,7 +44,7 @@ export const GuildCard = memo(function GuildCard({ guild }: GuildCardProps) {
             </div>
           </Group>
           {guild.activeCount !== undefined && guild.activeCount > 0 && (
-            <Badge size="sm" variant="light" color="green">
+            <Badge size="sm" variant="light" color="pink">
               {guild.activeCount} {t("giveaways.status.active").toLowerCase()}
             </Badge>
           )}

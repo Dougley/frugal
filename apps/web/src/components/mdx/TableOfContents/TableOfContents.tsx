@@ -31,7 +31,7 @@ export function TableOfContentsDesktop() {
       <ScrollArea.Autosize mah="calc(100vh - 120px)" type="never">
         <TableOfContents
           variant="light"
-          color="blue"
+          color="indigo"
           radius="sm"
           scrollSpyOptions={{ selector: TOC_SELECTOR }}
           getControlProps={({ data }) => ({
@@ -60,7 +60,7 @@ export function TableOfContentsMobile() {
       >
         <TableOfContents
           variant="light"
-          color="blue"
+          color="indigo"
           radius="sm"
           scrollSpyOptions={{ selector: TOC_SELECTOR }}
           getControlProps={({ data }) => ({

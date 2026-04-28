@@ -93,7 +93,7 @@ export function RerollWinnersModal({
             count: data.winners.length,
           }),
           icon: <IconCheck size={16} />,
-          color: "green",
+          color: "lime",
         });
         // Invalidate queries to refresh the data
         if (guildId) {
@@ -164,7 +164,7 @@ export function RerollWinnersModal({
 
             <Alert
               icon={<IconInfoCircle size={16} aria-hidden="true" />}
-              color="blue"
+              color="indigo"
               variant="light"
             >
               {t("giveaways.modals.reroll.note")}
@@ -257,7 +257,7 @@ export function RerollWinnersModal({
                           )
                         }
                         onClick={copy}
-                        color={copied ? "green" : "blue"}
+                        color={copied ? "lime" : "indigo"}
                       >
                         {copied
                           ? t("notifications.copied.title")

@@ -27,7 +27,7 @@ export function LandingHero({ discordAppId }: LandingHeroProps) {
           {t("landing.hero.heading")}{" "}
           <Text
             component="span"
-            gradient={{ from: "red", to: "yellow" }}
+            gradient={{ from: "indigo.4", to: "indigo.7" }}
             variant="gradient"
             inherit
           >
@@ -44,7 +44,7 @@ export function LandingHero({ discordAppId }: LandingHeroProps) {
             size="xl"
             className={classes.control}
             variant="gradient"
-            gradient={{ from: "blue", to: "cyan" }}
+            gradient={{ from: "indigo.5", to: "indigo.7" }}
           >
             {t("landing.hero.cta")}
           </Button>

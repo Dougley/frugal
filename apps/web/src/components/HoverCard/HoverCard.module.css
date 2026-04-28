@@ -4,7 +4,15 @@
 
 .card[data-hovered="true"] {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px
+    light-dark(
+      rgba(43, 217, 175, 0.15),
+      rgba(28, 191, 151, 0.1)
+    );
+  border-color: light-dark(
+    var(--mantine-primary-color-4),
+    var(--mantine-primary-color-8)
+  );
 }
 
 .stretchedLink::after {

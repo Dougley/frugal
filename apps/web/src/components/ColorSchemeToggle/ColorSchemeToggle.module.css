@@ -7,6 +7,7 @@
   padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
   border-radius: var(--mantine-radius-sm);
   font-weight: 500;
+  transition: all 150ms ease;
 
   @mixin hover {
     background-color: light-dark(
@@ -16,18 +17,32 @@
     color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
 
     .linkIcon {
-      color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
+      color: var(--mantine-primary-color-filled);
     }
   }
 
   &[aria-current="page"] {
     &,
     &:hover {
-      background-color: var(--mantine-color-blue-light);
-      color: var(--mantine-color-blue-light-color);
+      background: light-dark(
+        var(--mantine-primary-color-light),
+        linear-gradient(
+          135deg,
+          rgba(99, 102, 241, 0.12),
+          rgba(99, 102, 241, 0.06)
+        )
+      );
+      color: light-dark(
+        var(--mantine-primary-color-light-color),
+        var(--mantine-color-indigo-3)
+      );
+      font-weight: 600;
 
       .linkIcon {
-        color: var(--mantine-color-blue-light-color);
+        color: light-dark(
+          var(--mantine-primary-color-light-color),
+          var(--mantine-color-indigo-3)
+        );
       }
     }
   }
@@ -38,4 +53,5 @@
   margin-right: var(--mantine-spacing-sm);
   width: rem(25px);
   height: rem(25px);
+  transition: color 150ms ease;
 }

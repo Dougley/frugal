@@ -1,4 +1,4 @@
-import { Burger, Button, Container, Flex } from "@mantine/core";
+import { Burger, Button, Container, Flex, Text } from "@mantine/core";
 import { IconConfetti } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -17,7 +17,7 @@ export function Header() {
             <Button
               variant="subtle"
               size="xs"
-              color="gray"
+              color="indigo"
               leftSection={
                 <IconConfetti
                   className={classes.title}
@@ -26,7 +26,9 @@ export function Header() {
                 />
               }
             >
-              <span className={classes.title}>GiveawayBot</span>
+              <Text component="span" className={classes.title}>
+                GiveawayBot
+              </Text>
             </Button>
           </Link>
         </Flex>

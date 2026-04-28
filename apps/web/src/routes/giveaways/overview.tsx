@@ -99,7 +99,7 @@ function HostedGiveawaysSection({
       <Collapse in={opened} id={panelId}>
         <Alert
           icon={<IconInfoCircle aria-hidden="true" />}
-          color="blue"
+          color="indigo"
           variant="light"
         >
           {t("giveaways.hostedDescription")}
@@ -116,7 +116,7 @@ function HostedGiveawaysSection({
                   <Badge
                     size="sm"
                     variant="light"
-                    color={giveaway.state === "CLOSED" ? "gray" : "green"}
+                    color={giveaway.state === "CLOSED" ? "gray" : "pink"}
                   >
                     {giveaway.state === "CLOSED"
                       ? t("giveaways.status.closed")
@@ -219,7 +219,7 @@ function GiveawaysOverviewRoute() {
           ) : guilds.length === 0 ? (
             <Alert
               icon={<IconInfoCircle aria-hidden="true" />}
-              color="blue"
+              color="indigo"
               variant="light"
             >
               {t("giveaways.noGiveaways")}

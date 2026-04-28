@@ -34,7 +34,7 @@ export function HeaderAnchor({ id, children, level }: HeaderAnchorProps) {
         {children}
         <ActionIcon
           variant="subtle"
-          color={copied ? "green" : "gray"}
+          color={copied ? "indigo" : "gray"}
           size="sm"
           onClick={handleCopyLink}
           aria-label={copied ? "Link copied!" : "Copy link to heading"}

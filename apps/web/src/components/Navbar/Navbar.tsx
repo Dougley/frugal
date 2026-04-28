@@ -5,6 +5,7 @@ import {
   Group,
   NavLink,
   ScrollArea,
+  Text,
 } from "@mantine/core";
 import {
   IconBook,
@@ -181,7 +182,7 @@ export function Navbar() {
               <Button
                 variant="subtle"
                 size="xs"
-                color="gray"
+                color="indigo"
                 leftSection={
                   <IconConfetti
                     className={classes.title}
@@ -190,7 +191,9 @@ export function Navbar() {
                   />
                 }
               >
-                <span className={classes.title}>{t("common.brand")}</span>
+                <Text component="span" className={classes.title}>
+                  {t("common.brand")}
+                </Text>
               </Button>
             </Link>
           </Flex>

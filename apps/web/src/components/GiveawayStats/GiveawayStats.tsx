@@ -41,7 +41,7 @@ export const GiveawayStats = memo(function GiveawayStats({
         <Text size="sm">
           {t("giveaways.participant", { count: participantsCount })}
           {showLiveBadge && (
-            <Badge size="xs" variant="dot" color="green" ml="xs">
+            <Badge size="xs" variant="dot" color="pink" ml="xs">
               {t("giveaways.details.live")}
             </Badge>
           )}
