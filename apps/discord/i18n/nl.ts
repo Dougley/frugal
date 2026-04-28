@@ -13,6 +13,12 @@ export default {
       database_unavailable: "Database tijdelijk niet beschikbaar.",
       unexpected: "Er is een onverwachte fout opgetreden. Probeer het opnieuw.",
       rate_limited: "Je wordt rate limited. Probeer het later opnieuw.",
+      manage_required:
+        "Je hebt Server beheren of Berichten beheren nodig om hier giveaways te maken.",
+      manage_giveaway_denied:
+        "Alleen de giveawayhost of een servermoderator kan deze giveaway beheren.",
+      not_giveaway_message:
+        "Dat bericht is geen giveaway die door deze bot is gemaakt.",
     },
     labels: {
       winners: "{count, plural, one {# winnaar} other {# winnaars}}",
@@ -93,7 +99,12 @@ export default {
         },
       },
       messages: {
-        success: "Giveaway succesvol gestopt! Winnaars worden getrokken...",
+        success:
+          "Giveaway voor **{prize}** succesvol gestopt! Winnaars worden getrokken...",
+      },
+      errors: {
+        not_running: "Die giveaway loopt momenteel niet.",
+        failed: "Kon giveaway niet stoppen. Probeer het opnieuw.",
       },
     },
 
@@ -105,6 +116,53 @@ export default {
           name: "id",
           description: "ID van de giveaway om te bewerken",
         },
+      },
+    },
+
+    giveaway_status: {
+      name: "Giveaway Status",
+      description: "Toon de giveawaystatus van een giveawaybericht",
+      messages: {
+        status: `**{prize}**
+Status: {status}
+Inzendingen: {entries}
+Winnaars: {winners}
+Eindigt: {endTime}
+Host: {host}
+Jouw inzending: {entryStatus}`,
+      },
+      status: {
+        open: "Open",
+        closed: "Geëindigd",
+        entered: "Ingeschreven",
+        not_entered: "Niet ingeschreven",
+      },
+    },
+
+    check_entries: {
+      name: "Controleer Inzendingen",
+      description:
+        "Bekijk bij welke giveaways een gebruiker is ingeschreven in deze server",
+      errors: {
+        no_target: "Kon de doelgebruiker niet identificeren.",
+      },
+      messages: {
+        no_active_giveaways:
+          "Er zijn geen actieve giveaways in deze server waar {user} voor kan zijn ingeschreven.",
+        not_entered_any:
+          "{user} is niet ingeschreven voor {total} van de actieve giveaways.",
+        result:
+          "{user} is ingeschreven voor {entered} van de {total} actieve giveaways:\n\n{entries}",
+        entry_line: "• [{prize}]({link}) - Eindigt {endTime}",
+      },
+    },
+
+    copy_giveaway_id: {
+      name: "Kopieer Giveaway-ID",
+      description: "Kopieer het giveaway-ID van een giveawaybericht",
+      messages: {
+        result:
+          "Giveaway-ID voor **{prize}** ({state}):\n```\n{id}\n```\nGebruik dit ID met `/edit`, `/stop` of `/reroll`.",
       },
     },
 
@@ -226,6 +284,7 @@ Object ID: {id}
       leave_label: "Verlaat Giveaway",
       errors: {
         invalid_id: "Ongeldige giveaway-ID.",
+        invalid_action: "Ongeldige giveaway-actie.",
         not_open: "Deze giveaway accepteert geen inzendingen meer.",
         already_entered: "Je doet al mee aan deze giveaway.",
         not_entered: "Je doet niet mee aan deze giveaway.",
@@ -249,6 +308,7 @@ Object ID: {id}
       },
       errors: {
         invalid_submission: "Ongeldige modal-inzending.",
+        not_open: "Alleen lopende giveaways kunnen worden bewerkt.",
         required_fields: "Prijs en winnaars zijn verplichte velden.",
         invalid_winners: "Aantal winnaars moet tussen 1 en 50 zijn.",
         update_failed: "Kon giveaway niet bijwerken: {error}",

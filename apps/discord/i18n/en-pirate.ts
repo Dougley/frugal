@@ -13,6 +13,12 @@ export default {
       database_unavailable: "The ship's log be unreachable right now.",
       unexpected: "Arrr, somethin' went wrong. Try again, matey!",
       rate_limited: "Slow down, ye scallywag! Try again later.",
+      manage_required:
+        "Ye need Manage Server or Manage Messages powers to launch treasure hunts here.",
+      manage_giveaway_denied:
+        "Only the cap'n who launched this hunt or a ship officer can steer it.",
+      not_giveaway_message:
+        "That message be no treasure hunt launched by this here bot, arrr!",
     },
     labels: {
       winners: "{count, plural, one {# lucky pirate} other {# lucky pirates}}",
@@ -91,7 +97,12 @@ export default {
         },
       },
       messages: {
-        success: "Treasure hunt stopped! Time to pick the lucky pirates, arrr!",
+        success:
+          "Treasure hunt fer **{prize}** stopped! Time to pick the lucky pirates, arrr!",
+      },
+      errors: {
+        not_running: "That treasure hunt be not sailin' right now.",
+        failed: "Failed to stop the treasure hunt. Try again, matey.",
       },
     },
     edit: {
@@ -104,6 +115,53 @@ export default {
         },
       },
     },
+    giveaway_status: {
+      name: "Treasure Hunt Status",
+      description: "Check a treasure hunt from its message",
+      messages: {
+        status: `**{prize}**
+Voyage: {status}
+Crew: {entries}
+Lucky pirates: {winners}
+Ends: {endTime}
+Cap'n: {host}
+Yer spot: {entryStatus}`,
+      },
+      status: {
+        open: "Sailin'",
+        closed: "Anchored",
+        entered: "Aboard",
+        not_entered: "Not aboard",
+      },
+    },
+
+    check_entries: {
+      name: "Check Crew",
+      description:
+        "Check which treasure hunts a pirate has boarded in these waters",
+      errors: {
+        no_target: "Could not spot that scallywag, matey!",
+      },
+      messages: {
+        no_active_giveaways:
+          "No treasure hunts be sailin' in these waters for {user} to board.",
+        not_entered_any:
+          "{user} be not aboard any o' the {total} active treasure hunts.",
+        result:
+          "{user} be aboard {entered} of {total} sailin' treasure hunts:\n\n{entries}",
+        entry_line: "• [{prize}]({link}) - Ends {endTime}",
+      },
+    },
+
+    copy_giveaway_id: {
+      name: "Copy Map Coordinates",
+      description: "Copy the treasure hunt coordinates from a hunt message",
+      messages: {
+        result:
+          "Coordinates fer **{prize}** ({state}):\n```\n{id}\n```\nUse these coordinates with `/edit`, `/stop`, or `/reroll`, matey!",
+      },
+    },
+
     reroll: {
       name: "reroll",
       description: "Pick new lucky pirates for an ended treasure hunt",
@@ -216,6 +274,7 @@ Ship ID: {id}
       leave_label: "Abandon Ship!",
       errors: {
         invalid_id: "Invalid treasure hunt ID, ye landlubber!",
+        invalid_action: "Invalid treasure hunt action, ye landlubber!",
         not_open: "This treasure hunt be closed fer new crew members.",
         already_entered: "Ye already be part of this crew, matey!",
         not_entered: "Ye be not part of this crew, matey!",
@@ -238,6 +297,7 @@ Ship ID: {id}
       },
       errors: {
         invalid_submission: "Invalid modal submission, ye scallywag!",
+        not_open: "Only sailin' treasure hunts can be changed.",
         required_fields: "Treasure and lucky pirates be required fields!",
         invalid_winners: "Lucky pirates count must be between 1 and 50.",
         update_failed: "Failed to update treasure hunt: {error}",

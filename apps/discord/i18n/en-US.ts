@@ -12,6 +12,12 @@ export default {
       database_unavailable: "Database temporarily unavailable.",
       unexpected: "An unexpected error occurred. Please try again.",
       rate_limited: "You are being rate limited. Please try again later.",
+      manage_required:
+        "You need Manage Server or Manage Messages permission to create giveaways here.",
+      manage_giveaway_denied:
+        "Only the giveaway host or a server moderator can manage this giveaway.",
+      not_giveaway_message:
+        "That message is not a giveaway created by this bot.",
     },
     labels: {
       winners: "{count, plural, one {# winner} other {# winners}}",
@@ -92,7 +98,12 @@ export default {
         },
       },
       messages: {
-        success: "Giveaway stopped successfully! Drawing winners...",
+        success:
+          "Giveaway for **{prize}** stopped successfully! Drawing winners...",
+      },
+      errors: {
+        not_running: "That giveaway is not currently running.",
+        failed: "Failed to stop giveaway. Please try again.",
       },
     },
 
@@ -104,6 +115,52 @@ export default {
           name: "id",
           description: "ID of the giveaway to edit",
         },
+      },
+    },
+
+    giveaway_status: {
+      name: "Giveaway Status",
+      description: "Show giveaway status from a giveaway message",
+      messages: {
+        status: `**{prize}**
+Status: {status}
+Entries: {entries}
+Winners: {winners}
+Ends: {endTime}
+Host: {host}
+Your entry: {entryStatus}`,
+      },
+      status: {
+        open: "Open",
+        closed: "Ended",
+        entered: "Entered",
+        not_entered: "Not entered",
+      },
+    },
+
+    check_entries: {
+      name: "Check Entries",
+      description: "Check which giveaways a user has entered in this server",
+      errors: {
+        no_target: "Could not identify the target user.",
+      },
+      messages: {
+        no_active_giveaways:
+          "There are no active giveaways in this server for {user} to be entered in.",
+        not_entered_any:
+          "{user} is not entered in any of the {total} active giveaways.",
+        result:
+          "{user} is entered in {entered} of {total} active giveaways:\n\n{entries}",
+        entry_line: "• [{prize}]({link}) - Ends {endTime}",
+      },
+    },
+
+    copy_giveaway_id: {
+      name: "Copy Giveaway ID",
+      description: "Copy the giveaway ID from a giveaway message",
+      messages: {
+        result:
+          "Giveaway ID for **{prize}** ({state}):\n```\n{id}\n```\nUse this ID with `/edit`, `/stop`, or `/reroll`.",
       },
     },
 
@@ -221,6 +278,7 @@ Object ID: {id}
       leave_label: "Leave Giveaway",
       errors: {
         invalid_id: "Invalid giveaway ID.",
+        invalid_action: "Invalid giveaway action.",
         not_open: "This giveaway is no longer accepting entries.",
         already_entered: "You have already entered this giveaway.",
         not_entered: "You are not entered in this giveaway.",
@@ -244,6 +302,7 @@ Object ID: {id}
       },
       errors: {
         invalid_submission: "Invalid modal submission.",
+        not_open: "Only running giveaways can be edited.",
         required_fields: "Prize and winners are required fields.",
         invalid_winners: "Winners count must be between 1 and 50.",
         update_failed: "Failed to update giveaway: {error}",
