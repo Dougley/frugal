@@ -11,6 +11,8 @@ import type {
   ModalInteractionContext,
 } from "slash-create/web";
 import { getContext } from "../../context";
+import { isValidGiveawayId } from "../../utils/giveaway-autocomplete";
+import { canManageGiveaway } from "../../utils/giveaway-permissions";
 
 // Export the patterns and methods for commands/index.ts
 export const button_id_regex = EditModal.button_id_regex;
@@ -54,43 +56,88 @@ async function getEditModalTranslations(
  * @param ctx The component context
  */
 export async function handleButtonInteraction(ctx: ComponentContext) {
-  // Extract giveaway ID from button custom_id
-  const giveawayId = ctx.customID.split(":")[1];
+  try {
+    // Extract giveaway ID from button custom_id
+    const giveawayId = ctx.customID.split(":")[1];
+    if (!isValidGiveawayId(giveawayId)) {
+      return ctx.send({
+        content: await getContext().i18n.translate(
+          "components.join_button.errors.invalid_id",
+          {
+            language: ctx.locale,
+          }
+        ),
+        ephemeral: true,
+      });
+    }
 
-  if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
+    if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
+      return ctx.send({
+        content: await getContext().i18n.translate(
+          "common.errors.giveaway_state_unavailable",
+          {
+            language: ctx.locale,
+          }
+        ),
+        ephemeral: true,
+      });
+    }
+
+    const stub = getContext().state.getInstance(
+      getContext().env.GIVEAWAY_STATE,
+      getContext().env.GIVEAWAY_STATE.idFromString(giveawayId)
+    );
+
+    const state = await stub.getState.query();
+
+    if (!state) {
+      return ctx.send({
+        content: await getContext().i18n.translate(
+          "common.errors.giveaway_not_found",
+          {
+            language: ctx.locale,
+          }
+        ),
+        ephemeral: true,
+      });
+    }
+
+    if (state.state !== "OPEN") {
+      return ctx.send({
+        content: await getContext().i18n.translate(
+          "components.edit_modal.errors.not_open",
+          { language: ctx.locale }
+        ),
+        ephemeral: true,
+      });
+    }
+
+    if (!canManageGiveaway(ctx, state)) {
+      return ctx.send({
+        content: await getContext().i18n.translate(
+          "common.errors.manage_giveaway_denied",
+          { language: ctx.locale }
+        ),
+        ephemeral: true,
+      });
+    }
+
+    // Show the modal with pre-filled current values
+    const translations = await getEditModalTranslations(ctx.locale ?? "en-US");
+    return ctx.sendModal(
+      EditModal.createModal(giveawayId, state, translations)
+    );
+  } catch (error) {
+    console.error("Error opening edit modal:", error);
+    Sentry.captureException(error);
+
     return ctx.send({
-      content: await getContext().i18n.translate(
-        "common.errors.giveaway_state_unavailable",
-        {
-          language: ctx.locale,
-        }
-      ),
+      content: await getContext().i18n.translate("common.errors.unexpected", {
+        language: ctx.locale,
+      }),
       ephemeral: true,
     });
   }
-
-  const stub = getContext().state.getInstance(
-    getContext().env.GIVEAWAY_STATE,
-    getContext().env.GIVEAWAY_STATE.idFromString(giveawayId)
-  );
-
-  const state = await stub.getState.query();
-
-  if (!state) {
-    return ctx.send({
-      content: await getContext().i18n.translate(
-        "common.errors.giveaway_not_found",
-        {
-          language: ctx.locale,
-        }
-      ),
-      ephemeral: true,
-    });
-  }
-
-  // Show the modal with pre-filled current values
-  const translations = await getEditModalTranslations(ctx.locale ?? "en-US");
-  return ctx.sendModal(EditModal.createModal(giveawayId, state, translations));
 }
 
 /**
@@ -113,6 +160,17 @@ export async function handleModalSubmit(ctx: ModalInteractionContext) {
   }
 
   const giveawayId = match[1];
+  if (!isValidGiveawayId(giveawayId)) {
+    return ctx.send({
+      content: await getContext().i18n.translate(
+        "components.join_button.errors.invalid_id",
+        {
+          language: ctx.locale,
+        }
+      ),
+      ephemeral: true,
+    });
+  }
 
   if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
     return ctx.send({
@@ -140,6 +198,26 @@ export async function handleModalSubmit(ctx: ModalInteractionContext) {
         {
           language: ctx.locale,
         }
+      ),
+      ephemeral: true,
+    });
+  }
+
+  if (state.state !== "OPEN") {
+    return ctx.send({
+      content: await getContext().i18n.translate(
+        "components.edit_modal.errors.not_open",
+        { language: ctx.locale }
+      ),
+      ephemeral: true,
+    });
+  }
+
+  if (!canManageGiveaway(ctx, state)) {
+    return ctx.send({
+      content: await getContext().i18n.translate(
+        "common.errors.manage_giveaway_denied",
+        { language: ctx.locale }
       ),
       ephemeral: true,
     });
@@ -263,6 +341,7 @@ export async function handleModalSubmit(ctx: ModalInteractionContext) {
     });
   } catch (error) {
     console.error("Error updating giveaway:", error);
+    Sentry.captureException(error);
     return ctx.send({
       content: await getContext().i18n.translate(
         "components.edit_modal.errors.update_failed",

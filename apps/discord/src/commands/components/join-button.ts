@@ -1,11 +1,10 @@
 import { TRPCClientError } from "@dougley/frugal-savestate";
 import { JoinButton } from "@dougley/frugal-utils";
-import {
-  ButtonStyle,
-  type ComponentContext,
-  ComponentType,
-} from "slash-create/web";
+import * as Sentry from "@sentry/cloudflare";
+import type { ComponentContext } from "slash-create/web";
 import { getContext } from "../../context";
+import { isValidGiveawayId } from "../../utils/giveaway-autocomplete";
+import { createEntryActionRow } from "../../utils/giveaway-status";
 
 // Export patterns for commands/index.ts
 export const custom_id_regex = JoinButton.custom_id_regex;
@@ -15,71 +14,66 @@ export const custom_id_regex = JoinButton.custom_id_regex;
  * @param ctx The component context
  */
 export async function handleInteraction(ctx: ComponentContext) {
-  // Extract the giveaway ID from the custom_id
   const [action, giveawayId] = ctx.customID.split(":");
-  console.log("action:", action);
-  console.log("giveawayId:", giveawayId);
 
-  if (!giveawayId) {
-    return await ctx.send({
-      content: await getContext().i18n.translate(
-        "components.join_button.errors.invalid_id",
-        {
-          language: ctx.locale,
-        }
-      ),
-      ephemeral: true,
-    });
-  }
-
-  if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
-    return await ctx.send({
-      content: await getContext().i18n.translate(
-        "common.errors.giveaway_state_unavailable",
-        {
-          language: ctx.locale,
-        }
-      ),
-      ephemeral: true,
-    });
-  }
-
-  // Get giveaway instance
-  const stub = getContext().state.getInstance(
-    getContext().env.GIVEAWAY_STATE,
-    getContext().env.GIVEAWAY_STATE.idFromString(giveawayId)
-  );
-
-  // Check if the giveaway exists and is still open
-  const state = await stub.getState.query();
-  console.log("Giveaway state:", state);
-
-  if (!state) {
-    return await ctx.send({
-      content: await getContext().i18n.translate(
-        "common.errors.giveaway_not_found",
-        {
-          language: ctx.locale,
-        }
-      ),
-      ephemeral: true,
-    });
-  }
-
-  if (state.state !== "OPEN") {
-    return await ctx.send({
-      content: await getContext().i18n.translate(
-        "components.join_button.errors.not_open",
-        {
-          language: ctx.locale,
-        }
-      ),
-      ephemeral: true,
-    });
-  }
-
-  // Check if the user has already joined
   try {
+    if (!isValidGiveawayId(giveawayId)) {
+      return await ctx.send({
+        content: await getContext().i18n.translate(
+          "components.join_button.errors.invalid_id",
+          {
+            language: ctx.locale,
+          }
+        ),
+        ephemeral: true,
+      });
+    }
+
+    if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
+      return await ctx.send({
+        content: await getContext().i18n.translate(
+          "common.errors.giveaway_state_unavailable",
+          {
+            language: ctx.locale,
+          }
+        ),
+        ephemeral: true,
+      });
+    }
+
+    // Get giveaway instance
+    const stub = getContext().state.getInstance(
+      getContext().env.GIVEAWAY_STATE,
+      getContext().env.GIVEAWAY_STATE.idFromString(giveawayId)
+    );
+
+    // Check if the giveaway exists and is still open
+    const state = await stub.getState.query();
+
+    if (!state) {
+      return await ctx.send({
+        content: await getContext().i18n.translate(
+          "common.errors.giveaway_not_found",
+          {
+            language: ctx.locale,
+          }
+        ),
+        ephemeral: true,
+      });
+    }
+
+    if (state.state !== "OPEN") {
+      return await ctx.send({
+        content: await getContext().i18n.translate(
+          "components.join_button.errors.not_open",
+          {
+            language: ctx.locale,
+          }
+        ),
+        ephemeral: true,
+      });
+    }
+
     if (action === "giveaway_join") {
       await stub.addEntry.mutate({
         user_id: ctx.user.id,
@@ -96,6 +90,13 @@ export async function handleInteraction(ctx: ComponentContext) {
           }
         ),
         ephemeral: true,
+        components: [
+          await createEntryActionRow({
+            giveawayId,
+            locale: ctx.locale,
+            nextAction: "leave",
+          }),
+        ],
       });
     } else if (action === "giveaway_leave") {
       await stub.removeEntry.mutate({
@@ -110,8 +111,25 @@ export async function handleInteraction(ctx: ComponentContext) {
           }
         ),
         ephemeral: true,
+        components: [
+          await createEntryActionRow({
+            giveawayId,
+            locale: ctx.locale,
+            nextAction: "join",
+          }),
+        ],
       });
     }
+
+    return await ctx.send({
+      content: await getContext().i18n.translate(
+        "components.join_button.errors.invalid_action",
+        {
+          language: ctx.locale,
+        }
+      ),
+      ephemeral: true,
+    });
   } catch (error) {
     if (error instanceof TRPCClientError) {
       switch (error.data.code) {
@@ -125,22 +143,11 @@ export async function handleInteraction(ctx: ComponentContext) {
             ),
             ephemeral: true,
             components: [
-              {
-                type: ComponentType.ACTION_ROW,
-                components: [
-                  {
-                    type: ComponentType.BUTTON,
-                    style: ButtonStyle.DANGER,
-                    label: await getContext().i18n.translate(
-                      "components.join_button.leave_label",
-                      {
-                        language: ctx.locale,
-                      }
-                    ),
-                    custom_id: `giveaway_leave:${giveawayId}`,
-                  },
-                ],
-              },
+              await createEntryActionRow({
+                giveawayId,
+                locale: ctx.locale,
+                nextAction: "leave",
+              }),
             ],
           });
         case "NOT_FOUND":
@@ -164,6 +171,15 @@ export async function handleInteraction(ctx: ComponentContext) {
             ephemeral: true,
           });
         case "TOO_MANY_REQUESTS":
+          Sentry.addBreadcrumb({
+            category: "giveaway.join_button",
+            message: "entry rate limited",
+            level: "info",
+            data: {
+              userId: ctx.user.id,
+              customId: ctx.customID,
+            },
+          });
           return await ctx.send({
             content: await getContext().i18n.translate(
               "common.errors.rate_limited",
@@ -175,6 +191,7 @@ export async function handleInteraction(ctx: ComponentContext) {
           });
         default:
           console.error("Unexpected error:", error);
+          Sentry.captureException(error);
           return await ctx.send({
             content: await getContext().i18n.translate(
               "common.errors.unexpected",
@@ -187,6 +204,7 @@ export async function handleInteraction(ctx: ComponentContext) {
       }
     } else {
       console.error("Unexpected error:", error);
+      Sentry.captureException(error);
       return await ctx.send({
         content: await getContext().i18n.translate("common.errors.unexpected", {
           language: ctx.locale,

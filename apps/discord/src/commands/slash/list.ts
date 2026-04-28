@@ -7,7 +7,11 @@ import {
   Schema,
 } from "@dougley/frugal-drizzle/workers";
 import * as Sentry from "@sentry/cloudflare";
-import type { CommandContext, SlashCreator } from "slash-create/web";
+import {
+  type CommandContext,
+  InteractionContextType,
+  type SlashCreator,
+} from "slash-create/web";
 import { BaseCommand } from "../../classes/BaseCommand";
 import { getContext } from "../../context";
 
@@ -19,6 +23,7 @@ export default class ListCommand extends BaseCommand {
       name: "list",
       description:
         "Lists all giveaways in the server that are currently running",
+      contexts: [InteractionContextType.GUILD],
     });
   }
 

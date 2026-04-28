@@ -1,14 +1,19 @@
-import { and, eq, Schema } from "@dougley/frugal-drizzle/workers";
 import { FEATURE_LIMITS } from "@dougley/frugal-subscriptions";
 import * as Sentry from "@sentry/cloudflare";
 import {
   type AutocompleteContext,
   type CommandContext,
   CommandOptionType,
+  InteractionContextType,
   type SlashCreator,
 } from "slash-create/web";
 import { BaseCommand } from "../../classes/BaseCommand";
 import { getContext } from "../../context";
+import {
+  getGiveawayAutocompleteChoices,
+  isValidGiveawayId,
+} from "../../utils/giveaway-autocomplete";
+import { canManageGiveaway } from "../../utils/giveaway-permissions";
 
 interface WinnerInfo {
   id: string | null;
@@ -22,6 +27,7 @@ export default class RerollCommand extends BaseCommand {
     super(creator, {
       name: "reroll",
       description: "Reroll a giveaway",
+      contexts: [InteractionContextType.GUILD],
       options: [
         {
           type: CommandOptionType.STRING,
@@ -44,55 +50,25 @@ export default class RerollCommand extends BaseCommand {
   }
 
   async autocomplete(ctx: AutocompleteContext) {
-    if (!getContext().env?.D1 || !getContext().drizzle) {
-      return [];
-    }
-
-    if (!ctx.guildID) return [];
-
-    // Use string keys to match DB columns
-    const closedGiveaways = await getContext()
-      .drizzle.select()
-      .from(Schema.giveaways)
-      .where(
-        and(
-          eq(Schema.giveaways.guildId, ctx.guildID),
-          eq(Schema.giveaways.state, "CLOSED")
-        )
-      )
-      .orderBy(Schema.giveaways.endTime)
-      .limit(25);
-
-    const { i18n } = getContext();
-    const locale = ctx.locale ?? "en-US";
-
-    const choices = await Promise.all(
-      closedGiveaways.map(async (g) => {
-        const formattedText = await i18n.translate(
-          "autocomplete.giveaway.format",
-          {
-            language: locale,
-            params: {
-              prize: g.prize,
-              winners: g.winners.toString(),
-              date: new Date(g.endTime).toLocaleDateString(locale),
-            },
-          }
-        );
-        return {
-          name: formattedText.slice(0, 100),
-          value: g.durableObjectId,
-        };
-      })
-    );
-
-    return choices;
+    return getGiveawayAutocompleteChoices({
+      guildId: ctx.guildID,
+      locale: ctx.locale,
+      state: "CLOSED",
+    });
   }
 
   async run(ctx: CommandContext) {
     await ctx.defer();
 
     try {
+      if (!ctx.guildID) {
+        const errorMessage = await getContext().i18n.translate(
+          "common.errors.guild_only",
+          { language: ctx.locale }
+        );
+        return ctx.editOriginal(errorMessage);
+      }
+
       if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
         const errorMessage = await getContext().i18n.translate(
           "common.errors.giveaway_state_unavailable",
@@ -105,6 +81,16 @@ export default class RerollCommand extends BaseCommand {
 
       const giveawayId = ctx.options.id;
       const requestedCount = ctx.options.count as number | undefined;
+
+      if (!isValidGiveawayId(giveawayId)) {
+        const errorMessage = await getContext().i18n.translate(
+          "components.join_button.errors.invalid_id",
+          {
+            language: ctx.locale,
+          }
+        );
+        return ctx.editOriginal(errorMessage);
+      }
 
       const subscription = await this.getPremiumStatus(ctx);
 
@@ -145,6 +131,14 @@ export default class RerollCommand extends BaseCommand {
           {
             language: ctx.locale,
           }
+        );
+        return ctx.editOriginal(errorMessage);
+      }
+
+      if (!canManageGiveaway(ctx, state)) {
+        const errorMessage = await getContext().i18n.translate(
+          "common.errors.manage_giveaway_denied",
+          { language: ctx.locale }
         );
         return ctx.editOriginal(errorMessage);
       }

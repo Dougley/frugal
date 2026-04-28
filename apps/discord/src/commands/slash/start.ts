@@ -15,12 +15,14 @@ import {
   BitField,
   type CommandContext,
   CommandOptionType,
+  InteractionContextType,
   type Message,
   MessageFlags,
   type SlashCreator,
 } from "slash-create/web";
 import { BaseCommand } from "../../classes/BaseCommand";
 import { getContext } from "../../context";
+import { hasGiveawayManagerPermission } from "../../utils/giveaway-permissions";
 
 // Constants for duration limits
 const MIN_DURATION_MS = 10 * 1000; // 10 seconds
@@ -104,6 +106,7 @@ export default class StartCommand extends BaseCommand {
     super(creator, {
       name: "start",
       description: "Start a giveaway in the current channel",
+      contexts: [InteractionContextType.GUILD],
       options: [
         {
           type: CommandOptionType.STRING,
@@ -158,7 +161,10 @@ export default class StartCommand extends BaseCommand {
       d: 24 * 60 * 60 * 1000,
     };
 
-    const match = durationStr.match(/^(\d+)([smhd])$/);
+    const match = durationStr
+      .trim()
+      .toLowerCase()
+      .match(/^(\d+)([smhd])$/);
     if (!match) {
       const error = await getContext().i18n?.translate(
         "commands.start.errors.invalid_duration_format",
@@ -214,6 +220,22 @@ export default class StartCommand extends BaseCommand {
   async run(ctx: CommandContext) {
     try {
       await ctx.defer();
+
+      if (!ctx.guildID) {
+        const errorMessage = await getContext().i18n.translate(
+          "common.errors.guild_only",
+          { language: ctx.locale }
+        );
+        return ctx.editOriginal(errorMessage);
+      }
+
+      if (!hasGiveawayManagerPermission(ctx)) {
+        const errorMessage = await getContext().i18n.translate(
+          "common.errors.manage_required",
+          { language: ctx.locale }
+        );
+        return ctx.editOriginal(errorMessage);
+      }
 
       // Validate environment
       if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
@@ -282,14 +304,6 @@ export default class StartCommand extends BaseCommand {
         MessageFlags.IS_COMPONENTS_V2,
         MessageFlags.SUPPRESS_EMBEDS,
       ]);
-
-      if (!ctx.guildID) {
-        const errorMessage = await getContext().i18n.translate(
-          "common.errors.guild_only",
-          { language: ctx.locale }
-        );
-        return ctx.editOriginal(errorMessage);
-      }
 
       // Ensure we have valid IDs
       const guildID = ctx.guildID;
