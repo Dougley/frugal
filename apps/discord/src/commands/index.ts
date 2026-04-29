@@ -6,9 +6,13 @@ import * as EditButton from "./components/edit-modal";
 import * as JoinButton from "./components/join-button";
 import CheckEntriesCommand from "./message/check-entries";
 import CopyGiveawayIdCommand from "./message/copy-giveaway-id";
+import EditGiveawayCommand from "./message/edit-giveaway";
+import EndGiveawayCommand from "./message/end-giveaway";
 import GiveawayStatusCommand from "./message/giveaway-status";
+import RerollGiveawayCommand from "./message/reroll-giveaway";
 import DebugCommand from "./slash/debug";
 import EditCommand from "./slash/edit";
+import GiveawayCommand from "./slash/giveaway";
 import ListCommand from "./slash/list";
 import PingCommand from "./slash/ping";
 import RerollCommand from "./slash/reroll";
@@ -18,12 +22,16 @@ import StopCommand from "./slash/stop";
 // Export an array of command classes for slash-create
 export const commands = [
   EditCommand,
+  EditGiveawayCommand,
+  EndGiveawayCommand,
+  GiveawayCommand,
   ListCommand,
   CheckEntriesCommand,
   CopyGiveawayIdCommand,
   GiveawayStatusCommand,
   PingCommand,
   RerollCommand,
+  RerollGiveawayCommand,
   DebugCommand,
   StartCommand,
   StopCommand,
@@ -60,12 +68,16 @@ export const modalHandlers: {
 // Also export individual commands for reference if needed
 export {
   EditCommand,
+  EditGiveawayCommand,
+  EndGiveawayCommand,
+  GiveawayCommand,
   CheckEntriesCommand,
   CopyGiveawayIdCommand,
   GiveawayStatusCommand,
   ListCommand,
   PingCommand,
   RerollCommand,
+  RerollGiveawayCommand,
   DebugCommand,
   StartCommand,
   StopCommand,

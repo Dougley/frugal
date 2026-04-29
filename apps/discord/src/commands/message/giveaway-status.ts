@@ -84,9 +84,9 @@ export default class GiveawayStatusCommand extends BaseCommand {
         getContext().env.GIVEAWAY_STATE.idFromString(giveaway.durableObjectId)
       );
 
-      const [state, entries] = await Promise.all([
+      const [state, firstPage] = await Promise.all([
         stub.getState.query(),
-        stub.getEntries.query(),
+        stub.getEntriesPaginated.query({ page: 1, limit: 100 }),
       ]);
 
       if (!state) {
@@ -103,7 +103,8 @@ export default class GiveawayStatusCommand extends BaseCommand {
           locale: ctx.locale,
           state,
           userId: ctx.user.id,
-          entries,
+          entries: firstPage.entries,
+          totalEntries: firstPage.total,
         })
       );
     } catch (error) {

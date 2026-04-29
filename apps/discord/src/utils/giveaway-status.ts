@@ -40,6 +40,7 @@ export async function createGiveawayStatusResponse({
   state,
   userId,
   entries,
+  totalEntries,
 }: {
   giveawayId: string;
   locale: string | undefined;
@@ -52,9 +53,11 @@ export async function createGiveawayStatusResponse({
   };
   userId: string;
   entries: { userId: string | null }[];
+  totalEntries?: number;
 }) {
   const { i18n } = getContext();
   const isEntered = entries.some((entry) => entry.userId === userId);
+  const entryCount = totalEntries ?? entries.length;
   const isOpen = state.state === "OPEN";
   const timestamp = Math.floor(new Date(state.endTime).getTime() / 1000);
 
@@ -81,7 +84,7 @@ export async function createGiveawayStatusResponse({
       params: {
         prize: state.prize,
         status,
-        entries: entries.length.toString(),
+        entries: entryCount.toString(),
         winners: state.winners.toString(),
         endTime: `<t:${timestamp}:R>`,
         entryStatus,
