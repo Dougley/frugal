@@ -13,6 +13,7 @@ export default {
       database_unavailable: "The ship's log be unreachable right now.",
       unexpected: "Arrr, somethin' went wrong. Try again, matey!",
       rate_limited: "Slow down, ye scallywag! Try again later.",
+      invalid_giveaway_id: "Invalid treasure hunt ID, ye landlubber!",
       manage_required:
         "Ye need Manage Server or Manage Messages powers to launch treasure hunts here.",
       manage_giveaway_denied:
@@ -80,7 +81,7 @@ export default {
           "Too many treasure hunts be already runnin' in these waters. Max be {max} (premium max: {premiumMax}).",
         failed_to_create: "Failed to launch the treasure hunt message, arrr!",
         failed_to_start:
-          "Failed to start the treasure hunt: {error}, ye bilge rat!",
+          "Failed to start the treasure hunt, ye bilge rat! If this keeps happenin', reference error ID: `{eventId}`.",
       },
       messages: {
         success:
@@ -189,6 +190,32 @@ Yer spot: {entryStatus}`,
           "{count, plural, one {A new lucky pirate has been chosen!} other {# new lucky pirates have been chosen!}}\nCongratulations to {winners}, ye scallywags!",
       },
     },
+    end_giveaway: {
+      name: "Sink the Hunt",
+      description: "End a treasure hunt from its message",
+    },
+
+    edit_giveaway: {
+      name: "Change the Course",
+      description: "Edit a treasure hunt from its message",
+    },
+
+    reroll_giveaway: {
+      name: "Pick New Pirates",
+      description: "Pick new lucky pirates from a treasure hunt message",
+    },
+
+    giveaway: {
+      name: "giveaway",
+      description: "Treasure hunt commands",
+      options: {
+        info: {
+          name: "info",
+          description: "View info and yer crew status fer a treasure hunt",
+        },
+      },
+    },
+
     debug: {
       name: "debug",
       description: "Spyglass fer diagnostics",
@@ -332,35 +359,15 @@ Ship ID: {id}
         "The treasure hunt for **{prize}** has ended!\n\nCongratulations to the lucky pirates: {winners}\n\nThank ye to all who sailed with us!",
       nobody_won: "Nobody found the treasure",
     },
-    errors: {
-      already_entered: "This pirate already be aboard this treasure hunt.",
-      not_entered: "This pirate be not aboard this treasure hunt.",
-      rate_limited: "Slow down, ye scallywag! Try again in {seconds} seconds.",
-      invalid_state:
-        "Treasure hunt must be in {expected} state, but be currently {current}.",
-      reservation_failed: "Could not reserve yer treasure hunt slot, matey!",
-      concurrent_limit: "Too many treasure hunts be runnin' at once!",
-    },
   },
   premium: {
-    required: "This feature be needin' a premium subscription, ye landlubber!",
-    required_guild:
-      "This feature be needin' premium and can only be used aboard a ship (server)!",
-    status: {
-      active: "Premium Active, arrr!",
-      lifetime: "Lifetime treasure pass",
-      expires: "Expires {date}",
-      free: "Free Tier, ye landlubber",
-    },
-    limits: {
-      exceeded:
-        "Ye've reached the {feature} limit ({current}/{max}). Upgrade to premium for up to {premiumMax}, ye scallywag!",
-    },
     upsell: {
-      more_winners: "Need more lucky pirates?",
-      longer_duration: "Want longer treasure hunt voyages?",
-      customization: "Lookin' fer customization options, matey?",
-      more_giveaways: "Want to run more treasure hunts at once?",
+      more_winners:
+        "Ye've reached the winner limit fer yer plan. Upgrade to premium for up to {premiumMax} lucky pirates!",
+      longer_duration:
+        "Ye've reached the duration limit fer yer plan. Upgrade to premium for voyages up to {premiumMax} days!",
+      more_giveaways:
+        "Ye've reached the concurrent treasure hunt limit. Upgrade to premium to run more at once!",
     },
     upgrade: {
       label: "Upgrade to Premium",
@@ -368,7 +375,6 @@ Ship ID: {id}
     },
     errors: {
       check_failed: "Could not check yer premium papers, matey!",
-      unavailable: "Premium service be unavailable right now.",
     },
   },
 } satisfies Partial<typeof enUS>;

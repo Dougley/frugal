@@ -1,10 +1,6 @@
+import type translations from "@dougley/frugal-discord-new/i18n";
 import { createI18n, type I18n, type ICUParams } from "@dougley/frugal-i18n";
-import type translations from "../../../../apps/discord/i18n/en-US";
 
-/**
- * Type alias for the app-specific translation type.
- * This enables compile-time validation of translation keys.
- */
 export type AppTranslations = typeof translations;
 
 /**

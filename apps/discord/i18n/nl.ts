@@ -13,6 +13,7 @@ export default {
       database_unavailable: "Database tijdelijk niet beschikbaar.",
       unexpected: "Er is een onverwachte fout opgetreden. Probeer het opnieuw.",
       rate_limited: "Je wordt rate limited. Probeer het later opnieuw.",
+      invalid_giveaway_id: "Ongeldige giveaway-ID.",
       manage_required:
         "Je hebt Server beheren of Berichten beheren nodig om hier giveaways te maken.",
       manage_giveaway_denied:
@@ -81,7 +82,8 @@ export default {
         concurrent_limit:
           "Er draaien al te veel giveaways in deze server. Max is {max} (premium max: {premiumMax}).",
         failed_to_create: "Kon giveawaybericht niet aanmaken.",
-        failed_to_start: "Kon giveaway niet starten: {error}",
+        failed_to_start:
+          "Kon giveaway niet starten. Als dit blijft optreden, gebruik dan fout-ID: `{eventId}`.",
       },
       messages: {
         success:
@@ -193,6 +195,32 @@ Jouw inzending: {entryStatus}`,
       messages: {
         success:
           "{count, plural, one {Een nieuwe winnaar is getrokken!} other {# nieuwe winnaars zijn getrokken!}}\nGefeliciteerd {winners}!",
+      },
+    },
+
+    end_giveaway: {
+      name: "Beëindig Giveaway",
+      description: "Beëindig een giveaway vanuit het bericht",
+    },
+
+    edit_giveaway: {
+      name: "Bewerk Giveaway",
+      description: "Bewerk een giveaway vanuit het bericht",
+    },
+
+    reroll_giveaway: {
+      name: "Hertrek Giveaway",
+      description: "Hertrek winnaars vanuit een giveawaybericht",
+    },
+
+    giveaway: {
+      name: "giveaway",
+      description: "Giveaway-commando's",
+      options: {
+        info: {
+          name: "info",
+          description: "Bekijk info en jouw inzendstatus voor een giveaway",
+        },
       },
     },
 
@@ -346,41 +374,16 @@ Object ID: {id}
         "De giveaway voor **{prize}** is geëindigd!\n\nGefeliciteerd aan de winnaars: {winners}\n\nBedankt aan iedereen die heeft meegedaan!",
       nobody_won: "Niemand heeft gewonnen",
     },
-
-    errors: {
-      already_entered: "Gebruiker doet al mee aan deze giveaway.",
-      not_entered: "Gebruiker doet niet mee aan deze giveaway.",
-      rate_limited:
-        "Rate limited. Probeer het opnieuw over {seconds} seconden.",
-      invalid_state:
-        "Giveaway moet in {expected} status zijn, maar is momenteel {current}.",
-      reservation_failed: "Kon giveawayslot niet reserveren.",
-      concurrent_limit: "Te veel gelijktijdige giveaways.",
-    },
   },
 
   premium: {
-    required: "Deze functie vereist een premium-abonnement.",
-    required_guild:
-      "Deze functie vereist premium en kan alleen in servers worden gebruikt.",
-
-    status: {
-      active: "Premium Actief",
-      lifetime: "Levenslang abonnement",
-      expires: "Verloopt {date}",
-      free: "Gratis",
-    },
-
-    limits: {
-      exceeded:
-        "Je hebt de {feature}-limiet bereikt ({current}/{max}). Upgrade naar premium voor maximaal {premiumMax}!",
-    },
-
     upsell: {
-      more_winners: "Meer winnaars nodig?",
-      longer_duration: "Langere giveaway-duur gewenst?",
-      customization: "Op zoek naar aanpassingsopties?",
-      more_giveaways: "Meer giveaways tegelijk draaien?",
+      more_winners:
+        "Je hebt de winnaarslimiet voor jouw plan bereikt. Upgrade naar premium voor maximaal {premiumMax} winnaars!",
+      longer_duration:
+        "Je hebt de duratielimiet voor jouw plan bereikt. Upgrade naar premium voor giveaways tot {premiumMax} dagen!",
+      more_giveaways:
+        "Je hebt de limiet voor gelijktijdige giveaways bereikt. Upgrade naar premium om er meer tegelijk te draaien!",
     },
 
     upgrade: {
@@ -390,7 +393,6 @@ Object ID: {id}
 
     errors: {
       check_failed: "Kon premiumstatus niet controleren.",
-      unavailable: "Premiumservice tijdelijk niet beschikbaar.",
     },
   },
 } satisfies Partial<typeof enUS>;

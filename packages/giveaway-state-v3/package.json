@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:",
+    "@dougley/frugal-discord-new": "workspace:^",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
     "discord-api-types": "catalog:",

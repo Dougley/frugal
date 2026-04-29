@@ -422,6 +422,9 @@ importers:
       '@cloudflare/workers-types':
         specifier: 'catalog:'
         version: 4.20260103.0
+      '@dougley/frugal-discord-new':
+        specifier: workspace:^
+        version: link:../../apps/discord
       '@dougley/tsconfig':
         specifier: workspace:^
         version: link:../tsconfig

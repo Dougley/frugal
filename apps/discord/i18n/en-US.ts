@@ -12,6 +12,7 @@ export default {
       database_unavailable: "Database temporarily unavailable.",
       unexpected: "An unexpected error occurred. Please try again.",
       rate_limited: "You are being rate limited. Please try again later.",
+      invalid_giveaway_id: "Invalid giveaway ID.",
       manage_required:
         "You need Manage Server or Manage Messages permission to create giveaways here.",
       manage_giveaway_denied:
@@ -80,7 +81,8 @@ export default {
         concurrent_limit:
           "Too many giveaways are already running in this server. Max is {max} (premium max: {premiumMax}).",
         failed_to_create: "Failed to create giveaway message.",
-        failed_to_start: "Failed to start giveaway: {error}",
+        failed_to_start:
+          "Failed to start giveaway. If this keeps happening, reference error ID: `{eventId}`.",
       },
       messages: {
         success:
@@ -192,6 +194,32 @@ Your entry: {entryStatus}`,
       },
     },
 
+    end_giveaway: {
+      name: "End Giveaway",
+      description: "End a giveaway from its message",
+    },
+
+    edit_giveaway: {
+      name: "Edit Giveaway",
+      description: "Edit a giveaway from its message",
+    },
+
+    reroll_giveaway: {
+      name: "Reroll Giveaway",
+      description: "Reroll winners from a giveaway message",
+    },
+
+    giveaway: {
+      name: "giveaway",
+      description: "Giveaway commands",
+      options: {
+        info: {
+          name: "info",
+          description: "View info and your entry status for a giveaway",
+        },
+      },
+    },
+
     debug: {
       name: "debug",
       description: "Debug and diagnostics",
@@ -277,7 +305,7 @@ Object ID: {id}
       label: "Enter Giveaway",
       leave_label: "Leave Giveaway",
       errors: {
-        invalid_id: "Invalid giveaway ID.",
+        invalid_id: "Invalid giveaway ID.", // kept for backwards compat; prefer common.errors.invalid_giveaway_id
         invalid_action: "Invalid giveaway action.",
         not_open: "This giveaway is no longer accepting entries.",
         already_entered: "You have already entered this giveaway.",
@@ -340,40 +368,16 @@ Object ID: {id}
         "The giveaway for **{prize}** has ended!\n\nCongratulations to the winners: {winners}\n\nThank you to everyone who participated!",
       nobody_won: "Nobody won",
     },
-
-    errors: {
-      already_entered: "User has already entered this giveaway.",
-      not_entered: "User has not entered this giveaway.",
-      rate_limited: "Rate limited. Try again in {seconds} seconds.",
-      invalid_state:
-        "Giveaway must be in {expected} state, but is currently {current}.",
-      reservation_failed: "Failed to reserve giveaway slot.",
-      concurrent_limit: "Too many concurrent giveaways.",
-    },
   },
 
   premium: {
-    required: "This feature requires a premium subscription.",
-    required_guild:
-      "This feature requires premium and can only be used in servers.",
-
-    status: {
-      active: "Premium Active",
-      lifetime: "Lifetime subscription",
-      expires: "Expires {date}",
-      free: "Free Tier",
-    },
-
-    limits: {
-      exceeded:
-        "You've reached the {feature} limit ({current}/{max}). Upgrade to premium for up to {premiumMax}!",
-    },
-
     upsell: {
-      more_winners: "Need more winners?",
-      longer_duration: "Want longer giveaway durations?",
-      customization: "Looking for customization options?",
-      more_giveaways: "Want to run more giveaways at once?",
+      more_winners:
+        "You've reached the winner limit for your plan. Upgrade to premium for up to {premiumMax} winners!",
+      longer_duration:
+        "You've reached the duration limit for your plan. Upgrade to premium for giveaways up to {premiumMax} days!",
+      more_giveaways:
+        "You've reached the concurrent giveaway limit. Upgrade to premium to run more at once!",
     },
 
     upgrade: {
@@ -383,7 +387,6 @@ Object ID: {id}
 
     errors: {
       check_failed: "Failed to check premium status.",
-      unavailable: "Premium service temporarily unavailable.",
     },
   },
 } satisfies Translation;
