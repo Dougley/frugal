@@ -6,75 +6,66 @@ import { getContext } from "../../context";
 import { isValidGiveawayId } from "../../utils/giveaway-autocomplete";
 import { createEntryActionRow } from "../../utils/giveaway-status";
 
-// Export patterns for commands/index.ts
+const ACTION_LEAVE = "giveaway_leave";
+
 export const custom_id_regex = JoinButton.custom_id_regex;
 
-/**
- * Handles the button interaction when a user enters a giveaway
- * @param ctx The component context
- */
 export async function handleInteraction(ctx: ComponentContext) {
   const [action, giveawayId] = ctx.customID.split(":");
+  const { env, state, i18n } = getContext();
+  const locale = ctx.locale || "en-US";
 
   try {
     if (!isValidGiveawayId(giveawayId)) {
       return await ctx.send({
-        content: await getContext().i18n.translate(
-          "components.join_button.errors.invalid_id",
-          {
-            language: ctx.locale,
-          }
-        ),
+        content: await i18n.translate("common.errors.invalid_giveaway_id", {
+          language: locale,
+        }),
         ephemeral: true,
       });
     }
 
-    if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
+    if (!env?.GIVEAWAY_STATE || !state) {
       return await ctx.send({
-        content: await getContext().i18n.translate(
+        content: await i18n.translate(
           "common.errors.giveaway_state_unavailable",
           {
-            language: ctx.locale,
+            language: locale,
           }
         ),
         ephemeral: true,
       });
     }
 
-    // Get giveaway instance
-    const stub = getContext().state.getInstance(
-      getContext().env.GIVEAWAY_STATE,
-      getContext().env.GIVEAWAY_STATE.idFromString(giveawayId)
+    const stub = state.getInstance(
+      env.GIVEAWAY_STATE,
+      env.GIVEAWAY_STATE.idFromString(giveawayId)
     );
 
-    // Check if the giveaway exists and is still open
-    const state = await stub.getState.query();
+    const instance = await stub.getState.query();
 
-    if (!state) {
+    if (!instance) {
       return await ctx.send({
-        content: await getContext().i18n.translate(
-          "common.errors.giveaway_not_found",
-          {
-            language: ctx.locale,
-          }
-        ),
+        content: await i18n.translate("common.errors.giveaway_not_found", {
+          language: locale,
+        }),
         ephemeral: true,
       });
     }
 
-    if (state.state !== "OPEN") {
+    if (instance.state !== "OPEN") {
       return await ctx.send({
-        content: await getContext().i18n.translate(
+        content: await i18n.translate(
           "components.join_button.errors.not_open",
           {
-            language: ctx.locale,
+            language: locale,
           }
         ),
         ephemeral: true,
       });
     }
 
-    if (action === "giveaway_join") {
+    if (action === JoinButton.custom_id) {
       await stub.addEntry.mutate({
         user_id: ctx.user.id,
         username: ctx.user.username,
@@ -82,39 +73,36 @@ export async function handleInteraction(ctx: ComponentContext) {
         discriminator: ctx.user.discriminator,
       });
       return await ctx.send({
-        content: await getContext().i18n.translate(
+        content: await i18n.translate(
           "components.join_button.messages.entered",
           {
-            language: ctx.locale,
-            params: { prize: state.prize },
+            language: locale,
+            params: { prize: instance.prize },
           }
         ),
         ephemeral: true,
         components: [
           await createEntryActionRow({
             giveawayId,
-            locale: ctx.locale,
+            locale,
             nextAction: "leave",
           }),
         ],
       });
-    } else if (action === "giveaway_leave") {
+    } else if (action === ACTION_LEAVE) {
       await stub.removeEntry.mutate({
         user_id: ctx.user.id,
       });
       return await ctx.send({
-        content: await getContext().i18n.translate(
-          "components.join_button.messages.left",
-          {
-            language: ctx.locale,
-            params: { prize: state.prize },
-          }
-        ),
+        content: await i18n.translate("components.join_button.messages.left", {
+          language: locale,
+          params: { prize: instance.prize },
+        }),
         ephemeral: true,
         components: [
           await createEntryActionRow({
             giveawayId,
-            locale: ctx.locale,
+            locale,
             nextAction: "join",
           }),
         ],
@@ -122,10 +110,10 @@ export async function handleInteraction(ctx: ComponentContext) {
     }
 
     return await ctx.send({
-      content: await getContext().i18n.translate(
+      content: await i18n.translate(
         "components.join_button.errors.invalid_action",
         {
-          language: ctx.locale,
+          language: locale,
         }
       ),
       ephemeral: true,
@@ -135,37 +123,37 @@ export async function handleInteraction(ctx: ComponentContext) {
       switch (error.data.code) {
         case "CONFLICT":
           return await ctx.send({
-            content: await getContext().i18n.translate(
+            content: await i18n.translate(
               "components.join_button.messages.already_entered_prompt",
               {
-                language: ctx.locale,
+                language: locale,
               }
             ),
             ephemeral: true,
             components: [
               await createEntryActionRow({
                 giveawayId,
-                locale: ctx.locale,
+                locale,
                 nextAction: "leave",
               }),
             ],
           });
         case "NOT_FOUND":
           return await ctx.send({
-            content: await getContext().i18n.translate(
+            content: await i18n.translate(
               "components.join_button.errors.not_entered",
               {
-                language: ctx.locale,
+                language: locale,
               }
             ),
             ephemeral: true,
           });
         case "PRECONDITION_FAILED":
           return await ctx.send({
-            content: await getContext().i18n.translate(
+            content: await i18n.translate(
               "components.join_button.errors.ended",
               {
-                language: ctx.locale,
+                language: locale,
               }
             ),
             ephemeral: true,
@@ -181,36 +169,21 @@ export async function handleInteraction(ctx: ComponentContext) {
             },
           });
           return await ctx.send({
-            content: await getContext().i18n.translate(
-              "common.errors.rate_limited",
-              {
-                language: ctx.locale,
-              }
-            ),
-            ephemeral: true,
-          });
-        default:
-          console.error("Unexpected error:", error);
-          Sentry.captureException(error);
-          return await ctx.send({
-            content: await getContext().i18n.translate(
-              "common.errors.unexpected",
-              {
-                language: ctx.locale,
-              }
-            ),
+            content: await i18n.translate("common.errors.rate_limited", {
+              language: locale,
+            }),
             ephemeral: true,
           });
       }
-    } else {
-      console.error("Unexpected error:", error);
-      Sentry.captureException(error);
-      return await ctx.send({
-        content: await getContext().i18n.translate("common.errors.unexpected", {
-          language: ctx.locale,
-        }),
-        ephemeral: true,
-      });
     }
+
+    console.error("Unexpected error:", error);
+    Sentry.captureException(error);
+    return await ctx.send({
+      content: await i18n.translate("common.errors.unexpected", {
+        language: locale,
+      }),
+      ephemeral: true,
+    });
   }
 }

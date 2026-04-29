@@ -4,6 +4,7 @@ import * as Sentry from "@sentry/cloudflare";
 import {
   type CommandContext,
   CommandOptionType,
+  InteractionContextType,
   type Message,
   type SlashCreator,
 } from "slash-create/web";
@@ -24,6 +25,7 @@ export default class DebugCommand extends BaseCommand {
     super(creator, {
       name: "debug",
       description: "Debug and diagnostics",
+      contexts: [InteractionContextType.GUILD],
       options: [
         {
           type: CommandOptionType.STRING,

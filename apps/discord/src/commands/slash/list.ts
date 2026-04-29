@@ -8,8 +8,11 @@ import {
 } from "@dougley/frugal-drizzle/workers";
 import * as Sentry from "@sentry/cloudflare";
 import {
+  BitField,
   type CommandContext,
+  ComponentType,
   InteractionContextType,
+  MessageFlags,
   type SlashCreator,
 } from "slash-create/web";
 import { BaseCommand } from "../../classes/BaseCommand";
@@ -110,7 +113,16 @@ export default class ListCommand extends BaseCommand {
       return ctx.editOriginal(noGiveawaysMessage);
     }
 
-    const description = await Promise.all(
+    const [title, endsText] = await Promise.all([
+      getContext().i18n.translate("commands.list.messages.title", {
+        language: ctx.locale,
+      }),
+      getContext().i18n.translate("common.labels.ends", {
+        language: ctx.locale,
+      }),
+    ]);
+
+    const giveawayItems = await Promise.all(
       currentGiveaways.map(async (giveaway) => {
         const winnersText = await getContext().i18n.translate(
           "common.labels.winners",
@@ -119,33 +131,40 @@ export default class ListCommand extends BaseCommand {
             params: { count: giveaway.winners },
           }
         );
+        const url = `https://discord.com/channels/${guildId}/${giveaway.channelId}/${giveaway.messageId}`;
         const timestamp = Math.floor(
           new Date(giveaway.endTime).getTime() / 1000
         );
-        const endsText = await getContext().i18n.translate(
-          "common.labels.ends",
-          {
-            language: ctx.locale,
-          }
-        );
-        return `[**${giveaway.prize}**](https://discord.com/channels/${guildId}/${giveaway.channelId}/${giveaway.messageId}) - ${winnersText} - ${endsText} <t:${timestamp}:R> (<t:${timestamp}:F>)`;
+        return {
+          type: ComponentType.CONTAINER as const,
+          components: [
+            {
+              type: ComponentType.TEXT_DISPLAY as const,
+              content: `### [**${giveaway.prize}**](${url})`,
+            },
+            {
+              type: ComponentType.TEXT_DISPLAY as const,
+              content: `🏆 ${winnersText} · ⏱️ ${endsText} <t:${timestamp}:R>`,
+            },
+          ],
+        };
       })
     );
 
-    const title = await getContext().i18n.translate(
-      "commands.list.messages.title",
-      {
-        language: ctx.locale,
-      }
-    );
+    const flags = new BitField([
+      MessageFlags.IS_COMPONENTS_V2,
+      MessageFlags.SUPPRESS_EMBEDS,
+    ]);
 
     return ctx.editOriginal({
-      embeds: [
+      flags: flags.bitfield as number,
+      allowedMentions: { parse: [] },
+      components: [
         {
-          title,
-          description: description.join("\n"),
-          color: 0x00ff00,
+          type: ComponentType.TEXT_DISPLAY as const,
+          content: `# ${title}`,
         },
+        ...giveawayItems,
       ],
     });
   }

@@ -12,7 +12,7 @@ import {
   getGiveawayAutocompleteChoices,
   isValidGiveawayId,
 } from "../../utils/giveaway-autocomplete";
-import { canManageGiveaway } from "../../utils/giveaway-permissions";
+import { hasGiveawayManagerPermission } from "../../utils/giveaway-permissions";
 
 export default class StopCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
@@ -41,36 +41,34 @@ export default class StopCommand extends BaseCommand {
   }
 
   async run(ctx: CommandContext) {
-    await ctx.defer();
+    await ctx.defer(true);
 
     try {
       if (!ctx.guildID) {
-        const errorMessage = await getContext().i18n.translate(
-          "common.errors.guild_only",
-          { language: ctx.locale }
+        return ctx.editOriginal(
+          await getContext().i18n.translate("common.errors.guild_only", {
+            language: ctx.locale,
+          })
         );
-        return ctx.editOriginal(errorMessage);
       }
 
       if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
-        const errorMessage = await getContext().i18n.translate(
-          "common.errors.giveaway_state_unavailable",
-          {
-            language: ctx.locale,
-          }
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "common.errors.giveaway_state_unavailable",
+            { language: ctx.locale }
+          )
         );
-        return ctx.editOriginal(errorMessage);
       }
 
       const giveawayId = ctx.options.id;
       if (!isValidGiveawayId(giveawayId)) {
-        const errorMessage = await getContext().i18n.translate(
-          "components.join_button.errors.invalid_id",
-          {
-            language: ctx.locale,
-          }
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "common.errors.invalid_giveaway_id",
+            { language: ctx.locale }
+          )
         );
-        return ctx.editOriginal(errorMessage);
       }
 
       const stub = getContext().state.getInstance(
@@ -80,48 +78,59 @@ export default class StopCommand extends BaseCommand {
 
       const state = await stub.getState.query();
 
-      if (!state) {
-        const errorMessage = await getContext().i18n.translate(
-          "common.errors.giveaway_not_found",
-          {
-            language: ctx.locale,
-          }
+      // Check permission before revealing giveaway state to prevent info leaks.
+      // Non-managers who aren't the host never learn whether a giveaway ID exists.
+      const isManager = hasGiveawayManagerPermission(ctx);
+      const isHost = state?.hostId === ctx.user.id;
+
+      if (!isManager && !isHost) {
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "common.errors.manage_giveaway_denied",
+            { language: ctx.locale }
+          )
         );
-        return ctx.editOriginal(errorMessage);
+      }
+
+      if (!state) {
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "common.errors.giveaway_not_found",
+            {
+              language: ctx.locale,
+            }
+          )
+        );
       }
 
       if (state.state !== "OPEN") {
-        const errorMessage = await getContext().i18n.translate(
-          "commands.stop.errors.not_running",
-          { language: ctx.locale }
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "commands.stop.errors.not_running",
+            {
+              language: ctx.locale,
+            }
+          )
         );
-        return ctx.editOriginal(errorMessage);
-      }
-
-      if (!canManageGiveaway(ctx, state)) {
-        const errorMessage = await getContext().i18n.translate(
-          "common.errors.manage_giveaway_denied",
-          { language: ctx.locale }
-        );
-        return ctx.editOriginal(errorMessage);
       }
 
       await stub.endGiveaway.mutate();
 
-      const successMessage = await getContext().i18n.translate(
-        "commands.stop.messages.success",
-        { language: ctx.locale, params: { prize: state.prize } }
+      return ctx.editOriginal(
+        await getContext().i18n.translate("commands.stop.messages.success", {
+          language: ctx.locale,
+          params: { prize: state.prize },
+        })
       );
-      return ctx.editOriginal(successMessage);
     } catch (error) {
       console.error("Error in stop command:", error);
       Sentry.captureException(error);
 
-      const errorMessage = await getContext().i18n.translate(
-        "commands.stop.errors.failed",
-        { language: ctx.locale }
+      return ctx.editOriginal(
+        await getContext().i18n.translate("commands.stop.errors.failed", {
+          language: ctx.locale,
+        })
       );
-      return ctx.editOriginal(errorMessage);
     }
   }
 }

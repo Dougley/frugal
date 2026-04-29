@@ -1,4 +1,4 @@
-import { EditModal, type EditModalTranslations } from "@dougley/frugal-utils";
+import { EditModal } from "@dougley/frugal-utils";
 import * as Sentry from "@sentry/cloudflare";
 import {
   type AutocompleteContext,
@@ -13,40 +13,8 @@ import {
   getGiveawayAutocompleteChoices,
   isValidGiveawayId,
 } from "../../utils/giveaway-autocomplete";
-import { canManageGiveaway } from "../../utils/giveaway-permissions";
-
-/**
- * Helper to get edit modal translations from i18n
- */
-async function getEditModalTranslations(
-  locale: string
-): Promise<EditModalTranslations> {
-  const { i18n } = getContext();
-  const [buttonLabel, modalTitle, prizeLabel, winnersLabel, descriptionLabel] =
-    await Promise.all([
-      i18n.translate("components.edit_modal.button_label", {
-        language: locale,
-      }),
-      i18n.translate("components.edit_modal.title", { language: locale }),
-      i18n.translate("components.edit_modal.fields.prize", {
-        language: locale,
-      }),
-      i18n.translate("components.edit_modal.fields.winners", {
-        language: locale,
-      }),
-      i18n.translate("components.edit_modal.fields.description", {
-        language: locale,
-      }),
-    ]);
-
-  return {
-    buttonLabel,
-    modalTitle,
-    prizeLabel,
-    winnersLabel,
-    descriptionLabel,
-  };
-}
+import { hasGiveawayManagerPermission } from "../../utils/giveaway-permissions";
+import { getEditModalTranslations } from "../../utils/giveaway-translations";
 
 export default class EditCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
@@ -75,42 +43,36 @@ export default class EditCommand extends BaseCommand {
   }
 
   async run(ctx: CommandContext) {
-    // No need to defer the response as we're showing a modal immediately
     try {
       if (!ctx.guildID) {
-        const errorMessage = await getContext().i18n.translate(
-          "common.errors.guild_only",
-          { language: ctx.locale }
-        );
         return ctx.send({
-          content: errorMessage,
+          content: await getContext().i18n.translate(
+            "common.errors.guild_only",
+            {
+              language: ctx.locale,
+            }
+          ),
           ephemeral: true,
         });
       }
 
       if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
-        const errorMessage = await getContext().i18n.translate(
-          "common.errors.giveaway_state_unavailable",
-          {
-            language: ctx.locale,
-          }
-        );
         return ctx.send({
-          content: errorMessage,
+          content: await getContext().i18n.translate(
+            "common.errors.giveaway_state_unavailable",
+            { language: ctx.locale }
+          ),
           ephemeral: true,
         });
       }
 
       const giveawayId = ctx.options.id;
       if (!isValidGiveawayId(giveawayId)) {
-        const errorMessage = await getContext().i18n.translate(
-          "components.join_button.errors.invalid_id",
-          {
-            language: ctx.locale,
-          }
-        );
         return ctx.send({
-          content: errorMessage,
+          content: await getContext().i18n.translate(
+            "common.errors.invalid_giveaway_id",
+            { language: ctx.locale }
+          ),
           ephemeral: true,
         });
       }
@@ -122,42 +84,40 @@ export default class EditCommand extends BaseCommand {
 
       const state = await stub.getState.query();
 
-      if (!state) {
-        const errorMessage = await getContext().i18n.translate(
-          "common.errors.giveaway_not_found",
-          {
-            language: ctx.locale,
-          }
-        );
+      // Check permission before revealing giveaway state to prevent info leaks.
+      const isManager = hasGiveawayManagerPermission(ctx);
+      const isHost = state?.hostId === ctx.user.id;
+
+      if (!isManager && !isHost) {
         return ctx.send({
-          content: errorMessage,
+          content: await getContext().i18n.translate(
+            "common.errors.manage_giveaway_denied",
+            { language: ctx.locale }
+          ),
+          ephemeral: true,
+        });
+      }
+
+      if (!state) {
+        return ctx.send({
+          content: await getContext().i18n.translate(
+            "common.errors.giveaway_not_found",
+            { language: ctx.locale }
+          ),
           ephemeral: true,
         });
       }
 
       if (state.state !== "OPEN") {
-        const errorMessage = await getContext().i18n.translate(
-          "components.edit_modal.errors.not_open",
-          { language: ctx.locale }
-        );
         return ctx.send({
-          content: errorMessage,
+          content: await getContext().i18n.translate(
+            "components.edit_modal.errors.not_open",
+            { language: ctx.locale }
+          ),
           ephemeral: true,
         });
       }
 
-      if (!canManageGiveaway(ctx, state)) {
-        const errorMessage = await getContext().i18n.translate(
-          "common.errors.manage_giveaway_denied",
-          { language: ctx.locale }
-        );
-        return ctx.send({
-          content: errorMessage,
-          ephemeral: true,
-        });
-      }
-
-      // Show the modal immediately using the component's createModal method
       const translations = await getEditModalTranslations(
         ctx.locale ?? "en-US"
       );

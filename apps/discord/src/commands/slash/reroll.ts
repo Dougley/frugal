@@ -13,7 +13,7 @@ import {
   getGiveawayAutocompleteChoices,
   isValidGiveawayId,
 } from "../../utils/giveaway-autocomplete";
-import { canManageGiveaway } from "../../utils/giveaway-permissions";
+import { hasGiveawayManagerPermission } from "../../utils/giveaway-permissions";
 
 interface WinnerInfo {
   id: string | null;
@@ -21,6 +21,21 @@ interface WinnerInfo {
   discriminator: string;
   avatar: string | null;
 }
+
+const mapWinners = (
+  winners: {
+    id?: string | number | null;
+    username?: string | null;
+    discriminator?: string | null;
+    avatar?: string | null;
+  }[]
+): WinnerInfo[] =>
+  winners.map((w) => ({
+    id: w.id != null ? String(w.id) : null,
+    username: w.username != null ? String(w.username) : null,
+    discriminator: w.discriminator != null ? String(w.discriminator) : "",
+    avatar: w.avatar != null ? String(w.avatar) : null,
+  }));
 
 export default class RerollCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
@@ -58,38 +73,78 @@ export default class RerollCommand extends BaseCommand {
   }
 
   async run(ctx: CommandContext) {
-    await ctx.defer();
+    await ctx.defer(true);
 
     try {
       if (!ctx.guildID) {
-        const errorMessage = await getContext().i18n.translate(
-          "common.errors.guild_only",
-          { language: ctx.locale }
+        return ctx.editOriginal(
+          await getContext().i18n.translate("common.errors.guild_only", {
+            language: ctx.locale,
+          })
         );
-        return ctx.editOriginal(errorMessage);
       }
 
       if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
-        const errorMessage = await getContext().i18n.translate(
-          "common.errors.giveaway_state_unavailable",
-          {
-            language: ctx.locale,
-          }
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "common.errors.giveaway_state_unavailable",
+            { language: ctx.locale }
+          )
         );
-        return ctx.editOriginal(errorMessage);
       }
 
       const giveawayId = ctx.options.id;
       const requestedCount = ctx.options.count as number | undefined;
 
       if (!isValidGiveawayId(giveawayId)) {
-        const errorMessage = await getContext().i18n.translate(
-          "components.join_button.errors.invalid_id",
-          {
-            language: ctx.locale,
-          }
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "common.errors.invalid_giveaway_id",
+            { language: ctx.locale }
+          )
         );
-        return ctx.editOriginal(errorMessage);
+      }
+
+      const stub = getContext().state.getInstance(
+        getContext().env.GIVEAWAY_STATE,
+        getContext().env.GIVEAWAY_STATE.idFromString(giveawayId)
+      );
+
+      const state = await stub.getState.query();
+
+      // Check permission before revealing giveaway state to prevent info leaks.
+      const isManager = hasGiveawayManagerPermission(ctx);
+      const isHost = state?.hostId === ctx.user.id;
+
+      if (!isManager && !isHost) {
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "common.errors.manage_giveaway_denied",
+            { language: ctx.locale }
+          )
+        );
+      }
+
+      if (!state) {
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "common.errors.giveaway_not_found",
+            {
+              language: ctx.locale,
+            }
+          )
+        );
+      }
+
+      if (state.state !== "CLOSED") {
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "commands.reroll.errors.still_running",
+            {
+              language: ctx.locale,
+            }
+          )
+        );
       }
 
       const subscription = await this.getPremiumStatus(ctx);
@@ -111,183 +166,48 @@ export default class RerollCommand extends BaseCommand {
           },
         });
 
-        const errorMessage = await getContext().i18n.translate(
-          "commands.reroll.errors.count_limit_free",
-          { language: ctx.locale }
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "commands.reroll.errors.count_limit_free",
+            { language: ctx.locale }
+          )
         );
-        return ctx.editOriginal(errorMessage);
-      }
-
-      const stub = getContext().state.getInstance(
-        getContext().env.GIVEAWAY_STATE,
-        getContext().env.GIVEAWAY_STATE.idFromString(giveawayId)
-      );
-
-      const state = await stub.getState.query();
-
-      if (!state) {
-        const errorMessage = await getContext().i18n.translate(
-          "common.errors.giveaway_not_found",
-          {
-            language: ctx.locale,
-          }
-        );
-        return ctx.editOriginal(errorMessage);
-      }
-
-      if (!canManageGiveaway(ctx, state)) {
-        const errorMessage = await getContext().i18n.translate(
-          "common.errors.manage_giveaway_denied",
-          { language: ctx.locale }
-        );
-        return ctx.editOriginal(errorMessage);
       }
 
       const maxRerollCount = Math.min(50, state.winners);
 
       if (requestedCount != null && requestedCount > maxRerollCount) {
-        const errorMessage = await getContext().i18n.translate(
-          "commands.reroll.errors.count_too_many",
-          {
-            language: ctx.locale,
-            params: {
-              max: maxRerollCount.toString(),
-            },
-          }
-        );
-        return ctx.editOriginal(errorMessage);
-      }
-
-      if (state.state !== "CLOSED") {
-        const errorMessage = await getContext().i18n.translate(
-          "commands.reroll.errors.still_running",
-          {
-            language: ctx.locale,
-          }
-        );
-        return ctx.editOriginal(errorMessage);
-      }
-
-      // Helper to coerce winner fields to string|null
-      const mapWinners = (
-        winners: {
-          id?: string | number | null;
-          username?: string | null;
-          discriminator?: string | null;
-          avatar?: string | null;
-        }[]
-      ): WinnerInfo[] =>
-        winners.map((w) => ({
-          id: w.id != null ? String(w.id) : null,
-          username: w.username != null ? String(w.username) : null,
-          discriminator: w.discriminator != null ? String(w.discriminator) : "",
-          avatar: w.avatar != null ? String(w.avatar) : null,
-        }));
-
-      // Free users can only reroll one winner per command.
-      // So for free: treat missing count as 1.
-      if (!subscription.hasPremium) {
-        const result = await stub.drawWinners.mutate(1);
-
-        if (!result.success || !result.winners || result.winners.length === 0) {
-          const errorMessage = await getContext().i18n.translate(
-            "commands.reroll.errors.no_entries",
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "commands.reroll.errors.count_too_many",
             {
               language: ctx.locale,
+              params: { max: maxRerollCount.toString() },
             }
-          );
-          return ctx.editOriginal(errorMessage);
-        }
-
-        const winners = mapWinners(result.winners);
-        const winnerMentions = winners
-          .map((winner) => (winner.id ? `<@${winner.id}>` : null))
-          .filter(Boolean)
-          .join(", ");
-        const allowedMentionIds = winners
-          .map((w) => w.id)
-          .filter((id): id is string => typeof id === "string");
-
-        const successMessage = await getContext().i18n.translate(
-          "commands.reroll.messages.success",
-          {
-            language: ctx.locale,
-            params: {
-              count: winners.length,
-              winners: winnerMentions,
-            },
-          }
+          )
         );
-
-        return ctx.editOriginal({
-          content: successMessage,
-          allowedMentions: {
-            users: allowedMentionIds,
-            everyone: false,
-            roles: [],
-          },
-        });
       }
 
-      // Premium behavior: allow rerolling N winners or all winners.
-      if (requestedCount != null) {
-        const result = await stub.drawWinners.mutate(requestedCount);
+      const drawCount = subscription.hasPremium
+        ? (requestedCount ?? maxRerollCount)
+        : 1;
 
-        if (!result.success || !result.winners || result.winners.length === 0) {
-          const errorMessage = await getContext().i18n.translate(
-            "commands.reroll.errors.no_entries",
-            {
-              language: ctx.locale,
-            }
-          );
-          return ctx.editOriginal(errorMessage);
-        }
-
-        const winners = mapWinners(result.winners);
-        const winnerMentions = winners
-          .map((winner) => (winner.id ? `<@${winner.id}>` : null))
-          .filter(Boolean)
-          .join(", ");
-        const allowedMentionIds = winners
-          .map((w) => w.id)
-          .filter((id): id is string => typeof id === "string");
-
-        const successMessage = await getContext().i18n.translate(
-          "commands.reroll.messages.success",
-          {
-            language: ctx.locale,
-            params: {
-              count: winners.length,
-              winners: winnerMentions,
-            },
-          }
-        );
-
-        return ctx.editOriginal({
-          content: successMessage,
-          allowedMentions: {
-            users: allowedMentionIds,
-            everyone: false,
-            roles: [],
-          },
-        });
-      }
-
-      const result = await stub.drawWinners.mutate(maxRerollCount);
+      const result = await stub.drawWinners.mutate(drawCount);
 
       if (!result.success || !result.winners || result.winners.length === 0) {
-        const errorMessage = await getContext().i18n.translate(
-          "commands.reroll.errors.no_entries",
-          {
-            language: ctx.locale,
-          }
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "commands.reroll.errors.no_entries",
+            {
+              language: ctx.locale,
+            }
+          )
         );
-        return ctx.editOriginal(errorMessage);
       }
 
       const winners = mapWinners(result.winners);
       const winnerMentions = winners
-        .map((winner) => (winner.id ? `<@${winner.id}>` : null))
+        .map((w) => (w.id ? `<@${w.id}>` : null))
         .filter(Boolean)
         .join(", ");
       const allowedMentionIds = winners
@@ -298,14 +218,13 @@ export default class RerollCommand extends BaseCommand {
         "commands.reroll.messages.success",
         {
           language: ctx.locale,
-          params: {
-            count: winners.length,
-            winners: winnerMentions,
-          },
+          params: { count: winners.length, winners: winnerMentions },
         }
       );
 
-      return ctx.editOriginal({
+      // Send the winner announcement as a public follow-up so everyone sees it.
+      // The ephemeral deferred reply is left to expire.
+      return ctx.send({
         content: successMessage,
         allowedMentions: {
           users: allowedMentionIds,
