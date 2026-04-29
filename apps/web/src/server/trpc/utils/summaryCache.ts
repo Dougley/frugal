@@ -30,7 +30,7 @@ const summaryOutputSchema = z.object({
     winners: z.number(),
     originalWinners: z.array(z.string()),
     time: z.object({
-      start: z.string(),
+      start: z.string().nullable(),
       end: z.string(),
     }),
   }),

@@ -136,8 +136,29 @@ export async function handleAlarm(
   >;
 
   try {
-    // Draw winners using existing procedure
-    drawResult = await stateRouter.createCaller(fullContext).drawWinners();
+    // Check if winners were already drawn in a previous alarm execution.
+    // This handles the case where the alarm fires again after drawing winners
+    // but before completing the full flow (D1 update, announcement, etc.)
+    const existingWinners = entriesDb.getWinners(fullContext);
+
+    if (existingWinners.length > 0) {
+      console.log("[alarm] winners_already_drawn.reusing", {
+        giveawayId,
+        winnersCount: existingWinners.length,
+      });
+
+      drawResult = {
+        success: true,
+        winners: existingWinners.map(({ userId, username, avatar }) => ({
+          id: userId,
+          username,
+          discriminator: "",
+          avatar,
+        })),
+      };
+    } else {
+      drawResult = await stateRouter.createCaller(fullContext).drawWinners();
+    }
   } catch (error) {
     console.error("[alarm] draw_winners.failed", {
       giveawayId,

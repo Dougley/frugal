@@ -63,6 +63,13 @@ export function createProxy(
       this.state.blockConcurrencyWhile(async () => {
         // wait for drizzle to be ready
         await migrate(this.db, migrations);
+        state.storage.sql.exec(`
+        CREATE TABLE IF NOT EXISTS rate_limits (
+          action TEXT NOT NULL,
+          identifier TEXT NOT NULL,
+          timestamp INTEGER NOT NULL,
+          PRIMARY KEY (action, identifier)
+        )`);
       });
     }
 

@@ -68,16 +68,6 @@ const createRateLimitMiddleware = (
     // Determine the action name (for storage key)
     const action = options.action || path;
 
-    // Create table if it doesn't exist
-    ctx.state.storage.sql.exec(`
-      CREATE TABLE IF NOT EXISTS rate_limits (
-        action TEXT NOT NULL,
-        identifier TEXT NOT NULL,
-        timestamp INTEGER NOT NULL,
-        PRIMARY KEY (action, identifier)
-      )
-    `);
-
     const now = Date.now();
 
     // Check if rate limited using a single query with bindings

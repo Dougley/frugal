@@ -7,8 +7,10 @@ import {
   sql,
 } from "@dougley/frugal-drizzle/workers";
 import {
+  checkFeatureLimit,
   FEATURE_LIMITS,
   getGuildSubscriptionStatus,
+  getPremiumStatus,
 } from "@dougley/frugal-subscriptions";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { TRPCError } from "@trpc/server";
@@ -154,9 +156,57 @@ export const slotsRouter = {
    * hasn't exceeded their concurrent limit.
    */
   reserve: publicProcedure
-    .input(z.object({ guild_id: z.string().min(1) }))
+    .input(
+      z.object({
+        guild_id: z.string().min(1),
+        host_id: z.string().optional(),
+        winners: z.number().optional(),
+        end_time: z.iso.datetime({ offset: true }).optional(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const db = drizzleD1(ctx.env.D1);
+
+      if (input.host_id && (input.winners !== undefined || input.end_time)) {
+        const subscription = await getPremiumStatus(
+          { userId: input.host_id, guildId: input.guild_id },
+          db
+        );
+
+        if (input.winners !== undefined) {
+          const limit = checkFeatureLimit(
+            subscription,
+            input.winners,
+            FEATURE_LIMITS.MAX_WINNERS.FREE,
+            FEATURE_LIMITS.MAX_WINNERS.PREMIUM
+          );
+          if (!limit.allowed) {
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message: "PREMIUM_WINNERS_LIMIT",
+            });
+          }
+        }
+
+        if (input.end_time) {
+          const durationDays =
+            (new Date(input.end_time).getTime() - Date.now()) /
+            (24 * 60 * 60 * 1000);
+          const limit = checkFeatureLimit(
+            subscription,
+            durationDays,
+            FEATURE_LIMITS.GIVEAWAY_DURATION_DAYS.FREE,
+            FEATURE_LIMITS.GIVEAWAY_DURATION_DAYS.PREMIUM
+          );
+          if (!limit.allowed) {
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message: "PREMIUM_DURATION_LIMIT",
+            });
+          }
+        }
+      }
+
       await ensureGuildConcurrentGiveawaySlotReserved(ctx, db, input.guild_id);
       return { success: true };
     }),

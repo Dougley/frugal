@@ -8,7 +8,6 @@ import createRateLimitMiddleware from "../middleware";
 import { entriesDb, getGiveaway, validateGiveawayState } from "../utils";
 import { publicProcedure, t } from "./instance";
 
-// Create rate limited procedures for entry operations
 const entryRateLimit = createRateLimitMiddleware(t, {
   action: "join",
   cooldown: 5000,
@@ -19,22 +18,11 @@ const exitRateLimit = createRateLimitMiddleware(t, {
   cooldown: 5000,
 });
 
-/**
- * Entries router - manages giveaway participant entries
- *
- * Handles join/leave operations and entry listing with rate limiting.
- */
 export const entriesRouter = {
-  /**
-   * Get all entries for the current giveaway
-   */
   getAll: publicProcedure.query(async ({ ctx }) => {
     return entriesDb.getAll(ctx);
   }),
 
-  /**
-   * Get paginated entries
-   */
   getPaginated: publicProcedure
     .input(
       z.object({
@@ -49,6 +37,7 @@ export const entriesRouter = {
   /**
    * Add a new entry to the giveaway
    *
+   * Uses INSERT ... ON CONFLICT DO NOTHING RETURNING for atomic dedup.
    * Rate limited to prevent spam. Validates giveaway is OPEN.
    */
   add: publicProcedure
@@ -73,10 +62,13 @@ export const entriesRouter = {
       const giveaway = await getGiveaway(ctx);
       validateGiveawayState(giveaway, ["OPEN"]);
 
-      // Check if entry already exists
-      const existingEntry = entriesDb.getByUserId(ctx, input.user_id);
+      const entry = entriesDb.create(ctx, {
+        userId: input.user_id,
+        username: input.username,
+        avatar: input.avatar,
+      });
 
-      if (existingEntry) {
+      if (!entry) {
         console.warn("[entries] add.already_entered", {
           giveawayId,
           userId: input.user_id,
@@ -86,13 +78,6 @@ export const entriesRouter = {
           message: "User has already entered this giveaway",
         });
       }
-
-      // Add entry to local database
-      entriesDb.create(ctx, {
-        userId: input.user_id,
-        username: input.username,
-        avatar: input.avatar,
-      });
 
       console.log("[entries] add.success", {
         giveawayId,
@@ -114,6 +99,7 @@ export const entriesRouter = {
   /**
    * Remove an entry from the giveaway
    *
+   * Uses DELETE ... RETURNING for atomic check-and-delete.
    * Rate limited to prevent spam. Validates giveaway is OPEN.
    */
   remove: publicProcedure
@@ -130,10 +116,9 @@ export const entriesRouter = {
       const giveaway = await getGiveaway(ctx);
       validateGiveawayState(giveaway, ["OPEN"]);
 
-      // Check if entry exists
-      const existingEntry = entriesDb.getByUserId(ctx, input.user_id);
+      const entry = entriesDb.delete(ctx, input.user_id);
 
-      if (!existingEntry) {
+      if (!entry) {
         console.warn("[entries] remove.not_found", {
           giveawayId,
           userId: input.user_id,
@@ -144,9 +129,6 @@ export const entriesRouter = {
         });
       }
 
-      // Delete from local database
-      entriesDb.delete(ctx, input.user_id);
-
       console.log("[entries] remove.success", {
         giveawayId,
         userId: input.user_id,
@@ -154,7 +136,7 @@ export const entriesRouter = {
 
       return {
         success: true,
-        entry: existingEntry,
+        entry,
       };
     }),
 } satisfies TRPCRouterRecord;

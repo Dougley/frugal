@@ -8,15 +8,20 @@ import {
   eq,
 } from "@dougley/frugal-drizzle/workers";
 import {
+  checkFeatureLimit,
+  FEATURE_LIMITS,
+  getPremiumStatus,
+} from "@dougley/frugal-subscriptions";
+import {
   createGiveawayComponents,
   type GiveawayTranslations,
   JoinButton,
   type JoinButtonTranslations,
 } from "@dougley/frugal-utils";
 import type { TRPCRouterRecord } from "@trpc/server";
+import { TRPCError } from "@trpc/server";
 import { Routes } from "discord-api-types/v10";
 import { z } from "zod";
-
 import {
   createDiscordRest,
   createGiveawayI18n,
@@ -294,6 +299,24 @@ export const giveawayRouter = {
       // Verify giveaway is in the right state
       validateGiveawayState(giveaway, ["OPEN"]);
 
+      // Server-side premium enforcement for winner count
+      const subscription = await getPremiumStatus(
+        { userId: giveaway.hostId, guildId: giveaway.guildId },
+        db
+      );
+      const winnersLimit = checkFeatureLimit(
+        subscription,
+        input.winners,
+        FEATURE_LIMITS.MAX_WINNERS.FREE,
+        FEATURE_LIMITS.MAX_WINNERS.PREMIUM
+      );
+      if (!winnersLimit.allowed) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "PREMIUM_WINNERS_LIMIT",
+        });
+      }
+
       // Update the giveaway with new data
       const updated = await db
         .update(D1Schema.giveaways)
@@ -399,6 +422,8 @@ export const giveawayRouter = {
       const id = ctx.state.id.toString();
       const numWinners = input ?? giveaway.winners;
 
+      validateGiveawayState(giveaway, ["OPEN"]);
+
       console.log("[giveaway] drawWinners.start", {
         giveawayId: id,
         requestedWinners: numWinners,
@@ -487,7 +512,10 @@ export const giveawayRouter = {
           originalWinners: winners.map((w) => w.user_id),
           time: {
             end: giveaway.endTime,
-            start: giveaway.endTime,
+            // start is unavailable — the D1 schema does not track creation time.
+            // The guildActiveGiveaways.createdAt is approximate but not reliably
+            // available here.  Store a sentinel so consumers can detect this.
+            start: null,
           },
         },
       };

@@ -14,7 +14,7 @@ declare type SummaryOutput = {
     winners: number;
     originalWinners: string[];
     time: {
-      start: string;
+      start: string | null;
       end: string;
     };
   };

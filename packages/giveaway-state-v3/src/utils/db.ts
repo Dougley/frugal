@@ -14,9 +14,6 @@ import {
 import { TRPCError } from "@trpc/server";
 import type { Context } from "../trpc";
 
-/**
- * Get giveaway from D1 by durable object ID
- */
 export async function getGiveaway(ctx: Context<LegacyEnv>) {
   const db = drizzleD1(ctx.env.D1);
   const id = ctx.state.id.toString();
@@ -37,22 +34,13 @@ export async function getGiveaway(ctx: Context<LegacyEnv>) {
   return giveaway;
 }
 
-/**
- * Functions for working with the local SQLite database (Durable Object storage)
- */
 export const entriesDb = {
-  /**
-   * Get all entries for the current giveaway
-   */
   getAll: (ctx: Context<LegacyEnv>) => {
     const db = drizzleDurable(ctx.state.storage);
     return db.select().from(DurableSchema.entries).all();
   },
 
-  /**
-   * Get a count of all entries
-   */
-  count: async (ctx: Context<LegacyEnv>) => {
+  count: (ctx: Context<LegacyEnv>) => {
     const db = drizzleDurable(ctx.state.storage);
     const result = db
       .select({ count: sql<number>`count(*)` })
@@ -61,9 +49,6 @@ export const entriesDb = {
     return result?.count ?? 0;
   },
 
-  /**
-   * Get paginated entries
-   */
   getPaginated: (
     ctx: Context<LegacyEnv>,
     options: { page: number; limit: number }
@@ -94,9 +79,6 @@ export const entriesDb = {
     };
   },
 
-  /**
-   * Get a single entry by userId
-   */
   getByUserId: (ctx: Context<LegacyEnv>, userId: string) => {
     const db = drizzleDurable(ctx.state.storage);
     return db
@@ -107,7 +89,8 @@ export const entriesDb = {
   },
 
   /**
-   * Add a new entry
+   * Atomically insert an entry. Returns the inserted row, or undefined if the
+   * user already exists (ON CONFLICT DO NOTHING on primary key).
    */
   create: (
     ctx: Context<LegacyEnv>,
@@ -123,23 +106,24 @@ export const entriesDb = {
         winner: false,
         timestamp: new Date().toISOString(),
       })
-      .run();
+      .onConflictDoNothing()
+      .returning()
+      .get();
   },
 
   /**
-   * Delete an entry by userId
+   * Atomically delete an entry by userId. Returns the deleted row, or
+   * undefined if the user was not entered.
    */
   delete: (ctx: Context<LegacyEnv>, userId: string) => {
     const db = drizzleDurable(ctx.state.storage);
     return db
       .delete(DurableSchema.entries)
       .where(eq(DurableSchema.entries.userId, userId))
-      .run();
+      .returning()
+      .get();
   },
 
-  /**
-   * Get random winners
-   */
   getRandomWinners: (ctx: Context<LegacyEnv>, limit: number) => {
     const db = drizzleDurable(ctx.state.storage);
     return db
@@ -151,9 +135,6 @@ export const entriesDb = {
       .all();
   },
 
-  /**
-   * Mark users as winners
-   */
   markAsWinners: (ctx: Context<LegacyEnv>, userIds: string[]) => {
     if (userIds.length === 0) return;
 
@@ -165,9 +146,6 @@ export const entriesDb = {
       .run();
   },
 
-  /**
-   * Get all winners
-   */
   getWinners: (ctx: Context<LegacyEnv>) => {
     const db = drizzleDurable(ctx.state.storage);
     return db
