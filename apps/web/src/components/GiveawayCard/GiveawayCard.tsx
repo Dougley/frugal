@@ -85,8 +85,8 @@ export const GiveawayCard = memo(function GiveawayCard({
   const isClosed = giveaway.state === "CLOSED";
 
   const discordUrl = `https://discord.com/channels/${guildId}/${giveaway.channelId}/${giveaway.messageId}`;
-  const summaryUrl = `/giveaways/summaries/${giveaway.durableObjectId}`;
-  const detailsUrl = `/giveaways/details/${giveaway.durableObjectId}`;
+  const summaryUrl = `/guilds/${guildId}/summary/${giveaway.durableObjectId}`;
+  const detailsUrl = `/guilds/${guildId}/details/${giveaway.durableObjectId}`;
 
   return (
     <HoverCard className={styles.card} data-closed={isClosed}>

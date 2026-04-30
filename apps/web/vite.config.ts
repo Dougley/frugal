@@ -8,7 +8,6 @@ import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import { defineConfig, type PluginOption } from "vite";
-import tsConfigPaths from "vite-tsconfig-paths";
 
 import { remarkAdmonitions } from "./src/lib/remarkAdmonitions";
 
@@ -23,6 +22,7 @@ export default defineConfig({
     format: "es",
   },
   resolve: {
+    tsconfigPaths: true,
     alias: {
       // /esm/icons/index.mjs only exports the icons statically, so no separate chunks are created
       "@tabler/icons-react": "@tabler/icons-react/dist/esm/icons/index.mjs",
@@ -30,9 +30,6 @@ export default defineConfig({
   },
   plugins: [
     devtools(),
-    tsConfigPaths({
-      projects: ["./tsconfig.json"],
-    }),
     cloudflare({
       persistState: {
         path: "../../.mf",

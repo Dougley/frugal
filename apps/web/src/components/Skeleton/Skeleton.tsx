@@ -52,7 +52,7 @@ export function Skeleton({ children }: { children: React.ReactNode }) {
         >
           <div
             style={{
-              minHeight: "75vh",
+              minHeight: "85vh",
               width: "100%",
             }}
           >

@@ -37,13 +37,13 @@ import { createMeta } from "~/utils/seo";
  *
  * No auth required - users can upload and view any summary JSON file.
  */
-export const Route = createFileRoute("/giveaways/summaries/")({
+export const Route = createFileRoute("/summaries/")({
   head: () => ({
     meta: createMeta({
       title: "View Giveaway Summary",
       description:
         "Upload and view giveaway summary files. See winners, participants, and giveaway details.",
-      url: "/giveaways/summaries",
+      url: "/summaries",
     }),
   }),
   component: SummariesUploadRoute,

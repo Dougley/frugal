@@ -29,7 +29,7 @@ import { noIndexMeta } from "~/utils/seo";
  *
  * Uses SSR prefetch for authenticated users to eliminate loading flash.
  */
-export const Route = createFileRoute("/giveaways/overview")({
+export const Route = createFileRoute("/guilds/")({
   loader: async ({ context }) => {
     // Prefetch both queries in parallel for authenticated users
     if (context.session) {

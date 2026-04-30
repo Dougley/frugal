@@ -1,6 +1,5 @@
 import {
   Alert,
-  Avatar,
   Button,
   Container,
   Group,
@@ -8,7 +7,6 @@ import {
   SegmentedControl,
   Select,
   SimpleGrid,
-  Skeleton,
   Stack,
   Text,
   TextInput,
@@ -16,7 +14,6 @@ import {
   Title,
 } from "@mantine/core";
 import {
-  IconArrowLeft,
   IconExternalLink,
   IconFilter,
   IconGift,
@@ -46,15 +43,8 @@ import { noIndexMeta } from "~/utils/seo";
 type FilterValue = "all" | "active" | "closed";
 type SortValue = "endTime" | "prize";
 
-/**
- * Guild giveaways route - shows all giveaways for a specific guild
- *
- * Uses SSR prefetch for authenticated users to eliminate loading flash.
- * Custom error handling for FORBIDDEN and NOT_FOUND responses.
- */
-export const Route = createFileRoute("/giveaways/$guildId")({
+export const Route = createFileRoute("/guilds/$guildId/")({
   loader: async ({ context, params }) => {
-    // Prefetch giveaways for authenticated users
     if (context.session) {
       await context.queryClient.ensureQueryData(
         context.trpc.giveaways.getGuildGiveaways.queryOptions({
@@ -69,36 +59,15 @@ export const Route = createFileRoute("/giveaways/$guildId")({
   component: GuildGiveawaysRoute,
 });
 
-/** Error display configuration for guild-related NOT_FOUND errors */
 const GUILD_NOT_FOUND_CONFIG = {
   titleKey: "errors.guildNotFound.title",
   messageKey: "errors.guildNotFound.message",
 } as const;
 
-function GuildHeaderSkeleton() {
-  const { t } = useTranslation();
-
+function GiveawayListSkeleton() {
   return (
     <Container size="lg" py="xl">
       <Stack gap="xl">
-        <Button
-          component={Link}
-          to="/giveaways/overview"
-          variant="subtle"
-          leftSection={<IconArrowLeft size={16} aria-hidden="true" />}
-          w="fit-content"
-        >
-          {t("giveaways.backToGiveaways")}
-        </Button>
-
-        <Group justify="space-between" align="center">
-          <Group>
-            <Skeleton height={48} width={48} radius="md" />
-            <Skeleton height={32} width={200} />
-          </Group>
-          <Skeleton height={28} width={120} radius="xl" />
-        </Group>
-
         <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }}>
           <GiveawayCardSkeleton />
           <GiveawayCardSkeleton />
@@ -121,7 +90,6 @@ function GuildGiveawaysRoute() {
   const [sort, setSort] = useState<SortValue>("endTime");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Modal state
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [stopModalOpen, setStopModalOpen] = useState(false);
   const [rerollModalOpen, setRerollModalOpen] = useState(false);
@@ -129,7 +97,6 @@ function GuildGiveawaysRoute() {
     null
   );
 
-  // Modal handlers
   const handleEdit = (giveaway: GiveawayData) => {
     setSelectedGiveaway(giveaway);
     setEditModalOpen(true);
@@ -152,22 +119,18 @@ function GuildGiveawaysRoute() {
     setSelectedGiveaway(null);
   };
 
-  // Use TanStack Query's useQuery with tRPC queryOptions
   const guildQuery = useQuery({
     ...trpc.giveaways.getGuildGiveaways.queryOptions({ guildId }),
     enabled: isAuthenticated,
   });
 
-  // Get giveaways and counts from API response
   const giveaways = guildQuery.data?.giveaways ?? [];
   const counts = guildQuery.data?.counts;
   const activeCount = counts?.active ?? 0;
   const closedCount = counts?.closed ?? 0;
   const totalCount = counts?.total ?? 0;
 
-  // Filter and sort giveaways
   const filteredGiveaways = useMemo(() => {
-    // Filter by state
     let filtered = giveaways;
     if (filter === "active") {
       filtered = filtered.filter((g) => g.state !== "CLOSED");
@@ -175,13 +138,11 @@ function GuildGiveawaysRoute() {
       filtered = filtered.filter((g) => g.state === "CLOSED");
     }
 
-    // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter((g) => g.prize.toLowerCase().includes(query));
     }
 
-    // Sort
     return [...filtered].sort((a, b) => {
       if (sort === "endTime") {
         return new Date(b.endTime).getTime() - new Date(a.endTime).getTime();
@@ -193,20 +154,16 @@ function GuildGiveawaysRoute() {
     });
   }, [filter, sort, searchQuery, giveaways]);
 
-  // Check if current empty state is due to filtering
   const isFilteredEmpty = filteredGiveaways.length === 0 && totalCount > 0;
 
-  // Show not logged in if no session
   if (!isAuthenticated) {
     return <NotLoggedIn />;
   }
 
-  // Show loading skeleton
   if (guildQuery.isLoading) {
-    return <GuildHeaderSkeleton />;
+    return <GiveawayListSkeleton />;
   }
 
-  // Handle errors
   if (guildQuery.error) {
     return (
       <ErrorDisplay
@@ -239,30 +196,6 @@ function GuildGiveawaysRoute() {
   return (
     <Container size="lg" py="xl">
       <Stack gap="xl">
-        <Button
-          component={Link}
-          to="/giveaways/overview"
-          variant="subtle"
-          leftSection={<IconArrowLeft size={16} aria-hidden="true" />}
-          w="fit-content"
-        >
-          {t("giveaways.backToGiveaways")}
-        </Button>
-
-        <Group justify="space-between" align="center">
-          <Group>
-            <Avatar
-              src={guild.iconUrl ?? undefined}
-              alt={guild.name}
-              size="lg"
-              radius="md"
-            >
-              {guild.name.charAt(0)}
-            </Avatar>
-            <Title order={1}>{guild.name}</Title>
-          </Group>
-        </Group>
-
         <Paper withBorder p="md">
           <Group justify="space-between" wrap="wrap" gap="md">
             <Group gap="md">
@@ -370,7 +303,6 @@ function GuildGiveawaysRoute() {
         )}
       </Stack>
 
-      {/* Giveaway Action Modals */}
       {selectedGiveaway && (
         <>
           <EditGiveawayModal

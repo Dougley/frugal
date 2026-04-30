@@ -58,7 +58,7 @@ const PARTICIPANTS_PER_PAGE = 25;
  * Uses SSR prefetch for authenticated users. Shows live participant data
  * from Durable Object with auto-refresh.
  */
-export const Route = createFileRoute("/giveaways/details/$giveawayId")({
+export const Route = createFileRoute("/guilds/$guildId/details/$giveawayId")({
   loader: async ({ context, params }) => {
     // Prefetch both details and first page of participants in parallel
     if (context.session) {
@@ -106,7 +106,7 @@ function GiveawayDetailError({ error, reset }: ErrorComponentProps) {
   );
 }
 
-function DetailSkeleton() {
+function DetailSkeleton({ guildId }: { guildId: string }) {
   const { t } = useTranslation();
 
   return (
@@ -114,7 +114,7 @@ function DetailSkeleton() {
       <Stack gap="xl">
         <Button
           component={Link}
-          to="/giveaways/overview"
+          to={`/guilds/${guildId}/`}
           variant="subtle"
           leftSection={<IconArrowLeft size={16} aria-hidden="true" />}
           w="fit-content"
@@ -141,7 +141,7 @@ function DetailSkeleton() {
 function GiveawayDetailRoute() {
   const { isAuthenticated } = useAuth();
   const { trpc } = Route.useRouteContext();
-  const { giveawayId } = Route.useParams();
+  const { giveawayId, guildId } = Route.useParams();
   const { t } = useTranslation();
   const dayjs = useLocalizedDayjs();
   const [participantsPage, setParticipantsPage] = useState(1);
@@ -177,7 +177,7 @@ function GiveawayDetailRoute() {
   }
 
   if (detailsQuery.isLoading) {
-    return <DetailSkeleton />;
+    return <DetailSkeleton guildId={guildId} />;
   }
 
   if (detailsQuery.error) {
@@ -234,7 +234,7 @@ function GiveawayDetailRoute() {
         <Group justify="space-between" align="center">
           <Button
             component={Link}
-            to={`/giveaways/${guild.id}`}
+            to={`/guilds/${guildId}/`}
             variant="subtle"
             leftSection={<IconArrowLeft size={16} aria-hidden="true" />}
           >

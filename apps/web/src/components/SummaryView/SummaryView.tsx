@@ -29,13 +29,8 @@ import {
   IconPlayerPlay,
   IconX,
 } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
-import {
-  createFileRoute,
-  type ErrorComponentProps,
-  Link,
-  useRouter,
-} from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -47,56 +42,21 @@ import { NotLoggedIn } from "~/components/NotLoggedIn";
 import ParticipantsTable from "~/components/ParticipantsTable/ParticipantsTable";
 import WinnersTable from "~/components/WinnersTable/WinnersTable";
 import { useLocalizedDayjs } from "~/lib/dayjs";
-import { noIndexMeta } from "~/utils/seo";
+import { useTRPC } from "~/server/trpc/client";
 
 const PARTICIPANTS_PER_PAGE = 25;
 
-/**
- * Summary view route - fetches and displays a giveaway summary from R2
- *
- * Uses tRPC for data fetching with SSR prefetch for authenticated users.
- * First page of participants is SSR'd, subsequent pages fetched client-side.
- * Cached at the Cloudflare edge for performance.
- */
-export const Route = createFileRoute("/giveaways/summaries/$summaryId")({
-  loader: async ({ context, params }) => {
-    // Only prefetch if authenticated - prefetch first page
-    if (context.session) {
-      await context.queryClient.ensureQueryData(
-        context.trpc.giveaways.getSummary.queryOptions({
-          summaryId: params.summaryId,
-          page: 1,
-          limit: PARTICIPANTS_PER_PAGE,
-        })
-      );
-    }
-  },
-  head: () => ({
-    meta: [{ title: "Giveaway Summary | GiveawayBot" }, ...noIndexMeta],
-  }),
-  component: SummaryRoute,
-  errorComponent: SummaryError,
-});
-
-/** Error display configuration for summary-related NOT_FOUND errors */
-const SUMMARY_NOT_FOUND_CONFIG = {
+export const SUMMARY_NOT_FOUND_CONFIG = {
   titleKey: "errors.summaryNotFound.title",
   messageKey: "errors.summaryNotFound.message",
 } as const;
 
-function SummaryError({ error }: ErrorComponentProps) {
-  const router = useRouter();
-
-  return (
-    <ErrorDisplay
-      error={error}
-      onRetry={() => router.invalidate()}
-      notFoundConfig={SUMMARY_NOT_FOUND_CONFIG}
-    />
-  );
+interface SummaryViewProps {
+  summaryId: string;
+  backTo: string;
 }
 
-function SummarySkeleton() {
+function SummarySkeleton({ backTo }: { backTo: string }) {
   const { t } = useTranslation();
 
   return (
@@ -105,7 +65,7 @@ function SummarySkeleton() {
         <Group justify="space-between" align="center">
           <Button
             component={Link}
-            to="/giveaways/overview"
+            to={backTo}
             variant="subtle"
             leftSection={<IconArrowLeft size={16} aria-hidden="true" />}
             w="fit-content"
@@ -144,21 +104,18 @@ function SummarySkeleton() {
   );
 }
 
-function SummaryRoute() {
+export function SummaryView({ summaryId, backTo }: SummaryViewProps) {
   const { isAuthenticated } = useAuth();
-  const { trpc, queryClient } = Route.useRouteContext();
-  const { summaryId } = Route.useParams();
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const { t } = useTranslation();
   const dayjs = useLocalizedDayjs();
   const [participantsPage, setParticipantsPage] = useState(1);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // Modal state
   const [rerollOpened, { open: openReroll, close: closeReroll }] =
     useDisclosure(false);
 
-  // Use TanStack Query's useQuery with tRPC queryOptions
-  // This fetches paginated data - first page is SSR'd
   const summaryQuery = useQuery({
     ...trpc.giveaways.getSummary.queryOptions({
       summaryId,
@@ -166,17 +123,14 @@ function SummaryRoute() {
       limit: PARTICIPANTS_PER_PAGE,
     }),
     enabled: isAuthenticated,
-    // Keep previous data while fetching next page for smooth UX
     placeholderData: (previousData) => previousData,
   });
 
-  // Download handler - fetches complete summary via tRPC using queryClient
   const handleDownload = useCallback(async () => {
     if (!summaryQuery.data) return;
 
     setIsDownloading(true);
     try {
-      // Use queryClient.fetchQuery with tRPC queryOptions for proper integration
       const result = await queryClient.fetchQuery(
         trpc.giveaways.downloadSummary.queryOptions({ summaryId })
       );
@@ -228,17 +182,14 @@ function SummaryRoute() {
     trpc.giveaways.downloadSummary,
   ]);
 
-  // Show not logged in if no session
   if (!isAuthenticated) {
     return <NotLoggedIn />;
   }
 
-  // Show loading skeleton (only on initial load, not page changes)
   if (summaryQuery.isLoading && !summaryQuery.data) {
-    return <SummarySkeleton />;
+    return <SummarySkeleton backTo={backTo} />;
   }
 
-  // Handle errors
   if (summaryQuery.error) {
     return (
       <ErrorDisplay
@@ -265,7 +216,6 @@ function SummaryRoute() {
     );
   }
 
-  // Extract winners from current page entries
   const winners = data.entries.filter((entry) =>
     data.details.originalWinners.includes(entry.id)
   );
@@ -274,8 +224,6 @@ function SummaryRoute() {
   const startTime = dayjs(data.details.time.start);
   const totalParticipants = data.pagination.total;
   const winnersCount = data.details.originalWinners.length;
-
-  // Build Discord URL if we have the channel and message IDs
   const discordUrl = `https://discord.com/channels/-/${data.details.channel}/${data.details.message}`;
 
   return (
@@ -284,7 +232,7 @@ function SummaryRoute() {
         <Group justify="space-between" align="center">
           <Button
             component={Link}
-            to="/giveaways/overview"
+            to={backTo}
             variant="subtle"
             leftSection={<IconArrowLeft size={16} aria-hidden="true" />}
           >
@@ -390,7 +338,6 @@ function SummaryRoute() {
           </Stack>
         </Paper>
 
-        {/* Winners and Participants Tables */}
         <Group gap="xl" align="flex-start" grow>
           <Box>
             <WinnersTable winners={winners} />
@@ -411,7 +358,6 @@ function SummaryRoute() {
         </Group>
       </Stack>
 
-      {/* Action Modals */}
       <RerollWinnersModal
         opened={rerollOpened}
         onClose={closeReroll}

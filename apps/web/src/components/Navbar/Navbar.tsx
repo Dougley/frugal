@@ -61,13 +61,13 @@ const data: NavItem[] = [
   { labelKey: "nav.premium", link: "/premium", icon: IconDiamond },
   {
     labelKey: "nav.giveaways",
-    link: "/giveaways",
+    link: "/guilds",
     icon: IconConfetti,
     children: [
-      { labelKey: "nav.list", link: "/giveaways/overview", icon: IconList },
+      { labelKey: "nav.list", link: "/guilds", icon: IconList },
       {
         labelKey: "nav.summaries",
-        link: "/giveaways/summaries",
+        link: "/summaries",
         icon: IconZoomIn,
       },
     ],

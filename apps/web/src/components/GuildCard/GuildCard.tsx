@@ -21,7 +21,7 @@ export const GuildCard = memo(function GuildCard({ guild }: GuildCardProps) {
   const { t } = useTranslation();
 
   return (
-    <Anchor component={Link} to={`/giveaways/${guild.id}`} underline="never">
+    <Anchor component={Link} to={`/guilds/${guild.id}`} underline="never">
       <HoverCard style={{ cursor: "pointer" }}>
         <Group justify="space-between">
           <Group>

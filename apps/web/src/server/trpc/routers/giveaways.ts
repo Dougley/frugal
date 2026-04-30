@@ -548,6 +548,106 @@ export const giveawaysRouter = {
     }),
 
   /**
+   * Get basic guild info — used by the guild layout to show the header
+   * without loading the full giveaway list.
+   */
+  getGuildInfo: protectedProcedure
+    .input(z.object({ guildId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const [{ guild }, subscription] = await Promise.all([
+        validateGuildPermission(ctx, input.guildId, "view this guild"),
+        getPremiumStatus(
+          { userId: ctx.user.id, guildId: input.guildId },
+          ctx.db
+        ),
+      ]);
+      return { guild, isPremium: subscription.hasPremium };
+    }),
+
+  /**
+   * Get analytics aggregates for a guild — derived entirely from the
+   * giveaways table (no separate analytics store required).
+   * Requires premium.
+   */
+  getGuildAnalytics: protectedProcedure
+    .input(z.object({ guildId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      await validateGuildPermission(
+        ctx,
+        input.guildId,
+        "view analytics for this guild"
+      );
+
+      const subscription = await getPremiumStatus(
+        { userId: ctx.user.id, guildId: input.guildId },
+        ctx.db
+      );
+
+      if (!subscription.hasPremium) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "402 PREMIUM_REQUIRED",
+        });
+      }
+
+      const [aggregates, topGiveaways, channelStats] = await Promise.all([
+        ctx.db
+          .select({
+            total: count(),
+            totalEntries: sql<number>`COALESCE(SUM(${Schema.giveaways.entryCount}), 0)`,
+            activeCount:
+              sql<number>`SUM(CASE WHEN ${Schema.giveaways.state} != 'CLOSED' THEN 1 ELSE 0 END)`.as(
+                "active_count"
+              ),
+            closedCount:
+              sql<number>`SUM(CASE WHEN ${Schema.giveaways.state} = 'CLOSED' THEN 1 ELSE 0 END)`.as(
+                "closed_count"
+              ),
+          })
+          .from(Schema.giveaways)
+          .where(eq(Schema.giveaways.guildId, input.guildId)),
+
+        ctx.db.query.giveaways.findMany({
+          where: eq(Schema.giveaways.guildId, input.guildId),
+          orderBy: (g, { desc }) => [desc(g.entryCount)],
+          limit: 5,
+        }),
+
+        ctx.db
+          .select({
+            channelId: Schema.giveaways.channelId,
+            giveawayCount: count(),
+          })
+          .from(Schema.giveaways)
+          .where(eq(Schema.giveaways.guildId, input.guildId))
+          .groupBy(Schema.giveaways.channelId)
+          .orderBy(sql`count(*) DESC`)
+          .limit(1),
+      ]);
+
+      const row = aggregates[0];
+      const total = row?.total ?? 0;
+      const totalEntries = Number(row?.totalEntries ?? 0);
+      const avgEntries = total > 0 ? Math.round(totalEntries / total) : 0;
+
+      return {
+        total,
+        totalEntries,
+        avgEntries,
+        active: Number(row?.activeCount ?? 0),
+        closed: Number(row?.closedCount ?? 0),
+        mostActiveChannelId: channelStats[0]?.channelId ?? null,
+        topGiveaways: topGiveaways.map((g) => ({
+          prize: g.prize,
+          participants: g.entryCount ?? 0,
+          winners: g.winners,
+          endTime: g.endTime,
+          state: g.state,
+        })),
+      };
+    }),
+
+  /**
    * Get paginated participants for a giveaway
    *
    * For closed giveaways, fetches from R2 summary and paginates in-memory.

@@ -16,13 +16,14 @@ import { Route as InviteRouteImport } from './routes/invite'
 import { Route as AddedRouteImport } from './routes/added'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WikiIndexRouteImport } from './routes/wiki/index'
+import { Route as SummariesIndexRouteImport } from './routes/summaries/index'
 import { Route as LegalIndexRouteImport } from './routes/legal/index'
-import { Route as GiveawaysIndexRouteImport } from './routes/giveaways/index'
+import { Route as GuildsIndexRouteImport } from './routes/guilds/index'
+import { Route as SummariesSummaryIdRouteImport } from './routes/summaries/$summaryId'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
 import { Route as LegalPaidServicesRouteImport } from './routes/legal/paid-services'
-import { Route as GiveawaysOverviewRouteImport } from './routes/giveaways/overview'
-import { Route as GiveawaysGuildIdRouteImport } from './routes/giveaways/$guildId'
+import { Route as GuildsGuildIdRouteImport } from './routes/guilds/$guildId'
 import { Route as AuthErrorRouteImport } from './routes/auth/error'
 import { Route as ApiReportingRouteImport } from './routes/api/reporting'
 import { Route as WikiUserGuidesIndexRouteImport } from './routes/wiki/user-guides/index'
@@ -30,15 +31,19 @@ import { Route as WikiReferenceIndexRouteImport } from './routes/wiki/reference/
 import { Route as WikiGettingStartedIndexRouteImport } from './routes/wiki/getting-started/index'
 import { Route as WikiDeveloperIndexRouteImport } from './routes/wiki/developer/index'
 import { Route as WikiAdvancedIndexRouteImport } from './routes/wiki/advanced/index'
-import { Route as GiveawaysSummariesIndexRouteImport } from './routes/giveaways/summaries/index'
+import { Route as GuildsGuildIdIndexRouteImport } from './routes/guilds/$guildId/index'
 import { Route as WikiReferenceCommandsRouteImport } from './routes/wiki/reference/commands'
 import { Route as WikiGettingStartedQuickStartRouteImport } from './routes/wiki/getting-started/quick-start'
 import { Route as WikiDeveloperMarkdownTestRouteImport } from './routes/wiki/developer/markdown-test'
 import { Route as WikiDeveloperComponentsRouteImport } from './routes/wiki/developer/components'
-import { Route as GiveawaysSummariesSummaryIdRouteImport } from './routes/giveaways/summaries/$summaryId'
-import { Route as GiveawaysDetailsGiveawayIdRouteImport } from './routes/giveaways/details/$giveawayId'
+import { Route as GuildsGuildIdTemplatesRouteImport } from './routes/guilds/$guildId/templates'
+import { Route as GuildsGuildIdSettingsRouteImport } from './routes/guilds/$guildId/settings'
+import { Route as GuildsGuildIdCreateRouteImport } from './routes/guilds/$guildId/create'
+import { Route as GuildsGuildIdAnalyticsRouteImport } from './routes/guilds/$guildId/analytics'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api/trpc.$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
+import { Route as GuildsGuildIdSummarySummaryIdRouteImport } from './routes/guilds/$guildId/summary/$summaryId'
+import { Route as GuildsGuildIdDetailsGiveawayIdRouteImport } from './routes/guilds/$guildId/details/$giveawayId'
 
 const WikiRoute = WikiRouteImport.update({
   id: '/wiki',
@@ -75,14 +80,24 @@ const WikiIndexRoute = WikiIndexRouteImport.update({
   path: '/',
   getParentRoute: () => WikiRoute,
 } as any)
+const SummariesIndexRoute = SummariesIndexRouteImport.update({
+  id: '/summaries/',
+  path: '/summaries/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LegalIndexRoute = LegalIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LegalRoute,
 } as any)
-const GiveawaysIndexRoute = GiveawaysIndexRouteImport.update({
-  id: '/giveaways/',
-  path: '/giveaways/',
+const GuildsIndexRoute = GuildsIndexRouteImport.update({
+  id: '/guilds/',
+  path: '/guilds/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SummariesSummaryIdRoute = SummariesSummaryIdRouteImport.update({
+  id: '/summaries/$summaryId',
+  path: '/summaries/$summaryId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LegalTermsRoute = LegalTermsRouteImport.update({
@@ -100,14 +115,9 @@ const LegalPaidServicesRoute = LegalPaidServicesRouteImport.update({
   path: '/paid-services',
   getParentRoute: () => LegalRoute,
 } as any)
-const GiveawaysOverviewRoute = GiveawaysOverviewRouteImport.update({
-  id: '/giveaways/overview',
-  path: '/giveaways/overview',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GiveawaysGuildIdRoute = GiveawaysGuildIdRouteImport.update({
-  id: '/giveaways/$guildId',
-  path: '/giveaways/$guildId',
+const GuildsGuildIdRoute = GuildsGuildIdRouteImport.update({
+  id: '/guilds/$guildId',
+  path: '/guilds/$guildId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthErrorRoute = AuthErrorRouteImport.update({
@@ -145,10 +155,10 @@ const WikiAdvancedIndexRoute = WikiAdvancedIndexRouteImport.update({
   path: '/advanced/',
   getParentRoute: () => WikiRoute,
 } as any)
-const GiveawaysSummariesIndexRoute = GiveawaysSummariesIndexRouteImport.update({
-  id: '/giveaways/summaries/',
-  path: '/giveaways/summaries/',
-  getParentRoute: () => rootRouteImport,
+const GuildsGuildIdIndexRoute = GuildsGuildIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GuildsGuildIdRoute,
 } as any)
 const WikiReferenceCommandsRoute = WikiReferenceCommandsRouteImport.update({
   id: '/reference/commands',
@@ -172,18 +182,26 @@ const WikiDeveloperComponentsRoute = WikiDeveloperComponentsRouteImport.update({
   path: '/developer/components',
   getParentRoute: () => WikiRoute,
 } as any)
-const GiveawaysSummariesSummaryIdRoute =
-  GiveawaysSummariesSummaryIdRouteImport.update({
-    id: '/giveaways/summaries/$summaryId',
-    path: '/giveaways/summaries/$summaryId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const GiveawaysDetailsGiveawayIdRoute =
-  GiveawaysDetailsGiveawayIdRouteImport.update({
-    id: '/giveaways/details/$giveawayId',
-    path: '/giveaways/details/$giveawayId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
+const GuildsGuildIdTemplatesRoute = GuildsGuildIdTemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
+  getParentRoute: () => GuildsGuildIdRoute,
+} as any)
+const GuildsGuildIdSettingsRoute = GuildsGuildIdSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => GuildsGuildIdRoute,
+} as any)
+const GuildsGuildIdCreateRoute = GuildsGuildIdCreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => GuildsGuildIdRoute,
+} as any)
+const GuildsGuildIdAnalyticsRoute = GuildsGuildIdAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => GuildsGuildIdRoute,
+} as any)
 const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
   id: '/api/trpc/$',
   path: '/api/trpc/$',
@@ -194,6 +212,18 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuildsGuildIdSummarySummaryIdRoute =
+  GuildsGuildIdSummarySummaryIdRouteImport.update({
+    id: '/summary/$summaryId',
+    path: '/summary/$summaryId',
+    getParentRoute: () => GuildsGuildIdRoute,
+  } as any)
+const GuildsGuildIdDetailsGiveawayIdRoute =
+  GuildsGuildIdDetailsGiveawayIdRouteImport.update({
+    id: '/details/$giveawayId',
+    path: '/details/$giveawayId',
+    getParentRoute: () => GuildsGuildIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -204,28 +234,33 @@ export interface FileRoutesByFullPath {
   '/wiki': typeof WikiRouteWithChildren
   '/api/reporting': typeof ApiReportingRoute
   '/auth/error': typeof AuthErrorRoute
-  '/giveaways/$guildId': typeof GiveawaysGuildIdRoute
-  '/giveaways/overview': typeof GiveawaysOverviewRoute
+  '/guilds/$guildId': typeof GuildsGuildIdRouteWithChildren
   '/legal/paid-services': typeof LegalPaidServicesRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
-  '/giveaways': typeof GiveawaysIndexRoute
+  '/summaries/$summaryId': typeof SummariesSummaryIdRoute
+  '/guilds/': typeof GuildsIndexRoute
   '/legal/': typeof LegalIndexRoute
+  '/summaries/': typeof SummariesIndexRoute
   '/wiki/': typeof WikiIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
-  '/giveaways/details/$giveawayId': typeof GiveawaysDetailsGiveawayIdRoute
-  '/giveaways/summaries/$summaryId': typeof GiveawaysSummariesSummaryIdRoute
+  '/guilds/$guildId/analytics': typeof GuildsGuildIdAnalyticsRoute
+  '/guilds/$guildId/create': typeof GuildsGuildIdCreateRoute
+  '/guilds/$guildId/settings': typeof GuildsGuildIdSettingsRoute
+  '/guilds/$guildId/templates': typeof GuildsGuildIdTemplatesRoute
   '/wiki/developer/components': typeof WikiDeveloperComponentsRoute
   '/wiki/developer/markdown-test': typeof WikiDeveloperMarkdownTestRoute
   '/wiki/getting-started/quick-start': typeof WikiGettingStartedQuickStartRoute
   '/wiki/reference/commands': typeof WikiReferenceCommandsRoute
-  '/giveaways/summaries': typeof GiveawaysSummariesIndexRoute
-  '/wiki/advanced': typeof WikiAdvancedIndexRoute
-  '/wiki/developer': typeof WikiDeveloperIndexRoute
-  '/wiki/getting-started': typeof WikiGettingStartedIndexRoute
-  '/wiki/reference': typeof WikiReferenceIndexRoute
-  '/wiki/user-guides': typeof WikiUserGuidesIndexRoute
+  '/guilds/$guildId/': typeof GuildsGuildIdIndexRoute
+  '/wiki/advanced/': typeof WikiAdvancedIndexRoute
+  '/wiki/developer/': typeof WikiDeveloperIndexRoute
+  '/wiki/getting-started/': typeof WikiGettingStartedIndexRoute
+  '/wiki/reference/': typeof WikiReferenceIndexRoute
+  '/wiki/user-guides/': typeof WikiUserGuidesIndexRoute
+  '/guilds/$guildId/details/$giveawayId': typeof GuildsGuildIdDetailsGiveawayIdRoute
+  '/guilds/$guildId/summary/$summaryId': typeof GuildsGuildIdSummarySummaryIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -234,28 +269,32 @@ export interface FileRoutesByTo {
   '/premium': typeof PremiumRoute
   '/api/reporting': typeof ApiReportingRoute
   '/auth/error': typeof AuthErrorRoute
-  '/giveaways/$guildId': typeof GiveawaysGuildIdRoute
-  '/giveaways/overview': typeof GiveawaysOverviewRoute
   '/legal/paid-services': typeof LegalPaidServicesRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
-  '/giveaways': typeof GiveawaysIndexRoute
+  '/summaries/$summaryId': typeof SummariesSummaryIdRoute
+  '/guilds': typeof GuildsIndexRoute
   '/legal': typeof LegalIndexRoute
+  '/summaries': typeof SummariesIndexRoute
   '/wiki': typeof WikiIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
-  '/giveaways/details/$giveawayId': typeof GiveawaysDetailsGiveawayIdRoute
-  '/giveaways/summaries/$summaryId': typeof GiveawaysSummariesSummaryIdRoute
+  '/guilds/$guildId/analytics': typeof GuildsGuildIdAnalyticsRoute
+  '/guilds/$guildId/create': typeof GuildsGuildIdCreateRoute
+  '/guilds/$guildId/settings': typeof GuildsGuildIdSettingsRoute
+  '/guilds/$guildId/templates': typeof GuildsGuildIdTemplatesRoute
   '/wiki/developer/components': typeof WikiDeveloperComponentsRoute
   '/wiki/developer/markdown-test': typeof WikiDeveloperMarkdownTestRoute
   '/wiki/getting-started/quick-start': typeof WikiGettingStartedQuickStartRoute
   '/wiki/reference/commands': typeof WikiReferenceCommandsRoute
-  '/giveaways/summaries': typeof GiveawaysSummariesIndexRoute
+  '/guilds/$guildId': typeof GuildsGuildIdIndexRoute
   '/wiki/advanced': typeof WikiAdvancedIndexRoute
   '/wiki/developer': typeof WikiDeveloperIndexRoute
   '/wiki/getting-started': typeof WikiGettingStartedIndexRoute
   '/wiki/reference': typeof WikiReferenceIndexRoute
   '/wiki/user-guides': typeof WikiUserGuidesIndexRoute
+  '/guilds/$guildId/details/$giveawayId': typeof GuildsGuildIdDetailsGiveawayIdRoute
+  '/guilds/$guildId/summary/$summaryId': typeof GuildsGuildIdSummarySummaryIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -267,28 +306,33 @@ export interface FileRoutesById {
   '/wiki': typeof WikiRouteWithChildren
   '/api/reporting': typeof ApiReportingRoute
   '/auth/error': typeof AuthErrorRoute
-  '/giveaways/$guildId': typeof GiveawaysGuildIdRoute
-  '/giveaways/overview': typeof GiveawaysOverviewRoute
+  '/guilds/$guildId': typeof GuildsGuildIdRouteWithChildren
   '/legal/paid-services': typeof LegalPaidServicesRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
-  '/giveaways/': typeof GiveawaysIndexRoute
+  '/summaries/$summaryId': typeof SummariesSummaryIdRoute
+  '/guilds/': typeof GuildsIndexRoute
   '/legal/': typeof LegalIndexRoute
+  '/summaries/': typeof SummariesIndexRoute
   '/wiki/': typeof WikiIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
-  '/giveaways/details/$giveawayId': typeof GiveawaysDetailsGiveawayIdRoute
-  '/giveaways/summaries/$summaryId': typeof GiveawaysSummariesSummaryIdRoute
+  '/guilds/$guildId/analytics': typeof GuildsGuildIdAnalyticsRoute
+  '/guilds/$guildId/create': typeof GuildsGuildIdCreateRoute
+  '/guilds/$guildId/settings': typeof GuildsGuildIdSettingsRoute
+  '/guilds/$guildId/templates': typeof GuildsGuildIdTemplatesRoute
   '/wiki/developer/components': typeof WikiDeveloperComponentsRoute
   '/wiki/developer/markdown-test': typeof WikiDeveloperMarkdownTestRoute
   '/wiki/getting-started/quick-start': typeof WikiGettingStartedQuickStartRoute
   '/wiki/reference/commands': typeof WikiReferenceCommandsRoute
-  '/giveaways/summaries/': typeof GiveawaysSummariesIndexRoute
+  '/guilds/$guildId/': typeof GuildsGuildIdIndexRoute
   '/wiki/advanced/': typeof WikiAdvancedIndexRoute
   '/wiki/developer/': typeof WikiDeveloperIndexRoute
   '/wiki/getting-started/': typeof WikiGettingStartedIndexRoute
   '/wiki/reference/': typeof WikiReferenceIndexRoute
   '/wiki/user-guides/': typeof WikiUserGuidesIndexRoute
+  '/guilds/$guildId/details/$giveawayId': typeof GuildsGuildIdDetailsGiveawayIdRoute
+  '/guilds/$guildId/summary/$summaryId': typeof GuildsGuildIdSummarySummaryIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -301,28 +345,33 @@ export interface FileRouteTypes {
     | '/wiki'
     | '/api/reporting'
     | '/auth/error'
-    | '/giveaways/$guildId'
-    | '/giveaways/overview'
+    | '/guilds/$guildId'
     | '/legal/paid-services'
     | '/legal/privacy'
     | '/legal/terms'
-    | '/giveaways'
+    | '/summaries/$summaryId'
+    | '/guilds/'
     | '/legal/'
+    | '/summaries/'
     | '/wiki/'
     | '/api/auth/$'
     | '/api/trpc/$'
-    | '/giveaways/details/$giveawayId'
-    | '/giveaways/summaries/$summaryId'
+    | '/guilds/$guildId/analytics'
+    | '/guilds/$guildId/create'
+    | '/guilds/$guildId/settings'
+    | '/guilds/$guildId/templates'
     | '/wiki/developer/components'
     | '/wiki/developer/markdown-test'
     | '/wiki/getting-started/quick-start'
     | '/wiki/reference/commands'
-    | '/giveaways/summaries'
-    | '/wiki/advanced'
-    | '/wiki/developer'
-    | '/wiki/getting-started'
-    | '/wiki/reference'
-    | '/wiki/user-guides'
+    | '/guilds/$guildId/'
+    | '/wiki/advanced/'
+    | '/wiki/developer/'
+    | '/wiki/getting-started/'
+    | '/wiki/reference/'
+    | '/wiki/user-guides/'
+    | '/guilds/$guildId/details/$giveawayId'
+    | '/guilds/$guildId/summary/$summaryId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -331,28 +380,32 @@ export interface FileRouteTypes {
     | '/premium'
     | '/api/reporting'
     | '/auth/error'
-    | '/giveaways/$guildId'
-    | '/giveaways/overview'
     | '/legal/paid-services'
     | '/legal/privacy'
     | '/legal/terms'
-    | '/giveaways'
+    | '/summaries/$summaryId'
+    | '/guilds'
     | '/legal'
+    | '/summaries'
     | '/wiki'
     | '/api/auth/$'
     | '/api/trpc/$'
-    | '/giveaways/details/$giveawayId'
-    | '/giveaways/summaries/$summaryId'
+    | '/guilds/$guildId/analytics'
+    | '/guilds/$guildId/create'
+    | '/guilds/$guildId/settings'
+    | '/guilds/$guildId/templates'
     | '/wiki/developer/components'
     | '/wiki/developer/markdown-test'
     | '/wiki/getting-started/quick-start'
     | '/wiki/reference/commands'
-    | '/giveaways/summaries'
+    | '/guilds/$guildId'
     | '/wiki/advanced'
     | '/wiki/developer'
     | '/wiki/getting-started'
     | '/wiki/reference'
     | '/wiki/user-guides'
+    | '/guilds/$guildId/details/$giveawayId'
+    | '/guilds/$guildId/summary/$summaryId'
   id:
     | '__root__'
     | '/'
@@ -363,28 +416,33 @@ export interface FileRouteTypes {
     | '/wiki'
     | '/api/reporting'
     | '/auth/error'
-    | '/giveaways/$guildId'
-    | '/giveaways/overview'
+    | '/guilds/$guildId'
     | '/legal/paid-services'
     | '/legal/privacy'
     | '/legal/terms'
-    | '/giveaways/'
+    | '/summaries/$summaryId'
+    | '/guilds/'
     | '/legal/'
+    | '/summaries/'
     | '/wiki/'
     | '/api/auth/$'
     | '/api/trpc/$'
-    | '/giveaways/details/$giveawayId'
-    | '/giveaways/summaries/$summaryId'
+    | '/guilds/$guildId/analytics'
+    | '/guilds/$guildId/create'
+    | '/guilds/$guildId/settings'
+    | '/guilds/$guildId/templates'
     | '/wiki/developer/components'
     | '/wiki/developer/markdown-test'
     | '/wiki/getting-started/quick-start'
     | '/wiki/reference/commands'
-    | '/giveaways/summaries/'
+    | '/guilds/$guildId/'
     | '/wiki/advanced/'
     | '/wiki/developer/'
     | '/wiki/getting-started/'
     | '/wiki/reference/'
     | '/wiki/user-guides/'
+    | '/guilds/$guildId/details/$giveawayId'
+    | '/guilds/$guildId/summary/$summaryId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -396,14 +454,12 @@ export interface RootRouteChildren {
   WikiRoute: typeof WikiRouteWithChildren
   ApiReportingRoute: typeof ApiReportingRoute
   AuthErrorRoute: typeof AuthErrorRoute
-  GiveawaysGuildIdRoute: typeof GiveawaysGuildIdRoute
-  GiveawaysOverviewRoute: typeof GiveawaysOverviewRoute
-  GiveawaysIndexRoute: typeof GiveawaysIndexRoute
+  GuildsGuildIdRoute: typeof GuildsGuildIdRouteWithChildren
+  SummariesSummaryIdRoute: typeof SummariesSummaryIdRoute
+  GuildsIndexRoute: typeof GuildsIndexRoute
+  SummariesIndexRoute: typeof SummariesIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
-  GiveawaysDetailsGiveawayIdRoute: typeof GiveawaysDetailsGiveawayIdRoute
-  GiveawaysSummariesSummaryIdRoute: typeof GiveawaysSummariesSummaryIdRoute
-  GiveawaysSummariesIndexRoute: typeof GiveawaysSummariesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -457,6 +513,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WikiIndexRouteImport
       parentRoute: typeof WikiRoute
     }
+    '/summaries/': {
+      id: '/summaries/'
+      path: '/summaries'
+      fullPath: '/summaries/'
+      preLoaderRoute: typeof SummariesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/legal/': {
       id: '/legal/'
       path: '/'
@@ -464,11 +527,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LegalIndexRouteImport
       parentRoute: typeof LegalRoute
     }
-    '/giveaways/': {
-      id: '/giveaways/'
-      path: '/giveaways'
-      fullPath: '/giveaways'
-      preLoaderRoute: typeof GiveawaysIndexRouteImport
+    '/guilds/': {
+      id: '/guilds/'
+      path: '/guilds'
+      fullPath: '/guilds/'
+      preLoaderRoute: typeof GuildsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/summaries/$summaryId': {
+      id: '/summaries/$summaryId'
+      path: '/summaries/$summaryId'
+      fullPath: '/summaries/$summaryId'
+      preLoaderRoute: typeof SummariesSummaryIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/legal/terms': {
@@ -492,18 +562,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LegalPaidServicesRouteImport
       parentRoute: typeof LegalRoute
     }
-    '/giveaways/overview': {
-      id: '/giveaways/overview'
-      path: '/giveaways/overview'
-      fullPath: '/giveaways/overview'
-      preLoaderRoute: typeof GiveawaysOverviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/giveaways/$guildId': {
-      id: '/giveaways/$guildId'
-      path: '/giveaways/$guildId'
-      fullPath: '/giveaways/$guildId'
-      preLoaderRoute: typeof GiveawaysGuildIdRouteImport
+    '/guilds/$guildId': {
+      id: '/guilds/$guildId'
+      path: '/guilds/$guildId'
+      fullPath: '/guilds/$guildId'
+      preLoaderRoute: typeof GuildsGuildIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/error': {
@@ -523,44 +586,44 @@ declare module '@tanstack/react-router' {
     '/wiki/user-guides/': {
       id: '/wiki/user-guides/'
       path: '/user-guides'
-      fullPath: '/wiki/user-guides'
+      fullPath: '/wiki/user-guides/'
       preLoaderRoute: typeof WikiUserGuidesIndexRouteImport
       parentRoute: typeof WikiRoute
     }
     '/wiki/reference/': {
       id: '/wiki/reference/'
       path: '/reference'
-      fullPath: '/wiki/reference'
+      fullPath: '/wiki/reference/'
       preLoaderRoute: typeof WikiReferenceIndexRouteImport
       parentRoute: typeof WikiRoute
     }
     '/wiki/getting-started/': {
       id: '/wiki/getting-started/'
       path: '/getting-started'
-      fullPath: '/wiki/getting-started'
+      fullPath: '/wiki/getting-started/'
       preLoaderRoute: typeof WikiGettingStartedIndexRouteImport
       parentRoute: typeof WikiRoute
     }
     '/wiki/developer/': {
       id: '/wiki/developer/'
       path: '/developer'
-      fullPath: '/wiki/developer'
+      fullPath: '/wiki/developer/'
       preLoaderRoute: typeof WikiDeveloperIndexRouteImport
       parentRoute: typeof WikiRoute
     }
     '/wiki/advanced/': {
       id: '/wiki/advanced/'
       path: '/advanced'
-      fullPath: '/wiki/advanced'
+      fullPath: '/wiki/advanced/'
       preLoaderRoute: typeof WikiAdvancedIndexRouteImport
       parentRoute: typeof WikiRoute
     }
-    '/giveaways/summaries/': {
-      id: '/giveaways/summaries/'
-      path: '/giveaways/summaries'
-      fullPath: '/giveaways/summaries'
-      preLoaderRoute: typeof GiveawaysSummariesIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/guilds/$guildId/': {
+      id: '/guilds/$guildId/'
+      path: '/'
+      fullPath: '/guilds/$guildId/'
+      preLoaderRoute: typeof GuildsGuildIdIndexRouteImport
+      parentRoute: typeof GuildsGuildIdRoute
     }
     '/wiki/reference/commands': {
       id: '/wiki/reference/commands'
@@ -590,19 +653,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WikiDeveloperComponentsRouteImport
       parentRoute: typeof WikiRoute
     }
-    '/giveaways/summaries/$summaryId': {
-      id: '/giveaways/summaries/$summaryId'
-      path: '/giveaways/summaries/$summaryId'
-      fullPath: '/giveaways/summaries/$summaryId'
-      preLoaderRoute: typeof GiveawaysSummariesSummaryIdRouteImport
-      parentRoute: typeof rootRouteImport
+    '/guilds/$guildId/templates': {
+      id: '/guilds/$guildId/templates'
+      path: '/templates'
+      fullPath: '/guilds/$guildId/templates'
+      preLoaderRoute: typeof GuildsGuildIdTemplatesRouteImport
+      parentRoute: typeof GuildsGuildIdRoute
     }
-    '/giveaways/details/$giveawayId': {
-      id: '/giveaways/details/$giveawayId'
-      path: '/giveaways/details/$giveawayId'
-      fullPath: '/giveaways/details/$giveawayId'
-      preLoaderRoute: typeof GiveawaysDetailsGiveawayIdRouteImport
-      parentRoute: typeof rootRouteImport
+    '/guilds/$guildId/settings': {
+      id: '/guilds/$guildId/settings'
+      path: '/settings'
+      fullPath: '/guilds/$guildId/settings'
+      preLoaderRoute: typeof GuildsGuildIdSettingsRouteImport
+      parentRoute: typeof GuildsGuildIdRoute
+    }
+    '/guilds/$guildId/create': {
+      id: '/guilds/$guildId/create'
+      path: '/create'
+      fullPath: '/guilds/$guildId/create'
+      preLoaderRoute: typeof GuildsGuildIdCreateRouteImport
+      parentRoute: typeof GuildsGuildIdRoute
+    }
+    '/guilds/$guildId/analytics': {
+      id: '/guilds/$guildId/analytics'
+      path: '/analytics'
+      fullPath: '/guilds/$guildId/analytics'
+      preLoaderRoute: typeof GuildsGuildIdAnalyticsRouteImport
+      parentRoute: typeof GuildsGuildIdRoute
     }
     '/api/trpc/$': {
       id: '/api/trpc/$'
@@ -617,6 +694,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/guilds/$guildId/summary/$summaryId': {
+      id: '/guilds/$guildId/summary/$summaryId'
+      path: '/summary/$summaryId'
+      fullPath: '/guilds/$guildId/summary/$summaryId'
+      preLoaderRoute: typeof GuildsGuildIdSummarySummaryIdRouteImport
+      parentRoute: typeof GuildsGuildIdRoute
+    }
+    '/guilds/$guildId/details/$giveawayId': {
+      id: '/guilds/$guildId/details/$giveawayId'
+      path: '/details/$giveawayId'
+      fullPath: '/guilds/$guildId/details/$giveawayId'
+      preLoaderRoute: typeof GuildsGuildIdDetailsGiveawayIdRouteImport
+      parentRoute: typeof GuildsGuildIdRoute
     }
   }
 }
@@ -665,6 +756,30 @@ const WikiRouteChildren: WikiRouteChildren = {
 
 const WikiRouteWithChildren = WikiRoute._addFileChildren(WikiRouteChildren)
 
+interface GuildsGuildIdRouteChildren {
+  GuildsGuildIdAnalyticsRoute: typeof GuildsGuildIdAnalyticsRoute
+  GuildsGuildIdCreateRoute: typeof GuildsGuildIdCreateRoute
+  GuildsGuildIdSettingsRoute: typeof GuildsGuildIdSettingsRoute
+  GuildsGuildIdTemplatesRoute: typeof GuildsGuildIdTemplatesRoute
+  GuildsGuildIdIndexRoute: typeof GuildsGuildIdIndexRoute
+  GuildsGuildIdDetailsGiveawayIdRoute: typeof GuildsGuildIdDetailsGiveawayIdRoute
+  GuildsGuildIdSummarySummaryIdRoute: typeof GuildsGuildIdSummarySummaryIdRoute
+}
+
+const GuildsGuildIdRouteChildren: GuildsGuildIdRouteChildren = {
+  GuildsGuildIdAnalyticsRoute: GuildsGuildIdAnalyticsRoute,
+  GuildsGuildIdCreateRoute: GuildsGuildIdCreateRoute,
+  GuildsGuildIdSettingsRoute: GuildsGuildIdSettingsRoute,
+  GuildsGuildIdTemplatesRoute: GuildsGuildIdTemplatesRoute,
+  GuildsGuildIdIndexRoute: GuildsGuildIdIndexRoute,
+  GuildsGuildIdDetailsGiveawayIdRoute: GuildsGuildIdDetailsGiveawayIdRoute,
+  GuildsGuildIdSummarySummaryIdRoute: GuildsGuildIdSummarySummaryIdRoute,
+}
+
+const GuildsGuildIdRouteWithChildren = GuildsGuildIdRoute._addFileChildren(
+  GuildsGuildIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AddedRoute: AddedRoute,
@@ -674,14 +789,12 @@ const rootRouteChildren: RootRouteChildren = {
   WikiRoute: WikiRouteWithChildren,
   ApiReportingRoute: ApiReportingRoute,
   AuthErrorRoute: AuthErrorRoute,
-  GiveawaysGuildIdRoute: GiveawaysGuildIdRoute,
-  GiveawaysOverviewRoute: GiveawaysOverviewRoute,
-  GiveawaysIndexRoute: GiveawaysIndexRoute,
+  GuildsGuildIdRoute: GuildsGuildIdRouteWithChildren,
+  SummariesSummaryIdRoute: SummariesSummaryIdRoute,
+  GuildsIndexRoute: GuildsIndexRoute,
+  SummariesIndexRoute: SummariesIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiTrpcSplatRoute: ApiTrpcSplatRoute,
-  GiveawaysDetailsGiveawayIdRoute: GiveawaysDetailsGiveawayIdRoute,
-  GiveawaysSummariesSummaryIdRoute: GiveawaysSummariesSummaryIdRoute,
-  GiveawaysSummariesIndexRoute: GiveawaysSummariesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

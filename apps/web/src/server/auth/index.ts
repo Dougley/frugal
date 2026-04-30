@@ -68,6 +68,7 @@ export function createAuth(env: Env) {
         enabled: true,
         maxAge: 7 * 24 * 60 * 60, // 7 days
         strategy: "jwe", // Encrypted JWT
+        refreshCache: false, // secondaryStorage handles caching; refreshCache is for DB-less setups
       },
     },
 
