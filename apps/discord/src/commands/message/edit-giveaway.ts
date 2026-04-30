@@ -17,7 +17,6 @@ export default class EditGiveawayCommand extends BaseCommand {
     super(creator, {
       type: ApplicationCommandType.MESSAGE,
       name: "edit_giveaway",
-      description: "Edit a giveaway from its message",
       contexts: [InteractionContextType.GUILD],
     });
   }

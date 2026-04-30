@@ -15,7 +15,6 @@ export default class EndGiveawayCommand extends BaseCommand {
     super(creator, {
       type: ApplicationCommandType.MESSAGE,
       name: "end_giveaway",
-      description: "End a giveaway from its message",
       contexts: [InteractionContextType.GUILD],
     });
   }

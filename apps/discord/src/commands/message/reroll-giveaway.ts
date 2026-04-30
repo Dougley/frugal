@@ -15,7 +15,6 @@ export default class RerollGiveawayCommand extends BaseCommand {
     super(creator, {
       type: ApplicationCommandType.MESSAGE,
       name: "reroll_giveaway",
-      description: "Reroll winners from a giveaway message",
       contexts: [InteractionContextType.GUILD],
     });
   }

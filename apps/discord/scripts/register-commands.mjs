@@ -86,6 +86,7 @@ async function registerCommands() {
     });
 
     console.log("✅ Commands registered successfully!");
+    process.exit(0);
   } catch (error) {
     console.error("❌ Registration failed:", error.message);
     process.exit(1);

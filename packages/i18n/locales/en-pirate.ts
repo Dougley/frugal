@@ -118,7 +118,6 @@ export default {
     },
     giveaway_status: {
       name: "Treasure Hunt Status",
-      description: "Check a treasure hunt from its message",
       messages: {
         status: `**{prize}**
 Voyage: {status}
@@ -138,8 +137,6 @@ Yer spot: {entryStatus}`,
 
     check_entries: {
       name: "Check Crew",
-      description:
-        "Check which treasure hunts a pirate has boarded in these waters",
       errors: {
         no_target: "Could not spot that scallywag, matey!",
       },
@@ -156,7 +153,6 @@ Yer spot: {entryStatus}`,
 
     copy_giveaway_id: {
       name: "Copy Map Coordinates",
-      description: "Copy the treasure hunt coordinates from a hunt message",
       messages: {
         result:
           "Coordinates fer **{prize}** ({state}):\n```\n{id}\n```\nUse these coordinates with `/edit`, `/stop`, or `/reroll`, matey!",
@@ -192,17 +188,14 @@ Yer spot: {entryStatus}`,
     },
     end_giveaway: {
       name: "Sink the Hunt",
-      description: "End a treasure hunt from its message",
     },
 
     edit_giveaway: {
       name: "Change the Course",
-      description: "Edit a treasure hunt from its message",
     },
 
     reroll_giveaway: {
       name: "Pick New Pirates",
-      description: "Pick new lucky pirates from a treasure hunt message",
     },
 
     giveaway: {

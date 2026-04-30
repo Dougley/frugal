@@ -15,7 +15,6 @@ export default class CopyIdCommand extends BaseCommand {
     super(creator, {
       type: ApplicationCommandType.MESSAGE,
       name: "copy_giveaway_id",
-      description: "Copy the giveaway ID from a giveaway message",
       contexts: [InteractionContextType.GUILD],
     });
   }

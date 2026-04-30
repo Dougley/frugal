@@ -122,7 +122,6 @@ export default {
 
     giveaway_status: {
       name: "Giveaway Status",
-      description: "Show giveaway status from a giveaway message",
       messages: {
         status: `**{prize}**
 Status: {status}
@@ -142,7 +141,6 @@ Your entry: {entryStatus}`,
 
     check_entries: {
       name: "Check Entries",
-      description: "Check which giveaways a user has entered in this server",
       errors: {
         no_target: "Could not identify the target user.",
       },
@@ -159,7 +157,6 @@ Your entry: {entryStatus}`,
 
     copy_giveaway_id: {
       name: "Copy Giveaway ID",
-      description: "Copy the giveaway ID from a giveaway message",
       messages: {
         result:
           "Giveaway ID for **{prize}** ({state}):\n```\n{id}\n```\nUse this ID with `/edit`, `/stop`, or `/reroll`.",
@@ -196,17 +193,14 @@ Your entry: {entryStatus}`,
 
     end_giveaway: {
       name: "End Giveaway",
-      description: "End a giveaway from its message",
     },
 
     edit_giveaway: {
       name: "Edit Giveaway",
-      description: "Edit a giveaway from its message",
     },
 
     reroll_giveaway: {
       name: "Reroll Giveaway",
-      description: "Reroll winners from a giveaway message",
     },
 
     giveaway: {

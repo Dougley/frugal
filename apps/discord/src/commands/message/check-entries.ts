@@ -15,7 +15,6 @@ export default class CheckEntriesCommand extends BaseCommand {
     super(creator, {
       type: ApplicationCommandType.USER,
       name: "check_entries",
-      description: "Check which giveaways a user has entered in this server",
       contexts: [InteractionContextType.GUILD],
     });
   }

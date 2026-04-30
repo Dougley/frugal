@@ -123,7 +123,6 @@ export default {
 
     giveaway_status: {
       name: "Giveaway Status",
-      description: "Toon de giveawaystatus van een giveawaybericht",
       messages: {
         status: `**{prize}**
 Status: {status}
@@ -143,8 +142,6 @@ Jouw inzending: {entryStatus}`,
 
     check_entries: {
       name: "Controleer Inzendingen",
-      description:
-        "Bekijk bij welke giveaways een gebruiker is ingeschreven in deze server",
       errors: {
         no_target: "Kon de doelgebruiker niet identificeren.",
       },
@@ -161,7 +158,6 @@ Jouw inzending: {entryStatus}`,
 
     copy_giveaway_id: {
       name: "Kopieer Giveaway-ID",
-      description: "Kopieer het giveaway-ID van een giveawaybericht",
       messages: {
         result:
           "Giveaway-ID voor **{prize}** ({state}):\n```\n{id}\n```\nGebruik dit ID met `/edit`, `/stop` of `/reroll`.",
@@ -200,17 +196,14 @@ Jouw inzending: {entryStatus}`,
 
     end_giveaway: {
       name: "Beëindig Giveaway",
-      description: "Beëindig een giveaway vanuit het bericht",
     },
 
     edit_giveaway: {
       name: "Bewerk Giveaway",
-      description: "Bewerk een giveaway vanuit het bericht",
     },
 
     reroll_giveaway: {
       name: "Hertrek Giveaway",
-      description: "Hertrek winnaars vanuit een giveawaybericht",
     },
 
     giveaway: {

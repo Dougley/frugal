@@ -15,7 +15,6 @@ export default class GiveawayStatusCommand extends BaseCommand {
     super(creator, {
       type: ApplicationCommandType.MESSAGE,
       name: "giveaway_status",
-      description: "Show giveaway status from a giveaway message",
       contexts: [InteractionContextType.GUILD],
     });
   }
