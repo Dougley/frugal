@@ -20,7 +20,7 @@ else
     --var ENVIRONMENT:$ENVIRONMENT \
     --var RELEASE:$RELEASE \
     --var BRANCH:$BRANCH \
-    --var SENTRY_DSN:$SENTRY_DSN \
+    --var SENTRY_DSN:$SENTRY_DSN
 fi
 
 echo "✅ Discord bot deployed successfully" 
