@@ -12,15 +12,37 @@ if [ -n "$CUSTOM_COMMAND" ]; then
   eval "$CUSTOM_COMMAND"
 else
   echo "Using standard Discord deployment"
-  pnpm wrangler deploy --env "$ENVIRONMENT" \
-    --var DISCORD_BOT_TOKEN:$DISCORD_BOT_TOKEN \
-    --var DISCORD_APP_ID:$DISCORD_APP_ID \
-    --var DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
-    --var SUMMARY_URL:$SUMMARY_SITE \
-    --var ENVIRONMENT:$ENVIRONMENT \
-    --var RELEASE:$RELEASE \
-    --var BRANCH:$BRANCH \
-    --var SENTRY_DSN:$SENTRY_DSN
+
+  SECRETS_FILE=$(mktemp)
+  trap 'rm -f "$SECRETS_FILE"' EXIT
+
+  # Build secrets object — add new secrets by adding --arg and property pairs
+  jq -n \
+    --arg token "$DISCORD_BOT_TOKEN" \
+    '{
+      DISCORD_BOT_TOKEN: $token
+    }' \
+    > "$SECRETS_FILE"
+
+  # Build deploy command with vars
+  declare -a args=(
+    "deploy"
+    "--env" "$ENVIRONMENT"
+    "--secrets-file" "$SECRETS_FILE"
+  )
+
+  # Add Worker variables (non-sensitive configuration)
+  args+=(
+    "--var" "DISCORD_APP_ID:$DISCORD_APP_ID"
+    "--var" "DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY"
+    "--var" "SUMMARY_URL:$SUMMARY_SITE"
+    "--var" "ENVIRONMENT:$ENVIRONMENT"
+    "--var" "RELEASE:$RELEASE"
+    "--var" "BRANCH:$BRANCH"
+    "--var" "SENTRY_DSN:$SENTRY_DSN"
+  )
+
+  pnpm wrangler "${args[@]}"
 fi
 
-echo "✅ Discord bot deployed successfully" 
+echo "✅ Discord bot deployed successfully"
