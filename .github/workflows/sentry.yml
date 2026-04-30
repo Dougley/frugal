@@ -13,6 +13,7 @@ on:
 jobs:
   create-sentry-release:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v6
       ## inputs.project can be either "workers" or "web", depending on which project we're deploying
