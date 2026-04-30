@@ -81,7 +81,7 @@ export async function discordMonetizationHandler(
       throw new HTTPException(400, { message: "Unknown event type" });
     }
 
-    if (!event.event?.type || !event.event?.data || !event.event.data.id) {
+    if (!event.event?.type || !event.event?.data?.id) {
       throw new HTTPException(400, { message: "Invalid event structure" });
     }
 

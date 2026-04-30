@@ -216,7 +216,7 @@ export default class StartCommand extends BaseCommand {
           }),
         })) as Message;
 
-        if (!giveawayMessage || !giveawayMessage.id) {
+        if (!giveawayMessage?.id) {
           const errorMessage = await getContext().i18n?.translate(
             "commands.start.errors.failed_to_create",
             { language: ctx.locale }

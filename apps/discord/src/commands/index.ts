@@ -67,18 +67,18 @@ export const modalHandlers: {
 
 // Also export individual commands for reference if needed
 export {
+  CheckEntriesCommand,
+  CopyGiveawayIdCommand,
+  DebugCommand,
   EditCommand,
   EditGiveawayCommand,
   EndGiveawayCommand,
   GiveawayCommand,
-  CheckEntriesCommand,
-  CopyGiveawayIdCommand,
   GiveawayStatusCommand,
   ListCommand,
   PingCommand,
   RerollCommand,
   RerollGiveawayCommand,
-  DebugCommand,
   StartCommand,
   StopCommand,
 };
