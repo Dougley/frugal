@@ -1,50 +1,41 @@
+import { cloudflare } from "@cloudflare/vite-plugin";
 import mdx from "@mdx-js/rollup";
-import { reactRouter } from "@react-router/dev/vite";
-import { cloudflareDevProxy } from "@react-router/dev/vite/cloudflare";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
-import { reactRouterDevTools } from "react-router-devtools";
+import { devtools } from "@tanstack/devtools-vite";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import viteReact from "@vitejs/plugin-react";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
-import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
+import { defineConfig, type PluginOption } from "vite";
 
-import { remarkAdmonitions } from "./app/lib/remarkAdmonitions";
-import { getLoadContext } from "./load-context";
+import { remarkAdmonitions } from "./src/lib/remarkAdmonitions";
 
-export default defineConfig(({ isSsrBuild }) => ({
+export default defineConfig({
   build: {
     sourcemap: true,
-    rollupOptions: isSsrBuild
-      ? {
-          input: "./server.ts",
-        }
-      : undefined,
+  },
+  server: {
+    port: 3000,
+  },
+  worker: {
+    format: "es",
   },
   resolve: {
-    conditions: ["module", "browser"],
+    tsconfigPaths: true,
     alias: {
       // /esm/icons/index.mjs only exports the icons statically, so no separate chunks are created
       "@tabler/icons-react": "@tabler/icons-react/dist/esm/icons/index.mjs",
     },
   },
-  ssr: {
-    target: "webworker",
-    resolve: {
-      conditions: ["workerd", "browser"],
-    },
-    optimizeDeps: {
-      include: [
-        "react-router",
-        "@mantine/core",
-        "@mantine/hooks",
-        "@tabler/icons-react",
-      ],
-    },
-  },
   plugins: [
-    cloudflareDevProxy({ getLoadContext }),
-    reactRouterDevTools(),
+    devtools(),
+    cloudflare({
+      persistState: {
+        path: "../../.mf",
+      },
+      viteEnvironment: { name: "ssr" },
+    }),
     mdx({
       providerImportSource: "@mdx-js/react",
       remarkPlugins: [
@@ -55,15 +46,14 @@ export default defineConfig(({ isSsrBuild }) => ({
       ],
       rehypePlugins: [],
     }),
-    reactRouter(),
-    tsconfigPaths(),
+    tanstackStart(),
+    viteReact(),
+    // Cast needed due to Sentry plugin depending on older vite types
     sentryVitePlugin({
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
       authToken: process.env.SENTRY_AUTH_TOKEN,
-      org: "dougley",
-      project: "frugal-web",
-      sourcemaps: {
-        filesToDeleteAfterUpload: ["./**/*.map"],
-      },
-    }),
+      disable: !process.env.SENTRY_AUTH_TOKEN,
+    }) as PluginOption,
   ],
-}));
+});

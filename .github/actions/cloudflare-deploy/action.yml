@@ -1,0 +1,69 @@
+name: "Deploy to Cloudflare"
+description: "Deploy applications to Cloudflare Workers or Pages"
+inputs:
+  app:
+    description: "App to deploy (discord/web)"
+    required: true
+  environment:
+    description: "Environment to deploy to"
+    required: true
+  api-token:
+    description: "Cloudflare API token"
+    required: true
+  deploy-command:
+    description: "Custom deployment command"
+    required: false
+    default: ""
+  working-directory:
+    description: "Working directory for deployment"
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Deploy Discord to Cloudflare Workers
+      if: inputs.app == 'discord'
+      shell: bash
+      run: |
+        bash "${{ github.action_path }}/scripts/deploy-discord.sh" \
+          "${{ inputs.environment }}" \
+          "${{ inputs.deploy-command }}"
+      working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ inputs.api-token }}
+        # Environment variables will be set by the calling workflow
+        DISCORD_BOT_TOKEN: ${{ env.DISCORD_BOT_TOKEN }}
+        DISCORD_APP_ID: ${{ env.DISCORD_APP_ID }}
+        DISCORD_PUBLIC_KEY: ${{ env.DISCORD_PUBLIC_KEY }}
+        SUMMARY_SITE: ${{ env.SUMMARY_SITE }}
+        ENVIRONMENT: ${{ inputs.environment }}
+        RELEASE: ${{ env.RELEASE || github.sha }}
+        BRANCH: ${{ env.BRANCH || github.head_ref || github.ref_name }}
+        SENTRY_DSN: ${{ env.SENTRY_DSN }}
+
+    - name: Deploy Web to Cloudflare Workers
+      if: inputs.app == 'web'
+      shell: bash
+      run: |
+        bash "${{ github.action_path }}/scripts/deploy-web.sh" \
+          "${{ inputs.deploy-command }}"
+      working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ inputs.api-token }}
+        CLOUDFLARE_ENV: ${{ inputs.environment }}
+        # Environment variables will be set by the calling workflow
+        SENTRY_DSN: ${{ env.SENTRY_DSN }}
+        SENTRY_PROJECT: ${{ env.SENTRY_PROJECT }}
+        SENTRY_AUTH_TOKEN: ${{ env.SENTRY_AUTH_TOKEN }}
+        SENTRY_ORG: ${{ env.SENTRY_ORG }}
+        ENVIRONMENT: ${{ inputs.environment }}
+        RELEASE: ${{ env.RELEASE || github.sha }}
+        BRANCH: ${{ env.BRANCH || github.head_ref || github.ref_name }}
+        # Better Auth secrets
+        BETTER_AUTH_SECRET: ${{ env.BETTER_AUTH_SECRET }}
+        DISCORD_CLIENT_ID: ${{ env.DISCORD_CLIENT_ID }}
+        DISCORD_CLIENT_SECRET: ${{ env.DISCORD_CLIENT_SECRET }}
+        # Build metadata (deployment ID comes from CF_VERSION_METADATA binding)
+        BUILD_TIME: ${{ env.BUILD_TIME }}
+        REPOSITORY: ${{ env.REPOSITORY }}

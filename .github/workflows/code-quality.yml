@@ -1,0 +1,34 @@
+name: Code Quality
+
+on:
+  pull_request:
+    branches: [main, dev]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  biome:
+    name: Biome Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Run Biome with reviewdog
+        uses: ./.github/actions/run-biome
+        with:
+          setup-node: false  # Already set up above
+          use-reviewdog: ${{ github.event_name == 'pull_request' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          reviewdog-reporter: github-pr-review  # Use PR review for code suggestions
+          reviewdog-filter-mode: diff_context

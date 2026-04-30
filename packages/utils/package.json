@@ -1,0 +1,24 @@
+{
+  "private": true,
+  "name": "@dougley/frugal-utils",
+  "version": "0.0.0",
+  "author": "Remco Jongschaap <hey@dougley.com>",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dougley/frugal.git",
+    "directory": "packages/utils"
+  },
+  "devDependencies": {
+    "@dougley/tsconfig": "workspace:^",
+    "@dougley/types": "workspace:^"
+  },
+  "dependencies": {
+    "slash-create": "^6.8.1"
+  }
+}

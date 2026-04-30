@@ -1,0 +1,5 @@
+# Discord Configuration
+DISCORD_PUBLIC_KEY=your_discord_public_key_here
+
+# Sentry Configuration (Optional)
+SENTRY_DSN=your_sentry_dsn_here

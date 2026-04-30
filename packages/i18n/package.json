@@ -1,0 +1,35 @@
+{
+  "private": true,
+  "name": "@dougley/frugal-i18n",
+  "version": "0.0.0",
+  "author": "Remco Jongschaap <hey@dougley.com>",
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./locales/en-US": "./locales/en-US.ts",
+    "./locales/en-pirate": "./locales/en-pirate.ts",
+    "./locales/nl": "./locales/nl.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dougley/frugal.git",
+    "directory": "packages/i18n"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "@dougley/tsconfig": "workspace:^",
+    "@dougley/types": "workspace:^",
+    "@vitest/coverage-v8": "^4.1.5",
+    "vitest": "^4.1.5"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "intl-messageformat": "11.2.3"
+  }
+}

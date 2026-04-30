@@ -1,0 +1,19 @@
+.accordion {
+  /* Additional styling if needed */
+}
+
+.control {
+  font-weight: 500;
+}
+
+.panel {
+  font-size: var(--mantine-font-size-sm);
+}
+
+.panel > *:first-child {
+  margin-top: 0;
+}
+
+.panel > *:last-child {
+  margin-bottom: 0;
+}

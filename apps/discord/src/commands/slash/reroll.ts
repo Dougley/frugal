@@ -1,105 +1,246 @@
-import { MessageBuilder, SlashCommandBuilder, SlashCommandStringOption } from '@discord-interactions/builders';
-import { AutocompleteContext, ISlashCommand, SlashCommandContext } from '@discord-interactions/core';
-import { PrismaClient, PrismaD1 } from '@dougley/d1-prisma';
-import { EnvContext } from '../../env';
+import { FEATURE_LIMITS } from "@dougley/frugal-subscriptions";
+import * as Sentry from "@sentry/cloudflare";
+import {
+  type AutocompleteContext,
+  type CommandContext,
+  CommandOptionType,
+  InteractionContextType,
+  type SlashCreator,
+} from "slash-create/web";
+import { BaseCommand } from "../../classes/BaseCommand";
+import { getContext } from "../../context";
+import {
+  getGiveawayAutocompleteChoices,
+  isValidGiveawayId,
+} from "../../utils/giveaway-autocomplete";
+import { hasGiveawayManagerPermission } from "../../utils/giveaway-permissions";
 
 interface WinnerInfo {
-  id: string;
-  username: string;
+  id: string | null;
+  username: string | null;
   discriminator: string;
   avatar: string | null;
 }
 
-export class RerollSlashCommand implements ISlashCommand {
-  public builder = new SlashCommandBuilder('reroll')
-    .setDescription('Reroll winners for an ended giveaway')
-    .addStringOption(
-      new SlashCommandStringOption('id', 'ID of the giveaway to reroll').setRequired(true).setAutocomplete(true)
-    );
+const mapWinners = (
+  winners: {
+    id?: string | number | null;
+    username?: string | null;
+    discriminator?: string | null;
+    avatar?: string | null;
+  }[]
+): WinnerInfo[] =>
+  winners.map((w) => ({
+    id: w.id != null ? String(w.id) : null,
+    username: w.username != null ? String(w.username) : null,
+    discriminator: w.discriminator != null ? String(w.discriminator) : "",
+    avatar: w.avatar != null ? String(w.avatar) : null,
+  }));
 
-  public autocompleteHandler = async (ctx: AutocompleteContext): Promise<void> => {
-    if (!EnvContext.env?.D1) {
-      await ctx.reply([]);
-      return;
-    }
-    const prisma = new PrismaClient({ adapter: new PrismaD1(EnvContext.env.D1) });
-
-    // Get closed giveaways for this guild, ordered by end time descending
-    const giveaways = await prisma.giveaways.findMany({
-      where: {
-        guild_id: ctx.guildId,
-        state: 'CLOSED'
-      },
-      orderBy: {
-        end_time: 'desc'
-      },
-      take: 25 // Limit to 25 choices as per Discord's limits
+export default class RerollCommand extends BaseCommand {
+  constructor(creator: SlashCreator) {
+    super(creator, {
+      name: "reroll",
+      description: "Reroll a giveaway",
+      contexts: [InteractionContextType.GUILD],
+      options: [
+        {
+          type: CommandOptionType.STRING,
+          name: "id",
+          description: "ID of the giveaway to reroll",
+          required: true,
+          autocomplete: true,
+        },
+        {
+          type: CommandOptionType.INTEGER,
+          name: "count",
+          description:
+            "Number of winners to reroll (free defaults to 1; premium can reroll more/all)",
+          required: false,
+          min_value: 1,
+          max_value: FEATURE_LIMITS.MAX_WINNERS.PREMIUM,
+        },
+      ],
     });
+  }
 
-    await ctx.reply(
-      giveaways.map((g) => ({
-        name: `${g.prize} (${g.winners} winner${g.winners > 1 ? 's' : ''})`,
-        value: g.durable_object_id
-      }))
-    );
-  };
+  async autocomplete(ctx: AutocompleteContext) {
+    return getGiveawayAutocompleteChoices({
+      guildId: ctx.guildID,
+      locale: ctx.locale,
+      state: "CLOSED",
+    });
+  }
 
-  public handler = async (ctx: SlashCommandContext): Promise<void> => {
-    await ctx.defer();
-
-    if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      await ctx.edit(new MessageBuilder().setContent('Giveaway state not available'));
-      return;
-    }
-
-    const giveawayId = ctx.getStringOption('id').value;
+  async run(ctx: CommandContext) {
+    await ctx.defer(true);
 
     try {
-      const stub = EnvContext.state.getInstance(
-        EnvContext.env.GIVEAWAY_STATE,
-        EnvContext.env.GIVEAWAY_STATE.idFromString(giveawayId)
+      if (!ctx.guildID) {
+        return ctx.editOriginal(
+          await getContext().i18n.translate("common.errors.guild_only", {
+            language: ctx.locale,
+          })
+        );
+      }
+
+      if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "common.errors.giveaway_state_unavailable",
+            { language: ctx.locale }
+          )
+        );
+      }
+
+      const giveawayId = ctx.options.id;
+      const requestedCount = ctx.options.count as number | undefined;
+
+      if (!isValidGiveawayId(giveawayId)) {
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "common.errors.invalid_giveaway_id",
+            { language: ctx.locale }
+          )
+        );
+      }
+
+      const stub = getContext().state.getInstance(
+        getContext().env.GIVEAWAY_STATE,
+        getContext().env.GIVEAWAY_STATE.idFromString(giveawayId)
       );
 
       const state = await stub.getState.query();
+
+      // Check permission before revealing giveaway state to prevent info leaks.
+      const isManager = hasGiveawayManagerPermission(ctx);
+      const isHost = state?.hostId === ctx.user.id;
+
+      if (!isManager && !isHost) {
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "common.errors.manage_giveaway_denied",
+            { language: ctx.locale }
+          )
+        );
+      }
+
       if (!state) {
-        await ctx.edit(new MessageBuilder().setContent('That giveaway does not exist.'));
-        return;
-      }
-
-      if (state.state !== 'CLOSED') {
-        await ctx.edit(
-          new MessageBuilder().setContent(
-            "That giveaway is still running. You can't reroll it until it ends. Try stopping it first."
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "common.errors.giveaway_not_found",
+            {
+              language: ctx.locale,
+            }
           )
         );
-        return;
       }
 
-      // Draw new winners
-      const result = await stub.drawWinners.mutate();
-      if (!result.success || result.winners.length === 0) {
-        await ctx.edit(
-          new MessageBuilder().setContent('No new winners could be drawn, as there were no (other) entries.')
-        );
-        return;
-      }
-
-      const winnerMentions = result.winners.map((winner) => `<@${winner.id}>`).join(', ');
-      await ctx.edit(
-        new MessageBuilder()
-          .setContent(
-            `🎉 New ${result.winners.length === 1 ? 'winner has' : 'winners have'} been drawn!\n` +
-              `Congratulations to ${winnerMentions}!`
+      if (state.state !== "CLOSED") {
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "commands.reroll.errors.still_running",
+            {
+              language: ctx.locale,
+            }
           )
-          .setAllowedMentions({ users: result.winners.map((w) => w.id) })
+        );
+      }
+
+      const subscription = await this.getPremiumStatus(ctx);
+
+      if (
+        !subscription.hasPremium &&
+        requestedCount != null &&
+        requestedCount > 1
+      ) {
+        Sentry.addBreadcrumb({
+          category: "giveaway.reroll",
+          message: "count limit hit (free)",
+          level: "info",
+          data: {
+            giveawayId,
+            guildId: ctx.guildID ?? null,
+            userId: ctx.user.id,
+            requestedCount,
+          },
+        });
+
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "commands.reroll.errors.count_limit_free",
+            { language: ctx.locale }
+          )
+        );
+      }
+
+      const maxRerollCount = Math.min(50, state.winners);
+
+      if (requestedCount != null && requestedCount > maxRerollCount) {
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "commands.reroll.errors.count_too_many",
+            {
+              language: ctx.locale,
+              params: { max: maxRerollCount.toString() },
+            }
+          )
+        );
+      }
+
+      const drawCount = subscription.hasPremium
+        ? (requestedCount ?? maxRerollCount)
+        : 1;
+
+      const result = await stub.drawWinners.mutate(drawCount);
+
+      if (!result.success || !result.winners || result.winners.length === 0) {
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "commands.reroll.errors.no_entries",
+            {
+              language: ctx.locale,
+            }
+          )
+        );
+      }
+
+      const winners = mapWinners(result.winners);
+      const winnerMentions = winners
+        .map((w) => (w.id ? `<@${w.id}>` : null))
+        .filter(Boolean)
+        .join(", ");
+      const allowedMentionIds = winners
+        .map((w) => w.id)
+        .filter((id): id is string => typeof id === "string");
+
+      const successMessage = await getContext().i18n.translate(
+        "commands.reroll.messages.success",
+        {
+          language: ctx.locale,
+          params: { count: winners.length, winners: winnerMentions },
+        }
       );
+
+      // Send the winner announcement as a public follow-up so everyone sees it.
+      // The ephemeral deferred reply is left to expire.
+      return ctx.send({
+        content: successMessage,
+        allowedMentions: {
+          users: allowedMentionIds,
+          everyone: false,
+          roles: [],
+        },
+      });
     } catch (error) {
-      console.error('Error in reroll command:', error);
-      await ctx.edit(
-        new MessageBuilder().setContent(
-          `Failed to reroll giveaway: ${error instanceof Error ? error.message : String(error)}`
-        )
+      console.error("Error in reroll command:", error);
+      Sentry.captureException(error);
+
+      return ctx.editOriginal(
+        await getContext().i18n.translate("common.errors.unexpected", {
+          language: ctx.locale,
+        })
       );
     }
-  };
+  }
 }

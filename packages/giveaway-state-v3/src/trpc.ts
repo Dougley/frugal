@@ -1,39 +1,40 @@
 // adapted from https://github.com/markusahlstrand/trpc-durable-objects
 
+import { drizzleDurable, migrate } from "@dougley/frugal-drizzle/durables";
+import migrations from "@dougley/frugal-drizzle/durables/drizzle/migrations.js";
 import { createTRPCClient, httpBatchLink, loggerLink } from "@trpc/client";
-import { FetchEsque } from "@trpc/client/dist/internals/types";
 import {
-  FetchCreateContextFnOptions,
+  type FetchCreateContextFnOptions,
   fetchRequestHandler,
 } from "@trpc/server/adapters/fetch";
-import { StateRouter } from "./router";
+import type { StateRouter } from "./router";
 import { transformer } from "./transformer";
 
 export type DurableObjectProxy = {
   new (
     state: DurableObjectState,
-    env: Env,
+    env: LegacyEnv
   ): {
     state: DurableObjectState;
-    env: Env;
+    env: LegacyEnv;
     alarm(): Promise<void>;
     fetch(request: Request): Promise<Response>;
   };
 };
 
-export type Context<Env> = {
+export type Context<LegacyEnv> = {
   req: Request;
   resHeaders: Headers;
   state: DurableObjectState;
-  env: Env;
+  env: LegacyEnv;
 };
 
-export class ContextFactory<Env = any> {
+export class ContextFactory<LegacyEnv = unknown> {
   state: DurableObjectState;
 
-  env: Env;
+  env: LegacyEnv;
 
-  constructor(state: DurableObjectState, env: Env) {
+  constructor(state: DurableObjectState, env: LegacyEnv) {
     this.state = state;
     this.env = env;
   }
@@ -45,20 +46,37 @@ export class ContextFactory<Env = any> {
 
 export function createProxy(
   router: StateRouter,
-  alarm?: (context: Omit<Context<Env>, "req" | "resHeaders">) => Promise<any>,
+  alarm?: (
+    context: Omit<Context<LegacyEnv>, "req" | "resHeaders">
+  ) => Promise<unknown>
 ) {
   return class DOProxy implements DurableObject {
     state: DurableObjectState;
-    env: Env;
+    env: LegacyEnv;
+    db: ReturnType<typeof drizzleDurable>;
 
-    constructor(state: DurableObjectState, env: Env) {
+    constructor(state: DurableObjectState, env: LegacyEnv) {
       this.state = state;
       this.env = env;
+      this.db = drizzleDurable(state.storage);
+
+      this.state.blockConcurrencyWhile(async () => {
+        // wait for drizzle to be ready
+        await migrate(this.db, migrations);
+        state.storage.sql.exec(`
+        CREATE TABLE IF NOT EXISTS rate_limits (
+          action TEXT NOT NULL,
+          identifier TEXT NOT NULL,
+          timestamp INTEGER NOT NULL,
+          PRIMARY KEY (action, identifier)
+        )`);
+      });
     }
 
-    static getFactory(namespace: DurableObjectNamespace, env: Env) {
+    static getFactory(namespace: DurableObjectNamespace, _env: LegacyEnv) {
       return {
-        getInstance: (id: DurableObjectId) => this.getInstance(namespace, id),
+        getInstance: (id: DurableObjectId) =>
+          DOProxy.getInstance(namespace, id),
       };
     }
 
@@ -70,7 +88,7 @@ export function createProxy(
           httpBatchLink({
             transformer,
             url: "http://localhost:8787/trpc",
-            fetch: stub.fetch.bind(stub) as unknown as FetchEsque,
+            fetch: stub.fetch.bind(stub) as unknown as typeof fetch,
           }),
         ],
       });

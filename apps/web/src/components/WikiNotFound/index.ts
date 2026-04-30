@@ -1,0 +1,1 @@
+export { WikiNotFound } from "./WikiNotFound";

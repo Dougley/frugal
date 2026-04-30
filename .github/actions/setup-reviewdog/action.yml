@@ -1,0 +1,44 @@
+name: "Setup reviewdog"
+description: "Setup reviewdog for code review automation"
+inputs:
+  reviewdog-version:
+    description: "reviewdog version to install (latest, nightly, or specific version)"
+    required: false
+    default: "latest"
+  github-token:
+    description: "GitHub token for reviewdog authentication"
+    required: false
+    default: ""
+
+outputs:
+  reviewdog-available:
+    description: "Whether reviewdog is available and properly configured"
+    value: ${{ steps.verify.outputs.available }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup reviewdog
+      id: setup
+      uses: reviewdog/action-setup@v1
+      with:
+        reviewdog_version: ${{ inputs.reviewdog-version }}
+
+    - name: Verify reviewdog setup
+      id: verify
+      shell: bash
+      run: |
+        if command -v reviewdog >/dev/null 2>&1 && [ -n "${{ inputs.github-token }}" ]; then
+          echo "available=true" >> $GITHUB_OUTPUT
+          echo "✅ reviewdog is available and configured"
+          reviewdog -version
+        else
+          echo "available=false" >> $GITHUB_OUTPUT
+          if [ -z "${{ inputs.github-token }}" ]; then
+            echo "⚠️ reviewdog setup skipped: no GitHub token provided"
+          else
+            echo "❌ reviewdog setup failed"
+          fi
+        fi
+      env:
+        REVIEWDOG_GITHUB_API_TOKEN: ${{ inputs.github-token }}

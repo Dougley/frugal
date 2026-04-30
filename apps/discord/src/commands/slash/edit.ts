@@ -1,82 +1,139 @@
-import { ActionRowBuilder, MessageBuilder, SlashCommandBuilder, SlashCommandStringOption } from '@discord-interactions/builders';
-import { AutocompleteContext, ISlashCommand, SlashCommandContext } from '@discord-interactions/core';
-import { PrismaClient, PrismaD1 } from '@dougley/d1-prisma';
-import { EnvContext } from '../../env';
+import { EditModal } from "@dougley/frugal-utils";
+import * as Sentry from "@sentry/cloudflare";
+import {
+  type AutocompleteContext,
+  type CommandContext,
+  CommandOptionType,
+  InteractionContextType,
+  type SlashCreator,
+} from "slash-create/web";
+import { BaseCommand } from "../../classes/BaseCommand";
+import { getContext } from "../../context";
+import {
+  getGiveawayAutocompleteChoices,
+  isValidGiveawayId,
+} from "../../utils/giveaway-autocomplete";
+import { hasGiveawayManagerPermission } from "../../utils/giveaway-permissions";
+import { getEditModalTranslations } from "../../utils/giveaway-translations";
 
-export class EditSlashCommand implements ISlashCommand {
-  public builder = new SlashCommandBuilder('edit')
-    .setDescription('Edit a giveaway')
-    .addStringOption(
-      new SlashCommandStringOption('id', 'ID of the giveaway to edit').setRequired(true).setAutocomplete(true)
-    );
-
-  public autocompleteHandler = async (ctx: AutocompleteContext): Promise<void> => {
-    if (!EnvContext.env?.D1) {
-      await ctx.reply([]);
-      return;
-    }
-    const prisma = new PrismaClient({ adapter: new PrismaD1(EnvContext.env.D1) });
-
-    // Get active giveaways for this guild, ordered by end time ascending
-    const giveaways = await prisma.giveaways.findMany({
-      where: {
-        guild_id: ctx.guildId,
-        state: 'ACTIVE'
-      },
-      orderBy: {
-        end_time: 'asc'
-      },
-      take: 25 // Limit to 25 choices as per Discord's limits
+export default class EditCommand extends BaseCommand {
+  constructor(creator: SlashCreator) {
+    super(creator, {
+      name: "edit",
+      description: "Edit a giveaway",
+      contexts: [InteractionContextType.GUILD],
+      options: [
+        {
+          type: CommandOptionType.STRING,
+          name: "id",
+          description: "ID of the giveaway to edit",
+          required: true,
+          autocomplete: true,
+        },
+      ],
     });
+  }
 
-    await ctx.reply(
-      giveaways.map((g) => ({
-        name: `${g.prize} (${g.winners} winner${g.winners > 1 ? 's' : ''})`,
-        value: g.durable_object_id
-      }))
-    );
-  };
+  async autocomplete(ctx: AutocompleteContext) {
+    return getGiveawayAutocompleteChoices({
+      guildId: ctx.guildID,
+      locale: ctx.locale,
+      state: "OPEN",
+    });
+  }
 
-  public handler = async (ctx: SlashCommandContext): Promise<void> => {
-    await ctx.defer();
-
-    if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      await ctx.edit(new MessageBuilder().setContent('Giveaway state not available'));
-      return;
-    }
-
-    const giveawayId = ctx.getStringOption('id').value;
-
+  async run(ctx: CommandContext) {
     try {
-      const stub = EnvContext.state.getInstance(
-        EnvContext.env.GIVEAWAY_STATE,
-        EnvContext.env.GIVEAWAY_STATE.idFromString(giveawayId)
+      if (!ctx.guildID) {
+        return ctx.send({
+          content: await getContext().i18n.translate(
+            "common.errors.guild_only",
+            {
+              language: ctx.locale,
+            }
+          ),
+          ephemeral: true,
+        });
+      }
+
+      if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
+        return ctx.send({
+          content: await getContext().i18n.translate(
+            "common.errors.giveaway_state_unavailable",
+            { language: ctx.locale }
+          ),
+          ephemeral: true,
+        });
+      }
+
+      const giveawayId = ctx.options.id;
+      if (!isValidGiveawayId(giveawayId)) {
+        return ctx.send({
+          content: await getContext().i18n.translate(
+            "common.errors.invalid_giveaway_id",
+            { language: ctx.locale }
+          ),
+          ephemeral: true,
+        });
+      }
+
+      const stub = getContext().state.getInstance(
+        getContext().env.GIVEAWAY_STATE,
+        getContext().env.GIVEAWAY_STATE.idFromString(giveawayId)
       );
 
       const state = await stub.getState.query();
-      if (!state) {
-        await ctx.edit(new MessageBuilder().setContent('That giveaway does not exist or has expired.'));
-        return;
+
+      // Check permission before revealing giveaway state to prevent info leaks.
+      const isManager = hasGiveawayManagerPermission(ctx);
+      const isHost = state?.hostId === ctx.user.id;
+
+      if (!isManager && !isHost) {
+        return ctx.send({
+          content: await getContext().i18n.translate(
+            "common.errors.manage_giveaway_denied",
+            { language: ctx.locale }
+          ),
+          ephemeral: true,
+        });
       }
 
-      // TODO: Add modal support once available in new framework
-      // For now, we'll just show the current state
-      await ctx.edit(
-        new MessageBuilder().setContent(
-          `**Current Giveaway State**\n` +
-            `🎁 **Prize:** ${state.prize}\n` +
-            `👥 **Winners:** ${state.winners}\n` +
-            `⏱️ **End Time:** ${new Date(state.end_time).toLocaleString()}\n` +
-            `\nModal support for editing will be added once available in the framework.`
-        )
+      if (!state) {
+        return ctx.send({
+          content: await getContext().i18n.translate(
+            "common.errors.giveaway_not_found",
+            { language: ctx.locale }
+          ),
+          ephemeral: true,
+        });
+      }
+
+      if (state.state !== "OPEN") {
+        return ctx.send({
+          content: await getContext().i18n.translate(
+            "components.edit_modal.errors.not_open",
+            { language: ctx.locale }
+          ),
+          ephemeral: true,
+        });
+      }
+
+      const translations = await getEditModalTranslations(
+        ctx.locale ?? "en-US"
+      );
+      return ctx.sendModal(
+        EditModal.createModal(giveawayId, state, translations)
       );
     } catch (error) {
-      console.error('Error in edit command:', error);
-      await ctx.edit(
-        new MessageBuilder().setContent(
-          `Failed to edit giveaway: ${error instanceof Error ? error.message : String(error)}`
-        )
-      );
+      console.error("Error in edit command:", error);
+      Sentry.captureException(error);
+
+      return ctx.send({
+        content: await getContext().i18n.translate("common.errors.unexpected", {
+          language: ctx.locale,
+        }),
+        ephemeral: true,
+      });
     }
-  };
+  }
 }

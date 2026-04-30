@@ -1,0 +1,62 @@
+name: "Run Biome"
+description: "Run Biome code quality checks"
+inputs:
+  command:
+    description: "Biome command to run"
+    required: false
+    default: "biome ci ."
+  setup-node:
+    description: "Whether to setup Node.js and pnpm"
+    required: false
+    default: "false"
+  use-reviewdog:
+    description: "Whether to use reviewdog for PR feedback"
+    required: false
+    default: "true"
+  github-token:
+    description: "GitHub token for reviewdog"
+    required: false
+    default: ""
+  reviewdog-reporter:
+    description: "Reviewdog reporter type (github-pr-review, github-pr-check, etc.)"
+    required: false
+    default: "github-pr-review"
+  reviewdog-filter-mode:
+    description: "Reviewdog filter mode (added, diff_context, file, nofilter)"
+    required: false
+    default: "diff_context"
+  reviewdog-fail-level:
+    description: "Reviewdog fail level (none, any, info, warning, error)"
+    required: false
+    default: "error"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js and pnpm
+      if: inputs.setup-node == 'true'
+      uses: ./.github/actions/setup-node-pnpm
+
+    # Use reviewdog-action-biome for PR feedback
+    - name: Run Biome with reviewdog
+      if: inputs.use-reviewdog == 'true' && inputs.github-token != ''
+      uses: mongolyy/reviewdog-action-biome@v2
+      with:
+        github_token: ${{ inputs.github-token }}
+        reporter: ${{ inputs.reviewdog-reporter }}
+        filter_mode: ${{ inputs.reviewdog-filter-mode }}
+        fail_level: ${{ inputs.reviewdog-fail-level }}
+        # Extract just the flags from the command, default to '.' if standard command
+        biome_flags: ${{ contains(inputs.command, 'biome ci') && '.' || inputs.command }}
+
+    # Fallback: Regular Biome without reviewdog
+    - name: Setup Biome (fallback)
+      if: inputs.use-reviewdog != 'true' || inputs.github-token == ''
+      uses: biomejs/setup-biome@v2
+      with:
+        version: latest
+
+    - name: Run Biome (fallback)
+      if: inputs.use-reviewdog != 'true' || inputs.github-token == ''
+      shell: bash
+      run: ${{ inputs.command }}

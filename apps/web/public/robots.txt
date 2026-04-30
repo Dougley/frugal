@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Disallow authenticated/private areas
+Disallow: /giveaways/overview
+Disallow: /giveaways/details/
+Disallow: /auth/
+
+# Allow public pages
+Allow: /
+Allow: /premium
+Allow: /wiki/
+Allow: /legal/
+Allow: /giveaways/summaries/

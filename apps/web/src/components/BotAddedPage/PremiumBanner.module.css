@@ -1,0 +1,72 @@
+.banner {
+  margin-top: var(--mantine-spacing-xl);
+  background: linear-gradient(
+    135deg,
+    light-dark(var(--mantine-color-yellow-0), var(--mantine-color-dark-8)),
+    light-dark(var(--mantine-color-orange-0), var(--mantine-color-dark-8))
+  );
+  border: 2px solid var(--mantine-color-amber-6);
+  box-shadow: 0 0 30px rgba(252, 196, 25, 0.15);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none !important;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 40px rgba(252, 196, 25, 0.25);
+    border-color: var(--mantine-color-amber-5);
+  }
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    margin-top: var(--mantine-spacing-md);
+    padding: var(--mantine-spacing-md);
+  }
+}
+
+.content {
+  @media (max-width: $mantine-breakpoint-sm) {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+.icon {
+  @media (max-width: $mantine-breakpoint-sm) {
+    width: rem(48px);
+    height: rem(48px);
+    min-width: rem(48px);
+    min-height: rem(48px);
+  }
+}
+
+.textContent {
+  @media (max-width: $mantine-breakpoint-sm) {
+    align-items: center;
+  }
+}
+
+.title {
+  color: light-dark(
+    var(--mantine-color-amber-7),
+    var(--mantine-color-amber-4)
+  );
+  margin: 0;
+}
+
+.description {
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-3));
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    display: none;
+  }
+}
+
+.button {
+  font-weight: 700;
+  padding-left: rem(24px);
+  padding-right: rem(24px);
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    width: 100%;
+  }
+}

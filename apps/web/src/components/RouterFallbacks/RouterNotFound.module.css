@@ -1,0 +1,59 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  width: 100%;
+  padding: 2rem;
+}
+
+.content {
+  text-align: center;
+  max-width: 400px;
+}
+
+.icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  border-radius: 50%;
+  background: var(--mantine-color-default);
+  border: 1px solid var(--mantine-color-default-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: var(--mantine-color-dimmed);
+}
+
+.title {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--mantine-color-text);
+}
+
+.message {
+  margin: 0 0 1.5rem;
+  color: var(--mantine-color-dimmed);
+  line-height: 1.5;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--mantine-radius-default);
+  background: var(--mantine-color-default);
+  border: 1px solid var(--mantine-color-default-border);
+  color: var(--mantine-color-text);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.15s ease;
+}
+
+.link:hover {
+  background: var(--mantine-color-default-hover);
+}

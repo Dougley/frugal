@@ -3,9 +3,20 @@
   "compilerOptions": {
     "declaration": true,
     "outDir": "dist",
-    "skipLibCheck": true
+    "rootDir": "src",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "types": [
+      "@dougley/types/workers-env",
+      "@cloudflare/workers-types"
+    ]
   },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
   "exclude": [
-    "dist"
+    "dist",
+    "prisma"
   ]
 }

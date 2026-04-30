@@ -1,0 +1,44 @@
+.card {
+  transition: all 0.2s ease;
+}
+
+.card[data-hovered="true"] {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px
+    light-dark(
+      rgba(43, 217, 175, 0.15),
+      rgba(28, 191, 151, 0.1)
+    );
+  border-color: light-dark(
+    var(--mantine-primary-color-4),
+    var(--mantine-primary-color-8)
+  );
+}
+
+.stretchedLink::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+}
+
+.aboveStretchedLink {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.linkText {
+  text-decoration: none;
+  color: inherit;
+}
+
+.viewDetailsLink {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

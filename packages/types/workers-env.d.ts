@@ -1,7 +1,6 @@
-/// <reference types="@cloudflare/workers-types" />
-
-declare type Env = {
+declare type LegacyEnv = {
   KV: KVNamespace;
+  KV_LOCALES: KVNamespace;
   D1: D1Database;
   GIVEAWAY_STATE: DurableObjectNamespace;
   STORAGE: R2Bucket;
@@ -11,9 +10,10 @@ declare type Env = {
   SUMMARY_URL: string;
   SENTRY_DSN: string | undefined;
   DEVELOPMENT_GUILD?: string;
+  CF_VERSION_METADATA: { id: string };
 };
 
-declare type WebEnv = Env & {
+declare type WebEnv = LegacyEnv & {
   SESSION_SECRET: string;
   DISCORD_REDIRECT_URI: string;
   DISCORD_CLIENT_SECRET: string;

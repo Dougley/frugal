@@ -1,75 +1,136 @@
-import { MessageBuilder, SlashCommandBuilder, SlashCommandStringOption } from '@discord-interactions/builders';
-import { AutocompleteContext, ISlashCommand, SlashCommandContext } from '@discord-interactions/core';
-import { PrismaClient, PrismaD1 } from '@dougley/d1-prisma';
-import { EnvContext } from '../../env';
+import * as Sentry from "@sentry/cloudflare";
+import {
+  type AutocompleteContext,
+  type CommandContext,
+  CommandOptionType,
+  InteractionContextType,
+  type SlashCreator,
+} from "slash-create/web";
+import { BaseCommand } from "../../classes/BaseCommand";
+import { getContext } from "../../context";
+import {
+  getGiveawayAutocompleteChoices,
+  isValidGiveawayId,
+} from "../../utils/giveaway-autocomplete";
+import { hasGiveawayManagerPermission } from "../../utils/giveaway-permissions";
 
-export class StopSlashCommand implements ISlashCommand {
-  public builder = new SlashCommandBuilder('stop')
-    .setDescription('Stop a running giveaway')
-    .addStringOption(
-      new SlashCommandStringOption('id', 'ID of the giveaway to stop').setRequired(true).setAutocomplete(true)
-    );
-
-  public autocompleteHandler = async (ctx: AutocompleteContext): Promise<void> => {
-    if (!EnvContext.env?.D1) {
-      await ctx.reply([]);
-      return;
-    }
-    const prisma = new PrismaClient({ adapter: new PrismaD1(EnvContext.env.D1) });
-
-    // Get active giveaways for this guild, ordered by end time ascending
-    const giveaways = await prisma.giveaways.findMany({
-      where: {
-        guild_id: ctx.guildId,
-        state: 'ACTIVE'
-      },
-      orderBy: {
-        end_time: 'asc'
-      },
-      take: 25 // Limit to 25 choices as per Discord's limits
+export default class StopCommand extends BaseCommand {
+  constructor(creator: SlashCreator) {
+    super(creator, {
+      name: "stop",
+      description: "Stop a running giveaway",
+      contexts: [InteractionContextType.GUILD],
+      options: [
+        {
+          type: CommandOptionType.STRING,
+          name: "id",
+          description: "ID of the giveaway to stop",
+          required: true,
+          autocomplete: true,
+        },
+      ],
     });
+  }
 
-    await ctx.reply(
-      giveaways.map((g) => ({
-        name: `${g.prize} (${g.winners} winner${g.winners > 1 ? 's' : ''})`,
-        value: g.message_id
-      }))
-    );
-  };
+  async autocomplete(ctx: AutocompleteContext) {
+    return getGiveawayAutocompleteChoices({
+      guildId: ctx.guildID,
+      locale: ctx.locale,
+      state: "OPEN",
+    });
+  }
 
-  public handler = async (ctx: SlashCommandContext): Promise<void> => {
-    await ctx.defer();
-
-    if (!EnvContext.env?.GIVEAWAY_STATE || !EnvContext.state) {
-      await ctx.edit(new MessageBuilder().setContent('Giveaway state not available'));
-      return;
-    }
-
-    const giveawayId = ctx.getStringOption('id').value;
+  async run(ctx: CommandContext) {
+    await ctx.defer(true);
 
     try {
-      const stub = EnvContext.state.getInstance(
-        EnvContext.env.GIVEAWAY_STATE,
-        EnvContext.env.GIVEAWAY_STATE.idFromString(giveawayId)
+      if (!ctx.guildID) {
+        return ctx.editOriginal(
+          await getContext().i18n.translate("common.errors.guild_only", {
+            language: ctx.locale,
+          })
+        );
+      }
+
+      if (!getContext().env?.GIVEAWAY_STATE || !getContext().state) {
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "common.errors.giveaway_state_unavailable",
+            { language: ctx.locale }
+          )
+        );
+      }
+
+      const giveawayId = ctx.options.id;
+      if (!isValidGiveawayId(giveawayId)) {
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "common.errors.invalid_giveaway_id",
+            { language: ctx.locale }
+          )
+        );
+      }
+
+      const stub = getContext().state.getInstance(
+        getContext().env.GIVEAWAY_STATE,
+        getContext().env.GIVEAWAY_STATE.idFromString(giveawayId)
       );
 
       const state = await stub.getState.query();
-      if (!state) {
-        await ctx.edit(new MessageBuilder().setContent('That giveaway does not exist or has already expired.'));
-        return;
+
+      // Check permission before revealing giveaway state to prevent info leaks.
+      // Non-managers who aren't the host never learn whether a giveaway ID exists.
+      const isManager = hasGiveawayManagerPermission(ctx);
+      const isHost = state?.hostId === ctx.user.id;
+
+      if (!isManager && !isHost) {
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "common.errors.manage_giveaway_denied",
+            { language: ctx.locale }
+          )
+        );
       }
 
-      // Update giveaway state to closed and trigger winner selection
-      await stub.startAlarm.mutate(1);
+      if (!state) {
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "common.errors.giveaway_not_found",
+            {
+              language: ctx.locale,
+            }
+          )
+        );
+      }
 
-      await ctx.edit(new MessageBuilder().setContent('Giveaway stopped successfully! Drawing winners...'));
+      if (state.state !== "OPEN") {
+        return ctx.editOriginal(
+          await getContext().i18n.translate(
+            "commands.stop.errors.not_running",
+            {
+              language: ctx.locale,
+            }
+          )
+        );
+      }
+
+      await stub.endGiveaway.mutate();
+
+      return ctx.editOriginal(
+        await getContext().i18n.translate("commands.stop.messages.success", {
+          language: ctx.locale,
+          params: { prize: state.prize },
+        })
+      );
     } catch (error) {
-      console.error('Error in stop command:', error);
-      await ctx.edit(
-        new MessageBuilder().setContent(
-          `Failed to stop giveaway: ${error instanceof Error ? error.message : String(error)}`
-        )
+      console.error("Error in stop command:", error);
+      Sentry.captureException(error);
+
+      return ctx.editOriginal(
+        await getContext().i18n.translate("commands.stop.errors.failed", {
+          language: ctx.locale,
+        })
       );
     }
-  };
+  }
 }

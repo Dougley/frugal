@@ -1,0 +1,21 @@
+.card {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.titleWrapper {
+  flex: 1;
+}
+
+.titleHeading {
+  margin-top: 0;
+}
+
+.iconContainer {
+  flex-shrink: 0;
+}
+
+.arrowIcon {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}

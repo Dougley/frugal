@@ -1,0 +1,18 @@
+.card {
+  text-decoration: none;
+  transition: all 200ms ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: light-dark(
+    var(--mantine-primary-color-4),
+    var(--mantine-primary-color-8)
+  );
+  box-shadow: 0 8px 24px
+    light-dark(rgba(43, 217, 175, 0.15), rgba(28, 191, 151, 0.1));
+}
+
+.readMore {
+  margin-top: auto;
+}

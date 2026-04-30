@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base", "group:allNonMajor"],
+  "extends": ["config:base", "group:allNonMajor", "customManagers:biomeVersions"],
   "labels": ["dependencies"],
   "schedule": ["before 12pm on Sunday"],
   "baseBranches": ["dev"],
@@ -27,6 +27,10 @@
       },
       {
         "matchDepTypes": ["engines"],
+        "enabled": false
+      },
+      {
+        "matchDepTypes": ["overrides"],
         "enabled": false
       }
     ]

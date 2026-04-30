@@ -1,0 +1,177 @@
+import type { I18n, Translation } from "@dougley/frugal-i18n";
+import type { SubscriptionStatus } from "@dougley/frugal-subscriptions";
+import { getPremiumStatus as getPremiumStatusFromDb } from "@dougley/frugal-subscriptions";
+import * as Sentry from "@sentry/cloudflare";
+import { Locale } from "discord-api-types/v10";
+import type { CommandContext } from "slash-create/web";
+import { SlashCommand } from "slash-create/web";
+import { getContext, tryGetContext } from "../context";
+
+// Environment constants for registration mode detection
+const REGISTRATION_ENV_FLAG = "FRUGAL_REGISTRATION_MODE";
+const REGISTRATION_I18N_KEY = "__FRUGAL_REGISTRATION_I18N__";
+
+/**
+ * Type for I18n with dynamic string keys (used during command registration).
+ * During registration, we construct keys dynamically like `commands.${name}.description`
+ * which cannot be statically validated.
+ */
+type DynamicI18n = I18n<Translation> & {
+  translateAll(key: string): Promise<Record<string, string>>;
+};
+
+/**
+ * Base class for Discord slash commands with internationalization support
+ *
+ * This class automatically handles command localization during both:
+ * - Registration time (using global i18n instance from registration script)
+ * - Runtime (using context-based i18n from worker environment)
+ */
+export abstract class BaseCommand extends SlashCommand {
+  /**
+   * Build a localization map containing only valid Discord locales
+   * @param translations - Raw translations object with all locales
+   * @returns Filtered object with only valid Discord locale keys
+   */
+  private static buildLocalizationMap(
+    translations: Record<string, string>
+  ): Record<string, string> {
+    return Object.fromEntries(
+      Object.values(Locale)
+        .filter((locale) => translations[locale])
+        .map((locale) => [locale, translations[locale]])
+    );
+  }
+
+  /**
+   * Get the appropriate i18n instance based on current execution context.
+   * Returns a DynamicI18n type that allows string keys for dynamic key construction
+   * during command registration.
+   * @returns i18n instance or null if not available
+   */
+  private getI18nInstance(): DynamicI18n | null {
+    const isRegistrationMode = process.env[REGISTRATION_ENV_FLAG] === "true";
+
+    if (isRegistrationMode) {
+      // During registration, use global i18n instance from registration script
+      return (
+        (global as unknown as Record<string, DynamicI18n>)[
+          REGISTRATION_I18N_KEY
+        ] || null
+      );
+    }
+
+    // During runtime, use context-based i18n (cast to DynamicI18n for dynamic keys)
+    return (tryGetContext()?.i18n as DynamicI18n) || null;
+  }
+
+  /**
+   * Apply localizations to command and its options
+   * Called automatically by slash-create during registration/sync
+   */
+  async onLocaleUpdate(): Promise<void> {
+    const commandKey = `commands.${this.commandName}`;
+    const i18n = this.getI18nInstance();
+
+    if (!i18n) {
+      console.warn(
+        `⚠️ i18n not available for ${this.commandName} - skipping localization`
+      );
+      return;
+    }
+
+    try {
+      // Get command name and description translations
+      const [descriptions, names] = await Promise.all([
+        i18n.translateAll(`${commandKey}.description`),
+        i18n.translateAll(`${commandKey}.name`),
+      ]);
+
+      // Apply command localizations
+      this.descriptionLocalizations =
+        BaseCommand.buildLocalizationMap(descriptions);
+      this.nameLocalizations = BaseCommand.buildLocalizationMap(names);
+
+      console.log(`✅ Localized ${this.commandName}`);
+      // Apply option localizations if command has options
+      if (this.options?.length) {
+        await this.localizeOptions(i18n, commandKey);
+      }
+    } catch (error) {
+      console.warn(
+        `⚠️ Failed to apply localizations for ${this.commandName}:`,
+        error
+      );
+    }
+  }
+
+  /**
+   * Apply localizations to command options
+   * @param i18n - i18n instance to use for translations
+   * @param commandKey - Base translation key for the command
+   */
+  private async localizeOptions(
+    i18n: DynamicI18n,
+    commandKey: string
+  ): Promise<void> {
+    if (!this.options?.length) return;
+
+    await Promise.all(
+      this.options.map(async (option) => {
+        const optionKey = `${commandKey}.options.${option.name}`;
+
+        const [optionDescriptions, optionNames] = await Promise.all([
+          i18n.translateAll(`${optionKey}.description`),
+          i18n.translateAll(`${optionKey}.name`),
+        ]);
+
+        option.description_localizations =
+          BaseCommand.buildLocalizationMap(optionDescriptions);
+        option.name_localizations =
+          BaseCommand.buildLocalizationMap(optionNames);
+        console.log(`  ✅ Localized option ${option.name}`);
+      })
+    );
+  }
+
+  /**
+   * Get the premium subscription status for the current user/guild context.
+   * Checks user subscription first, then falls back to guild subscription.
+   *
+   * @param ctx - The command context containing user and guild information
+   * @returns Promise<SubscriptionStatus> - The subscription status
+   * @throws Error if database is unavailable or premium check fails
+   */
+  protected async getPremiumStatus(
+    ctx: CommandContext
+  ): Promise<SubscriptionStatus> {
+    const context = getContext();
+
+    if (!context.drizzle) {
+      const errorMessage = await context.i18n.translate(
+        "common.errors.database_unavailable",
+        { language: ctx.locale }
+      );
+      throw new Error(errorMessage);
+    }
+
+    try {
+      return await getPremiumStatusFromDb(
+        {
+          userId: ctx.user.id,
+          guildId: ctx.guildID ?? null,
+        },
+        context.drizzle
+      );
+    } catch (error) {
+      console.error("Failed to check premium status:", error);
+      Sentry.captureException(error);
+
+      const errorMessage = await context.i18n.translate(
+        "premium.errors.check_failed",
+        { language: ctx.locale }
+      );
+      throw new Error(errorMessage);
+    }
+  }
+}

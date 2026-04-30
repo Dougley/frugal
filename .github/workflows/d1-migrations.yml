@@ -6,29 +6,27 @@ on:
       environment:
         required: true
         type: string
+  push:
+    branches: [main]
+    paths:
+      - "packages/d1-drizzle/src/workers/schema.ts"
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: ${{ inputs.environment || 'staging' }}
     name: Deploy
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "lts/*"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
 
       - name: Migrate db
         # uses: cloudflare/wrangler-action@v3
-        run: pnpm wrangler d1 migrations apply frugal --env ${{ inputs.environment }} --remote
-        working-directory: ./packages/d1-prisma
+        run: pnpm drizzle-kit migrate
+        working-directory: ./packages/d1-drizzle
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_D1_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CF_ACCOUNT_ID }}
+          CLOUDFLARE_DATABASE_ID: ${{ vars.CF_DATABASE_ID }}

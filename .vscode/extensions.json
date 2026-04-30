@@ -1,14 +1,15 @@
 {
   "recommendations": [
-    "dbaeumer.vscode-eslint",
+    "biomejs.biome",
     "IronGeek.vscode-env",
     "tamasfe.even-better-toml",
-    "esbenp.prettier-vscode",
     "ms-azuretools.vscode-docker",
     "github.vscode-github-actions",
     "mtxr.sqltools-driver-sqlite",
     "mtxr.sqltools",
     "vitest.explorer",
-    "csstools.postcss"
+    "csstools.postcss",
+    "redhat.vscode-yaml",
+    "unifiedjs.vscode-mdx"
   ]
 }

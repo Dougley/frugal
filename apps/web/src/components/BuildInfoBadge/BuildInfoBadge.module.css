@@ -1,0 +1,45 @@
+.badge {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+}
+
+.badge:hover {
+  transform: translateY(-2px) scale(1.02);
+  opacity: 1;
+  box-shadow: 0 4px 12px rgba(43, 217, 175, 0.3);
+}
+
+.subtle {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+}
+
+.subtle:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(43, 217, 175, 0.15),
+    rgba(43, 217, 175, 0.25)
+  );
+  color: #2bd9af;
+  border-color: rgba(43, 217, 175, 0.4);
+}
+
+[data-mantine-color-scheme="light"] .subtle {
+  background: rgba(0, 0, 0, 0.04);
+  color: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-mantine-color-scheme="light"] .subtle:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(14, 169, 127, 0.1),
+    rgba(14, 169, 127, 0.15)
+  );
+  color: #0ea97f;
+  border-color: rgba(14, 169, 127, 0.3);
+}

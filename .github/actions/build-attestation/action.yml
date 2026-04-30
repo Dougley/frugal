@@ -1,0 +1,29 @@
+name: "Generate Build Attestation"
+description: "Generate build attestation for applications"
+inputs:
+  app:
+    description: "App name for attestation"
+    required: true
+  subject-path:
+    description: "Path to the build artifacts"
+    required: false
+    default: ""
+  skip:
+    description: "Skip attestation generation"
+    required: false
+    default: "false"
+
+outputs:
+  attestation-id:
+    description: "Generated attestation ID"
+    value: ${{ steps.attest-build.outputs.attestation-id }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Generate build attestation
+      id: attest-build
+      if: inputs.skip != 'true'
+      uses: actions/attest-build-provenance@v2
+      with:
+        subject-path: ${{ inputs.subject-path || format('./apps/{0}/dist/**', inputs.app) }}

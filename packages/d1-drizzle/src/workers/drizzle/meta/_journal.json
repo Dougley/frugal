@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1748269253625,
+      "tag": "0000_cooing_mephistopheles",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1758969790615,
+      "tag": "0001_puzzling_human_torch",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1767538230867,
+      "tag": "0002_serious_jack_flag",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1767635775953,
+      "tag": "0003_exotic_microbe",
+      "breakpoints": true
+    }
+  ]
+}

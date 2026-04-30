@@ -5,6 +5,7 @@
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**", "build/**"],
       "env": [
+        "CLOUDFLARE_ENV",
         "SENTRY_AUTH_TOKEN",
         "SENTRY_ORG",
         "SENTRY_PROJECT",
@@ -17,8 +18,10 @@
     },
     "lint": {},
     "format": {},
+    "check": {},
+    "typecheck": {},
     "deploy": {
-      "dependsOn": ["build", "test", "lint"]
+      "dependsOn": ["build", "test", "check"]
     }
   }
 }

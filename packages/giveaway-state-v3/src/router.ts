@@ -1,130 +1,56 @@
 /// <reference types="@dougley/types/summaries" />
+/// <reference types="@dougley/types/giveaway-types" />
 
-import { initTRPC } from "@trpc/server";
-import { z } from "zod";
-import { GiveawayService } from "./services/giveaway";
-import { transformer } from "./transformer";
-import { type Context } from "./trpc";
+/**
+ * GiveawayStateV3 TRPC Router
+ *
+ * This file merges the sub-routers into a single flat router to maintain
+ * backward compatibility with existing consumers.
+ *
+ * The router is organized into sub-modules:
+ * - entries: Entry management (join/leave/list)
+ * - giveaway: Lifecycle (begin/update/end/draw/flush/cleanup)
+ * - slots: Concurrent slot reservation
+ *
+ * @see ./routers/entries.ts
+ * @see ./routers/giveaway.ts
+ * @see ./routers/slots.ts
+ */
 
-const t = initTRPC.context<Context<Env>>().create({
-  transformer,
-});
+import { entriesRouter } from "./routers/entries";
+import { giveawayRouter } from "./routers/giveaway";
+import { router } from "./routers/instance";
+import { slotsRouter } from "./routers/slots";
 
-const publicProcedure = t.procedure;
-const router = t.router;
-
+/**
+ * Main state router for the GiveawayStateV3 Durable Object
+ *
+ * Maintains backward compatibility by exposing procedures with their
+ * original names (e.g., `addEntry`, `beginGiveaway`) while internally
+ * organizing code into sub-routers.
+ */
 export const stateRouter = router({
-  getEntries: publicProcedure.query(async ({ ctx }) => {
-    const service = GiveawayService.getInstance(ctx);
-    return service.getEntries();
-  }),
+  // ===== Slot Management =====
+  reserveSlot: slotsRouter.reserve,
+  releaseSlot: slotsRouter.release,
 
-  startAlarm: publicProcedure
-    .input(
-      z
-        .string()
-        .datetime({ offset: true })
-        .transform((value) => new Date(value))
-        .refine((value) => value > new Date(), {
-          message: "Date must be in the future",
-        })
-        .or(z.number().min(1).max(1)),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const service = GiveawayService.getInstance(ctx);
-      const result = await service.startAlarm(input);
-      await ctx.state.storage.setAlarm(input);
-      return result;
-    }),
+  // ===== Entry Management =====
+  getEntries: entriesRouter.getAll,
+  getEntriesPaginated: entriesRouter.getPaginated,
+  addEntry: entriesRouter.add,
+  removeEntry: entriesRouter.remove,
 
-  drawWinners: publicProcedure.mutation(async ({ ctx }) => {
-    const service = GiveawayService.getInstance(ctx);
-    return service.drawWinners();
-  }),
-
-  flush: publicProcedure
-    .input(
-      z
-        .object({
-          id: z.string().min(1),
-          username: z.string().min(1),
-          discriminator: z.string().min(1),
-          avatar: z.string().nullable(),
-        })
-        .array(),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const service = GiveawayService.getInstance(ctx);
-      const winners = input.map(({ id, ...rest }) => ({
-        user_id: id,
-        ...rest,
-      }));
-      return service.flushToStorage(ctx.env.STORAGE, winners);
-    }),
-
-  cleanup: publicProcedure.mutation(async ({ ctx }) => {
-    const service = GiveawayService.getInstance(ctx);
-    return service.cleanup();
-  }),
-
-  beginGiveaway: publicProcedure
-    .input(
-      z.object({
-        message_id: z.string(),
-        channel_id: z.string(),
-        guild_id: z.string(),
-        prize: z.string(),
-        winners: z.number().min(1),
-        end_time: z
-          .string()
-          .datetime()
-          .transform((val) => new Date(val)),
-        host_id: z.string(),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const service = GiveawayService.getInstance(ctx);
-      return service.beginGiveaway(input);
-    }),
-
-  addEntry: publicProcedure
-    .input(
-      z.object({
-        user_id: z.string(),
-        username: z.string(),
-        discriminator: z.string(),
-        avatar: z.string().nullable(),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const service = GiveawayService.getInstance(ctx);
-      return service.addEntry(input);
-    }),
-
-  removeEntry: publicProcedure
-    .input(z.object({ user_id: z.string() }))
-    .mutation(async ({ input, ctx }) => {
-      const service = GiveawayService.getInstance(ctx);
-      return service.removeEntry(input.user_id);
-    }),
-
-  getState: publicProcedure.query(async ({ ctx }) => {
-    const service = GiveawayService.getInstance(ctx);
-    return service.getGiveaway();
-  }),
-
-  endGiveaway: publicProcedure.mutation(async ({ ctx }) => {
-    const service = GiveawayService.getInstance(ctx);
-    const result = await service.endGiveaway();
-    await ctx.state.storage.setAlarm(1);
-    return result;
-  }),
-
-  getActiveGiveaways: publicProcedure
-    .input(z.object({ guild_id: z.string() }))
-    .query(async ({ input, ctx }) => {
-      return GiveawayService.getActiveGiveaways(ctx, input.guild_id);
-    }),
+  // ===== Giveaway Lifecycle =====
+  getState: giveawayRouter.getState,
+  getActiveGiveaways: giveawayRouter.getActiveGiveaways,
+  beginGiveaway: giveawayRouter.begin,
+  startAlarm: giveawayRouter.startAlarm,
+  updateGiveaway: giveawayRouter.update,
+  endGiveaway: giveawayRouter.end,
+  drawWinners: giveawayRouter.drawWinners,
+  flush: giveawayRouter.flush,
+  cleanup: giveawayRouter.cleanup,
 });
 
 export type StateRouter = typeof stateRouter;
+export type { TRPCInstance as t } from "./routers/instance";

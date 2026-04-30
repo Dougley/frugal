@@ -5,17 +5,19 @@
   "private": true,
   "main": "dist/index.mjs",
   "scripts": {
+    "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "dev": "wrangler dev --persist-to='../../.mf' src/index.ts",
     "deploy": "wrangler deploy --minify src/index.ts",
-    "lint": "eslint --ext .ts .",
-    "lint:fix": "eslint --ext .ts . --fix",
-    "format": "prettier -w ./src",
     "db:migrate:dev": "wrangler d1 migrations apply frugal --local --persist-to='../../.mf'",
     "db:migrate": "wrangler d1 migrations apply frugal",
-    "register": "tsx scripts/register-commands.ts"
+    "register": "node --import ./scripts/sql-loader.mjs --import tsx scripts/register-commands.mjs",
+    "register:dev": "node --import ./scripts/sql-loader.mjs --import tsx scripts/register-commands.mjs --env development",
+    "typecheck": "wrangler types && tsc --noEmit",
+    "i18n:sync": "node scripts/kv-i18n-sync.mjs",
+    "i18n:sync:dev": "node scripts/kv-i18n-sync.mjs"
   },
   "repository": {
     "type": "git",
@@ -23,20 +25,23 @@
     "directory": "apps/discord"
   },
   "dependencies": {
-    "@discord-interactions/api": "^0.3.21",
-    "@discord-interactions/builders": "^0.3.18",
-    "@discord-interactions/core": "^0.3.23",
-    "@dougley/d1-prisma": "workspace:^",
+    "@dougley/frugal-drizzle": "workspace:^",
+    "@dougley/frugal-i18n": "workspace:^",
     "@dougley/frugal-savestate": "workspace:^",
-    "@sentry/cloudflare": "^9.3.0"
+    "@dougley/frugal-subscriptions": "workspace:^",
+    "@dougley/frugal-utils": "workspace:^",
+    "@sentry/cloudflare": "^10.51.0",
+    "slash-create": "^6.8.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "catalog:",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "better-sqlite3": "^11.8.1",
-    "discord-api-types": "^0.37.119",
-    "tsx": "^4.19.3",
+    "@types/node": "^25.6.0",
+    "better-sqlite3": "^12.9.0",
+    "discord-api-types": "catalog:",
+    "dotenv": "^17.4.2",
+    "slash-up": "^1.4.2",
+    "tsx": "^4.21.0",
     "wrangler": "catalog:"
   }
 }

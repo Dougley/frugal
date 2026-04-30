@@ -1,0 +1,14 @@
+.iconWrapper {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.fallback {
+  display: inline-flex;
+  align-items: center;
+}
+
+.fallbackPlaceholder {
+  display: inline-block;
+}

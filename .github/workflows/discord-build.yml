@@ -12,38 +12,54 @@ on:
       deploy_commands:
         required: true
         type: string
+    secrets:
+      DISCORD_SECRET:
+        required: true
+      DISCORD_TOKEN:
+        required: true
+      CF_API_TOKEN:
+        required: true
+      SENTRY_AUTH_TOKEN:
+        required: true
+    outputs:
+      attestation-id:
+        description: "Build attestation ID"
+        value: ${{ jobs.deploy.outputs.attestation-id }}
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
-    name: Deploy
+    name: Deploy Discord Bot to ${{ inputs.environment }}
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+    outputs:
+      attestation-id: ${{ steps.attest-build.outputs.attestation-id }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v4
+      - name: Build Discord application
+        uses: ./.github/actions/build-app
         with:
-          run_install: false
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "lts/*"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Turbo build
-        if: inputs.deploy_commands == 'true'
-        run: pnpm turbo build --no-cache
-        working-directory: ./apps/discord
+          app: discord
+          build-command: pnpm turbo build --no-cache
         env:
-          DISCORD_APP_ID: ${{ vars.DISCORD_APPLICATION_ID }}
+          DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
           DISCORD_PUBLIC_KEY: ${{ vars.DISCORD_PUBLIC_KEY }}
           DISCORD_SECRET: ${{ secrets.DISCORD_SECRET }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
 
-      - name: Deploy commands
+      - name: Generate build attestation for Discord worker
+        id: attest-build
+        uses: ./.github/actions/build-attestation
+        with:
+          app: discord
+          subject-path: "./apps/discord/dist/**"
+          skip: ${{ inputs.skip_deploy == 'true' }}
+
+      - name: Deploy Discord commands
         if: inputs.deploy_commands == 'true'
         run: pnpm run register
         working-directory: ./apps/discord
@@ -51,19 +67,13 @@ jobs:
           DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
 
-      - name: Publish
-        # uses: cloudflare/wrangler-action@v3
+      - name: Deploy to Cloudflare Workers
         if: inputs.skip_deploy != 'true'
-        run: |
-          pnpm wrangler deploy --env ${{ inputs.environment }} \
-            --var DISCORD_BOT_TOKEN:$DISCORD_BOT_TOKEN \
-            DISCORD_APP_ID:$DISCORD_APP_ID \
-            DISCORD_PUBLIC_KEY:$DISCORD_PUBLIC_KEY \
-            SUMMARY_URL:$SUMMARY_SITE \
-            ENVIROMENT:$ENVIROMENT \
-            RELEASE:$RELEASE \
-            BRANCH:$BRANCH
-        working-directory: ./apps/discord
+        uses: ./.github/actions/cloudflare-deploy
+        with:
+          app: discord
+          environment: ${{ inputs.environment }}
+          api-token: ${{ secrets.CF_API_TOKEN }}
         env:
           SENTRY_DSN: ${{ vars.SENTRY_DSN_WORKERS }}
           SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT_WORKERS }}
@@ -73,7 +83,3 @@ jobs:
           DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
           DISCORD_PUBLIC_KEY: ${{ vars.DISCORD_PUBLIC_KEY }}
           SUMMARY_SITE: ${{ vars.SUMMARY_SITE }}
-          ENVIROMENT: ${{ inputs.environment }}
-          RELEASE: ${{ github.sha }}
-          BRANCH: ${{ github.head_ref || github.ref_name }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}

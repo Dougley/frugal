@@ -1,0 +1,1 @@
+ALTER TABLE `Giveaways` ADD `locale` text DEFAULT 'en-US' NOT NULL;
