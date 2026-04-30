@@ -1,0 +1,12 @@
+diff --git a/lib/commands/sync.js b/lib/commands/sync.js
+index 23ad3660bf12e3d1f066bfc206b952c3e9f81ee5..5b273de430ad80ffdfd5d3b823495b1e2d06fdbd 100644
+--- a/lib/commands/sync.js
++++ b/lib/commands/sync.js
+@@ -157,7 +157,6 @@ exports.syncCommand = {
+                 });
+                 console.log(log_symbols_1.default.success, ansi_colors_1.default.green(`Synced ${creator.commands.size} commands.`));
+             }
+-            process.exit(0);
+         }
+         catch (err) {
+             if (err instanceof slash_create_1.DiscordRESTError)

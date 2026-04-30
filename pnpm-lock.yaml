@@ -35,6 +35,11 @@ overrides:
   esbuild@<=0.24.2: '>=0.25.0'
   undici@<5.29.0: '>=5.29.0'
 
+patchedDependencies:
+  slash-up:
+    hash: 4dbd2cee2f7e5603ca86e81efa1fd7781dadc3b426398c6ada510a42c1a52482
+    path: patches/slash-up.patch
+
 importers:
 
   .:
@@ -105,7 +110,7 @@ importers:
         version: 17.4.2
       slash-up:
         specifier: ^1.4.2
-        version: 1.4.2
+        version: 1.4.2(patch_hash=4dbd2cee2f7e5603ca86e81efa1fd7781dadc3b426398c6ada510a42c1a52482)
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -10282,7 +10287,7 @@ snapshots:
       tweetnacl: 1.0.3
       undici: 8.1.0
 
-  slash-up@1.4.2:
+  slash-up@1.4.2(patch_hash=4dbd2cee2f7e5603ca86e81efa1fd7781dadc3b426398c6ada510a42c1a52482):
     dependencies:
       '@esbuild-kit/cjs-loader': 2.4.4
       ansi-colors: 4.1.3
