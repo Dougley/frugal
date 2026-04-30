@@ -62,7 +62,7 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "postcss": "^8.5.3",
+    "postcss": "^8.5.10",
     "postcss-import": "^16.1.0",
     "postcss-preset-mantine": "^1.17.0",
     "postcss-simple-vars": "^7.0.1",
