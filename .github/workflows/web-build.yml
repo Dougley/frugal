@@ -11,10 +11,6 @@ on:
         required: true
       SENTRY_AUTH_TOKEN:
         required: true
-      SENTRY_ORG:
-        required: true
-      SENTRY_PROJECT_WEB:
-        required: true
       BETTER_AUTH_SECRET:
         required: true
       DISCORD_SECRET:
@@ -44,8 +40,8 @@ jobs:
           VITE_DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
           VITE_SENTRY_DSN: ${{ vars.SENTRY_DSN_WEB }}
           # Sentry Vite plugin configuration
-          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT_WEB }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT_WEB }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Deploy to Cloudflare Workers

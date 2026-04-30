@@ -19,15 +19,15 @@ jobs:
       ## inputs.project can be either "workers" or "web", depending on which project we're deploying
       - run: |
           if [ "${{ inputs.project }}" = "workers" ]; then
-            echo "SENTRY_PROJECT=${{ secrets.SENTRY_PROJECT_WORKERS }}" >> $GITHUB_ENV
+            echo "SENTRY_PROJECT=${{ vars.SENTRY_PROJECT_WORKERS }}" >> $GITHUB_ENV
           elif [ "${{ inputs.project }}" = "web" ]; then
-            echo "SENTRY_PROJECT=${{ secrets.SENTRY_PROJECT_WEB }}" >> $GITHUB_ENV
+            echo "SENTRY_PROJECT=${{ vars.SENTRY_PROJECT_WEB }}" >> $GITHUB_ENV
           fi
       - name: Create Sentry release
         uses: getsentry/action-release@v3
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ env.SENTRY_PROJECT }}
         with:
           environment: ${{ inputs.environment }}

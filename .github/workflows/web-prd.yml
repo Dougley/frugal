@@ -1,6 +1,10 @@
 name: Deploy web - Production
 on: workflow_dispatch
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   deploy:
     name: Deploy Web Application

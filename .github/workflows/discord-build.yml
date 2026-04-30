@@ -59,6 +59,11 @@ jobs:
           subject-path: "./apps/discord/dist/**"
           skip: ${{ inputs.skip_deploy == 'true' }}
 
+      - name: Sync i18n to local KV
+        if: inputs.deploy_commands == 'true'
+        run: pnpm i18n:sync:dev
+        working-directory: ./apps/discord
+
       - name: Deploy Discord commands
         if: inputs.deploy_commands == 'true'
         run: pnpm run register
@@ -75,11 +80,11 @@ jobs:
           environment: ${{ inputs.environment }}
           api-token: ${{ secrets.CF_API_TOKEN }}
         env:
-          SENTRY_DSN: ${{ vars.SENTRY_DSN_WORKERS }}
+          SENTRY_DSN: ${{ vars.SENTRY_DSN_DISCORD }}
           SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT_WORKERS }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ vars.SENTRY_ORG }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           DISCORD_APP_ID: ${{ vars.DISCORD_APP_ID }}
           DISCORD_PUBLIC_KEY: ${{ vars.DISCORD_PUBLIC_KEY }}
-          SUMMARY_SITE: ${{ vars.SUMMARY_SITE }}
+          SUMMARY_SITE: ${{ vars.SITE_URL }}

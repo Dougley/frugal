@@ -13,6 +13,10 @@ on:
         type: boolean
         default: false
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   d1:
     name: Run D1 Migrations
@@ -21,9 +25,17 @@ jobs:
     with:
       environment: production
 
+  i18n:
+    name: Sync i18n locales
+    needs: d1
+    uses: dougley/frugal/.github/workflows/i18n-sync.yml@dev
+    secrets: inherit
+    with:
+      environment: production
+
   deploy:
     name: Deploy Discord Workers
-    needs: d1
+    needs: [d1, i18n]
     uses: dougley/frugal/.github/workflows/discord-build.yml@dev
     secrets: inherit
     with:

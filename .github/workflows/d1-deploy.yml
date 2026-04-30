@@ -15,6 +15,10 @@ on:
     paths:
       - "packages/d1-drizzle/**"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   d1:
     name: Run D1 Migrations
