@@ -68,9 +68,22 @@ async function registerCommands() {
     process.env.FRUGAL_REGISTRATION_MODE = "true";
     process.env.FRUGAL_SUPPRESS_I18N_DEBUG = "true";
 
-    // Load and execute slash-up config
-    const config = await loadSlashUpConfig();
-    await syncCommand.handler(config);
+    // Load base config
+    const baseConfig = await loadSlashUpConfig();
+
+    // Register slash commands
+    console.log("📝 Registering slash commands...");
+    await syncCommand.handler({
+      ...baseConfig,
+      commandPath: "./src/commands/slash",
+    });
+
+    // Register message commands
+    console.log("📝 Registering message commands...");
+    await syncCommand.handler({
+      ...baseConfig,
+      commandPath: "./src/commands/message",
+    });
 
     console.log("✅ Commands registered successfully!");
   } catch (error) {
