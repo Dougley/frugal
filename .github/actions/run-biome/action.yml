@@ -40,7 +40,7 @@ runs:
     # Use reviewdog-action-biome for PR feedback
     - name: Run Biome with reviewdog
       if: inputs.use-reviewdog == 'true' && inputs.github-token != ''
-      uses: mongolyy/reviewdog-action-biome@v1
+      uses: mongolyy/reviewdog-action-biome@v2
       with:
         github_token: ${{ inputs.github-token }}
         reporter: ${{ inputs.reviewdog-reporter }}

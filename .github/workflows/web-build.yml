@@ -28,7 +28,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: echo NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ) >> $GITHUB_ENV
       - name: Build Web application
         uses: ./.github/actions/build-app
