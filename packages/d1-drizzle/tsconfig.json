@@ -12,9 +12,11 @@
     ],
     "declaration": true,
     "outDir": "dist",
+    "rootDir": "src",
     "skipLibCheck": true
   },
   "exclude": [
-    "dist"
+    "dist",
+    "src/**/drizzle.config.ts"
   ],
 }

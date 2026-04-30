@@ -164,15 +164,19 @@ export async function handleModalSubmit(ctx: ModalInteractionContext) {
     });
   }
 
-  const prize = Array.isArray(ctx.values.prize)
-    ? ctx.values.prize[0]
-    : ctx.values.prize;
-  const winnersStr = Array.isArray(ctx.values.winners)
-    ? ctx.values.winners[0]
-    : ctx.values.winners;
-  const description = Array.isArray(ctx.values.description)
-    ? ctx.values.description[0]
-    : ctx.values.description;
+  const prize = (
+    Array.isArray(ctx.values.prize) ? ctx.values.prize[0] : ctx.values.prize
+  ) as string | undefined;
+  const winnersStr = (
+    Array.isArray(ctx.values.winners)
+      ? ctx.values.winners[0]
+      : ctx.values.winners
+  ) as string | undefined;
+  const description = (
+    Array.isArray(ctx.values.description)
+      ? ctx.values.description[0]
+      : ctx.values.description
+  ) as string | undefined;
 
   if (!prize || !winnersStr || prize.length < 1 || winnersStr.length < 1) {
     return ctx.send({

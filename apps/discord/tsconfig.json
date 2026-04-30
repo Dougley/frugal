@@ -2,6 +2,7 @@
   "extends": "@dougley/tsconfig/workers",
   "compilerOptions": {
     "outDir": "dist",
+    "rootDir": "src",
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "noErrorTruncation": false,
