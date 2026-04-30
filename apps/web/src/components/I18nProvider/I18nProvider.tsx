@@ -1,3 +1,4 @@
+import { useRouter } from "@tanstack/react-router";
 import type { i18n } from "i18next";
 import {
   createContext,
@@ -51,9 +52,8 @@ interface I18nProviderProps {
  */
 export function I18nProvider({ children, language }: I18nProviderProps) {
   const isServer = typeof window === "undefined";
+  const router = useRouter();
 
-  // Use ref to persist the client-side i18n instance across renders
-  // This prevents creating a new instance when language changes (we use changeLanguage instead)
   const clientI18nRef = useRef<i18n | null>(null);
 
   // Create appropriate i18n instance based on environment
@@ -76,14 +76,11 @@ export function I18nProvider({ children, language }: I18nProviderProps) {
   // Handle language changes (client-side only)
   // Wrapped in useCallback for stable reference in contextValue
   const setLanguage = useCallback(
-    (newLang: SupportedLanguage) => {
-      // Change i18next language - detector will automatically cache it
-      i18n.changeLanguage(newLang);
-
-      // Reload to get SSR with new language (ensures consistent rendering)
-      window.location.reload();
+    async (newLang: SupportedLanguage) => {
+      await i18n.changeLanguage(newLang);
+      await router.invalidate();
     },
-    [i18n]
+    [i18n, router]
   );
 
   const contextValue = useMemo(
