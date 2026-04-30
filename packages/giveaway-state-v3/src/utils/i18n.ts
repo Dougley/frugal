@@ -1,5 +1,5 @@
-import type translations from "@dougley/frugal-discord-new/i18n";
 import { createI18n, type I18n, type ICUParams } from "@dougley/frugal-i18n";
+import type translations from "@dougley/frugal-i18n/locales/en-US";
 
 export type AppTranslations = typeof translations;
 

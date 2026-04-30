@@ -4,9 +4,6 @@
   "version": "0.0.0",
   "private": true,
   "main": "dist/index.mjs",
-  "exports": {
-    "./i18n": "./i18n/en-US.ts"
-  },
   "scripts": {
     "build": "tsc",
     "test": "vitest run",

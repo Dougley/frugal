@@ -107,10 +107,12 @@ async function syncTranslations() {
 
   try {
     // Get all translation files
-    const files = await readdir(join(__dirname, "../i18n"));
+    const files = await readdir(
+      join(__dirname, "../../../packages/i18n/locales")
+    );
     const translationFiles = files
       .filter((file) => file.endsWith(".ts"))
-      .map((file) => join(__dirname, "../i18n", file));
+      .map((file) => join(__dirname, "../../../packages/i18n/locales", file));
 
     console.log(`Found ${translationFiles.length} translation files`);
 

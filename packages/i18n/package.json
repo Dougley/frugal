@@ -5,6 +5,12 @@
   "author": "Remco Jongschaap <hey@dougley.com>",
   "type": "module",
   "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./locales/en-US": "./locales/en-US.ts",
+    "./locales/en-pirate": "./locales/en-pirate.ts",
+    "./locales/nl": "./locales/nl.ts"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Dougley/frugal.git",

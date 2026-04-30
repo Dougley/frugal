@@ -6,6 +6,9 @@ settings:
 
 catalogs:
   default:
+    '@cloudflare/workers-types':
+      specifier: ^4.20260430.1
+      version: 4.20260430.1
     discord-api-types:
       specifier: 0.38.47
       version: 0.38.47
@@ -55,8 +58,8 @@ importers:
         specifier: ^2.9.6
         version: 2.9.6
       typescript:
-        specifier: ^5.9.2
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
 
   apps/discord:
     dependencies:
@@ -413,9 +416,6 @@ importers:
       '@cloudflare/workers-types':
         specifier: 'catalog:'
         version: 4.20260430.1
-      '@dougley/frugal-discord-new':
-        specifier: workspace:^
-        version: link:../../apps/discord
       '@dougley/tsconfig':
         specifier: workspace:^
         version: link:../tsconfig
@@ -5211,11 +5211,6 @@ packages:
   type-fest@4.41.0:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
-
-  typescript@5.9.3:
-    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
-    engines: {node: '>=14.17'}
-    hasBin: true
 
   typescript@6.0.3:
     resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
@@ -10474,8 +10469,6 @@ snapshots:
   tweetnacl@1.0.3: {}
 
   type-fest@4.41.0: {}
-
-  typescript@5.9.3: {}
 
   typescript@6.0.3: {}
 

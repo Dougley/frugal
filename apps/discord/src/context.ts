@@ -1,8 +1,8 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import type { drizzleD1 } from "@dougley/frugal-drizzle/workers";
 import type { I18n } from "@dougley/frugal-i18n";
+import type translations from "@dougley/frugal-i18n/locales/en-US";
 import type { createProxy } from "@dougley/frugal-savestate";
-import type translations from "../i18n/en-US";
 
 /**
  * Type alias for the translation keys available in the app.
