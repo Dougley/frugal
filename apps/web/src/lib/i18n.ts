@@ -101,7 +101,7 @@ export function createServerI18nInstance(language: SupportedLanguage) {
  * 2. localStorage (client-side fallback)
  * 3. navigator (browser language)
  */
-export function createClientI18nInstance(ssrLanguage: SupportedLanguage) {
+export function createClientI18nInstance(_ssrLanguage: SupportedLanguage) {
   const instance = i18n.createInstance();
 
   instance
@@ -109,8 +109,10 @@ export function createClientI18nInstance(ssrLanguage: SupportedLanguage) {
     .use(initReactI18next)
     .init({
       ...sharedConfig,
-      // Use SSR language as fallback if detector doesn't find anything
-      lng: ssrLanguage,
+      // No explicit `lng` — letting the detector run its full lifecycle so
+      // cacheUserLanguage is wired to languageChanged and cookie writes work.
+      // On first load the detector falls back to navigator (matches SSR).
+      // On subsequent loads it reads the cookie set by changeLanguage.
 
       detection: {
         // Detection order - cookie first for consistency with SSR
