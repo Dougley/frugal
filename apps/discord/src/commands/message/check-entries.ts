@@ -8,7 +8,6 @@ import {
 } from "slash-create/web";
 import { BaseCommand } from "../../classes/BaseCommand";
 import { getContext } from "../../context";
-import { hasGiveawayManagerPermission } from "../../utils/giveaway-permissions";
 
 export default class CheckEntriesCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
@@ -16,6 +15,7 @@ export default class CheckEntriesCommand extends BaseCommand {
       type: ApplicationCommandType.USER,
       name: "check_entries",
       contexts: [InteractionContextType.GUILD],
+      requiredPermissions: ["MANAGE_EVENTS"],
     });
   }
 
@@ -26,14 +26,6 @@ export default class CheckEntriesCommand extends BaseCommand {
       if (!ctx.guildID) {
         const errorMessage = await getContext().i18n.translate(
           "common.errors.guild_only",
-          { language: ctx.locale }
-        );
-        return ctx.editOriginal(errorMessage);
-      }
-
-      if (!hasGiveawayManagerPermission(ctx)) {
-        const errorMessage = await getContext().i18n.translate(
-          "common.errors.manage_required",
           { language: ctx.locale }
         );
         return ctx.editOriginal(errorMessage);

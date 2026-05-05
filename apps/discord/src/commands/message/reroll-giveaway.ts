@@ -16,6 +16,7 @@ export default class RerollGiveawayCommand extends BaseCommand {
       type: ApplicationCommandType.MESSAGE,
       name: "reroll_giveaway",
       contexts: [InteractionContextType.GUILD],
+      requiredPermissions: ["MANAGE_EVENTS"],
     });
   }
 

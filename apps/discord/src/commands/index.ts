@@ -10,17 +10,21 @@ import EditGiveawayCommand from "./message/edit-giveaway";
 import EndGiveawayCommand from "./message/end-giveaway";
 import GiveawayStatusCommand from "./message/giveaway-status";
 import RerollGiveawayCommand from "./message/reroll-giveaway";
+import AnalyticsCommand from "./slash/analytics";
 import DebugCommand from "./slash/debug";
 import EditCommand from "./slash/edit";
 import GiveawayCommand from "./slash/giveaway";
 import ListCommand from "./slash/list";
 import PingCommand from "./slash/ping";
 import RerollCommand from "./slash/reroll";
+import SettingsCommand from "./slash/settings";
 import StartCommand from "./slash/start";
 import StopCommand from "./slash/stop";
+import TemplateCommand from "./slash/template";
 
 // Export an array of command classes for slash-create
 export const commands = [
+  AnalyticsCommand,
   EditCommand,
   EditGiveawayCommand,
   EndGiveawayCommand,
@@ -33,8 +37,10 @@ export const commands = [
   RerollCommand,
   RerollGiveawayCommand,
   DebugCommand,
+  SettingsCommand,
   StartCommand,
   StopCommand,
+  TemplateCommand,
 ];
 
 // Component handlers to register, now using regex patterns
@@ -67,6 +73,7 @@ export const modalHandlers: {
 
 // Also export individual commands for reference if needed
 export {
+  AnalyticsCommand,
   CheckEntriesCommand,
   CopyGiveawayIdCommand,
   DebugCommand,
@@ -79,6 +86,8 @@ export {
   PingCommand,
   RerollCommand,
   RerollGiveawayCommand,
+  SettingsCommand,
   StartCommand,
   StopCommand,
+  TemplateCommand,
 };

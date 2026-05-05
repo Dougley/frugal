@@ -13,7 +13,7 @@ import {
   getGiveawayAutocompleteChoices,
   isValidGiveawayId,
 } from "../../utils/giveaway-autocomplete";
-import { hasGiveawayManagerPermission } from "../../utils/giveaway-permissions";
+import { canManageGiveaway } from "../../utils/giveaway-permissions";
 import { getEditModalTranslations } from "../../utils/giveaway-translations";
 
 export default class EditCommand extends BaseCommand {
@@ -22,6 +22,7 @@ export default class EditCommand extends BaseCommand {
       name: "edit",
       description: "Edit a giveaway",
       contexts: [InteractionContextType.GUILD],
+      requiredPermissions: ["MANAGE_EVENTS"],
       options: [
         {
           type: CommandOptionType.STRING,
@@ -84,11 +85,7 @@ export default class EditCommand extends BaseCommand {
 
       const state = await stub.getState.query();
 
-      // Check permission before revealing giveaway state to prevent info leaks.
-      const isManager = hasGiveawayManagerPermission(ctx);
-      const isHost = state?.hostId === ctx.user.id;
-
-      if (!isManager && !isHost) {
+      if (!canManageGiveaway(ctx, { hostId: state?.hostId })) {
         return ctx.send({
           content: await getContext().i18n.translate(
             "common.errors.manage_giveaway_denied",

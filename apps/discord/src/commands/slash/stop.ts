@@ -12,7 +12,7 @@ import {
   getGiveawayAutocompleteChoices,
   isValidGiveawayId,
 } from "../../utils/giveaway-autocomplete";
-import { hasGiveawayManagerPermission } from "../../utils/giveaway-permissions";
+import { canManageGiveaway } from "../../utils/giveaway-permissions";
 
 export default class StopCommand extends BaseCommand {
   constructor(creator: SlashCreator) {
@@ -20,6 +20,7 @@ export default class StopCommand extends BaseCommand {
       name: "stop",
       description: "Stop a running giveaway",
       contexts: [InteractionContextType.GUILD],
+      requiredPermissions: ["MANAGE_EVENTS"],
       options: [
         {
           type: CommandOptionType.STRING,
@@ -78,12 +79,7 @@ export default class StopCommand extends BaseCommand {
 
       const state = await stub.getState.query();
 
-      // Check permission before revealing giveaway state to prevent info leaks.
-      // Non-managers who aren't the host never learn whether a giveaway ID exists.
-      const isManager = hasGiveawayManagerPermission(ctx);
-      const isHost = state?.hostId === ctx.user.id;
-
-      if (!isManager && !isHost) {
+      if (!canManageGiveaway(ctx, { hostId: state?.hostId })) {
         return ctx.editOriginal(
           await getContext().i18n.translate(
             "common.errors.manage_giveaway_denied",

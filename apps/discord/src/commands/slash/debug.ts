@@ -26,6 +26,7 @@ export default class DebugCommand extends BaseCommand {
       name: "debug",
       description: "Debug and diagnostics",
       contexts: [InteractionContextType.GUILD],
+      requiredPermissions: ["ADMINISTRATOR"],
       options: [
         {
           type: CommandOptionType.STRING,

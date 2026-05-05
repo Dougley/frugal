@@ -13,7 +13,7 @@ import {
   getGiveawayAutocompleteChoices,
   isValidGiveawayId,
 } from "../../utils/giveaway-autocomplete";
-import { hasGiveawayManagerPermission } from "../../utils/giveaway-permissions";
+import { canManageGiveaway } from "../../utils/giveaway-permissions";
 
 interface WinnerInfo {
   id: string | null;
@@ -43,6 +43,7 @@ export default class RerollCommand extends BaseCommand {
       name: "reroll",
       description: "Reroll a giveaway",
       contexts: [InteractionContextType.GUILD],
+      requiredPermissions: ["MANAGE_EVENTS"],
       options: [
         {
           type: CommandOptionType.STRING,
@@ -112,11 +113,7 @@ export default class RerollCommand extends BaseCommand {
 
       const state = await stub.getState.query();
 
-      // Check permission before revealing giveaway state to prevent info leaks.
-      const isManager = hasGiveawayManagerPermission(ctx);
-      const isHost = state?.hostId === ctx.user.id;
-
-      if (!isManager && !isHost) {
+      if (!canManageGiveaway(ctx, { hostId: state?.hostId })) {
         return ctx.editOriginal(
           await getContext().i18n.translate(
             "common.errors.manage_giveaway_denied",

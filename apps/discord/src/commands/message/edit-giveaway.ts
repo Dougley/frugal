@@ -18,6 +18,7 @@ export default class EditGiveawayCommand extends BaseCommand {
       type: ApplicationCommandType.MESSAGE,
       name: "edit_giveaway",
       contexts: [InteractionContextType.GUILD],
+      requiredPermissions: ["MANAGE_EVENTS"],
     });
   }
 
