@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 
+import { CodeHighlightAdapterProvider } from "@mantine/code-highlight";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
@@ -24,6 +25,7 @@ import { RootErrorComponent } from "~/components/ErrorBoundary";
 import { I18nProvider } from "~/components/I18nProvider";
 import { Skeleton } from "~/components/Skeleton";
 import type { SupportedLanguage } from "~/lib/i18n";
+import { shikiAdapter } from "~/lib/shiki-adapter";
 import { getSessionFn, type SessionData } from "~/server/auth/session";
 import { getLanguageFn } from "~/server/i18n/language";
 import type { AppRouter } from "~/server/trpc/router";
@@ -147,17 +149,22 @@ function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <MantineProvider theme={theme} defaultColorScheme="dark">
-      <ModalsProvider
-        labels={{ confirm: t("common.confirm"), cancel: t("common.cancel") }}
-      >
-        <Notifications position="top-right" limit={3} zIndex={2000} />
-        <NavigationProgress size={2} color="indigo" />
-        <AuthProvider session={session}>
-          <DrawerProvider>
-            <Skeleton>{children}</Skeleton>
-          </DrawerProvider>
-        </AuthProvider>
-      </ModalsProvider>
+      <CodeHighlightAdapterProvider adapter={shikiAdapter}>
+        <ModalsProvider
+          labels={{
+            confirm: t("common.confirm"),
+            cancel: t("common.cancel"),
+          }}
+        >
+          <Notifications position="top-right" limit={3} zIndex={2000} />
+          <NavigationProgress size={2} color="indigo" />
+          <AuthProvider session={session}>
+            <DrawerProvider>
+              <Skeleton>{children}</Skeleton>
+            </DrawerProvider>
+          </AuthProvider>
+        </ModalsProvider>
+      </CodeHighlightAdapterProvider>
       <TanStackDevtools
         config={{
           position: "bottom-right",
