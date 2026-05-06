@@ -1,0 +1,37 @@
+name: Deploy webhooks - Staging
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/webhooks/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  d1:
+    name: Run D1 Migrations
+    uses: dougley/frugal/.github/workflows/d1-migrations.yml@dev
+    secrets: inherit
+    with:
+      environment: staging
+
+  deploy:
+    name: Deploy Webhooks Worker
+    needs: d1
+    uses: dougley/frugal/.github/workflows/webhooks-build.yml@dev
+    secrets: inherit
+    with:
+      environment: staging
+
+  sentry:
+    name: Create Sentry release
+    needs: deploy
+    uses: dougley/frugal/.github/workflows/sentry.yml@dev
+    secrets: inherit
+    with:
+      environment: staging
+      project: webhooks

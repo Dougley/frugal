@@ -16,12 +16,14 @@ jobs:
     environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v6
-      ## inputs.project can be either "workers" or "web", depending on which project we're deploying
+      ## inputs.project can be "workers", "web", or "webhooks"
       - run: |
           if [ "${{ inputs.project }}" = "workers" ]; then
             echo "SENTRY_PROJECT=${{ vars.SENTRY_PROJECT_WORKERS }}" >> $GITHUB_ENV
           elif [ "${{ inputs.project }}" = "web" ]; then
             echo "SENTRY_PROJECT=${{ vars.SENTRY_PROJECT_WEB }}" >> $GITHUB_ENV
+          elif [ "${{ inputs.project }}" = "webhooks" ]; then
+            echo "SENTRY_PROJECT=${{ vars.SENTRY_PROJECT_WEBHOOKS }}" >> $GITHUB_ENV
           fi
       - name: Create Sentry release
         uses: getsentry/action-release@v3

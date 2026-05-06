@@ -1,0 +1,45 @@
+name: Create and publish Webhooks worker
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+    secrets:
+      CF_API_TOKEN:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    name: Deploy Webhooks Worker to ${{ inputs.environment }}
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build Webhooks application
+        uses: ./.github/actions/build-app
+        with:
+          app: webhooks
+          build-command: pnpm turbo build --no-cache
+
+      - name: Generate build attestation for Webhooks worker
+        uses: ./.github/actions/build-attestation
+        with:
+          app: webhooks
+          subject-path: "./apps/webhooks/dist/**"
+
+      - name: Deploy to Cloudflare Workers
+        uses: ./.github/actions/cloudflare-deploy
+        with:
+          app: webhooks
+          environment: ${{ inputs.environment }}
+          api-token: ${{ secrets.CF_API_TOKEN }}
+        env:
+          SENTRY_DSN: ${{ vars.SENTRY_DSN_WEBHOOKS }}
+          DISCORD_PUBLIC_KEY: ${{ vars.DISCORD_PUBLIC_KEY }}

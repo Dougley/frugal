@@ -67,3 +67,19 @@ runs:
         # Build metadata (deployment ID comes from CF_VERSION_METADATA binding)
         BUILD_TIME: ${{ env.BUILD_TIME }}
         REPOSITORY: ${{ env.REPOSITORY }}
+
+    - name: Deploy Webhooks to Cloudflare Workers
+      if: inputs.app == 'webhooks'
+      shell: bash
+      run: |
+        bash "${{ github.action_path }}/scripts/deploy-webhooks.sh" \
+          "${{ inputs.environment }}" \
+          "${{ inputs.deploy-command }}"
+      working-directory: ${{ inputs.working-directory || format('./apps/{0}', inputs.app) }}
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ inputs.api-token }}
+        DISCORD_PUBLIC_KEY: ${{ env.DISCORD_PUBLIC_KEY }}
+        ENVIRONMENT: ${{ inputs.environment }}
+        RELEASE: ${{ env.RELEASE || github.sha }}
+        BRANCH: ${{ env.BRANCH || github.head_ref || github.ref_name }}
+        SENTRY_DSN: ${{ env.SENTRY_DSN }}
