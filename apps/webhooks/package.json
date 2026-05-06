@@ -26,7 +26,7 @@
     "@dougley/frugal-subscriptions": "workspace:^",
     "@dougley/frugal-utils": "workspace:^",
     "@sentry/cloudflare": "^10.51.0",
-    "hono": "^4.12.16"
+    "hono": "^4.12.17"
   },
   "devDependencies": {
     "@dougley/tsconfig": "workspace:^",

@@ -30,6 +30,6 @@
     "build": "tsc"
   },
   "dependencies": {
-    "intl-messageformat": "11.2.3"
+    "intl-messageformat": "11.2.4"
   }
 }
