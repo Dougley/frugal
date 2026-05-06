@@ -5,6 +5,7 @@ import {
   primaryKey,
   sqliteTable,
   text,
+  uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
 export const giveaways = sqliteTable(
@@ -120,4 +121,36 @@ export const guildActiveGiveaways = sqliteTable(
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   },
   (table) => [index("idx_guild_active_giveaways_guild_id").on(table.guildId)]
+);
+
+export const guildSettings = sqliteTable("GuildSettings", {
+  guildId: text("guild_id").primaryKey(),
+  defaultChannelId: text("default_channel_id"),
+  pingRoleId: text("ping_role_id"),
+  requiredRoles: text("required_roles", { mode: "json" })
+    .$type<string[]>()
+    .default(sql`'[]'`),
+  accentColor: text("accent_color").default("#4c6ef5"),
+  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const giveawayTemplates = sqliteTable(
+  "GiveawayTemplates",
+  {
+    id: text("id").primaryKey(),
+    guildId: text("guild_id").notNull(),
+    name: text("name").notNull(),
+    prize: text("prize"),
+    winners: int("winners").notNull().default(1),
+    durationMs: int("duration_ms").notNull(),
+    description: text("description"),
+    channelId: text("channel_id"),
+    useCount: int("use_count").notNull().default(0),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_templates_guild_id").on(table.guildId),
+    uniqueIndex("idx_templates_guild_name").on(table.guildId, table.name),
+  ]
 );

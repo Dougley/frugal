@@ -214,6 +214,101 @@ Your entry: {entryStatus}`,
       },
     },
 
+    settings: {
+      name: "settings",
+      description: "View or update server giveaway settings",
+      options: {
+        view: {
+          name: "view",
+          description: "Show current server settings",
+        },
+        set_ping_role: {
+          name: "set-ping-role",
+          description: "Set the role mentioned when a giveaway starts",
+        },
+        set_color: {
+          name: "set-color",
+          description: "Set the embed accent color (hex code)",
+        },
+        set_required_roles: {
+          name: "set-required-roles",
+          description: "Set the roles required to enter giveaways",
+        },
+        role: {
+          name: "role",
+          description: "The Discord role",
+        },
+        color: {
+          name: "color",
+          description: "Hex color code (e.g. #4c6ef5)",
+        },
+      },
+      messages: {
+        title: "Server Giveaway Settings",
+        default_channel: "Default Channel",
+        ping_role: "Ping Role",
+        required_roles: "Required Entry Roles",
+        accent_color: "Accent Color",
+        none: "None",
+        updated: "Settings updated successfully.",
+        invalid_color: "Invalid color. Use a hex code like `#4c6ef5`.",
+      },
+    },
+
+    analytics: {
+      name: "analytics",
+      description: "View giveaway analytics for this server",
+      messages: {
+        title: "Server Giveaway Analytics",
+        total: "Total Giveaways",
+        total_entries: "Total Entries",
+        avg_entries: "Avg. Entries",
+        active: "Active",
+        closed: "Ended",
+        most_active_channel: "Most Active Channel",
+        top_giveaways: "Top Giveaways by Entries",
+        top_entry: "{prize} — {entries} entries",
+        premium_required:
+          "Analytics require a Premium subscription. Upgrade at {url}",
+      },
+    },
+
+    template: {
+      name: "template",
+      description: "Manage and use giveaway templates",
+      options: {
+        list: {
+          name: "list",
+          description: "List all saved templates for this server",
+        },
+        use: {
+          name: "use",
+          description: "Start a giveaway from a template",
+        },
+        name: {
+          name: "name",
+          description: "Template name",
+        },
+        prize: {
+          name: "prize",
+          description: "Override the template prize",
+        },
+      },
+      messages: {
+        title: "Giveaway Templates",
+        no_templates: "No templates saved yet. Create one at {url}",
+        template_entry: "**{name}** — {winners} winner(s), {duration}",
+        launched: "Launching giveaway from template **{name}**…",
+        premium_required:
+          "Templates require a Premium subscription. Upgrade at {url}",
+      },
+      errors: {
+        not_found: "No template found with that name.",
+        no_prize:
+          "This template has no default prize. Provide one with the `prize` option.",
+      },
+    },
+
     debug: {
       name: "debug",
       description: "Debug and diagnostics",
