@@ -19,6 +19,7 @@
     "@dougley/types": "workspace:^"
   },
   "dependencies": {
+    "@dougley/frugal-i18n": "workspace:^",
     "slash-create": "^6.8.1"
   }
 }

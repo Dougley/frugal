@@ -1,3 +1,4 @@
+import { BarChart, DonutChart } from "@mantine/charts";
 import {
   Box,
   Button,
@@ -32,34 +33,6 @@ export const Route = createFileRoute("/guilds/$guildId/analytics")({
   component: GuildAnalyticsRoute,
 });
 
-function ChartPlaceholder({
-  height = 180,
-  label,
-}: {
-  height?: number;
-  label: string;
-}) {
-  return (
-    <Box
-      style={{
-        height,
-        border: "1.5px dashed var(--mantine-color-default-border)",
-        borderRadius: 8,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column",
-        gap: 8,
-      }}
-    >
-      <span style={{ fontSize: 28, opacity: 0.25 }}>📊</span>
-      <Text size="xs" c="dimmed">
-        {label}
-      </Text>
-    </Box>
-  );
-}
-
 function formatDate(endTime: string) {
   try {
     return new Date(endTime).toLocaleDateString(undefined, {
@@ -69,6 +42,18 @@ function formatDate(endTime: string) {
     });
   } catch {
     return endTime;
+  }
+}
+
+function formatMonth(ym: string) {
+  try {
+    const [year, month] = ym.split("-");
+    return new Date(Number(year), Number(month) - 1).toLocaleDateString(
+      undefined,
+      { month: "short", year: "2-digit" }
+    );
+  } catch {
+    return ym;
   }
 }
 
@@ -98,6 +83,8 @@ function PremiumGate({ feature }: { feature: string }) {
     </Paper>
   );
 }
+
+const PIE_COLORS = ["indigo", "pink", "lime", "yellow", "cyan"];
 
 function GuildAnalyticsRoute() {
   const { isAuthenticated } = useAuth();
@@ -148,6 +135,17 @@ function GuildAnalyticsRoute() {
     },
   ];
 
+  const barData = (data?.byMonth ?? []).map((r) => ({
+    month: formatMonth(r.month),
+    Entries: r.entries,
+  }));
+
+  const donutData = (data?.winnerDistribution ?? []).map((r, i) => ({
+    name: r.winners === 1 ? "1 winner" : `${r.winners} winners`,
+    value: r.count,
+    color: PIE_COLORS[i % PIE_COLORS.length],
+  }));
+
   return (
     <Container size="lg" py="xl">
       <Stack gap="xl">
@@ -187,10 +185,33 @@ function GuildAnalyticsRoute() {
                 <Text fw={600}>
                   {t("giveaways.analytics.participationOverTime")}
                 </Text>
-                <ChartPlaceholder
-                  height={160}
-                  label={t("giveaways.analytics.chartParticipants")}
-                />
+                {isLoading ? (
+                  <Skeleton height={160} />
+                ) : barData.length === 0 ? (
+                  <Box
+                    style={{
+                      height: 160,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Text size="sm" c="dimmed">
+                      No data yet
+                    </Text>
+                  </Box>
+                ) : (
+                  <BarChart
+                    h={160}
+                    data={barData}
+                    dataKey="month"
+                    series={[{ name: "Entries", color: "indigo.6" }]}
+                    barProps={{ radius: 3 }}
+                    withTooltip
+                    withXAxis
+                    withYAxis
+                  />
+                )}
               </Stack>
             </Paper>
 
@@ -259,10 +280,30 @@ function GuildAnalyticsRoute() {
                     <Text fw={600}>
                       {t("giveaways.analytics.winnerDistribution")}
                     </Text>
-                    <ChartPlaceholder
-                      height={150}
-                      label={t("giveaways.analytics.chartPie")}
-                    />
+                    {isLoading ? (
+                      <Skeleton height={150} />
+                    ) : donutData.length === 0 ? (
+                      <Box
+                        style={{
+                          height: 150,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Text size="sm" c="dimmed">
+                          No data yet
+                        </Text>
+                      </Box>
+                    ) : (
+                      <DonutChart
+                        data={donutData}
+                        size={150}
+                        thickness={25}
+                        withTooltip
+                        mx="auto"
+                      />
+                    )}
                   </Stack>
                 </Paper>
                 <Paper withBorder p="md">

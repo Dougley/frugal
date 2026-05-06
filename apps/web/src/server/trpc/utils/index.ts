@@ -7,7 +7,11 @@
  * - Summary caching
  */
 
-export { createDOClient, type DOClient } from "./durableObject";
+export {
+  createDOClient,
+  createNewDOClient,
+  type DOClient,
+} from "./durableObject";
 
 export {
   filterGuildsWithPermission,

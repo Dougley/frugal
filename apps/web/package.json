@@ -20,8 +20,10 @@
 	},
 	"dependencies": {
 		"@dougley/frugal-drizzle": "workspace:^",
+		"@dougley/frugal-i18n": "workspace:^",
 		"@dougley/frugal-savestate": "workspace:^",
 		"@dougley/frugal-subscriptions": "workspace:^",
+		"@dougley/frugal-utils": "workspace:^",
 		"@mantine/carousel": "^8.3.11",
 		"@mantine/charts": "^8.3.11",
 		"@mantine/code-highlight": "^8.3.11",

@@ -320,9 +320,24 @@
       "description": "Description",
       "descriptionHint": "Optional extra detail shown beneath the prize name.",
       "descriptionPlaceholder": "e.g. Sponsored by our partners. 1 entry per member.",
-      "launch": "Launch Giveaway",
-      "comingSoonTitle": "Coming Soon",
-      "comingSoonMessage": "Create Giveaway will be available in a future update."
+        "preview": {
+          "label": "Discord embed preview",
+          "giveaway": "Giveaway",
+          "enterCta": "React with 🎉 to enter!",
+          "ends": "Ends in 7 days",
+          "liveHint": "Updates live as you fill in the form"
+        },
+        "launch": "Launch Giveaway",
+      "successTitle": "Giveaway launched!",
+      "successMessage": "Your giveaway is now live in Discord.",
+      "errorTitle": "Failed to launch giveaway",
+      "endDateRequired": "End date is required",
+      "channelRequired": "Channel is required",
+      "botNotInGuildTitle": "Bot not in server",
+      "botNotInGuildMessage": "GiveawayBot is not a member of this server. Add the bot first, then reload this page.",
+      "refreshChannelsRoles": "Refresh channels & roles",
+      "refreshRateLimited": "Please wait a moment before refreshing again.",
+      "refreshError": "Failed to refresh. Please try again."
     },
     "settings": {
       "title": "Server Settings",
@@ -330,8 +345,6 @@
       "defaults": "Defaults",
       "defaultChannel": "Default Giveaway Channel",
       "defaultChannelHint": "New giveaways post here unless overridden per-giveaway.",
-      "managerRole": "Manager Role",
-      "managerRoleHint": "Users with this role can create, edit, and stop giveaways via the bot.",
       "pingRole": "Ping Role",
       "pingRoleHint": "This role is mentioned when a new giveaway starts.",
       "entryRequirements": "Entry Requirements",
@@ -352,7 +365,15 @@
       "saved": "Settings Saved",
       "savedMessage": "Your server settings have been updated.",
       "saveError": "Save Failed",
-      "saveErrorMessage": "Could not save settings. Please try again."
+      "saveErrorMessage": "Could not save settings. Please try again.",
+      "channelIdPlaceholder": "Select a channel...",
+      "pingRolePlaceholder": "Select a role...",
+      "requiredRolesPlaceholder": "Select roles...",
+      "botNotInGuildTitle": "Bot not in server",
+      "botNotInGuildMessage": "GiveawayBot is not a member of this server. Add the bot first, then reload this page.",
+      "refreshChannelsRoles": "Refresh channels & roles",
+      "refreshRateLimited": "Please wait a moment before refreshing again.",
+      "resourcesRefreshed": "Channels and roles updated."
     },
     "analytics": {
       "title": "Analytics",
@@ -389,7 +410,31 @@
       "noTemplatesDesc": "Create your first template to speed up giveaway creation.",
       "comingSoon": "Coming Soon",
       "comingSoonMessage": "Templates will be available in a future update.",
-      "premiumDescription": "Save your giveaway configurations as reusable templates and launch in one click — available with Premium."
+      "premiumDescription": "Save your giveaway configurations as reusable templates and launch in one click — available with Premium.",
+      "form": {
+        "newTitle": "New Template",
+        "editTitle": "Edit Template",
+        "nameLabel": "Template name",
+        "namePlaceholder": "Discord Nitro Giveaway",
+        "nameRequired": "Name is required",
+        "prizeLabel": "Default prize",
+        "prizePlaceholder": "Leave blank to fill in when launching",
+        "winnersLabel": "Winners",
+        "winnersRange": "Must be 1-50",
+        "durationLabel": "Duration",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Optional description shown in the giveaway",
+        "create": "Create Template",
+        "saveChanges": "Save Changes"
+      },
+      "notifications": {
+        "created": "Template created",
+        "updated": "Template updated",
+        "deleted": "Template deleted",
+        "saveFailedTitle": "Failed to save",
+        "deleteFailedTitle": "Delete failed",
+        "deleteFailedMessage": "Could not delete template."
+      }
     },
     "modals": {
       "edit": {

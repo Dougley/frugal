@@ -7,13 +7,21 @@ import {
   Divider,
   Group,
   Menu,
+  Modal,
+  NumberInput,
   Paper,
+  Select,
   SimpleGrid,
+  Skeleton,
   Stack,
   Text,
+  Textarea,
+  TextInput,
   ThemeIcon,
   Title,
 } from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import {
   IconCrown,
@@ -25,8 +33,9 @@ import {
   IconTemplate,
   IconTrash,
 } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "~/components/AuthContext/AuthContext";
 import { noIndexMeta } from "~/utils/seo";
@@ -38,70 +47,215 @@ export const Route = createFileRoute("/guilds/$guildId/templates")({
   component: GiveawayTemplatesRoute,
 });
 
-interface Template {
+type Template = {
   id: string;
   name: string;
+  prize: string | null;
   winners: number;
-  duration: string;
-  uses: number;
-}
+  durationMs: number;
+  description: string | null;
+  useCount: number;
+};
 
-const MOCK_TEMPLATES: Template[] = [
-  {
-    id: "1",
-    name: "Discord Nitro 1 Month",
-    winners: 1,
-    duration: "7 days",
-    uses: 12,
-  },
-  {
-    id: "2",
-    name: "Steam Gift Card $25",
-    winners: 2,
-    duration: "3 days",
-    uses: 8,
-  },
-  {
-    id: "3",
-    name: "Custom Role Giveaway",
-    winners: 5,
-    duration: "24 hrs",
-    uses: 5,
-  },
-  {
-    id: "4",
-    name: "Community Milestone",
-    winners: 10,
-    duration: "48 hrs",
-    uses: 3,
-  },
-  {
-    id: "5",
-    name: "Holiday Special",
-    winners: 1,
-    duration: "14 days",
-    uses: 2,
-  },
+const DURATION_OPTIONS = [
+  { value: String(10 * 60 * 1000), label: "10 minutes" },
+  { value: String(30 * 60 * 1000), label: "30 minutes" },
+  { value: String(60 * 60 * 1000), label: "1 hour" },
+  { value: String(6 * 60 * 60 * 1000), label: "6 hours" },
+  { value: String(12 * 60 * 60 * 1000), label: "12 hours" },
+  { value: String(24 * 60 * 60 * 1000), label: "1 day" },
+  { value: String(3 * 24 * 60 * 60 * 1000), label: "3 days" },
+  { value: String(7 * 24 * 60 * 60 * 1000), label: "7 days" },
+  { value: String(14 * 24 * 60 * 60 * 1000), label: "14 days" },
+  { value: String(30 * 24 * 60 * 60 * 1000), label: "30 days" },
 ];
 
-function TemplateCard({ template }: { template: Template }) {
+function formatDuration(ms: number): string {
+  const d = Math.floor(ms / 86400000);
+  const h = Math.floor((ms % 86400000) / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  if (d > 0) return `${d}d${h > 0 ? ` ${h}h` : ""}`;
+  if (h > 0) return `${h}h${m > 0 ? ` ${m}m` : ""}`;
+  return `${m}m`;
+}
+
+function TemplateFormModal({
+  opened,
+  onClose,
+  template,
+  guildId,
+  onSaved,
+}: {
+  opened: boolean;
+  onClose: () => void;
+  template: Template | null;
+  guildId: string;
+  onSaved: () => void;
+}) {
+  const { trpc } = Route.useRouteContext();
   const { t } = useTranslation();
+  const isEdit = template !== null;
 
-  const handleLaunch = () => {
-    notifications.show({
-      title: t("giveaways.templates.comingSoon"),
-      message: t("giveaways.templates.comingSoonMessage"),
-      color: "indigo",
-    });
-  };
+  const form = useForm({
+    initialValues: {
+      name: "",
+      prize: "",
+      winners: 1,
+      durationMs: String(24 * 60 * 60 * 1000),
+      description: "",
+    },
+    validate: {
+      name: (v) =>
+        !v.trim() ? t("giveaways.templates.form.nameRequired") : null,
+      winners: (v) =>
+        v < 1 || v > 50 ? t("giveaways.templates.form.winnersRange") : null,
+    },
+  });
 
-  const handleEdit = () => {
-    notifications.show({
-      title: t("giveaways.templates.comingSoon"),
-      message: t("giveaways.templates.comingSoonMessage"),
-      color: "indigo",
-    });
-  };
+  useEffect(() => {
+    if (template) {
+      form.setValues({
+        name: template.name,
+        prize: template.prize ?? "",
+        winners: template.winners,
+        durationMs: String(template.durationMs),
+        description: template.description ?? "",
+      });
+    } else {
+      form.reset();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [template, opened]);
+
+  const createMutation = useMutation(
+    trpc.templates.createTemplate.mutationOptions({
+      onSuccess: () => {
+        notifications.show({
+          message: t("giveaways.templates.notifications.created"),
+          color: "green",
+        });
+        onSaved();
+        onClose();
+      },
+      onError: (err) => {
+        notifications.show({
+          title: t("giveaways.templates.notifications.saveFailedTitle"),
+          message: err.message,
+          color: "red",
+        });
+      },
+    })
+  );
+
+  const updateMutation = useMutation(
+    trpc.templates.updateTemplate.mutationOptions({
+      onSuccess: () => {
+        notifications.show({
+          message: t("giveaways.templates.notifications.updated"),
+          color: "green",
+        });
+        onSaved();
+        onClose();
+      },
+      onError: (err) => {
+        notifications.show({
+          title: t("giveaways.templates.notifications.saveFailedTitle"),
+          message: err.message,
+          color: "red",
+        });
+      },
+    })
+  );
+
+  const handleSubmit = form.onSubmit((values) => {
+    const payload = {
+      guildId,
+      name: values.name,
+      prize: values.prize || undefined,
+      winners: values.winners,
+      durationMs: Number(values.durationMs),
+      description: values.description || undefined,
+    };
+
+    if (isEdit && template) {
+      updateMutation.mutate({ id: template.id, ...payload });
+    } else {
+      createMutation.mutate(payload);
+    }
+  });
+
+  const isPending = createMutation.isPending || updateMutation.isPending;
+
+  return (
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title={
+        isEdit
+          ? t("giveaways.templates.form.editTitle")
+          : t("giveaways.templates.form.newTitle")
+      }
+    >
+      <form onSubmit={handleSubmit}>
+        <Stack gap="sm">
+          <TextInput
+            label={t("giveaways.templates.form.nameLabel")}
+            placeholder={t("giveaways.templates.form.namePlaceholder")}
+            required
+            {...form.getInputProps("name")}
+          />
+          <TextInput
+            label={t("giveaways.templates.form.prizeLabel")}
+            placeholder={t("giveaways.templates.form.prizePlaceholder")}
+            {...form.getInputProps("prize")}
+          />
+          <NumberInput
+            label={t("giveaways.templates.form.winnersLabel")}
+            min={1}
+            max={50}
+            {...form.getInputProps("winners")}
+          />
+          <Select
+            label={t("giveaways.templates.form.durationLabel")}
+            data={DURATION_OPTIONS}
+            {...form.getInputProps("durationMs")}
+          />
+          <Textarea
+            label={t("giveaways.templates.form.descriptionLabel")}
+            placeholder={t("giveaways.templates.form.descriptionPlaceholder")}
+            autosize
+            minRows={2}
+            maxRows={5}
+            {...form.getInputProps("description")}
+          />
+          <Group justify="flex-end" gap="sm" mt="xs">
+            <Button variant="light" onClick={onClose} disabled={isPending}>
+              {t("common.cancel")}
+            </Button>
+            <Button type="submit" loading={isPending}>
+              {isEdit
+                ? t("giveaways.templates.form.saveChanges")
+                : t("giveaways.templates.form.create")}
+            </Button>
+          </Group>
+        </Stack>
+      </form>
+    </Modal>
+  );
+}
+
+function TemplateCard({
+  template,
+  onEdit,
+  onDelete,
+  onLaunch,
+}: {
+  template: Template;
+  onEdit: (t: Template) => void;
+  onDelete: (id: string) => void;
+  onLaunch: (t: Template) => void;
+}) {
+  const { t } = useTranslation();
 
   return (
     <Paper withBorder p="md">
@@ -116,8 +270,13 @@ function TemplateCard({ template }: { template: Template }) {
                 {template.winners}w
               </Badge>
               <Badge variant="light" color="gray" size="sm">
-                {template.duration}
+                {formatDuration(template.durationMs)}
               </Badge>
+              {template.prize && (
+                <Badge variant="light" color="pink" size="sm">
+                  {template.prize}
+                </Badge>
+              )}
             </Group>
           </Stack>
           <Menu withinPortal position="bottom-end" shadow="sm">
@@ -129,14 +288,14 @@ function TemplateCard({ template }: { template: Template }) {
             <Menu.Dropdown>
               <Menu.Item
                 leftSection={<IconEdit size={14} aria-hidden="true" />}
-                onClick={handleEdit}
+                onClick={() => onEdit(template)}
               >
                 {t("giveaways.templates.edit")}
               </Menu.Item>
               <Menu.Item
                 leftSection={<IconTrash size={14} aria-hidden="true" />}
                 color="red"
-                onClick={handleEdit}
+                onClick={() => onDelete(template.id)}
               >
                 {t("common.delete")}
               </Menu.Item>
@@ -144,8 +303,14 @@ function TemplateCard({ template }: { template: Template }) {
           </Menu>
         </Group>
 
+        {template.description && (
+          <Text size="xs" c="dimmed" lineClamp={2}>
+            {template.description}
+          </Text>
+        )}
+
         <Text size="xs" c="dimmed">
-          {t("giveaways.templates.usedCount", { count: template.uses })}
+          {t("giveaways.templates.usedCount", { count: template.useCount })}
         </Text>
 
         <Divider />
@@ -154,7 +319,7 @@ function TemplateCard({ template }: { template: Template }) {
           <Button
             size="xs"
             leftSection={<IconPlayerPlay size={12} aria-hidden="true" />}
-            onClick={handleLaunch}
+            onClick={() => onLaunch(template)}
           >
             {t("giveaways.templates.launch")}
           </Button>
@@ -162,7 +327,7 @@ function TemplateCard({ template }: { template: Template }) {
             variant="light"
             size="xs"
             leftSection={<IconEdit size={12} aria-hidden="true" />}
-            onClick={handleEdit}
+            onClick={() => onEdit(template)}
           >
             {t("giveaways.templates.edit")}
           </Button>
@@ -177,38 +342,96 @@ function GiveawayTemplatesRoute() {
   const { trpc } = Route.useRouteContext();
   const { guildId } = Route.useParams();
   const { t } = useTranslation();
-  const templates = MOCK_TEMPLATES;
+  const navigate = useNavigate();
+  const [modalOpened, { open: openModal, close: closeModal }] =
+    useDisclosure(false);
+  const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
 
   const guildInfoQuery = useQuery({
     ...trpc.giveaways.getGuildInfo.queryOptions({ guildId }),
     enabled: isAuthenticated,
   });
 
+  const templatesQuery = useQuery({
+    ...trpc.templates.getGuildTemplates.queryOptions({ guildId }),
+    enabled: isAuthenticated && (guildInfoQuery.data?.isPremium ?? false),
+  });
+
+  const deleteMutation = useMutation(
+    trpc.templates.deleteTemplate.mutationOptions({
+      onSuccess: () => {
+        notifications.show({
+          message: t("giveaways.templates.notifications.deleted"),
+          color: "green",
+        });
+        templatesQuery.refetch();
+      },
+      onError: () => {
+        notifications.show({
+          title: t("giveaways.templates.notifications.deleteFailedTitle"),
+          message: t("giveaways.templates.notifications.deleteFailedMessage"),
+          color: "red",
+        });
+      },
+    })
+  );
+
   const isPremium = guildInfoQuery.data?.isPremium ?? false;
   const infoReady = !guildInfoQuery.isLoading;
+  const templates = templatesQuery.data ?? [];
+  const isLoading = templatesQuery.isLoading && isPremium;
 
   const handleNew = () => {
-    notifications.show({
-      title: t("giveaways.templates.comingSoon"),
-      message: t("giveaways.templates.comingSoonMessage"),
-      color: "indigo",
+    setEditingTemplate(null);
+    openModal();
+  };
+
+  const handleEdit = (tpl: Template) => {
+    setEditingTemplate(tpl);
+    openModal();
+  };
+
+  const handleDelete = (id: string) => {
+    deleteMutation.mutate({ id, guildId });
+  };
+
+  const handleLaunch = (tpl: Template) => {
+    navigate({
+      to: "/guilds/$guildId/create",
+      params: { guildId },
+      search: {
+        prize: tpl.prize ?? undefined,
+        winners: tpl.winners,
+        durationMs: tpl.durationMs,
+        description: tpl.description ?? undefined,
+      },
     });
   };
 
   return (
     <Container size="lg" py="xl">
+      <TemplateFormModal
+        opened={modalOpened}
+        onClose={closeModal}
+        template={editingTemplate}
+        guildId={guildId}
+        onSaved={() => templatesQuery.refetch()}
+      />
+
       <Stack gap="xl">
         <Group justify="space-between" align="center">
           <Stack gap={4}>
             <Title order={1}>{t("giveaways.templates.title")}</Title>
             <Text c="dimmed">{t("giveaways.templates.subtitle")}</Text>
           </Stack>
-          <Button
-            leftSection={<IconPlus size={16} aria-hidden="true" />}
-            onClick={handleNew}
-          >
-            {t("giveaways.templates.new")}
-          </Button>
+          {isPremium && (
+            <Button
+              leftSection={<IconPlus size={16} aria-hidden="true" />}
+              onClick={handleNew}
+            >
+              {t("giveaways.templates.new")}
+            </Button>
+          )}
         </Group>
 
         {infoReady && !isPremium ? (
@@ -243,10 +466,22 @@ function GiveawayTemplatesRoute() {
               {t("giveaways.templates.infoText")}
             </Alert>
 
-            {templates.length > 0 ? (
+            {isLoading ? (
+              <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }}>
+                {[1, 2, 3].map((k) => (
+                  <Skeleton key={k} height={160} radius="sm" />
+                ))}
+              </SimpleGrid>
+            ) : templates.length > 0 ? (
               <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }}>
                 {templates.map((tpl) => (
-                  <TemplateCard key={tpl.id} template={tpl} />
+                  <TemplateCard
+                    key={tpl.id}
+                    template={tpl}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onLaunch={handleLaunch}
+                  />
                 ))}
                 <Box
                   style={{

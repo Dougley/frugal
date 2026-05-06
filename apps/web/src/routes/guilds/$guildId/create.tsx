@@ -1,4 +1,6 @@
 import {
+  ActionIcon,
+  Alert,
   Box,
   Button,
   Container,
@@ -12,44 +14,59 @@ import {
   Textarea,
   TextInput,
   Title,
+  Tooltip,
 } from "@mantine/core";
 import { DateInput, TimeInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
-import { IconCalendar, IconClock } from "@tabler/icons-react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  IconAlertCircle,
+  IconCalendar,
+  IconClock,
+  IconRefresh,
+} from "@tabler/icons-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "~/components/AuthContext/AuthContext";
 import { noIndexMeta } from "~/utils/seo";
+
+type CreateSearch = {
+  prize?: string;
+  winners?: number;
+  durationMs?: number;
+  description?: string;
+};
 
 export const Route = createFileRoute("/guilds/$guildId/create")({
   head: () => ({
     meta: [{ title: "Create Giveaway | GiveawayBot" }, ...noIndexMeta],
   }),
+  validateSearch: (raw: Record<string, unknown>): CreateSearch => ({
+    prize: typeof raw.prize === "string" ? raw.prize : undefined,
+    winners: Number.isFinite(Number(raw.winners))
+      ? Number(raw.winners)
+      : undefined,
+    durationMs: Number.isFinite(Number(raw.durationMs))
+      ? Number(raw.durationMs)
+      : undefined,
+    description:
+      typeof raw.description === "string" ? raw.description : undefined,
+  }),
   component: CreateGiveawayRoute,
 });
-
-const MOCK_CHANNELS = [
-  { value: "giveaways", label: "#giveaways" },
-  { value: "prizes", label: "#prizes" },
-  { value: "events", label: "#events" },
-  { value: "general", label: "#general" },
-];
-
-const MOCK_ROLES = [
-  { value: "member", label: "@Member" },
-  { value: "verified", label: "@Verified" },
-  { value: "nitro", label: "@Nitro Booster" },
-  { value: "vip", label: "@VIP" },
-];
 
 function DiscordEmbedPreview({
   prize,
   winners,
+  t,
 }: {
   prize: string;
   winners: number;
+  t: TFunction;
 }) {
-  const displayPrize = prize.trim() || "Prize name";
+  const displayPrize = prize.trim() || t("giveaways.create.prizePlaceholder");
 
   return (
     <Stack gap="xs">
@@ -60,7 +77,7 @@ function DiscordEmbedPreview({
         tt="uppercase"
         style={{ letterSpacing: "0.08em" }}
       >
-        Discord embed preview
+        {t("giveaways.create.preview.label")}
       </Text>
       <Box
         style={{
@@ -94,16 +111,17 @@ function DiscordEmbedPreview({
               tt="uppercase"
               style={{ letterSpacing: "0.06em" }}
             >
-              Giveaway
+              {t("giveaways.create.preview.giveaway")}
             </Text>
             <Text size="sm" fw={700} c="#ffffff">
               {displayPrize}
             </Text>
             <Text size="xs" c="#b9bbbe">
-              React with 🎉 to enter!
+              {t("giveaways.create.preview.enterCta")}
             </Text>
             <Text size="xs" c="#b9bbbe">
-              Ends in 7 days · {winners} {winners === 1 ? "winner" : "winners"}
+              {t("giveaways.create.preview.ends")} · {winners}{" "}
+              {winners === 1 ? "winner" : "winners"}
             </Text>
             <Group gap={6} mt={4}>
               <Box
@@ -126,7 +144,7 @@ function DiscordEmbedPreview({
         </Group>
       </Box>
       <Text size="xs" c="dimmed" ta="center">
-        Updates live as you fill in the form
+        {t("giveaways.create.preview.liveHint")}
       </Text>
     </Stack>
   );
@@ -134,18 +152,67 @@ function DiscordEmbedPreview({
 
 function CreateGiveawayRoute() {
   const { guildId } = Route.useParams();
-  const { t } = useTranslation();
+  const search = Route.useSearch();
+  const { t, i18n } = useTranslation();
+  const { trpc } = Route.useRouteContext();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  const resourcesQuery = useQuery({
+    ...trpc.guild.getGuildResources.queryOptions({ guildId }),
+    enabled: isAuthenticated,
+  });
+
+  const channelOptions = (resourcesQuery.data?.channels ?? []).map((c) => ({
+    value: c.id,
+    label: `#${c.name}`,
+  }));
+
+  const botNotInGuild = resourcesQuery.data?.botNotInGuild ?? false;
+
+  const refreshMutation = useMutation(
+    trpc.guild.refreshGuildResources.mutationOptions({
+      onSuccess: () => resourcesQuery.refetch(),
+      onError: (err) => {
+        notifications.show({
+          message:
+            err.message === "Please wait before refreshing again."
+              ? t("giveaways.create.refreshRateLimited")
+              : t("giveaways.create.refreshError"),
+          color: "orange",
+        });
+      },
+    })
+  );
+
+  const createMutation = useMutation(
+    trpc.giveaways.createGiveaway.mutationOptions({
+      onSuccess: () => {
+        notifications.show({
+          title: t("giveaways.create.successTitle"),
+          message: t("giveaways.create.successMessage"),
+          color: "green",
+        });
+        navigate({ to: `/guilds/${guildId}/` });
+      },
+      onError: (err) => {
+        notifications.show({
+          title: t("giveaways.create.errorTitle"),
+          message: err.message,
+          color: "red",
+        });
+      },
+    })
+  );
 
   const form = useForm({
     initialValues: {
-      prize: "",
-      winners: 1,
+      prize: search.prize ?? "",
+      winners: search.winners ?? 1,
       endDate: null as Date | null,
       endTime: "",
       channel: "",
-      requiredRole: "",
-      blacklistedRole: "",
-      description: "",
+      description: search.description ?? "",
     },
     validate: {
       prize: (v) =>
@@ -160,14 +227,31 @@ function CreateGiveawayRoute() {
           : v > 50
             ? t("giveaways.modals.edit.validation.winnersMax")
             : null,
+      endDate: (v) => (!v ? t("giveaways.create.endDateRequired") : null),
+      channel: (v) => (!v ? t("giveaways.create.channelRequired") : null),
     },
   });
 
-  const handleSubmit = (_values: typeof form.values) => {
-    notifications.show({
-      title: t("giveaways.create.comingSoonTitle"),
-      message: t("giveaways.create.comingSoonMessage"),
-      color: "indigo",
+  const handleSubmit = (values: typeof form.values) => {
+    if (!values.endDate) return;
+
+    // Combine date and time in local time
+    const combined = new Date(values.endDate);
+    if (values.endTime) {
+      const [hours, minutes] = values.endTime.split(":").map(Number);
+      combined.setHours(hours ?? 0, minutes ?? 0, 0, 0);
+    } else {
+      combined.setHours(23, 59, 0, 0);
+    }
+
+    createMutation.mutate({
+      guildId,
+      channelId: values.channel,
+      prize: values.prize,
+      winners: values.winners,
+      endTime: combined.toISOString(),
+      description: values.description || undefined,
+      locale: i18n.language,
     });
   };
 
@@ -178,6 +262,16 @@ function CreateGiveawayRoute() {
           <Title order={1}>{t("giveaways.create.title")}</Title>
           <Text c="dimmed">{t("giveaways.create.subtitle")}</Text>
         </Stack>
+
+        {botNotInGuild && (
+          <Alert
+            icon={<IconAlertCircle size={16} />}
+            color="orange"
+            title={t("giveaways.create.botNotInGuildTitle")}
+          >
+            {t("giveaways.create.botNotInGuildMessage")}
+          </Alert>
+        )}
 
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Group gap={24} align="flex-start">
@@ -238,15 +332,13 @@ function CreateGiveawayRoute() {
                           <IconCalendar size={16} aria-hidden="true" />
                         }
                         placeholder="MM/DD/YYYY"
+                        minDate={new Date()}
                         {...form.getInputProps("endDate")}
                       />
                     </Stack>
                     <Stack gap={5} style={{ flex: 1, minWidth: 120 }}>
                       <Text size="sm" fw={500}>
-                        {t("giveaways.create.endTime")}{" "}
-                        <Text component="span" c="red">
-                          *
-                        </Text>
+                        {t("giveaways.create.endTime")}
                       </Text>
                       <TimeInput
                         leftSection={<IconClock size={16} aria-hidden="true" />}
@@ -258,52 +350,38 @@ function CreateGiveawayRoute() {
                   <Divider />
 
                   <Stack gap={5}>
-                    <Text size="sm" fw={500}>
-                      {t("giveaways.create.channel")}{" "}
-                      <Text component="span" c="red">
-                        *
+                    <Group justify="space-between" align="center">
+                      <Text size="sm" fw={500}>
+                        {t("giveaways.create.channel")}{" "}
+                        <Text component="span" c="red">
+                          *
+                        </Text>
                       </Text>
-                    </Text>
+                      <Tooltip
+                        label={t("giveaways.create.refreshChannelsRoles")}
+                      >
+                        <ActionIcon
+                          variant="subtle"
+                          size="sm"
+                          loading={refreshMutation.isPending}
+                          disabled={resourcesQuery.isLoading}
+                          onClick={() => refreshMutation.mutate({ guildId })}
+                        >
+                          <IconRefresh size={14} />
+                        </ActionIcon>
+                      </Tooltip>
+                    </Group>
                     <Text size="xs" c="dimmed">
                       {t("giveaways.create.channelHint")}
                     </Text>
                     <Select
                       placeholder={t("giveaways.create.channelPlaceholder")}
-                      data={MOCK_CHANNELS}
+                      data={channelOptions}
+                      disabled={botNotInGuild}
+                      searchable
                       {...form.getInputProps("channel")}
                     />
                   </Stack>
-
-                  <Group gap="md" align="flex-start" grow>
-                    <Stack gap={5}>
-                      <Text size="sm" fw={500}>
-                        {t("giveaways.create.requiredRole")}
-                      </Text>
-                      <Text size="xs" c="dimmed">
-                        {t("giveaways.create.requiredRoleHint")}
-                      </Text>
-                      <Select
-                        placeholder={t("giveaways.create.rolePlaceholder")}
-                        data={MOCK_ROLES}
-                        clearable
-                        {...form.getInputProps("requiredRole")}
-                      />
-                    </Stack>
-                    <Stack gap={5}>
-                      <Text size="sm" fw={500}>
-                        {t("giveaways.create.blacklistedRole")}
-                      </Text>
-                      <Text size="xs" c="dimmed">
-                        {t("giveaways.create.blacklistedRoleHint")}
-                      </Text>
-                      <Select
-                        placeholder={t("giveaways.create.blacklistPlaceholder")}
-                        data={MOCK_ROLES}
-                        clearable
-                        {...form.getInputProps("blacklistedRole")}
-                      />
-                    </Stack>
-                  </Group>
 
                   <Divider />
 
@@ -332,7 +410,12 @@ function CreateGiveawayRoute() {
                 >
                   {t("common.cancel")}
                 </Button>
-                <Button type="submit" leftSection="🎉">
+                <Button
+                  type="submit"
+                  leftSection="🎉"
+                  loading={createMutation.isPending}
+                  disabled={botNotInGuild}
+                >
                   {t("giveaways.create.launch")}
                 </Button>
               </Group>
@@ -342,6 +425,7 @@ function CreateGiveawayRoute() {
               <DiscordEmbedPreview
                 prize={form.values.prize}
                 winners={form.values.winners}
+                t={t}
               />
             </Box>
           </Group>

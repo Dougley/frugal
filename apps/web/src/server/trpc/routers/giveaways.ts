@@ -2,15 +2,28 @@
 
 import { count, eq, inArray, sql } from "@dougley/frugal-drizzle/workers";
 import * as Schema from "@dougley/frugal-drizzle/workers/schema.js";
-import { getPremiumStatus } from "@dougley/frugal-subscriptions";
+import { TRPCClientError } from "@dougley/frugal-savestate";
+import {
+  FEATURE_LIMITS,
+  getPremiumStatus,
+} from "@dougley/frugal-subscriptions";
+import {
+  createGiveawayComponents,
+  getGiveawayTranslations,
+  getJoinButtonTranslations,
+  JoinButton,
+} from "@dougley/frugal-utils";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
+import { getCachedDiscordUser } from "~/server/auth/discord";
 import { protectedProcedure } from "../instance";
 import {
   createDOClient,
+  createNewDOClient,
   fetchSummaryFromStorage,
+  getDiscordAccessToken,
   getManageableGuilds,
   paginateEntries,
   validateGuildPermission,
@@ -21,7 +34,221 @@ import {
  *
  * All procedures require authentication and proper Discord permissions.
  */
+const DISCORD_API_BASE = "https://discord.com/api/v10";
+const MIN_DURATION_MS = 10 * 1000;
+
 export const giveawaysRouter = {
+  /**
+   * Create a new giveaway from the web dashboard.
+   *
+   * Mirrors the /start command flow: reserve slot → post Discord message →
+   * beginGiveaway → startAlarm. Cleans up on partial failure.
+   */
+  createGiveaway: protectedProcedure
+    .input(
+      z.object({
+        guildId: z.string(),
+        channelId: z.string(),
+        prize: z.string().min(1).max(100),
+        winners: z.number().min(1).max(50),
+        endTime: z.iso.datetime(),
+        description: z.string().max(1000).optional(),
+        locale: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      console.log("[createGiveaway] step:validatePermission", {
+        guildId: input.guildId,
+      });
+      await validateGuildPermission(ctx, input.guildId, "giveaways.create");
+
+      console.log("[createGiveaway] step:checkEndTime");
+      const endTime = new Date(input.endTime);
+      const durationMs = endTime.getTime() - Date.now();
+
+      if (durationMs < MIN_DURATION_MS) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "End time must be at least 10 seconds in the future.",
+        });
+      }
+
+      console.log("[createGiveaway] step:getDiscordUser");
+      const accessToken = await getDiscordAccessToken(ctx);
+      const discordUser = await getCachedDiscordUser(
+        ctx.env.AUTH_KV,
+        accessToken,
+        ctx.session.token
+      );
+
+      if (!discordUser) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Failed to fetch Discord user info.",
+        });
+      }
+
+      console.log("[createGiveaway] step:createDO", {
+        discordUserId: discordUser.id,
+      });
+
+      const { idString: giveawayId, client: stub } = createNewDOClient(ctx.env);
+
+      console.log("[createGiveaway] step:reserveSlot", { giveawayId });
+      try {
+        await stub.reserveSlot.mutate({
+          guild_id: input.guildId,
+          host_id: discordUser.id,
+          winners: input.winners,
+          end_time: endTime.toISOString(),
+        });
+      } catch (error) {
+        console.error("[createGiveaway] reserveSlot failed", error);
+        if (error instanceof TRPCClientError) {
+          if (
+            error.data?.code === "PRECONDITION_FAILED" &&
+            error.message === "CONCURRENT_LIMIT_EXCEEDED"
+          ) {
+            throw new TRPCError({
+              code: "PRECONDITION_FAILED",
+              message: `You've reached the limit of ${FEATURE_LIMITS.CONCURRENT_GIVEAWAYS.FREE} concurrent giveaways. Upgrade to premium for up to ${FEATURE_LIMITS.CONCURRENT_GIVEAWAYS.PREMIUM}.`,
+            });
+          }
+          if (error.data?.code === "FORBIDDEN") {
+            if (error.message === "PREMIUM_WINNERS_LIMIT") {
+              throw new TRPCError({
+                code: "FORBIDDEN",
+                message: `Free plan supports up to ${FEATURE_LIMITS.MAX_WINNERS.FREE} winners. Upgrade to premium for up to ${FEATURE_LIMITS.MAX_WINNERS.PREMIUM}.`,
+              });
+            }
+            if (error.message === "PREMIUM_DURATION_LIMIT") {
+              throw new TRPCError({
+                code: "FORBIDDEN",
+                message: `Free plan supports giveaways up to ${FEATURE_LIMITS.GIVEAWAY_DURATION_DAYS.FREE} days. Upgrade to premium for up to ${FEATURE_LIMITS.GIVEAWAY_DURATION_DAYS.PREMIUM} days.`,
+              });
+            }
+          }
+        }
+        throw error;
+      }
+
+      const locale = input.locale ?? discordUser.locale ?? "en-US";
+
+      console.log("[createGiveaway] step:buildComponents", { locale });
+      const [translations, joinTranslations] = await Promise.all([
+        getGiveawayTranslations(ctx.i18n, locale, {
+          participants: 0,
+          winners: input.winners,
+        }),
+        getJoinButtonTranslations(ctx.i18n, locale),
+      ]);
+      const joinButton = JoinButton.createActionRow(
+        giveawayId,
+        joinTranslations
+      );
+      const components = createGiveawayComponents({
+        prize: input.prize,
+        end_time: endTime,
+        host_username: discordUser.username,
+        host_id: discordUser.id,
+        description: input.description,
+        giveaway_id: giveawayId,
+        join_button: joinButton,
+        translations,
+      });
+
+      let messageId: string;
+
+      console.log("[createGiveaway] step:postDiscordMessage", {
+        channelId: input.channelId,
+      });
+      try {
+        const messageRes = await fetch(
+          `${DISCORD_API_BASE}/channels/${input.channelId}/messages`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bot ${ctx.env.DISCORD_BOT_TOKEN}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              flags: 32772, // IS_COMPONENTS_V2 (32768) | SUPPRESS_EMBEDS (4)
+              components,
+              allowed_mentions: { parse: [] },
+            }),
+          }
+        );
+
+        if (!messageRes.ok) {
+          const errText = await messageRes.text();
+          console.error("[createGiveaway] Discord message post failed", {
+            status: messageRes.status,
+            body: errText,
+          });
+          await stub.releaseSlot.mutate();
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to post giveaway message to Discord.",
+          });
+        }
+
+        const message = (await messageRes.json()) as { id: string };
+        messageId = message.id;
+        console.log("[createGiveaway] step:messagePosted", { messageId });
+      } catch (error) {
+        console.error("[createGiveaway] postDiscordMessage failed", error);
+        if (error instanceof TRPCError) throw error;
+        await stub.releaseSlot.mutate();
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to post giveaway message to Discord.",
+          cause: error,
+        });
+      }
+
+      console.log("[createGiveaway] step:beginGiveaway", {
+        giveawayId,
+        messageId,
+      });
+      try {
+        await stub.beginGiveaway.mutate({
+          message_id: messageId,
+          channel_id: input.channelId,
+          guild_id: input.guildId,
+          prize: input.prize,
+          winners: input.winners,
+          end_time: endTime.toISOString(),
+          host_id: discordUser.id,
+          description: input.description,
+          locale,
+        });
+        await stub.startAlarm.mutate(endTime.toISOString());
+      } catch (error) {
+        console.error("[createGiveaway] beginGiveaway/startAlarm failed", {
+          giveawayId,
+          messageId,
+        });
+        await Promise.allSettled([
+          stub.releaseSlot.mutate(),
+          fetch(
+            `${DISCORD_API_BASE}/channels/${input.channelId}/messages/${messageId}`,
+            {
+              method: "DELETE",
+              headers: { Authorization: `Bot ${ctx.env.DISCORD_BOT_TOKEN}` },
+            }
+          ),
+        ]);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to initialize giveaway state.",
+          cause: error,
+        });
+      }
+
+      console.log("[createGiveaway] step:done", { giveawayId, messageId });
+      return { giveawayId, messageId, channelId: input.channelId };
+    }),
+
   /**
    * Get details for a specific giveaway
    *
@@ -51,7 +278,7 @@ export const giveawaysRouter = {
       const { guild } = await validateGuildPermission(
         ctx,
         giveaway.guildId,
-        "view this giveaway"
+        "giveaways.view"
       );
 
       const subscription = await getPremiumStatus(
@@ -236,7 +463,7 @@ export const giveawaysRouter = {
       const { guild } = await validateGuildPermission(
         ctx,
         input.guildId,
-        "view this guild's giveaways"
+        "giveaways.list"
       );
 
       const { page, limit } = input;
@@ -305,12 +532,14 @@ export const giveawaysRouter = {
         limit: z.number().min(1).max(100).default(25),
       })
     )
-    .query(async ({ input }) => {
-      const { env } = await import("cloudflare:workers");
+    .query(async ({ ctx, input }) => {
       const { summaryId: id, page, limit } = input;
 
       // Fetch summary from R2 with caching
-      const { summary, etag } = await fetchSummaryFromStorage(env.STORAGE, id);
+      const { summary, etag } = await fetchSummaryFromStorage(
+        ctx.env.STORAGE,
+        id
+      );
 
       // Paginate entries
       const { items: entries, pagination } = paginateEntries(
@@ -339,12 +568,10 @@ export const giveawaysRouter = {
         summaryId: z.string(),
       })
     )
-    .query(async ({ input }) => {
-      const { env } = await import("cloudflare:workers");
-
+    .query(async ({ ctx, input }) => {
       // Fetch summary from R2 with caching
       const { summary } = await fetchSummaryFromStorage(
-        env.STORAGE,
+        ctx.env.STORAGE,
         input.summaryId
       );
 
@@ -382,15 +609,10 @@ export const giveawaysRouter = {
       }
 
       // Validate guild permission
-      await validateGuildPermission(
-        ctx,
-        giveaway.guildId,
-        "edit this giveaway"
-      );
+      await validateGuildPermission(ctx, giveaway.guildId, "giveaways.edit");
 
       // Proxy to Durable Object
-      const { env } = await import("cloudflare:workers");
-      const doClient = createDOClient(env, giveawayId);
+      const doClient = createDOClient(ctx.env, giveawayId);
 
       const result = await doClient.updateGiveaway.mutate({
         prize,
@@ -429,15 +651,10 @@ export const giveawaysRouter = {
       }
 
       // Validate guild permission
-      await validateGuildPermission(
-        ctx,
-        giveaway.guildId,
-        "stop this giveaway"
-      );
+      await validateGuildPermission(ctx, giveaway.guildId, "giveaways.stop");
 
       // Proxy to Durable Object
-      const { env } = await import("cloudflare:workers");
-      const doClient = createDOClient(env, giveawayId);
+      const doClient = createDOClient(ctx.env, giveawayId);
 
       const result = await doClient.endGiveaway.mutate();
 
@@ -468,11 +685,7 @@ export const giveawaysRouter = {
         });
       }
 
-      await validateGuildPermission(
-        ctx,
-        giveaway.guildId,
-        "reroll this giveaway"
-      );
+      await validateGuildPermission(ctx, giveaway.guildId, "giveaways.reroll");
 
       const subscription = await getPremiumStatus(
         {
@@ -511,11 +724,7 @@ export const giveawaysRouter = {
       }
 
       // Validate guild permission
-      await validateGuildPermission(
-        ctx,
-        giveaway.guildId,
-        "reroll this giveaway"
-      );
+      await validateGuildPermission(ctx, giveaway.guildId, "giveaways.reroll");
 
       const subscription = await getPremiumStatus(
         {
@@ -539,8 +748,7 @@ export const giveawaysRouter = {
       }
 
       // Proxy to Durable Object
-      const { env } = await import("cloudflare:workers");
-      const doClient = createDOClient(env, giveawayId);
+      const doClient = createDOClient(ctx.env, giveawayId);
 
       const result = await doClient.drawWinners.mutate(rerollCount);
 
@@ -555,7 +763,7 @@ export const giveawaysRouter = {
     .input(z.object({ guildId: z.string() }))
     .query(async ({ ctx, input }) => {
       const [{ guild }, subscription] = await Promise.all([
-        validateGuildPermission(ctx, input.guildId, "view this guild"),
+        validateGuildPermission(ctx, input.guildId, "giveaways.view"),
         getPremiumStatus(
           { userId: ctx.user.id, guildId: input.guildId },
           ctx.db
@@ -572,11 +780,7 @@ export const giveawaysRouter = {
   getGuildAnalytics: protectedProcedure
     .input(z.object({ guildId: z.string() }))
     .query(async ({ ctx, input }) => {
-      await validateGuildPermission(
-        ctx,
-        input.guildId,
-        "view analytics for this guild"
-      );
+      await validateGuildPermission(ctx, input.guildId, "giveaways.analytics");
 
       const subscription = await getPremiumStatus(
         { userId: ctx.user.id, guildId: input.guildId },
@@ -590,40 +794,63 @@ export const giveawaysRouter = {
         });
       }
 
-      const [aggregates, topGiveaways, channelStats] = await Promise.all([
-        ctx.db
-          .select({
-            total: count(),
-            totalEntries: sql<number>`COALESCE(SUM(${Schema.giveaways.entryCount}), 0)`,
-            activeCount:
-              sql<number>`SUM(CASE WHEN ${Schema.giveaways.state} != 'CLOSED' THEN 1 ELSE 0 END)`.as(
-                "active_count"
-              ),
-            closedCount:
-              sql<number>`SUM(CASE WHEN ${Schema.giveaways.state} = 'CLOSED' THEN 1 ELSE 0 END)`.as(
-                "closed_count"
-              ),
-          })
-          .from(Schema.giveaways)
-          .where(eq(Schema.giveaways.guildId, input.guildId)),
+      const [aggregates, topGiveaways, channelStats, byMonth, winnerBuckets] =
+        await Promise.all([
+          ctx.db
+            .select({
+              total: count(),
+              totalEntries: sql<number>`COALESCE(SUM(${Schema.giveaways.entryCount}), 0)`,
+              activeCount:
+                sql<number>`SUM(CASE WHEN ${Schema.giveaways.state} != 'CLOSED' THEN 1 ELSE 0 END)`.as(
+                  "active_count"
+                ),
+              closedCount:
+                sql<number>`SUM(CASE WHEN ${Schema.giveaways.state} = 'CLOSED' THEN 1 ELSE 0 END)`.as(
+                  "closed_count"
+                ),
+            })
+            .from(Schema.giveaways)
+            .where(eq(Schema.giveaways.guildId, input.guildId)),
 
-        ctx.db.query.giveaways.findMany({
-          where: eq(Schema.giveaways.guildId, input.guildId),
-          orderBy: (g, { desc }) => [desc(g.entryCount)],
-          limit: 5,
-        }),
+          ctx.db.query.giveaways.findMany({
+            where: eq(Schema.giveaways.guildId, input.guildId),
+            orderBy: (g, { desc }) => [desc(g.entryCount)],
+            limit: 5,
+          }),
 
-        ctx.db
-          .select({
-            channelId: Schema.giveaways.channelId,
-            giveawayCount: count(),
-          })
-          .from(Schema.giveaways)
-          .where(eq(Schema.giveaways.guildId, input.guildId))
-          .groupBy(Schema.giveaways.channelId)
-          .orderBy(sql`count(*) DESC`)
-          .limit(1),
-      ]);
+          ctx.db
+            .select({
+              channelId: Schema.giveaways.channelId,
+              giveawayCount: count(),
+            })
+            .from(Schema.giveaways)
+            .where(eq(Schema.giveaways.guildId, input.guildId))
+            .groupBy(Schema.giveaways.channelId)
+            .orderBy(sql`count(*) DESC`)
+            .limit(1),
+
+          ctx.db
+            .select({
+              month: sql<string>`strftime('%Y-%m', ${Schema.giveaways.endTime})`,
+              giveaways: count(),
+              entries: sql<number>`COALESCE(SUM(${Schema.giveaways.entryCount}), 0)`,
+            })
+            .from(Schema.giveaways)
+            .where(eq(Schema.giveaways.guildId, input.guildId))
+            .groupBy(sql`strftime('%Y-%m', ${Schema.giveaways.endTime})`)
+            .orderBy(sql`strftime('%Y-%m', ${Schema.giveaways.endTime}) DESC`)
+            .limit(12),
+
+          ctx.db
+            .select({
+              winners: Schema.giveaways.winners,
+              count: count(),
+            })
+            .from(Schema.giveaways)
+            .where(eq(Schema.giveaways.guildId, input.guildId))
+            .groupBy(Schema.giveaways.winners)
+            .orderBy(Schema.giveaways.winners),
+        ]);
 
       const row = aggregates[0];
       const total = row?.total ?? 0;
@@ -643,6 +870,17 @@ export const giveawaysRouter = {
           winners: g.winners,
           endTime: g.endTime,
           state: g.state,
+        })),
+        byMonth: byMonth
+          .map((r) => ({
+            month: r.month,
+            giveaways: r.giveaways,
+            entries: Number(r.entries),
+          }))
+          .reverse(),
+        winnerDistribution: winnerBuckets.map((r) => ({
+          winners: r.winners,
+          count: r.count,
         })),
       };
     }),
@@ -678,11 +916,7 @@ export const giveawaysRouter = {
       }
 
       // Validate guild permission
-      await validateGuildPermission(
-        ctx,
-        giveaway.guildId,
-        "view this giveaway"
-      );
+      await validateGuildPermission(ctx, giveaway.guildId, "giveaways.view");
 
       const subscription = await getPremiumStatus(
         {
@@ -703,8 +937,7 @@ export const giveawaysRouter = {
 
       // For non-closed giveaways, fetch from Durable Object
       if (giveaway.state !== "CLOSED") {
-        const { env } = await import("cloudflare:workers");
-        const doClient = createDOClient(env, giveawayId);
+        const doClient = createDOClient(ctx.env, giveawayId);
 
         try {
           const result = await doClient.getEntriesPaginated.query({
@@ -738,11 +971,9 @@ export const giveawaysRouter = {
       }
 
       // For closed giveaways, fetch from R2 summary (uses caching)
-      const { env } = await import("cloudflare:workers");
-
       try {
         const { summary } = await fetchSummaryFromStorage(
-          env.STORAGE,
+          ctx.env.STORAGE,
           giveawayId
         );
 

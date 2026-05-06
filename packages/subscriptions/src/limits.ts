@@ -11,6 +11,7 @@ export const FEATURE_LIMITS = {
     FREE: 10,
     PREMIUM: 50,
   },
+  MAX_TEMPLATES: 20,
 } as const;
 
 export function checkFeatureLimit(

@@ -1,8 +1,8 @@
 /**
  * Guild permission validation utilities for TRPC procedures
  *
- * Provides reusable functions to validate that a user has ManageEvents
- * permission for a Discord guild. Used across giveaway-related procedures.
+ * Provides reusable functions to validate that a user has permission
+ * for a Discord guild, honoring Discord's native command permission overrides.
  */
 
 import { TRPCError } from "@trpc/server";
@@ -11,8 +11,15 @@ import { PermissionFlagsBits } from "discord-api-types/v10";
 import { BitField } from "discord-bitflag";
 
 import { createAuth } from "~/server/auth";
-import { getCachedDiscordGuilds, getGuildIconUrl } from "~/server/auth/discord";
+import {
+  getCachedDiscordGuilds,
+  getCachedGuildCommandPerms,
+  getCachedGuildMember,
+  getGuildIconUrl,
+} from "~/server/auth/discord";
 import type { TRPCContext } from "../context";
+import { ACTION_MAP, type ActionKey } from "./commandMap";
+import { resolvePermission } from "./discordPerms";
 
 /**
  * Context type after protectedProcedure middleware
@@ -108,36 +115,25 @@ export function filterGuildsWithPermission(
 }
 
 /**
- * Validate that user has ManageEvents permission for a specific guild
+ * Validate that user has permission for a specific guild action.
  *
- * This is the main utility for procedures that operate on a specific guild.
- * It handles the complete flow:
- * 1. Get Discord access token from Better Auth
- * 2. Fetch user's guilds from Discord API (cached in KV)
- * 3. Find the requested guild
- * 4. Verify ManageEvents permission
- *
- * @param ctx - Protected TRPC context (session/user guaranteed)
- * @param guildId - Discord guild ID to validate
- * @param errorContext - Custom error message context (e.g., "view this giveaway")
- *
- * @returns The validated guild with icon URL and full guilds list
- * @throws TRPCError with appropriate code if validation fails
+ * Checks Discord's native permission resolution:
+ * 1. Get Discord access token + user's guilds
+ * 2. Look up command entry from action map
+ * 3. In parallel: fetch guild command permission overrides (via service binding)
+ *    and the user's guild member roles (via guilds.members.read scope)
+ * 4. Run Discord's permission resolution algorithm — passes if the user has
+ *    default ManageEvents OR has a server-level Integrations override granting access
  */
 export async function validateGuildPermission(
   ctx: ProtectedContext,
   guildId: string,
-  errorContext: string = "access this resource"
+  action: ActionKey
 ): Promise<ValidatedGuild> {
-  // Step 1: Get Discord access token
   const accessToken = await getDiscordAccessToken(ctx);
-
-  // Step 2: Fetch guilds from Discord API (cached in KV)
   const guilds = await getGuildsForUser(ctx, accessToken);
 
-  // Step 3: Find the requested guild
   const guild = guilds.find((g) => g.id === guildId);
-
   if (!guild) {
     throw new TRPCError({
       code: "NOT_FOUND",
@@ -145,11 +141,38 @@ export async function validateGuildPermission(
     });
   }
 
-  // Step 4: Check ManageEvents permission
-  if (!hasManageEventsPermission(guild)) {
+  const { command, defaultPerms } = ACTION_MAP[action];
+
+  const [commandPerms, member] = await Promise.all([
+    getCachedGuildCommandPerms(
+      ctx.env.AUTH_KV,
+      ctx.env.DISCORD_BOT_TOKEN,
+      ctx.env.DISCORD_CLIENT_ID,
+      guildId
+    ),
+    getCachedGuildMember(
+      ctx.env.AUTH_KV,
+      accessToken,
+      ctx.session.token,
+      guildId
+    ),
+  ]);
+
+  const allowed = resolvePermission({
+    userId: ctx.user.id,
+    member,
+    guildId,
+    guildPermissions: guild.permissions ?? "0",
+    applicationId: ctx.env.DISCORD_CLIENT_ID,
+    commandPerms,
+    commandName: command,
+    defaultPermBit: defaultPerms,
+  });
+
+  if (!allowed) {
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: `You don't have permission to ${errorContext}`,
+      message: "You don't have permission to perform this action",
     });
   }
 

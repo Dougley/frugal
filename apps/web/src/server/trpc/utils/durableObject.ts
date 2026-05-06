@@ -59,6 +59,35 @@ export function createDOClient(env: DOEnv, giveawayId: string) {
 }
 
 /**
+ * Create a TRPC client for a brand-new GiveawayStateV3 Durable Object.
+ *
+ * Uses `newUniqueId()` instead of `idFromString()` — call this when starting
+ * a new giveaway, not when looking up an existing one.
+ *
+ * @param env - Environment with GIVEAWAY_STATE binding
+ * @returns The hex ID string and the TRPC client
+ */
+export function createNewDOClient(env: DOEnv): {
+  idString: string;
+  client: DOClient;
+} {
+  const id = env.GIVEAWAY_STATE.newUniqueId();
+  const stub = env.GIVEAWAY_STATE.get(id);
+
+  const client = createTRPCClient<StateRouter>({
+    links: [
+      httpBatchLink({
+        transformer,
+        url: "http://localhost:8787/trpc",
+        fetch: stub.fetch.bind(stub) as unknown as typeof fetch,
+      }),
+    ],
+  });
+
+  return { idString: id.toString(), client };
+}
+
+/**
  * Type of the TRPC client returned by createDOClient
  * Useful for function signatures that accept a client
  */

@@ -1,8 +1,12 @@
+import type { I18n } from "@dougley/frugal-i18n";
+import type translations from "@dougley/frugal-i18n/locales/en-US";
 import {
   type AnyComponent,
   type ComponentActionRow,
   ComponentType,
 } from "slash-create/web";
+
+type AppTranslations = typeof translations;
 
 // Constants
 export const PARTY_POPPER_EMOJI = "🎉";
@@ -211,6 +215,79 @@ export const createGiveawayComponents = (params: {
 
   return components as AnyComponent[];
 };
+
+/**
+ * Fetch all giveaway embed translation strings for a given locale.
+ * Accepts an explicit I18n instance so both the Discord bot and web worker
+ * can share identical string resolution without coupling to either app's context.
+ */
+export async function getGiveawayTranslations(
+  i18n: I18n<AppTranslations>,
+  locale: string,
+  counts: { participants: number; winners: number }
+): Promise<Required<GiveawayTranslations>> {
+  const [
+    title,
+    titleEnded,
+    winners,
+    ends,
+    ended,
+    hostedBy,
+    descriptionNote,
+    prize,
+    entries,
+    enterCta,
+    participants,
+    winnerCount,
+  ] = await Promise.all([
+    i18n.translate("giveaway.embed.title", { language: locale }),
+    i18n.translate("giveaway.embed.title_ended", { language: locale }),
+    i18n.translate("giveaway.embed.winners", { language: locale }),
+    i18n.translate("common.labels.ends", { language: locale }),
+    i18n.translate("common.labels.ended", { language: locale }),
+    i18n.translate("giveaway.embed.hosted_by", { language: locale }),
+    i18n.translate("giveaway.embed.description_note", { language: locale }),
+    i18n.translate("giveaway.embed.prize", { language: locale }),
+    i18n.translate("giveaway.embed.entries", { language: locale }),
+    i18n.translate("giveaway.embed.enter_cta", { language: locale }),
+    i18n.translate("common.labels.participants", {
+      language: locale,
+      params: { count: counts.participants },
+    }),
+    i18n.translate("common.labels.winners", {
+      language: locale,
+      params: { count: counts.winners },
+    }),
+  ]);
+
+  return {
+    title,
+    titleEnded,
+    winners,
+    ends,
+    ended,
+    hostedBy,
+    descriptionNote,
+    prize,
+    entries,
+    enterCta,
+    participants,
+    winnerCount,
+  };
+}
+
+/**
+ * Fetch join-button translation strings for a given locale.
+ */
+export async function getJoinButtonTranslations(
+  i18n: I18n<AppTranslations>,
+  locale: string
+): Promise<{ label: string }> {
+  const label = await i18n.translate("components.join_button.label", {
+    language: locale,
+  });
+  return { label };
+}
 
 /**
  * Creates the component structure for an ended giveaway message

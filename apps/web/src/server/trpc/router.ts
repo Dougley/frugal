@@ -5,6 +5,9 @@ import { createTRPCRouter } from "~/server/trpc/instance";
 import { appMetadataRouter } from "./routers/app";
 import { authRouter } from "./routers/auth";
 import { giveawaysRouter } from "./routers/giveaways";
+import { guildRouter } from "./routers/guild";
+import { settingsRouter } from "./routers/settings";
+import { templatesRouter } from "./routers/templates";
 
 /**
  * Main app router - composes all sub-routers
@@ -14,6 +17,9 @@ export const appRouter = createTRPCRouter({
   app: appMetadataRouter,
   auth: authRouter,
   giveaways: giveawaysRouter,
+  guild: guildRouter,
+  settings: settingsRouter,
+  templates: templatesRouter,
 });
 
 // Export type definition of API

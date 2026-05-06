@@ -59,7 +59,7 @@ export function createAuth(env: Env) {
         clientId: env.DISCORD_CLIENT_ID,
         clientSecret: env.DISCORD_CLIENT_SECRET,
         // Request guilds scope to fetch user's servers
-        scope: ["identify", "email", "guilds"],
+        scope: ["identify", "email", "guilds", "guilds.members.read"],
       },
     },
 
