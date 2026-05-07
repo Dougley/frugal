@@ -1,0 +1,68 @@
+{
+  // Test-only wrangler config — identical to wrangler.jsonc except:
+  // - No "rules" (sql-raw Vite plugin handles .sql transforms instead, avoiding a
+  //   path.join(@fs/...) bug in vitest-pool-workers when modules are outside the worker root)
+  // - No production/staging env blocks (not needed for local tests)
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "frugal-discord-development",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-11-17",
+  "workers_dev": true,
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "observability": {
+    "enabled": true
+  },
+  "placement": {
+    "mode": "smart"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "GIVEAWAY_STATE",
+        "class_name": "GiveawayStateV3"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "GiveawayStateV3"
+      ]
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "STORAGE",
+      "bucket_name": "frugal-devel",
+      "preview_bucket_name": "frugal-devel"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "D1",
+      "database_name": "frugal",
+      "database_id": "1b4e645a-46d6-4db0-bb53-88b09404d4fe",
+      "preview_database_id": "1b4e645a-46d6-4db0-bb53-88b09404d4fe",
+      "migrations_dir": "../../packages/d1-drizzle/src/workers/drizzle"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "ff4da80f1e42471db838c38e8e73a3ed"
+    },
+    {
+      "binding": "KV_LOCALES",
+      "id": "040246d076f74f6dad013569151d7221"
+    }
+  ],
+  "version_metadata": {
+    "binding": "CF_VERSION_METADATA"
+  },
+  "vars": {
+    "SENTRY_DSN": ""
+  }
+}

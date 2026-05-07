@@ -7,12 +7,18 @@
     "@biomejs/biome": "^2.4.13",
     "@changesets/changelog-github": "^0.6.0",
     "@changesets/cli": "^2.31.0",
+    "@cloudflare/vitest-pool-workers": "^0.16.0",
+    "@vitest/coverage-v8": "^4.1.5",
     "lefthook": "^2.1.6",
     "rimraf": "^6.1.3",
     "turbo": "^2.9.6",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
   },
   "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "lint:report": "biome lint --reporter=json --log-level=none > biome_report.json",
     "lint": "biome lint",
     "lint:fix": "biome lint --write",

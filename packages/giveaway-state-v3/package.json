@@ -9,7 +9,7 @@
     "./client": "./dist/client.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
     "build": "tsc"
   },
   "repository": {
@@ -18,6 +18,7 @@
     "directory": "packages/giveaway-state"
   },
   "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.16.0",
     "@cloudflare/workers-types": "catalog:",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
