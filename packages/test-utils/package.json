@@ -12,14 +12,14 @@
   },
   "dependencies": {
     "@dougley/frugal-savestate": "workspace:^",
-    "@noble/curves": "^1.9.2"
+    "@noble/curves": "^1.9.7"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
-    "@types/node": "^25.6.0",
+    "@types/node": "^25.9.1",
     "discord-api-types": "catalog:",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.8"
   }
 }
