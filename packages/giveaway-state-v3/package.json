@@ -18,7 +18,7 @@
     "directory": "packages/giveaway-state"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.16.0",
+    "@cloudflare/vitest-pool-workers": "^0.23.0",
     "@cloudflare/workers-types": "catalog:",
     "@dougley/tsconfig": "workspace:^",
     "@dougley/types": "workspace:^",
@@ -26,15 +26,15 @@
     "vitest": "^4.1.5"
   },
   "dependencies": {
-    "@discordjs/rest": "^2.6.1",
+    "@discordjs/rest": "^2.6.3",
     "@dougley/frugal-drizzle": "workspace:^",
     "@dougley/frugal-i18n": "workspace:^",
     "@dougley/frugal-subscriptions": "workspace:^",
     "@dougley/frugal-utils": "workspace:^",
-    "@sentry/cloudflare": "^10.51.0",
-    "@trpc/client": "11.17.0",
-    "@trpc/server": "11.17.0",
+    "@sentry/cloudflare": "^10.76.2",
+    "@trpc/client": "11.19.0",
+    "@trpc/server": "11.19.0",
     "superjson": "^2.2.6",
-    "zod": "^4.4.1"
+    "zod": "^4.6.5"
   }
 }
